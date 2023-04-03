@@ -8,12 +8,12 @@ export const cartSlice = createSlice({
             :
             [],
         loading: false,
-        error: false,
+        error: null,
     },
     reducers: {
         addProductToCartRequest: (state) => {
             state.loading = true
-            state.error = false
+            state.error = null
         },
         addProductToCartSuccess: (state, action) => {
             let { addProduct, productStock, currentQuantity } = action.payload
@@ -30,7 +30,7 @@ export const cartSlice = createSlice({
             state.loading = false
         },
         addProductToCartFail: (state, action) => {
-            state.error = action.payload.error || false
+            state.error = action.payload.error || null
             state.loading = false
         },
         changeQuantityRequest: (state, action) => {

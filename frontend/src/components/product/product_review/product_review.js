@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react"
+import React, { useRef, useState } from "react"
 import { styled } from '@mui/material/styles'
 import ReviewsIcon from '@mui/icons-material/Reviews'
 import Reviews from './reviews'
@@ -9,24 +9,14 @@ import AddImages from "./add_images"
 import RatingSet from "./rating_set"
 import { toast } from 'react-toastify'
 import FileUploadFilter from "../../../utils/file_upload_filter"
-import { getReviews } from "../../../store/actions/product_actions"
 import CommentIcon from '@mui/icons-material/Comment'
 
-const ProductReview = ({ product }) => {
-    const [commentTyping, setCommentTyping] = useState(false)
+const ProductReview = ({ productId, productReview }) => {
     const [review, setReview] = useState({ rating: 0, images: [] })
     const comment_title_ref = useRef()
     const comment_ref = useRef()
     const switch_review_page_ref = useRef()
     const dispatch = useDispatch()
-    
-    useEffect(() => {
-        dispatch(getReviews(product._id, 1))
-    }, [dispatch])
-
-    const showMessageTypingAnimation = (show) => {
-        setCommentTyping(show)
-    }
 
     const submitReviews = () => {
         if (
@@ -35,26 +25,25 @@ const ProductReview = ({ product }) => {
         )
             return toast.warn('Please complete Rating and Title and Comment!')
 
-        const images_data = new FormData()
-        if (review.images.length > 0)
+        const reviewData = new FormData()
+        if (review.images.length > 0) {
+            let file_upload_filter
             for (let file of review.images) {
-                let file_upload_filter = new FileUploadFilter(file)
+                file_upload_filter = new FileUploadFilter(file)
                 if (!file_upload_filter.mimetypeIsValid())
                     return toast.error(file_upload_filter.invalidMessage)
                 if (!file_upload_filter.sizeIsValid())
                     return toast.error(file_upload_filter.invalidMessage)
 
-                images_data.append('images', file)
+                reviewData.append('images', file)
             }
+        }
 
-        dispatch(newReview( //send request of review to server
-            product._id,
-            review.rating,
-            comment_title_ref.current.value,
-            comment_ref.current.value,
-            images_data.has('images') ? images_data : null,
-            product.review.average_rating,
-        ))
+        reviewData.set('rating', review.rating)
+        reviewData.set('comment', comment_ref.current.value)
+        reviewData.set('title', comment_title_ref.current.value)
+
+        dispatch(newReview(productId, reviewData))
 
         //set review state to original
         setReview({ rating: 0, images: [] })
@@ -84,7 +73,7 @@ const ProductReview = ({ product }) => {
 
                 <ScoreCard
                     commentTitleRef={comment_title_ref}
-                    review={product.review}
+                    review={productReview}
                 />
 
                 <ReviewWriteComment>Make Review</ReviewWriteComment>
@@ -104,8 +93,6 @@ const ProductReview = ({ product }) => {
                     ref={comment_title_ref}
                     maxLength={65}
                     placeholder="Write your title of comment here..."
-                    onFocus={() => showMessageTypingAnimation(true)}
-                    onBlur={() => showMessageTypingAnimation(false)}
                 />
 
                 <WriteComment //textarea
@@ -113,20 +100,10 @@ const ProductReview = ({ product }) => {
                     ref={comment_ref}
                     placeholder="Write your comment here..."
                     rows={5} maxLength={200}
-                    onFocus={() => showMessageTypingAnimation(true)}
-                    onBlur={() => showMessageTypingAnimation(false)}
                 />
 
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <div>
-                        {commentTyping &&
-                            <MessageTypeAnimation>
-                                <span className="dot one"></span>
-                                <span className="dot two"></span>
-                                <span className="dot three"></span>
-                            </MessageTypeAnimation>
-                        }
-                    </div>
+                    <span></span>
                     <SubmitCommentBtn onClick={submitReviews}>
                         Submit Review
                     </SubmitCommentBtn>
@@ -142,8 +119,8 @@ const ProductReview = ({ product }) => {
                 <Hr />
 
                 <Reviews
-                    countReview={product.review.count_review}
-                    productId={product._id}
+                    countReview={productReview.count_review}
+                    productId={productId}
                     srollReviewRef={switch_review_page_ref}
                 />
 
@@ -210,35 +187,6 @@ const WriteComment = styled('textarea')({
     resize: 'vertical',
 })
 
-const MessageTypeAnimation = styled('div')({
-    display: 'flex',
-    columnGap: '3px',
-    marginTop: '10px',
-    marginLeft: '10px',
-    '& .dot': {
-        width: '5px',
-        height: '5px',
-        borderRadius: '50%',
-        backgroundColor: '#9d9d9d',
-        animation: 'wave 1s linear infinite',
-        animationDelay: '-0.9s',
-        '&.two': {
-            animationDelay: '-0.7s',
-        },
-        '&.three': {
-            animationDelay: '-0.6s',
-        }
-    },
-    '@keyframes wave': {
-        '0% , 60% , 100%': {
-            transform: 'initial'
-        },
-        '30%': {
-            transform: 'translateY(-8px)'
-        }
-    }
-})
-
 const SubmitCommentBtn = styled('button')({
     display: 'flex',
     justifyContent: 'center',
@@ -252,11 +200,11 @@ const SubmitCommentBtn = styled('button')({
     }
 })
 
-const ReviewsArea = styled('div')(({ theme }) => ({
+const ReviewsArea = styled('div')({
     display: 'flex',
     flexDirection: 'column',
     marginTop: '10px',
-}))
+})
 
 const ReviewsTitle = styled('h2')({
     margin: '0',

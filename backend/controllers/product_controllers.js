@@ -1,9 +1,8 @@
 import ProductsModel from '../models/product_schema.js'
 import BaseError from "../utils/base_error.js"
 import UsersModel from "../models/user_schema.js"
-import storage from '../configs/firebase.js'
-import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage"
 import mongoose from "mongoose"
+import uploadImages from '../utils/upload_images.js'
 
 //get a product by _id
 const getProduct = async (req, res, next) => {
@@ -102,81 +101,13 @@ const getReviews = async (req, res, next) => {
     }
 }
 
-const uploadImages = async (req, res, next) => {
-    try {
-        let { images } = req.files //array
-
-        if (!(Symbol.iterator in Object(images))) //check if file is iterable ?
-            images = [images]
-
-        if (images.length === 0) throw new BaseError('Files is empty', 400)
-
-        let { productId, username } = req.query
-        if (!productId || !username) throw new BaseError('Wrong request property', 400)
-
-        let image_urls = []
-
-        let upload_result = await new Promise((resolve, reject) => {
-            for (const { name: fileName, data: fileData } of images) {
-                let storageRef = ref(storage, '/products/' + 'MongoDBId_' + productId +
-                    '/reviews/' + username + '/' + fileName)
-
-                let uploadTask = uploadBytesResumable(storageRef, fileData)
-
-                uploadTask.on(
-                    'state_changed',
-                    (snapshot) => { },
-                    (error) => {
-                        switch (error.code) {
-                            case 'storage/object-not-found':
-                                reject(new BaseError(`File doesn't exist`, 400))
-                            case 'storage/unauthorized':
-                                reject(new BaseError(
-                                    `User doesn't have permission to access the object`, 400
-                                ))
-                            case 'storage/canceled':
-                                reject(new BaseError(`User canceled the upload`, 400))
-                            case 'storage/unknown':
-                                reject(new BaseError(
-                                    `Unknown error occurred, inspect the server response`, 400
-                                ))
-                        }
-                    },
-                    async () => {
-                        let downloadURL = await getDownloadURL(uploadTask.snapshot.ref)
-                        image_urls.push(downloadURL)
-
-                        if (image_urls.length === images.length) {
-
-                            image_urls = Array.from(new Set(image_urls))
-
-                            resolve('Upload Done')
-                        }
-                    }
-                )
-            }
-        })
-
-        if (upload_result instanceof Error) throw upload_result
-
-        res.status(200).json({
-            uploadImagesMessage: 'Success to upload the images',
-            imageURLs: image_urls,
-        })
-    } catch (error) {
-        next(error)
-    }
-}
-
 //insert new review to DB
 const newReview = async (req, res, next) => {
     try {
         let { username: user_username, productId } = req.query
-        let { rating, comment, title, currentAverageRating } = req.body
+        let { rating, comment, title } = req.body
 
         if (!user_username || !productId || !rating || !comment || !title)
-            throw new BaseError('Wrong request property', 400)
-        if (currentAverageRating * 1 !== 0 && !currentAverageRating)
             throw new BaseError('Wrong request property', 400)
 
         let user_info = await UsersModel.findOne(
@@ -196,23 +127,35 @@ const newReview = async (req, res, next) => {
             imageURLs: req.body.imageURLs || [],
         }
 
-        //update counting star
-        let starUpdate = { 'review.count_review': 1, }
-        if (rating === 1) starUpdate['review.count_star.star_1'] = 1
-        else if (rating === 2) starUpdate['review.count_star.star_2'] = 1
-        else if (rating === 3) starUpdate['review.count_star.star_3'] = 1
-        else if (rating === 4) starUpdate['review.count_star.star_4'] = 1
-        else if (rating === 5) starUpdate['review.count_star.star_5'] = 1
+        if (req.files && req.files.images && req.files.images.length > 0)
+            await uploadImages(req.files.images)
+
+        //remove a review existed 
+        let { review: { reviews: previous_ratings } } = await ProductsModel.findOneAndUpdate(
+            { _id: productId },
+            { $pull: { 'review.reviews': { username: user_username } } },
+            {
+                new: true,
+                projection: {
+                    '_id': 0,
+                    'review.reviews.rating': 1,
+                },
+            }
+        ).lean()
+
+        let sum_of_previous_ratings = previous_ratings.reduce((acc, curr) => acc + curr, 0)
+        let filter_rating = previous_ratings.filter((previous_rating) => previous_rating === rating)
 
         //update review in database
         let { review: updated_review } = await ProductsModel.findOneAndUpdate(
             { _id: productId },
             {
                 $set: {
-                    'review.average_rating': currentAverageRating !== 0 ?
-                        ((currentAverageRating + rating * 1) / 2).toFixed(2) * 1 : rating * 1,
+                    'review.average_rating':
+                        sum_of_previous_ratings === 0 ? rating : (sum_of_previous_ratings + rating) / 2,
+                    'review.count_review': previous_ratings.length + 1,
+                    ['review.count_star.star_' + rating]: filter_rating.length + 1,
                 },
-                $inc: starUpdate,
                 $push: {
                     'review.reviews': {
                         $each: [new_review],
@@ -264,5 +207,5 @@ const getProductStock = async (req, res, next) => {
 
 export {
     getProducts, getProduct, getReviews,
-    uploadImages, newReview, getProductStock,
+    newReview, getProductStock,
 }

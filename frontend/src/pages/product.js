@@ -10,7 +10,6 @@ import { useParams } from "react-router-dom"
 import { useDispatch, useSelector } from "react-redux"
 import { getProductDetail } from '../store/actions/product_actions'
 import Skeleton from '@mui/material/Skeleton'
-import { getShop } from "../store/actions/shop_actions"
 
 const loading_widths = ['82%', '75%', '60%', '45%', '50%']
 
@@ -18,15 +17,10 @@ const Product = () => {
     const { product, loading, error } = useSelector(({ productDetail }) => productDetail)
     const dispatch = useDispatch()
     const { productId } = useParams()
-    
+
     useEffect(() => {
         dispatch(getProductDetail(productId))
     }, [dispatch])
-
-    useEffect(() => {
-        if (product && product.name)
-            dispatch(getShop(product.shop.username))
-    }, [product])
 
     return (
         <ProductDetailArea id="ProductDetailArea">
@@ -65,8 +59,8 @@ const Product = () => {
                         {
                             product && product._id &&
                             <>
-                                <ProductReview product={product} />
-                                <Details productDescription={product.description} />
+                                <ProductReview productId={product._id} productReview={product.review} />
+                                <Details productDescription={product.description} shopUsername={product.shop.username} />
                             </>
                         }
                     </ReviewsAndDetails>

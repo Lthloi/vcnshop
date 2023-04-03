@@ -1,13 +1,19 @@
-import React from "react"
+import React, { useEffect } from "react"
 import { styled } from '@mui/material/styles'
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome'
-import { useSelector } from "react-redux"
+import { useDispatch, useSelector } from "react-redux"
 import AddIcon from '@mui/icons-material/Add'
 import DoubleArrowIcon from '@mui/icons-material/DoubleArrow'
 import { Skeleton } from "@mui/material"
+import { getShop } from "../../../store/actions/shop_actions"
 
-const Details = ({ productDescription }) => {
+const Details = ({ productDescription, shopUsername }) => {
     const { shop, loading, error } = useSelector(({ shop }) => shop)
+    const dispatch = useDispatch()
+
+    useEffect(() => {
+        dispatch(getShop(shopUsername))
+    }, [dispatch])
 
     return (
         <DetailsArea id="DetailsArea">

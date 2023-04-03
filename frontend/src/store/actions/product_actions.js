@@ -11,9 +11,9 @@ import {
 } from '../reducers/product_detail_reducer.js'
 import { toast } from 'react-toastify'
 import actionsErrorHandler from '../../utils/error_handler.js'
-import { EXPRESS_SERVER, LIMIT_GET_COMMENTS } from '../../utils/constants.js'
-import { MAX_PRICE_PORDUCT } from '../../utils/constants.js'
-import { LIMIT_GET_PRODUCTS_DEFAULT } from '../../utils/constants.js'
+import {
+    EXPRESS_SERVER, LIMIT_GET_COMMENTS, MAX_PRICE_PORDUCT, LIMIT_GET_PRODUCTS_DEFAULT,
+} from '../../utils/constants.js'
 
 const getProducts = (
     limit = LIMIT_GET_PRODUCTS_DEFAULT, category, keyword, rating = 0,
@@ -110,32 +110,18 @@ const getReviews = (productId, pagination = 1, limit = LIMIT_GET_COMMENTS) => as
     }
 }
 
-const newReview = (
-    productId, rating, title, comment, imagesData, currentAverageRating,
-) => async (dispatch) => {
+const newReview = (productId, reviewData) => async (dispatch) => {
     try {
         dispatch(newReviewRequest())
 
         let username = localStorage.getItem('usernameVCNShop') //get user from local
 
-        let imageURLs = []
-        if (imagesData) {
-            let api_to_upload_files =
-                '/api/uploadImages/?productId=' + productId + '&username=' + username
+        let api_to_make_new_review = '/api/newReview/?productId=' + productId + '&username=' + username
 
-            let { data } = await axios.post(EXPRESS_SERVER + api_to_upload_files, imagesData,
-                { headers: { 'Content-Type': 'multipart/form-data' } },
-            )
-
-            imageURLs = data.imageURLs
-        }
-
-        let api_to_make_new_review =
-            '/api/newReview/?productId=' + productId + '&username=' + username
-
-        let { data } = await axios.post(EXPRESS_SERVER + api_to_make_new_review,
-            { rating, comment, title, imageURLs, currentAverageRating },
-            { headers: { 'Content-Type': 'application/json' } },
+        let { data } = await axios.post(
+            EXPRESS_SERVER + api_to_make_new_review,
+            reviewData,
+            { headers: { 'Content-Type': 'multipart/form-data' } },
         )
 
         dispatch(newReviewSuccess({
@@ -148,7 +134,7 @@ const newReview = (
         toast.success('Success to submit the new review')
     } catch (error) {
         let errorObject = actionsErrorHandler(error, 'Error Warning: fail to make new review.')
-
+        console.log('>>> errorObject >>>', errorObject)
         toast.error(errorObject.message)
 
         dispatch(newReviewFail())

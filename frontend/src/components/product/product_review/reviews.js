@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { styled } from '@mui/material/styles'
 import { useDispatch, useSelector } from "react-redux"
 import { Rating } from "@mui/material"
@@ -15,6 +15,10 @@ const Reviews = ({ productId, countReview, srollReviewRef }) => {
     const { reviews, loading, error } = useSelector(({ productDetail }) => productDetail.reviewObject)
     const [reviewPage, setReviewPage] = useState(1)
     const dispatch = useDispatch()
+
+    useEffect(() => {
+        dispatch(getReviews(productId, 1))
+    }, [dispatch])
 
     const switchCommentPage = (e, page) => {
         if (page === reviewPage) return
@@ -35,8 +39,8 @@ const Reviews = ({ productId, countReview, srollReviewRef }) => {
                 ) : error ? (
                     <ReviewError>{error.message}</ReviewError>
                 ) : reviews && reviews.length > 0 ? reviews.map(({ name, username, comment,
-                    rating, title, createdOn, avatar, imageURLs, _id }) =>
-                    <CommentContainer key={_id}>
+                    rating, title, createdOn, avatar, imageURLs }) =>
+                    <ReviewContainer key={username}>
                         <Date>
                             <span>Writed On </span>
                             <span>{new window.Date(createdOn).toLocaleDateString()}</span>
@@ -50,7 +54,7 @@ const Reviews = ({ productId, countReview, srollReviewRef }) => {
                                 <Username>{'@' + username}</Username>
                             </Info>
                         </UserInfoContainer>
-                        <Rating value={rating} readOnly size="small" precision={0.5} />
+                        <Rating value={rating * 1} readOnly size="small" precision={0.5} />
                         <CommentTitle>{title}</CommentTitle>
                         <Comment>{comment}</Comment>
                         <ReviewImages imageURLs={imageURLs} />
@@ -69,7 +73,7 @@ const Reviews = ({ productId, countReview, srollReviewRef }) => {
                                 <ThumbUpCount>{0}</ThumbUpCount>
                             </div>
                         </IsHelpful>
-                    </CommentContainer>
+                    </ReviewContainer>
                 )
                     :
                     <EmptyReviews>
@@ -94,7 +98,7 @@ const Reviews = ({ productId, countReview, srollReviewRef }) => {
 
 export default Reviews
 
-const CommentContainer = styled('div')({
+const ReviewContainer = styled('div')({
     display: 'flex',
     flexDirection: 'column',
     rowGap: '5px',

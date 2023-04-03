@@ -6,23 +6,23 @@ export const productsSlice = createSlice({
         countProduct: 0,
         productsSearch: {
             loading: false,
-            error: false,
+            error: null,
             products: [],
         },
         topWeek: {
             loading: false,
-            error: false,
+            error: null,
             products: [],
         },
         bestSelling: {
             loading: false,
-            error: false,
+            error: null,
             products: [],
         },
     },
     reducers: {
         getProductsRequest: (state, action) => {
-            state.productsSearch.error = false
+            state.productsSearch.error = null
             state.productsSearch.loading = true
         },
         getProductsSuccess: (state, action) => {
@@ -35,7 +35,7 @@ export const productsSlice = createSlice({
             state.productsSearch.loading = false
         },
         getTopWeekRequest: (state, action) => {
-            state.topWeek.error = false
+            state.topWeek.error = null
             state.topWeek.loading = true
         },
         getTopWeekSuccess: (state, action) => {
@@ -47,7 +47,7 @@ export const productsSlice = createSlice({
             state.topWeek.loading = false
         },
         getBestSellingRequest: (state, action) => {
-            state.bestSelling.error = false
+            state.bestSelling.error = null
             state.bestSelling.loading = true
         },
         getBestSellingSuccess: (state, action) => {

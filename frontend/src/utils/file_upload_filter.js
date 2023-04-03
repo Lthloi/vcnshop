@@ -18,8 +18,8 @@ class FileUploadFilter {
         try {
             let mimetype = this.file.type
             let type = {
-                fileType: mimetype.slice(0, mimetype.indexOf('/')),
-                mediaType: mimetype.slice(mimetype.indexOf('/') + 1),
+                fileType: mimetype.split('/')[0],
+                mediaType: mimetype.split('/')[1],
             }
 
             //check type of file, ex: video or image or...

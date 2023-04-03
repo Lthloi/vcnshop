@@ -6,16 +6,16 @@ export const productDetailSlice = createSlice({
         product: {},
         reviewObject: {
             loading: false,
-            error: false,
+            error: null,
             reviews: [],
         },
         loading: false,
-        error: false,
+        error: null,
         newReviewProcessing: false,
     },
     reducers: {
         getProductDetailRequest: (state, action) => {
-            state.error = false
+            state.error = null
             state.newReviewProcessing = false
             state.loading = true
         },
@@ -28,7 +28,7 @@ export const productDetailSlice = createSlice({
             state.loading = false
         },
         getReviewRequest: (state, action) => {
-            state.reviewObject.error = false
+            state.reviewObject.error = null
             state.reviewObject.loading = true
         },
         getReviewSuccess: (state, action) => {
@@ -44,7 +44,8 @@ export const productDetailSlice = createSlice({
         },
         newReviewSuccess: (state, action) => {
             let { newReview, newAverageRating, newCountReview, newCountStar } = action.payload
-            let current_reviews = current(state).reviewObject.reviews
+
+            let current_reviews = current(state).reviewObject.reviews.filter(({ username }) => username !== newReview.username)
 
             state.reviewObject.reviews = [newReview, ...current_reviews]
 

@@ -32,11 +32,12 @@ const ReviewImages = ({ imageURLs }) => {
             }
 
             {imageURLs && imageURLs.length > 0 && imageURLs.map((imageURL) => (
-                <ReviewImage
-                    key={imageURL}
-                    src={imageURL}
-                    onClick={() => handleViewImage(true, imageURL)}
-                />
+                <div key={imageURL} style={{ maxWidth: '15%' }}>
+                    <ReviewImage
+                        src={imageURL}
+                        onClick={() => handleViewImage(true, imageURL)}
+                    />
+                </div>
             ))}
         </ReviewImagesContainer>
     )
@@ -68,6 +69,7 @@ const ImageLightBox = styled('img')({
     border: '1px white solid',
     boxSizing: 'border-box',
     borderRadius: '5px',
+    maxWidth: '80%',
 })
 
 const StyledCancelIcon = styled(CancelIcon)({
@@ -86,8 +88,7 @@ const StyledCancelIcon = styled(CancelIcon)({
 
 const ReviewImage = styled('img')({
     height: '80px',
-    maxWidth: '15.3%',
-    border: '1.5px white solid',
+    width: '100%',
     cursor: 'pointer',
     '&:hover': {
         outline: '2px black solid',

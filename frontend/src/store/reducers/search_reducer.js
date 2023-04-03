@@ -5,11 +5,11 @@ export const searchSlice = createSlice({
     initialState: {
         suggestions: {},
         loading: false,
-        error: false,
+        error: null,
     },
     reducers: {
         getSuggestionsRequest: (state, action) => {
-            state.error = false
+            state.error = null
             state.loading = true
         },
         getSuggestionsSuccess: (state, action) => {

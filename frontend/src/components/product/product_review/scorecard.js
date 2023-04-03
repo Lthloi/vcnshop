@@ -7,7 +7,7 @@ const ScoreCard = ({ commentTitleRef, review }) => {
     
     const rating_bars = useMemo(() => {
         if (review && review.count_star) {
-            let { star_5, star_4, star_3, star_2, star_1 } = review
+            let { star_5, star_4, star_3, star_2, star_1 } = review.count_star
             return [
                 { type_of_star: 5, count: star_5 },
                 { type_of_star: 4, count: star_4 },

@@ -5,11 +5,11 @@ export const shopSlice = createSlice({
     initialState: {
         shop: {},
         loading: false,
-        error: false,
+        error: null,
     },
     reducers: {
         getShopRequest: (state, action) => {
-            state.error = false
+            state.error = null
             state.loading = true
         },
         getShopSuccess: (state, action) => {

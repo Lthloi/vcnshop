@@ -39,13 +39,13 @@ export const couponsSlice = createSlice({
     initialState: {
         coupons: [],
         pickedCoupons: [],
-        error: false,
+        error: null,
         loading: false,
         checking: false,
     },
     reducers: {
         getCouponsRequest: (state) => {
-            state.error = false
+            state.error = null
             state.loading = true
         },
         getCouponsSuccess: (state, action) => {
@@ -65,7 +65,7 @@ export const couponsSlice = createSlice({
             state.loading = false
         },
         checkCouponRequest: (state) => {
-            state.error = false
+            state.error = null
             state.checking = true
         },
         checkCouponSuccess: (state, action) => {
@@ -91,7 +91,6 @@ export const couponsSlice = createSlice({
             state.checking = false
         },
         resetPickedCoupons: (state) => {
-            // state.coupons = updateCouponsAreApplicable(action.payload.cartItems, current(state).coupons)
             state.pickedCoupons = []
         },
     },
