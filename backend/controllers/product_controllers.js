@@ -105,33 +105,27 @@ const getReviews = async (req, res, next) => {
 const newReview = async (req, res, next) => {
     try {
         let { username: user_username, productId } = req.query
-        let { rating, comment, title } = req.body
+        if (!user_username || !productId) throw new BaseError('Wrong request property', 400)
 
-        if (!user_username || !productId || !rating || !comment || !title)
-            throw new BaseError('Wrong request property', 400)
+        let [image_urls, request_body, upload_error] = await uploadImages(req, productId, user_username)
+        if (upload_error instanceof Error) throw upload_error
 
-        let user_info = await UsersModel.findOne(
-            { username: user_username },
-            { 'name': 1, 'avatar': 1 }
-        ).lean()
-        if (!user_info) throw new BaseError('User not found', 400)
+        let { rating, comment, title } = request_body
+        if (!rating || !comment || !title) throw new BaseError('Wrong request property', 400)
 
         let new_review = {
-            name: user_info.name,
-            username: user_username,
-            avatar: user_info.avatar,
+            name: 'VCN MAX',
+            username: 'vcnmax',
+            avatar: 'https://img.freepik.com/premium-vector/cute-fox-sitting-cartoon-character-animal-nature-isolated_138676-3172.jpg?w=2000',
             createdAt: new Date(),
             rating,
             title,
             comment,
-            imageURLs: req.body.imageURLs || [],
+            imageURLs: image_urls || [],
         }
 
-        if (req.files && req.files.images && req.files.images.length > 0)
-            await uploadImages(req.files.images)
-
         //remove a review existed 
-        let { review: { reviews: previous_ratings } } = await ProductsModel.findOneAndUpdate(
+        let product_after_remove_review = await ProductsModel.findOneAndUpdate(
             { _id: productId },
             { $pull: { 'review.reviews': { username: user_username } } },
             {
@@ -142,19 +136,18 @@ const newReview = async (req, res, next) => {
                 },
             }
         ).lean()
+        if (!product_after_remove_review) throw new BaseError('Product not found', 404)
 
-        let sum_of_previous_ratings = previous_ratings.reduce((acc, curr) => acc + curr, 0)
-        let filter_rating = previous_ratings.filter((previous_rating) => previous_rating === rating)
+        let sum_of_previous_ratings = product_after_remove_review.review.reviews.reduce((acc, curr) => acc + curr, 0)
 
         //update review in database
-        let { review: updated_review } = await ProductsModel.findOneAndUpdate(
+        await ProductsModel.updateOne(
             { _id: productId },
             {
                 $set: {
                     'review.average_rating':
                         sum_of_previous_ratings === 0 ? rating : (sum_of_previous_ratings + rating) / 2,
-                    'review.count_review': previous_ratings.length + 1,
-                    ['review.count_star.star_' + rating]: filter_rating.length + 1,
+                    'review.count_review': product_after_remove_review.review.reviews.length + 1,
                 },
                 $push: {
                     'review.reviews': {
@@ -163,42 +156,10 @@ const newReview = async (req, res, next) => {
                     }
                 }
             },
-            {
-                new: true,
-                projection: {
-                    '_id': 0,
-                    'review.count_review': 1,
-                    'review.average_rating': 1,
-                    'review.count_star': 1,
-                },
-            }
-        ).lean()
+        )
 
         res.status(200).json({
             newReview: new_review,
-            newAverageRating: updated_review.average_rating,
-            newCountReview: updated_review.count_review,
-            newCountStar: updated_review.count_star,
-        })
-    } catch (error) {
-        next(error)
-    }
-}
-
-const getProductStock = async (req, res, next) => {
-    try {
-        let { productId } = req.query
-        if (!productId) throw new BaseError('Wrong request property', 400)
-
-        let product = await ProductsModel.findOne(
-            { _id: productId },
-            { 'stock': 1 },
-        )
-
-        if (!product) throw new BaseError('Stock Not Found', 404)
-
-        res.status(200).json({
-            stock: product.stock,
         })
     } catch (error) {
         next(error)
@@ -207,5 +168,5 @@ const getProductStock = async (req, res, next) => {
 
 export {
     getProducts, getProduct, getReviews,
-    newReview, getProductStock,
+    newReview,
 }

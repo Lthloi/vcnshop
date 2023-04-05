@@ -14,6 +14,7 @@ import actionsErrorHandler from '../../utils/error_handler.js'
 import {
     EXPRESS_SERVER, LIMIT_GET_COMMENTS, MAX_PRICE_PORDUCT, LIMIT_GET_PRODUCTS_DEFAULT,
 } from '../../utils/constants.js'
+import FileUploadFilter from '../../utils/file_upload_filter.js'
 
 const getProducts = (
     limit = LIMIT_GET_PRODUCTS_DEFAULT, category, keyword, rating = 0,
@@ -110,13 +111,31 @@ const getReviews = (productId, pagination = 1, limit = LIMIT_GET_COMMENTS) => as
     }
 }
 
-const newReview = (productId, reviewData) => async (dispatch) => {
+const newReview = (productId, images, rating, title, comment) => async (dispatch) => {
+    let reviewData = new FormData()
+    if (images.length > 0) {
+        let file_upload_filter
+        for (let file of images) {
+            file_upload_filter = new FileUploadFilter(file)
+            if (!file_upload_filter.mimetypeIsValid())
+                return toast.error(file_upload_filter.invalidMessage)
+            if (!file_upload_filter.sizeIsValid())
+                return toast.error(file_upload_filter.invalidMessage)
+
+            reviewData.append('images', file)
+        }
+    }
+
+    reviewData.set('rating', rating)
+    reviewData.set('title', title)
+    reviewData.set('comment', comment)
+
     try {
         dispatch(newReviewRequest())
 
         let username = localStorage.getItem('usernameVCNShop') //get user from local
 
-        let api_to_make_new_review = '/api/newReview/?productId=' + productId + '&username=' + username
+        let api_to_make_new_review = '/api/newReview?productId=' + productId + '&username=' + username
 
         let { data } = await axios.post(
             EXPRESS_SERVER + api_to_make_new_review,
@@ -126,9 +145,6 @@ const newReview = (productId, reviewData) => async (dispatch) => {
 
         dispatch(newReviewSuccess({
             newReview: data.newReview,
-            newAverageRating: data.newAverageRating,
-            newCountStar: data.newCountStar,
-            newCountReview: data.newCountReview,
         }))
 
         toast.success('Success to submit the new review')

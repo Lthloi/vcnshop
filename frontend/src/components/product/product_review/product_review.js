@@ -8,7 +8,6 @@ import ScoreCard from "./scorecard"
 import AddImages from "./add_images"
 import RatingSet from "./rating_set"
 import { toast } from 'react-toastify'
-import FileUploadFilter from "../../../utils/file_upload_filter"
 import CommentIcon from '@mui/icons-material/Comment'
 
 const ProductReview = ({ productId, productReview }) => {
@@ -19,31 +18,12 @@ const ProductReview = ({ productId, productReview }) => {
     const dispatch = useDispatch()
 
     const submitReviews = () => {
-        if (
-            review.rating === 0 || comment_title_ref.current.value === '' ||
-            comment_ref.current.value === ''
-        )
+        if (review.rating === 0 || comment_title_ref.current.value === '' || comment_ref.current.value === '')
             return toast.warn('Please complete Rating and Title and Comment!')
 
-        const reviewData = new FormData()
-        if (review.images.length > 0) {
-            let file_upload_filter
-            for (let file of review.images) {
-                file_upload_filter = new FileUploadFilter(file)
-                if (!file_upload_filter.mimetypeIsValid())
-                    return toast.error(file_upload_filter.invalidMessage)
-                if (!file_upload_filter.sizeIsValid())
-                    return toast.error(file_upload_filter.invalidMessage)
-
-                reviewData.append('images', file)
-            }
-        }
-
-        reviewData.set('rating', review.rating)
-        reviewData.set('comment', comment_ref.current.value)
-        reviewData.set('title', comment_title_ref.current.value)
-
-        dispatch(newReview(productId, reviewData))
+        dispatch(newReview(
+            productId, review.images, review.rating, comment_title_ref.current.value, comment_ref.current.value
+        ))
 
         //set review state to original
         setReview({ rating: 0, images: [] })

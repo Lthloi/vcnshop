@@ -2,7 +2,6 @@ import React from "react"
 import { styled } from '@mui/material/styles'
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart'
 import Paper from '@mui/material/Paper'
-import { Link } from 'react-router-dom'
 import { addProductToCart } from '../../../store/actions/cart_actions'
 import { useDispatch } from "react-redux"
 
@@ -24,7 +23,7 @@ const TopWeekProduct = ({ product }) => {
                     <NameProduct >
                         {name}
                     </NameProduct>
-                    <ShowMore to={`/productDetail/${_id}`}>
+                    <ShowMore href={`/productDetail/${_id}`}>
                         Show More...
                     </ShowMore>
                     <AddToCartContainer onClick={addToCart}>
@@ -97,7 +96,7 @@ const NameProduct = styled('div')({
     }
 })
 
-const ShowMore = styled(Link)({
+const ShowMore = styled('a')({
     padding: '10px',
     border: '2px white solid',
     fontFamily: 'sans-serif',

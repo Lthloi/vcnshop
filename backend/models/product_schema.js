@@ -84,18 +84,6 @@ const ProductsSchema = new Schema({
         },
     },
     review: {
-        count_star: {
-            star_1: { type: Number, default: 0 },
-            star_2: { type: Number, default: 0 },
-            star_3: { type: Number, default: 0 },
-            star_4: { type: Number, default: 0 },
-            star_5: { type: Number, default: 0 },
-        },
-        count_review: {
-            type: Number,
-            default: 0,
-            min: [0, 'Number of `count review` must not smaller than or equal 0'],
-        },
         average_rating: {
             type: Number,
             default: 0,
