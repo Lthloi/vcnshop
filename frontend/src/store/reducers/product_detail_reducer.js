@@ -4,7 +4,7 @@ export const productDetailSlice = createSlice({
     name: 'productDetail',
     initialState: {
         product: {},
-        reviewObject: {
+        reviewsState: {
             loading: false,
             error: null,
             reviews: [],
@@ -28,30 +28,29 @@ export const productDetailSlice = createSlice({
             state.loading = false
         },
         getReviewRequest: (state, action) => {
-            state.reviewObject.error = null
-            state.reviewObject.loading = true
+            state.reviewsState.error = null
+            state.reviewsState.loading = true
         },
         getReviewSuccess: (state, action) => {
-            state.reviewObject.reviews = action.payload.reviews
-            state.reviewObject.loading = false
+            state.reviewsState.reviews = action.payload.reviews
+            state.reviewsState.loading = false
         },
         getReviewFail: (state, action) => {
-            state.reviewObject.error = action.payload.error
-            state.reviewObject.loading = false
+            state.reviewsState.error = action.payload.error
+            state.reviewsState.loading = false
         },
         newReviewRequest: (state, action) => {
             state.newReviewProcessing = true
         },
         newReviewSuccess: (state, action) => {
-            let { newReview, newAverageRating, newCountReview, newCountStar } = action.payload
+            let { newReview, newAverageRating, newCountReview } = action.payload
 
-            let current_reviews = current(state).reviewObject.reviews.filter(({ username }) => username !== newReview.username)
+            let current_reviews = current(state).reviewsState.reviews.filter(({ username }) => username !== newReview.username)
 
-            state.reviewObject.reviews = [newReview, ...current_reviews]
+            state.reviewsState.reviews = [newReview, ...current_reviews]
 
             state.product.review.average_rating = newAverageRating
             state.product.review.count_review = newCountReview
-            state.product.review.count_star = newCountStar
 
             state.newReviewProcessing = false
         },

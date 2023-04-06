@@ -12,10 +12,10 @@ import { toast } from 'react-toastify'
 import EmailIcon from '@mui/icons-material/Email'
 
 const RegisterSection = () => {
+    
     const [openProblemSection, setOpenProblemSection] = useState(false)
-    const [OTPWasSent, setOTPWasSent] = useState(false)
-    const [sendOTPInProgress, setSendOTPInProgress] = useState(false)
-    const [timeToResendOTP, setTimeToResendOTP] = useState(120)
+    
+    const timeToResendOTP = 120
 
     const handleOpenProblemSection = open => {
         setOpenProblemSection(open)
@@ -38,14 +38,13 @@ const RegisterSection = () => {
     return (
         <RegisterSectionArea id="RegisterSectionArea">
 
-            <ProblemSection open={openProblemSection}
+            <ProblemSection
+                open={openProblemSection}
                 handleOpen={handleOpenProblemSection}
             />
 
-            <FormContainer action="#" method="post"
-                onSubmit={sendOTP}
-            >
-                <FormTitle >Register</FormTitle>
+            <FormContainer action="#" method="post" onSubmit={sendOTP}>
+                <FormTitle>Register</FormTitle>
                 {
                     OTPWasSent ?
                         <OTPInput />
@@ -70,9 +69,7 @@ const RegisterSection = () => {
                         </>
                 }
                 <SendOTPArea>
-                    <Problems
-                        onClick={() => handleOpenProblemSection(true)}
-                    >
+                    <Problems onClick={() => handleOpenProblemSection(true)}>
                         Have problem ?
                     </Problems>
                     {

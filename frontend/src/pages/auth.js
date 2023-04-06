@@ -5,7 +5,12 @@ import background_auth_section from '../assets/images/background_auth/background
 import Paper from '@mui/material/Paper'
 import TermsOfUse from "../components/terms_of_use"
 import { NavLink } from "react-router-dom"
-import { Outlet } from "react-router-dom"
+import LoginSection from '../components/auth/login'
+import RegisterSection from '../components/auth/register/register'
+import ForgotPasswordSection from '../components/auth/forgot_password'
+import NewPasswordSection from '../components/auth/new_password'
+import ProvideInfoSection from '../components/auth/provide_info/provide_info'
+import { Route, Routes } from "react-router-dom"
 
 const Auth = () => {
     const [termsOfUseDialog, setTermsOfUseDialog] = useState(false)
@@ -44,7 +49,13 @@ const Auth = () => {
                     </BottomText>
                 </TextAndImage>
 
-                <Outlet />
+                <Routes>
+                    <Route path='/login' element={<LoginSection />} />
+                    <Route path='/register' element={<RegisterSection />} />
+                    <Route path='/forgotPassword' element={<ForgotPasswordSection />} />
+                    <Route path='/newPassword' element={<NewPasswordSection />} />
+                    <Route path='/provideInfo' element={<ProvideInfoSection />} />
+                </Routes>
 
             </AuthSection>
         </AuthArea>

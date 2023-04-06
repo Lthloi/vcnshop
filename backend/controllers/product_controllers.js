@@ -1,6 +1,5 @@
 import ProductsModel from '../models/product_schema.js'
 import BaseError from "../utils/base_error.js"
-import UsersModel from "../models/user_schema.js"
 import mongoose from "mongoose"
 import uploadImages from '../utils/upload_images.js'
 
@@ -107,22 +106,11 @@ const newReview = async (req, res, next) => {
         let { username: user_username, productId } = req.query
         if (!user_username || !productId) throw new BaseError('Wrong request property', 400)
 
-        let [image_urls, request_body, upload_error] = await uploadImages(req, productId, user_username)
-        if (upload_error instanceof Error) throw upload_error
-
-        let { rating, comment, title } = request_body
+        let { rating, comment, title } = req.body
         if (!rating || !comment || !title) throw new BaseError('Wrong request property', 400)
 
-        let new_review = {
-            name: 'VCN MAX',
-            username: 'vcnmax',
-            avatar: 'https://img.freepik.com/premium-vector/cute-fox-sitting-cartoon-character-animal-nature-isolated_138676-3172.jpg?w=2000',
-            createdAt: new Date(),
-            rating,
-            title,
-            comment,
-            imageURLs: image_urls || [],
-        }
+        let [image_urls, upload_error] = await uploadImages(req.files, productId, user_username)
+        if (upload_error instanceof Error) throw upload_error
 
         //remove a review existed 
         let product_after_remove_review = await ProductsModel.findOneAndUpdate(
@@ -138,16 +126,29 @@ const newReview = async (req, res, next) => {
         ).lean()
         if (!product_after_remove_review) throw new BaseError('Product not found', 404)
 
+        let new_count_review = product_after_remove_review.review.reviews.length + 1
+
         let sum_of_previous_ratings = product_after_remove_review.review.reviews.reduce((acc, curr) => acc + curr, 0)
+        let new_average_rating = sum_of_previous_ratings === 0 ? rating : (sum_of_previous_ratings + rating) / 2
+
+        let new_review = {
+            name: 'VCN MAX',
+            username: 'vcnmax',
+            avatar: 'https://img.freepik.com/premium-vector/cute-fox-sitting-cartoon-character-animal-nature-isolated_138676-3172.jpg?w=2000',
+            createdAt: new Date(),
+            rating,
+            title,
+            comment,
+            imageURLs: image_urls || [],
+        }
 
         //update review in database
         await ProductsModel.updateOne(
             { _id: productId },
             {
                 $set: {
-                    'review.average_rating':
-                        sum_of_previous_ratings === 0 ? rating : (sum_of_previous_ratings + rating) / 2,
-                    'review.count_review': product_after_remove_review.review.reviews.length + 1,
+                    'review.average_rating': new_average_rating,
+                    'review.count_review': new_count_review,
                 },
                 $push: {
                     'review.reviews': {
@@ -160,6 +161,8 @@ const newReview = async (req, res, next) => {
 
         res.status(200).json({
             newReview: new_review,
+            newAverageRating: new_average_rating,
+            newCountReview: new_count_review,
         })
     } catch (error) {
         next(error)

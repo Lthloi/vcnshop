@@ -89,6 +89,11 @@ const ProductsSchema = new Schema({
             default: 0,
             min: [0, 'Number of `average rating` must not smaller than or equal 0'],
         },
+        count_review: {
+            type: Number,
+            default: 0,
+            min: [0, 'Number of `count review` must not smaller than or equal 0'],
+        },
         reviews: [{
             name: { type: String, required: true, },
             username: { type: String, required: true, },

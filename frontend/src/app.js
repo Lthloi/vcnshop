@@ -8,11 +8,6 @@ import Product from './pages/product'
 import SearchResult from './pages/search_result'
 import LoadingApp from './components/loading_app'
 import Auth from './pages/auth'
-import LoginSection from './components/auth/login'
-import RegisterSection from './components/auth/sign_up/register'
-import ForgotPasswordSection from './components/auth/forgot_password'
-import NewPasswordSection from './components/auth/new_password'
-import ProvideInfoSection from './components/auth/provide_info/provide_info'
 
 function App() {
   return (
@@ -26,14 +21,7 @@ function App() {
           <Route path='/search/:keyword' element={<SearchResult />} />
         </Route>
 
-        <Route path='/auth' element={<Auth />}>
-          <Route index element={<LoginSection />} />
-          <Route path='/auth/login' element={<LoginSection />} />
-          <Route path='/auth/register' element={<RegisterSection />} />
-          <Route path='/auth/forgotPassword' element={<ForgotPasswordSection />} />
-          <Route path='/auth/newPassword' element={<NewPasswordSection />} />
-          <Route path='/auth/provideInfo' element={<ProvideInfoSection />} />
-        </Route>
+        <Route path='/auth/*' element={<Auth />} />
 
         <Route path='*' element={<NotFound404 />} />
 

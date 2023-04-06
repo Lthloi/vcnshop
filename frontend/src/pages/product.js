@@ -1,11 +1,11 @@
 import React, { useEffect } from "react"
 import { styled } from '@mui/material/styles'
-import ProductDetail from "../components/product/product_details/product_details"
+import ProductDetail from "../components/product/product_details/product_detail"
 import ScrollToTopBtn from '../components/scroll_top_top_btn'
 import ProductReview from "../components/product/product_review/product_review"
 import HelpChat from '../components/help_chat'
 import InfoIcon from '@mui/icons-material/Info'
-import Details from '../components/product/product_details/details'
+import Introduction from '../components/product/product_details/introduction'
 import { useParams } from "react-router-dom"
 import { useDispatch, useSelector } from "react-redux"
 import { getProductDetail } from '../store/actions/product_actions'
@@ -60,7 +60,10 @@ const Product = () => {
                             product && product._id &&
                             <>
                                 <ProductReview productId={product._id} productReview={product.review} />
-                                <Details productDescription={product.description} shopUsername={product.shop.username} />
+                                <Introduction
+                                    productDescription={product.description}
+                                    shopUsername={product.shop.username}
+                                />
                             </>
                         }
                     </ReviewsAndDetails>

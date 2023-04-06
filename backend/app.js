@@ -6,6 +6,7 @@ import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import initRoutes from './routes/routes.js'
 import ErrorHandler from './middlewares/error_handler.js'
+import fileUpload from 'express-fileupload'
 import './configs/cloudinary.js'
 
 const app = express()
@@ -15,6 +16,9 @@ app.use(bodyParser.urlencoded({ extended: true })) //handle data with form-data
 app.use(bodyParser.json())
 app.use(express.json())
 app.use(cors())
+
+//config for req.files
+app.use(fileUpload())
 
 //create app routes
 initRoutes(app)

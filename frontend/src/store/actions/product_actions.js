@@ -83,9 +83,9 @@ const getProductDetail = (product_id) => async (dispatch) => {
         dispatch(getProductDetailRequest())
 
         let api_to_getProductDetail = '/api/getProduct/' + product_id
-        let { data: productData } = await axios.get(EXPRESS_SERVER + api_to_getProductDetail)
+        let { data } = await axios.get(EXPRESS_SERVER + api_to_getProductDetail)
 
-        dispatch(getProductDetailSuccess({ product: productData.product }))
+        dispatch(getProductDetailSuccess({ product: data.product }))
     } catch (error) {
         let errorObject = actionsErrorHandler(error, 'Error Warning: fail to get product detail.')
 
@@ -145,6 +145,8 @@ const newReview = (productId, images, rating, title, comment) => async (dispatch
 
         dispatch(newReviewSuccess({
             newReview: data.newReview,
+            newAverageRating: data.newAverageRating,
+            newCountReview: data.newCountReview,
         }))
 
         toast.success('Success to submit the new review')

@@ -7,7 +7,7 @@ import DoubleArrowIcon from '@mui/icons-material/DoubleArrow'
 import { Skeleton } from "@mui/material"
 import { getShop } from "../../../store/actions/shop_actions"
 
-const Details = ({ productDescription, shopUsername }) => {
+const Introduction = ({ productDescription, shopUsername }) => {
     const { shop, loading, error } = useSelector(({ shop }) => shop)
     const dispatch = useDispatch()
 
@@ -19,7 +19,7 @@ const Details = ({ productDescription, shopUsername }) => {
         <DetailsArea id="DetailsArea">
             <div style={{ display: 'flex', columnGap: '10px', alignItems: 'center' }}>
                 <AutoAwesomeIcon />
-                <DetailsTitle>Details</DetailsTitle>
+                <DetailsTitle>Introduction</DetailsTitle>
             </div>
 
             <Hr />
@@ -68,7 +68,7 @@ const Details = ({ productDescription, shopUsername }) => {
     )
 }
 
-export default Details
+export default Introduction
 
 const DetailsArea = styled('div')(({ theme }) => ({
     width: '39%',

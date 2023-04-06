@@ -1,6 +1,5 @@
 import React, { useState, } from "react"
 import { styled } from '@mui/material/styles'
-import Checkbox from '@mui/material/Checkbox'
 import ClearIcon from '@mui/icons-material/Clear'
 import ArrowRightIcon from '@mui/icons-material/ArrowRight'
 import VisibilityIcon from '@mui/icons-material/Visibility'
@@ -30,11 +29,6 @@ const inputs_detail = [
             `Password must be between 6 and 20 
             characters long and must contain at
             least one capital letter`,
-    }, {
-        name: 'Address',
-        required: false,
-        helper_text: 'Set this address to default delivery address',
-        pattern: /./,
     },
 ]
 
@@ -51,15 +45,8 @@ const input_icon_style = {
 const RenderInputWarnings = (input_warning) => {
     return (
         <>
-            <CancelIcon
-                sx={{
-                    height: '0.7em',
-                    color: 'red',
-                }}
-            />
-            <InputWarningText>
-                {input_warning}
-            </InputWarningText>
+            <CancelIcon sx={{ height: '0.7em', color: 'red', }} />
+            <InputWarningText>{input_warning}</InputWarningText>
         </>
     )
 }
@@ -88,9 +75,7 @@ const InformationInputs = ({ register, errors, reset }) => {
                             <InfoLabel htmlFor={name}>
                                 {name}
                             </InfoLabel>
-                            {
-                                required && <span className="force">*</span>
-                            }
+                            {required && <span className="force">*</span>}
                         </InfoLabelContainer>
                         <InfoInputWrapper>
                             <InfoInput
@@ -133,23 +118,7 @@ const InformationInputs = ({ register, errors, reset }) => {
                             </IconInputWrapper>
                         </InfoInputWrapper>
                         <HelperText>
-                            {
-                                name === 'Address' &&
-                                <SetAddressDefaultOrder>
-                                    <Checkbox color="default" size="small"
-                                        sx={{
-                                            color: '#00fffb',
-                                            width: '1em',
-                                            height: '1em',
-                                        }}
-                                        id="SetAddressDefaultBox"
-                                    />
-                                    <CheckboxLabel htmlFor="SetAddressDefaultBox">
-                                        {helper_text}
-                                    </CheckboxLabel>
-                                </SetAddressDefaultOrder>
-                            }
-                            {!(name === 'Address') && helper_text}
+                            {helper_text}
                         </HelperText>
                         {
                             errors[name] &&
@@ -246,22 +215,6 @@ const HelperText = styled('div')({
     fontFamily: 'nunito',
     marginTop: '4px',
     marginLeft: '3px',
-})
-
-const SetAddressDefaultOrder = styled('div')({
-    display: 'flex',
-    alignItems: 'center',
-    marginTop: '5px',
-    marginLeft: '3px',
-})
-
-const CheckboxLabel = styled('label')({
-    color: 'white',
-    fontStyle: 'italic',
-    fontFamily: 'nunito',
-    fontSize: '1em',
-    margin: '0',
-    marginLeft: '5px',
 })
 
 const IconInputWrapper = styled('div')({

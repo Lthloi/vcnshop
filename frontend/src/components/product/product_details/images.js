@@ -137,7 +137,7 @@ const ProductImgs = styled('div')({
     display: 'flex',
     justifyContent: 'space-between',
     columnGap: '5px',
-    width: '58%',
+    width: '100%',
     boxSizing: 'border-box',
 })
 

@@ -78,7 +78,7 @@ const DetailContainer = styled('div')({
     display: 'flex',
     flexDirection: 'column',
     rowGap: '20px',
-    width: '39%',
+    width: '65%',
     boxSizing: 'border-box',
     padding: '20px 0',
 })

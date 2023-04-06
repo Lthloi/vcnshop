@@ -1,12 +1,10 @@
 import React from "react"
 import { styled } from '@mui/material/styles'
-import { useDispatch } from "react-redux"
 import Rating from '@mui/material/Rating'
 import { Link } from 'react-router-dom'
 
 const ProductCard = ({ product }) => {
-    const { _id, name, image_link, price, shop, sold, review, stock } = product
-    const dispatch = useDispatch()
+    const { _id, name, image_link, price, shop, sold, review } = product
 
     return (
         <ProductCardsContainer>

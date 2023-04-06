@@ -1,4 +1,4 @@
-import React, { useMemo } from "react"
+import React from "react"
 import { styled } from '@mui/material/styles'
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder'
 import StorefrontIcon from '@mui/icons-material/Storefront'
@@ -6,12 +6,6 @@ import Rating from '@mui/material/Rating'
 
 //for Name and Rating and Add to favourite and Shop Name and Stock and Description
 const TopDetail = ({ product }) => {
-
-    const description = useMemo(() => {
-        if (product && product.description)
-            return product.description.slice(0, 150)
-        return ''
-    }, [product])
 
     return (
         <TopDetailContainer>
@@ -49,18 +43,6 @@ const TopDetail = ({ product }) => {
                     {product.stock > 0 ? 'In Stock [' + product.stock + ']' : 'Out of stock'}
                 </InStock>
             </Shop>
-
-            <DescriptionContainer>
-                <DetailTitles className="Desc">
-                    Description
-                </DetailTitles>
-                <Description>
-                    <span>{description}</span>
-                    <ReadMore>
-                        <span>...</span><span>Read More</span>
-                    </ReadMore>
-                </Description>
-            </DescriptionContainer>
         </TopDetailContainer>
     )
 }
@@ -142,44 +124,4 @@ const InStock = styled('div')({
     borderRadius: '10px',
     padding: '3px 10px',
     marginLeft: '10px',
-})
-
-const DescriptionContainer = styled('div')({
-    display: 'flex',
-    flexDirection: 'column',
-    rowGap: '3px',
-    margin: '0',
-})
-
-const Description = styled('p')({
-    margin: '0',
-    '& span': {
-        ...nunito_font,
-        whiteSpace: 'pre-line',
-        lineHeight: '1.3em',
-        fontSize: '0.9em',
-    },
-})
-
-const ReadMore = styled('button')({
-    border: 'unset',
-    backgroundColor: 'unset',
-    cursor: 'pointer',
-    color: '#f87fa8',
-    fontWeight: 'bold',
-    fontSize: '0.95em',
-    '& span:last-child': {
-        fontWeight: 'normal',
-        fontSize: '0.9em',
-    },
-    '&:hover span:last-child': {
-        textDecoration: 'underline',
-    }
-})
-
-const DetailTitles = styled('h2')({
-    ...nunito_font,
-    fontSize: '1.1em',
-    margin: '0',
-    fontWeight: 'bold',
 })

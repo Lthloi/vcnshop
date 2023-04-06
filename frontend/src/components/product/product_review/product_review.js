@@ -4,13 +4,13 @@ import ReviewsIcon from '@mui/icons-material/Reviews'
 import Reviews from './reviews'
 import { useDispatch } from "react-redux"
 import { newReview } from "../../../store/actions/product_actions"
-import ScoreCard from "./scorecard"
+import ScoreCard from "./score_card"
 import AddImages from "./add_images"
 import RatingSet from "./rating_set"
 import { toast } from 'react-toastify'
 import CommentIcon from '@mui/icons-material/Comment'
 
-const ProductReview = ({ productId, productReview }) => {
+const ProductReview = ({ productId }) => {
     const [review, setReview] = useState({ rating: 0, images: [] })
     const comment_title_ref = useRef()
     const comment_ref = useRef()
@@ -53,7 +53,6 @@ const ProductReview = ({ productId, productReview }) => {
 
                 <ScoreCard
                     commentTitleRef={comment_title_ref}
-                    review={productReview}
                 />
 
                 <ReviewWriteComment>Make Review</ReviewWriteComment>
@@ -99,7 +98,6 @@ const ProductReview = ({ productId, productReview }) => {
                 <Hr />
 
                 <Reviews
-                    countReview={productReview.count_review}
                     productId={productId}
                     srollReviewRef={switch_review_page_ref}
                 />

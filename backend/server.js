@@ -15,7 +15,7 @@ process.on("uncaughtException", (error) => {
 //connect to database
 connectDB()
 
-const { PORT } = process.env
+const { PORT } = process.env || 8080
 
 const server = app.listen(PORT, () => {
     console.log(`>>> Server is working on http://localhost:${PORT}`)
@@ -25,6 +25,5 @@ process.on('unhandledRejection', (reason, promise) => {
     console.log('>>> UNHANDLED REJECTION !!!')
     console.log('>>> Reason >>>', reason)
     console.log('>>> Promise >>>', promise)
-
     process.exit(1)
 })

@@ -2,22 +2,27 @@ import React, { useMemo } from "react"
 import { styled } from '@mui/material/styles'
 import RateReviewIcon from '@mui/icons-material/RateReview'
 import Rating from '@mui/material/Rating'
+import { useSelector } from "react-redux"
 
-const ScoreCard = ({ commentTitleRef, review }) => {
-    
-    const rating_bars = useMemo(() => {
-        if (review && review.count_star) {
-            let { star_5, star_4, star_3, star_2, star_1 } = review.count_star
-            return [
-                { type_of_star: 5, count: star_5 },
-                { type_of_star: 4, count: star_4 },
-                { type_of_star: 3, count: star_3 },
-                { type_of_star: 2, count: star_2 },
-                { type_of_star: 1, count: star_1 },
-            ]
-        }
-        return []
-    }, [review])
+const ScoreCard = ({ commentTitleRef }) => {
+    const { average_rating, count_review } = useSelector(({ productDetail }) => productDetail.product.review)
+    const { reviews } = useSelector(({ productDetail }) => productDetail.reviewsState)
+
+    const countStar = useMemo(() => {
+        let count_star = [
+            { star: 1, count: 0 },
+            { star: 2, count: 0 },
+            { star: 3, count: 0 },
+            { star: 4, count: 0 },
+            { star: 5, count: 0 },
+        ]
+
+        if (reviews.length > 0)
+            for (let review of reviews)
+                count_star[review.rating - 1].count++
+
+        return count_star.reverse()
+    }, [reviews])
 
     const scrollIntoCommentTitle = () => {
         commentTitleRef.current.scrollIntoView({ behavior: 'auto', block: 'center' })
@@ -29,34 +34,38 @@ const ScoreCard = ({ commentTitleRef, review }) => {
             <ScoreCardContainer>
                 <AverageRatingContainer>
                     <div style={{ display: 'flex', alignItems: 'center' }}>
-                        <AverageRatingNumber>{review.average_rating}</AverageRatingNumber>
+                        <AverageRatingNumber>{average_rating}</AverageRatingNumber>
                         <Rating
-                            value={review.average_rating * 1} precision={0.5}
+                            value={average_rating * 1} precision={0.5}
                             readOnly size="large" sx={{ color: '#ff8888' }}
                         />
                     </div>
                     <BaseOn>
-                        <span>{'Based On ' + review.count_review}</span>
-                        <span>{review.count_review > 1 ? ' Reviews' : ' Review'}</span>
+                        <span>{'Based On ' + count_review}</span>
+                        <span>{count_review > 1 ? ' Reviews' : ' Review'}</span>
                     </BaseOn>
                 </AverageRatingContainer>
                 <div style={{ display: 'flex', columnGap: '6px', width: '100%', }}>
                     <RatingsContainer>
-                        {[5, 4, 3, 2, 1].map((number) => (
-                            <StyledRating value={number} readOnly key={number} />
-                        ))}
+                        {
+                            [5, 4, 3, 2, 1].map((number) => (
+                                <StyledRating value={number} readOnly key={number} />
+                            ))
+                        }
                     </RatingsContainer>
                     <RatingBarsContainer>
-                        {rating_bars.map(({ type_of_star, count }) => (
-                            <RatingBars key={type_of_star}>
-                                <RatingBar
-                                    sx={{ width: (count / review.count_review) * 100 + '%' }}
-                                >
-                                    <div className="rating_bar"></div>
-                                </RatingBar>
-                                <div>{count}</div>
-                            </RatingBars>
-                        ))}
+                        {
+                            countStar.map(({ star, count }) => (
+                                <RatingBars key={star}>
+                                    <RatingBar
+                                        sx={{ width: (count / count_review) * 100 + '%' }}
+                                    >
+                                        <div className="rating_bar"></div>
+                                    </RatingBar>
+                                    <div>{count}</div>
+                                </RatingBars>
+                            ))
+                        }
                     </RatingBarsContainer>
                 </div>
             </ScoreCardContainer>

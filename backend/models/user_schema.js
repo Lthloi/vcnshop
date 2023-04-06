@@ -1,4 +1,6 @@
 import mongoose from 'mongoose'
+import { totp } from 'otplib'
+import BaseError from '../utils/base_error'
 
 const { Schema } = mongoose
 
@@ -12,6 +14,10 @@ const UsersSchema = new Schema({
         require: true,
         index: true,
         unique: true,
+    },
+    email: {
+        type: String,
+        required: true,
     },
     password: {
         type: String,
@@ -33,14 +39,20 @@ const UsersSchema = new Schema({
             expireAt: { type: Date, default: Date.now },
         }]
     },
-    shop_followed: [{
-        username: String,
-    }],
     createdAt: {
         type: Date,
         default: Date.now,
     },
 })
+
+UsersSchema.methods.getOTPToken = () => {
+    const { OTP_SECRET_KEY } = process.env
+    
+    let otp_code = totp.generate(OTP_SECRET_KEY) //6 digit
+    let isValid = totp.check(token, OTP_SECRET_KEY)
+    if (!isValid) return new BaseError('Can\'t generate OTP code. Can\'t send OTP', 500)
+    return otp_code
+}
 
 const UsersModel = mongoose.model('users', UsersSchema)
 

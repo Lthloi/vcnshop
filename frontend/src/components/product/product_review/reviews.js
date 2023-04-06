@@ -11,8 +11,8 @@ import { Skeleton } from "@mui/material"
 import CommentIcon from '@mui/icons-material/Comment'
 import { LIMIT_GET_COMMENTS } from "../../../utils/constants"
 
-const Reviews = ({ productId, countReview, srollReviewRef }) => {
-    const { reviews, loading, error } = useSelector(({ productDetail }) => productDetail.reviewObject)
+const Reviews = ({ productId, srollReviewRef }) => {
+    const { reviews, loading, error } = useSelector(({ productDetail }) => productDetail.reviewsState)
     const [reviewPage, setReviewPage] = useState(1)
     const dispatch = useDispatch()
 
@@ -27,6 +27,14 @@ const Reviews = ({ productId, countReview, srollReviewRef }) => {
         dispatch(getReviews(productId, page))
     }
 
+    const convertDate = (date_in_string) => {
+        let date_splitting = date_in_string.split('/')
+        let temp = date_splitting[0]
+        date_splitting[0] = date_splitting[1]
+        date_splitting[1] = temp
+        return date_splitting.join('/')
+    }
+
     return (
         <>
             {
@@ -39,11 +47,11 @@ const Reviews = ({ productId, countReview, srollReviewRef }) => {
                 ) : error ? (
                     <ReviewError>{error.message}</ReviewError>
                 ) : reviews && reviews.length > 0 ? reviews.map(({ name, username, comment,
-                    rating, title, createdOn, avatar, imageURLs }) =>
+                    rating, title, createdAt, avatar, imageURLs }) =>
                     <ReviewContainer key={username}>
                         <Date>
-                            <span>Writed On </span>
-                            <span>{new window.Date(createdOn).toLocaleDateString()}</span>
+                            <span>Written On </span>
+                            <span>{convertDate(new window.Date(createdAt).toLocaleDateString())}</span>
                         </Date>
                         <UserInfoContainer>
                             <AvatarWrapper>
@@ -86,7 +94,7 @@ const Reviews = ({ productId, countReview, srollReviewRef }) => {
 
             <div style={{ display: 'flex', justifyContent: 'center', }}>
                 <ReviewPages
-                    count={Math.ceil(countReview / LIMIT_GET_COMMENTS)}
+                    count={Math.ceil(reviews.length / LIMIT_GET_COMMENTS)}
                     variant="outlined" shape="rounded"
                     onChange={switchCommentPage}
                     page={reviewPage}

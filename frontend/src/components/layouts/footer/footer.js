@@ -14,7 +14,7 @@ import TelegramIcon from '@mui/icons-material/Telegram'
 import TermsOfUse from "../../terms_of_use"
 import PaymentMethods from './payment_methods'
 
-const IconStyle = {
+const social_icon_style = {
     color: 'white',
     transition: 'transform 0.2s',
     cursor: 'pointer',
@@ -31,7 +31,7 @@ const desc_hover_style = {
     },
 }
 
-const informations = [
+const information = [
     {
         type: 'About us',
         content: [
@@ -91,21 +91,23 @@ const Footer = () => {
 
     return (
         <>
-            <TermsOfUse openDialog={openTermsOfUse}
-                handleOpenDialog={handleOpenTermsOfUse}
-            />
-
             <FooterArea id="FooterArea">
+
+                <TermsOfUse
+                    openDialog={openTermsOfUse}
+                    handleOpenDialog={handleOpenTermsOfUse}
+                />
+
                 <SocialsContainer id="SocialsContainer">
                     <SocialText>
                         Contact us on social networks!
                     </SocialText>
                     <Socials>
-                        <FacebookIcon sx={IconStyle} titleAccess="Facebook" />
-                        <YouTubeIcon sx={IconStyle} titleAccess="Youtube" />
-                        <InstagramIcon sx={IconStyle} titleAccess="Instagram" />
-                        <TwitterIcon sx={IconStyle} titleAccess="Twitter" />
-                        <LinkedInIcon sx={IconStyle} titleAccess="LinkedIn" />
+                        <FacebookIcon sx={social_icon_style} titleAccess="Facebook" />
+                        <YouTubeIcon sx={social_icon_style} titleAccess="Youtube" />
+                        <InstagramIcon sx={social_icon_style} titleAccess="Instagram" />
+                        <TwitterIcon sx={social_icon_style} titleAccess="Twitter" />
+                        <LinkedInIcon sx={social_icon_style} titleAccess="LinkedIn" />
                     </Socials>
                 </SocialsContainer>
                 <InformationsArea id="InformationsArea">
@@ -127,14 +129,18 @@ const Footer = () => {
                                 </LogoTextContainer>
                             </LogoWrapper>
                             <LogoDescription>
-                                VCN Shop is an online clothing store and a branch in
-                                Dong Nai of the international e-commerce group Fox COR
-                                based in HCM City.<br />
-                                Thank for VCN VLy distribution center of goods and services.
+                                <div>
+                                    VCN Shop is an online clothing store and a branch in
+                                    Dong Nai of the international e-commerce group Fox COR
+                                    based in HCM City.
+                                </div>
+                                <div>
+                                    Thank for VCN VLy distribution center of goods and services.
+                                </div>
                             </LogoDescription>
                         </LogoContainer>
                         {
-                            informations.map(({ type, content }) => (
+                            information.map(({ type, content }) => (
                                 <Infos key={type} className="Infos">
                                     <InfoTitle>
                                         {type}
