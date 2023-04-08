@@ -1,13 +1,14 @@
 import cloudinary from 'cloudinary'
 
-const uploadImages = async (files_in_request, product_id, username) => {
-    let error_of_uploading = null
-    let destination_of_uploading = 'products/' + product_id + '/reviews/' + username
-    
+const get_data_uri = (mimetype, data) => `data:${mimetype};base64,${data.toString('base64')}`
+
+const uploadReviewImages = async (files_in_request, product_id, email) => {
+    let destination_of_uploading = 'products/' + product_id + '/reviews/' + email
+
     try {
         await cloudinary.v2.api.delete_resources_by_prefix(destination_of_uploading)
     } catch (error) {
-        error_of_uploading = error
+        throw error
     }
 
     if (!files_in_request || files_in_request.images.length === 0) return [[], error_of_uploading]
@@ -20,9 +21,11 @@ const uploadImages = async (files_in_request, product_id, username) => {
 
     try {
         await new Promise((resolve, reject) => {
+            let data_uri
             for (let { data, mimetype } of files_in_request.images) {
+                data_uri = get_data_uri(mimetype, data)
                 cloudinary.v2.uploader.upload(
-                    `data:${mimetype};base64,${data.toString('base64')}`,
+                    data_uri,
                     {
                         use_filename: true,
                         unique_filename: true,
@@ -38,10 +41,34 @@ const uploadImages = async (files_in_request, product_id, username) => {
             }
         })
     } catch (error) {
-        error_of_uploading = error
+        throw error
     }
 
-    return [image_urls, error_of_uploading]
+    return image_urls
 }
 
-export default uploadImages
+const uploadUserAvatar = async (avatar_image, email) => {
+    let destination_of_uploading = 'users/' + email + '/profile'
+    let data_uri = get_data_uri(avatar_image.mimetype, avatar_image.data)
+    let avatar_public_id = 'avatar.' + avatar_image.mimetype.split('/')[0]
+
+    let response
+
+    try {
+        response = await cloudinary.v2.uploader.upload(
+            data_uri,
+            {
+                public_id: avatar_public_id,
+                folder: destination_of_uploading,
+            }
+        )
+    } catch (error) {
+        throw error
+    }
+
+    return response.secure_url
+}
+
+export {
+    uploadReviewImages, uploadUserAvatar,
+} 

@@ -7,28 +7,32 @@ import VisibilityOffIcon from '@mui/icons-material/VisibilityOff'
 import DateOfBirth from "./date_of_birth_inputs"
 import CancelIcon from '@mui/icons-material/Cancel'
 
-const inputs_detail = [
+const inputs = [
     {
-        name: 'Full Name',
-        required: true,
+        label: 'Full Name',
+        required: false,
+        max_length: 25,
         helper_text: 'We will use this one to display to other members.',
-        pattern: /^(?=.*?[a-zA-Z]).{2,22}$/,
-        warning: `Full Name field can't be empty or too short`,
-    }, {
-        name: 'Email',
-        required: true,
-        helper_text: 'Receive mail for events, order track, recover password, etc.',
-        pattern: /^[\w-]{2,}@([a-z]{2,12}\.){1,5}[a-z]{2,5}$/,
-        warning: `Please enter correct email format`,
-    }, {
-        name: 'Password',
-        required: true,
-        helper_text: 'Use this one with email or phone number to login',
-        pattern: /^(?=.*?[A-Z]).{6,20}$/,
+        pattern: /^([a-zA-Z0-9_\- ]){2,}$/,
         warning:
-            `Password must be between 6 and 20 
-            characters long and must contain at
-            least one capital letter`,
+            `Full Name field mustn't contain special characters. 
+            And must be between 2 and 25 characters long.`,
+    }, {
+        label: 'Email',
+        required: true,
+        max_length: 35,
+        helper_text: 'Receive mail for events, order track, recover password, etc.',
+        pattern: /^[a-zA-Z0-9]+([\\._\\-][a-zA-Z0-9]+)*@[a-zA-Z0-9]+([\\.\\-][a-zA-Z0-9]+)*\.[a-zA-Z]{2,}$/,
+        warning: `Please enter format of email correctly.`,
+    }, {
+        label: 'Password',
+        required: true,
+        max_length: 20,
+        helper_text: 'Use this one with email or phone number to login',
+        pattern: /^(?=.*[a-z])(?=.*[A-Z])(?!.*\s).{6,}$/,
+        warning:
+            `Password must be between 6 and 20 characters long. 
+            And can contain only capital letters and .`,
     },
 ]
 
@@ -57,9 +61,9 @@ const InformationInputs = ({ register, errors, reset }) => {
 
     const handleShowPassword = () => setShowPassword(!showPassword)
 
-    const clearInput = (input_name) => {
+    const clearInput = (input_label) => {
         reset({
-            [input_name]: ''
+            [input_label]: ''
         }, {
             keepErrors: false,
             keepDirty: false,
@@ -69,26 +73,27 @@ const InformationInputs = ({ register, errors, reset }) => {
     return (
         <InputsContainer id="InputsContainer">
             {
-                inputs_detail.map(({ name, helper_text, required, pattern, warning }) => (
-                    <InfoFormGroup key={name}>
+                inputs.map(({ label, helper_text, required, max_length, pattern, warning }) => (
+                    <InfoFormGroup key={label}>
                         <InfoLabelContainer>
-                            <InfoLabel htmlFor={name}>
-                                {name}
+                            <InfoLabel htmlFor={label}>
+                                {label}
                             </InfoLabel>
                             {required && <span className="force">*</span>}
                         </InfoLabelContainer>
                         <InfoInputWrapper>
                             <InfoInput
-                                id={name} //input
-                                name={name}
-                                type={name === 'Password' ?
+                                id={label} //input
+                                name={label}
+                                type={label === 'Password' ?
                                     showPassword ? 'text' : 'password' : 'text'}
-                                {...register(name,
+                                {...register(label,
                                     {
                                         pattern: pattern,
                                         required: required,
                                     }
                                 )}
+                                maxLength={max_length}
                             />
                             <ArrowIconWrapper className="ArrowIconWrapper">
                                 <ArrowRightIcon
@@ -101,7 +106,7 @@ const InformationInputs = ({ register, errors, reset }) => {
                             </ArrowIconWrapper>
                             <IconInputWrapper>
                                 {
-                                    name === 'Password' ?
+                                    label === 'Password' ?
                                         showPassword ?
                                             <VisibilityIcon sx={input_icon_style}
                                                 onClick={handleShowPassword}
@@ -112,7 +117,7 @@ const InformationInputs = ({ register, errors, reset }) => {
                                             />
                                         :
                                         <ClearIcon sx={input_icon_style}
-                                            onClick={() => clearInput(name)}
+                                            onClick={() => clearInput(label)}
                                         />
                                 }
                             </IconInputWrapper>
@@ -121,14 +126,14 @@ const InformationInputs = ({ register, errors, reset }) => {
                             {helper_text}
                         </HelperText>
                         {
-                            errors[name] &&
+                            errors[label] &&
                             <InputWarningContainer className="InputWarningContainer">
                                 {
-                                    name === 'Full Name' && warning ?
+                                    label === 'Full Name' && warning ?
                                         RenderInputWarnings(warning)
-                                        : name === 'Email' && warning ?
+                                        : label === 'Email' && warning ?
                                             RenderInputWarnings(warning)
-                                            : name === 'Password' && warning &&
+                                            : label === 'Password' && warning &&
                                             RenderInputWarnings(warning)
                                 }
                             </InputWarningContainer>

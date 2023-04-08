@@ -24,7 +24,6 @@ const ProductsSchema = new Schema({
         value: {
             type: Number,
             required: true,
-            min: 0,
             min: [0, 'Number of `value` must not smaller than or equal 0'],
         },
         currency: {
@@ -34,8 +33,6 @@ const ProductsSchema = new Schema({
         }
     },
     shop: {
-        type: Object,
-        required: true,
         name: {
             type: String,
             required: true,
@@ -56,7 +53,7 @@ const ProductsSchema = new Schema({
             type: Number,
             required: true,
             default: 0,
-            min: [0, 'Number of `in_a_week` must not smaller than or equal 0'],
+            minLength: [0, 'Number of `in_a_week` must not smaller than or equal 0'],
         }
     },
     stock: {
@@ -67,6 +64,8 @@ const ProductsSchema = new Schema({
     sku: {
         type: String,
         required: true,
+        index: true,
+        unique: true,
     },
     options: {
         size: [{ type: String, }],
@@ -76,12 +75,6 @@ const ProductsSchema = new Schema({
     description: {
         type: String,
         required: true,
-    },
-    sale: {
-        off: {
-            type: String,
-            default: '0',
-        },
     },
     review: {
         average_rating: {

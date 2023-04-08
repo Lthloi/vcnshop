@@ -11,7 +11,7 @@ const getCoupons = (picked_coupon_codes = []) => async (dispatch, getState) => {
     try {
         dispatch(getCouponsRequest())
         
-        let api_to_get_coupons = '/api/getCoupons/' + localStorage.getItem('usernameVCNShop')
+        let api_to_get_coupons = '/api/getCoupons/' + localStorage.getItem('emailVCNShop')
 
         let { data } = await axios.get(EXPRESS_SERVER + api_to_get_coupons)
 
@@ -31,7 +31,7 @@ const confirmCoupons = (coupon_codes = []) => async (dispatch, getState) => {
     try {
         dispatch(checkCouponRequest())
 
-        let api_to_confirm = '/api/getCoupons/' + localStorage.getItem('usernameVCNShop')
+        let api_to_confirm = '/api/getCoupons/' + localStorage.getItem('emailVCNShop')
 
         let { data } = await axios.get(EXPRESS_SERVER + api_to_confirm)
 

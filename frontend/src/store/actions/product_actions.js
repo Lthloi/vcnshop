@@ -133,9 +133,9 @@ const newReview = (productId, images, rating, title, comment) => async (dispatch
     try {
         dispatch(newReviewRequest())
 
-        let username = localStorage.getItem('usernameVCNShop') //get user from local
+        let email = localStorage.getItem('emailVCNShop') //get user from local
 
-        let api_to_make_new_review = '/api/newReview?productId=' + productId + '&username=' + username
+        let api_to_make_new_review = '/api/newReview?productId=' + productId + '&email=' + email
 
         let { data } = await axios.post(
             EXPRESS_SERVER + api_to_make_new_review,
@@ -152,7 +152,7 @@ const newReview = (productId, images, rating, title, comment) => async (dispatch
         toast.success('Success to submit the new review')
     } catch (error) {
         let errorObject = actionsErrorHandler(error, 'Error Warning: fail to make new review.')
-        console.log('>>> errorObject >>>', errorObject)
+
         toast.error(errorObject.message)
 
         dispatch(newReviewFail())

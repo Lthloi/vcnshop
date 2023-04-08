@@ -4,10 +4,10 @@ const { VCNSHOP_URI } = process.env
 
 const connectDB = async () => {
     try {
-        await mongoose.connect(VCNSHOP_URI, { autoIndex: false })
-        console.log('>>> connect DB successfully')
+        await mongoose.connect(VCNSHOP_URI)
+        console.log('>>> Connect DB successfully')
     } catch (err) {
-        console.log('>>> fail to connect DB >>>', err)
+        console.log('>>> Fail to connect DB >>>', err)
     }
 }
 

@@ -8,12 +8,22 @@ export const userSlice = createSlice({
         error: null,
     },
     reducers: {
+        sendOTPRequest: (state, action) => {
+            state.error = null
+            state.loading = true
+        },
+        sendOTPSuccess: (state, action) => {
+
+        },
+        sendOTPFail: (state, action) => {
+
+        },
         registerRequest: (state, action) => {
             state.error = null
             state.loading = true
         },
         registerSuccess: (state, action) => {
-            
+
             state.loading = false
         },
         registerFail: (state, action) => {

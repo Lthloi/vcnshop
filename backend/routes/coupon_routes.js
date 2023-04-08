@@ -5,7 +5,7 @@ import {
 
 const router = express.Router()
 
-router.get('/getCoupons/:username', getCoupons)
+router.get('/getCoupons/:email', getCoupons)
 
 router.get('/getCoupon/:couponCode', getCoupon)
 

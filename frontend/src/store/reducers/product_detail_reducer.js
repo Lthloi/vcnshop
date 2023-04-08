@@ -45,7 +45,7 @@ export const productDetailSlice = createSlice({
         newReviewSuccess: (state, action) => {
             let { newReview, newAverageRating, newCountReview } = action.payload
 
-            let current_reviews = current(state).reviewsState.reviews.filter(({ username }) => username !== newReview.username)
+            let current_reviews = current(state).reviewsState.reviews.filter(({ email }) => email !== newReview.email)
 
             state.reviewsState.reviews = [newReview, ...current_reviews]
 

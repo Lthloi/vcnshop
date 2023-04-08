@@ -18,7 +18,10 @@ const ShopsSchema = new Schema({
     },
     products: {
         ids: [{ type: mongoose.Types.ObjectId }],
-        count: { type: Number, min: [0, 'Number of `count` must not lower than 0'] }
+        count: {
+            type: Number,
+            min: [0, 'Number of `count` must not lower than 0'],
+        }
     },
     contact_info: {
         phone: {

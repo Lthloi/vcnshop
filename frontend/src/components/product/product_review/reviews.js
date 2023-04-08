@@ -46,9 +46,8 @@ const Reviews = ({ productId, srollReviewRef }) => {
                     </>
                 ) : error ? (
                     <ReviewError>{error.message}</ReviewError>
-                ) : reviews && reviews.length > 0 ? reviews.map(({ name, username, comment,
-                    rating, title, createdAt, avatar, imageURLs }) =>
-                    <ReviewContainer key={username}>
+                ) : reviews && reviews.length > 0 ? reviews.map(({ name, email, comment, rating, title, createdAt, avatar, imageURLs }) =>
+                    <ReviewContainer key={email}>
                         <Date>
                             <span>Written On </span>
                             <span>{convertDate(new window.Date(createdAt).toLocaleDateString())}</span>
@@ -57,10 +56,7 @@ const Reviews = ({ productId, srollReviewRef }) => {
                             <AvatarWrapper>
                                 <Avatar src={avatar} />
                             </AvatarWrapper>
-                            <Info>
-                                <Name>{name}</Name>
-                                <Username>{'@' + username}</Username>
-                            </Info>
+                            <Name>{name}</Name>
                         </UserInfoContainer>
                         <Rating value={rating * 1} readOnly size="small" precision={0.5} />
                         <CommentTitle>{title}</CommentTitle>
@@ -148,21 +144,10 @@ const Avatar = styled('img')({
     width: '40px',
 })
 
-const Info = styled('div')({
-
-})
-
 const Name = styled('h2')({
     fontFamily: '"Work Sans", sans-serif',
     margin: '0',
     fontSize: '1em',
-})
-
-const Username = styled('div')({
-    display: 'flex',
-    alignItems: 'center',
-    fontFamily: '"Work Sans", sans-serif',
-    fontSize: '0.8em',
 })
 
 const CommentTitle = styled('h2')({

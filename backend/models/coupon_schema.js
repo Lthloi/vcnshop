@@ -16,18 +16,18 @@ const CouponsSchema = new Schema({
     cost: {
         type: Number,
         required: true,
-        min: 0,
+        min: [0, 'The cost of coupon can\'t be smaller than or equal 0'],
     },
     img: {
         type: String,
         require: true,
     },
     shop: {
-        'id': {
+        id: {
             type: Number,
             required: true,
         },
-        'name': {
+        name: {
             type: String,
         },
     },
