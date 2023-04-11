@@ -1,10 +1,10 @@
 import mongoose from "mongoose"
 
-const { VCNSHOP_URI } = process.env
+const { MONGODB_URI } = process.env
 
 const connectDB = async () => {
     try {
-        await mongoose.connect(VCNSHOP_URI)
+        await mongoose.connect(MONGODB_URI)
         console.log('>>> Connect DB successfully')
     } catch (err) {
         console.log('>>> Fail to connect DB >>>', err)

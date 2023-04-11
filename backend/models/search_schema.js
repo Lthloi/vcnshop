@@ -12,6 +12,6 @@ const searchSchema = new Schema({
     },
 })
 
-const searchModel = mongoose.model('search', searchSchema)
+const SearchModel = mongoose.model('search', searchSchema)
 
-export default searchModel
+export default SearchModel

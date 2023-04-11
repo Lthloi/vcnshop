@@ -1,12 +1,22 @@
 import React, { useEffect, useMemo, useRef, useState } from "react"
 import { styled } from '@mui/material/styles'
 import ClearIcon from '@mui/icons-material/Clear'
+import { useDispatch } from "react-redux"
+import { verifyOTP } from "../../../store/actions/user_actions"
 
 const VALID_DEGIT = /^\d+$/
 
-const OTPInput = () => {
+const OTPInput = ({ email }) => {
     const [OTPInputValue, setOTPInputValue] = useState('')
     const OTPInputContainerRef = useRef()
+    const dispatch = useDispatch()
+
+    useEffect(() => {
+        if (OTPInputValue.length === 4) {
+            dispatch(verifyOTP(OTPInputValue))
+            setOTPInputValue('')
+        }
+    }, [OTPInputValue])
 
     const input_values = useMemo(() => {
         let temp_values = OTPInputValue.split('')
@@ -24,7 +34,7 @@ const OTPInput = () => {
 
     useEffect(() => {
         OTPInputContainerRef.current.firstElementChild.focus()
-    }, [])
+    }, [OTPInputContainerRef])
 
     const handlePressKey = (e) => {
         let target = e.target
@@ -52,23 +62,25 @@ const OTPInput = () => {
             }
         }
     }
-
+//>>> fix this
     const handleOnChangeInput = (e, index) => {
+        // let input_value = e.target.value.trim()
+
+
+
         let target = e.target
-        let entered_value = target.value.trim()
+        let input_value = target.value.trim()
         let nextElementSibling = target.nextElementSibling
-        if (!VALID_DEGIT.test(entered_value) && entered_value !== '') {
+        if (!VALID_DEGIT.test(input_value) && input_value !== '')
             return
-        }
-        if (entered_value === '' && nextElementSibling && nextElementSibling.value !== '') {
-            entered_value = '#'
-        }
+        if (input_value === '' && nextElementSibling && nextElementSibling.value !== '') 
+            input_value = '#'
         let new_value =
-            `${OTPInputValue.substring(0, index)}${entered_value}${OTPInputValue.substring(index + 1)}`
+            `${OTPInputValue.substring(0, index)}${input_value}${OTPInputValue.substring(index + 1)}`
         if (new_value.length > 4) return
         setOTPInputValue(new_value)
-        if (entered_value === '' || entered_value === '#') return
-        if (entered_value.length === 4) {
+        if (input_value === '' || input_value === '#') return
+        if (input_value.length === 4) {
             target.blur()
             return
         }
@@ -97,7 +109,7 @@ const OTPInput = () => {
         <VerifyOTPFormGroup id="VerifyOTPFormGroup">
             <Label>Enter the OTP code here...</Label>
 
-            <input id="HiddenOTPToGetValue" style={{ display: 'none', }}
+            <input id="HiddenOTPToGetValue" style={{ display: 'none' }}
                 name="HiddenOTPInput"
             />
 
@@ -119,15 +131,16 @@ const OTPInput = () => {
                         />
                     ))
                 }
-                <div style={{
-                    height: '100%',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    position: 'absolute',
-                    right: '-10px',
-                    bottom: '0',
-                }}
+                <div
+                    style={{
+                        height: '100%',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        position: 'absolute',
+                        right: '-10px',
+                        bottom: '0',
+                    }}
                 >
                     <ClearInputWrapper onClick={() => clearInput()}
                         title="Clear"
@@ -137,8 +150,8 @@ const OTPInput = () => {
                 </div>
             </OTPInputContainer>
             <Saying>
-                A four-digit OTP code was sent to your phone.
-                Please check message and type the code into above.
+                A four-digit OTP code was sent to your email.
+                Please check the email and enter the code into above.
             </Saying>
         </VerifyOTPFormGroup>
     )

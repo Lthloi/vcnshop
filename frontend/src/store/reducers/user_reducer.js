@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 
 export const userSlice = createSlice({
-    name: 'shop',
+    name: 'user',
     initialState: {
         user: {},
         loading: false,
@@ -13,28 +13,42 @@ export const userSlice = createSlice({
             state.loading = true
         },
         sendOTPSuccess: (state, action) => {
-
-        },
-        sendOTPFail: (state, action) => {
-
-        },
-        registerRequest: (state, action) => {
-            state.error = null
-            state.loading = true
-        },
-        registerSuccess: (state, action) => {
-
+            state.user.receivedOTP = true
             state.loading = false
         },
-        registerFail: (state, action) => {
+        sendOTPFail: (state, action) => {
             state.error = action.payload.error
             state.loading = false
         },
+        verifyOTPRequest: (state, action) => {
+            state.error = null
+            state.loading = true
+        },
+        verifyOTPSuccess: (state, action) => {
+            state.loading = false
+        },
+        verifyOTPFail: (state, action) => {
+            state.error = action.payload.error
+            state.loading = false
+        },
+        // registerRequest: (state, action) => {
+        //     state.error = null
+        //     state.loading = true
+        // },
+        // registerSuccess: (state, action) => {
+
+        //     state.loading = false
+        // },
+        // registerFail: (state, action) => {
+        //     state.error = action.payload.error
+        //     state.loading = false
+        // },
     },
 })
 
 export const {
-    registerRequest, registerSuccess, registerFail,
+    sendOTPRequest, sendOTPSuccess, sendOTPFail,
+    verifyOTPRequest, verifyOTPSuccess, verifyOTPFail,
 } = userSlice.actions
 
 export default userSlice.reducer

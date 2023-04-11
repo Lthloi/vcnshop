@@ -2,7 +2,7 @@ import mongoose from 'mongoose'
 
 const { Schema } = mongoose
 
-const ShopsSchema = new Schema({
+const ShopSchema = new Schema({
     username: {
         type: String,
         require: true,
@@ -46,6 +46,6 @@ const ShopsSchema = new Schema({
     followers: [],
 })
 
-const ShopsModel = mongoose.model('shops', ShopsSchema)
+const ShopModel = mongoose.model('shops', ShopSchema)
 
-export default ShopsModel
+export default ShopModel

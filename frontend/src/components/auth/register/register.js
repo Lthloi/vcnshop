@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useRef, useState } from "react"
 import { styled } from '@mui/material/styles'
 import 'react-phone-number-input/style.css'
 import ProblemSection from "../../problem_section"
@@ -10,29 +10,27 @@ import ResendOTP from "./resend_OTP"
 import { NavLink } from "react-router-dom"
 import { toast } from 'react-toastify'
 import EmailIcon from '@mui/icons-material/Email'
+import { useDispatch, useSelector } from 'react-redux'
+import { sendOTP } from "../../../store/actions/user_actions"
 
 const RegisterSection = () => {
-    
+    const { user: { receivedOTP }, loading } = useSelector(({ user }) => user)
     const [openProblemSection, setOpenProblemSection] = useState(false)
-    
+    const email_input_ref = useRef()
+    const dispatch = useDispatch()
+
     const timeToResendOTP = 120
 
-    const handleOpenProblemSection = open => {
-        setOpenProblemSection(open)
-    }
+    const handleOpenProblemSection = open => setOpenProblemSection(open)
 
-    const sendOTP = (e) => {
-        try {
-            e.preventDefault()
-            setSendOTPInProgress(true)
-            setTimeout(() => {
-                setSendOTPInProgress(false)
-                setOTPWasSent(true)
-                toast.success('OTP was sent!')
-            }, 1000)
-        } catch (err) {
-            toast.error('Fail to send OTP!')
-        }
+    const sendOTPSubmit = (e) => {
+        let email = email_input_ref.current.value
+        if (email.length === 0) return toast.warning('Please enter your email!')
+        let email_regex = /^[a-zA-Z0-9]+([\\._\\-][a-zA-Z0-9]+)*@[a-zA-Z0-9]+([\\.\\-][a-zA-Z0-9]+)*\.[a-zA-Z]{2,}$/
+        if (!email_regex.test(email))
+            return toast.warning('Please enter format of email correctly!')
+
+        dispatch(sendOTP(email))
     }
 
     return (
@@ -43,10 +41,10 @@ const RegisterSection = () => {
                 handleOpen={handleOpenProblemSection}
             />
 
-            <FormContainer action="#" method="post" onSubmit={sendOTP}>
+            <FormContainer>
                 <FormTitle>Register</FormTitle>
                 {
-                    OTPWasSent ?
+                    receivedOTP ?
                         <OTPInput />
                         :
                         <>
@@ -57,8 +55,8 @@ const RegisterSection = () => {
                                 <div style={{ display: 'flex', columnGap: '10px' }}>
                                     <EmailIcon sx={{ color: 'white' }} />
                                     <EmailInput
+                                        ref={email_input_ref}
                                         type="email"
-                                        name="email"
                                         placeholder="Enter your email here..."
                                     />
                                 </div>
@@ -73,17 +71,17 @@ const RegisterSection = () => {
                         Have problem ?
                     </Problems>
                     {
-                        sendOTPInProgress ?
+                        loading ?
                             <SendOTPBtn>
                                 <CircularProgress sx={{ color: 'black', }}
                                     size={18} thickness={6}
                                 />
                             </SendOTPBtn>
                             :
-                            OTPWasSent ?
+                            receivedOTP ?
                                 <ResendOTP secondsStarter={timeToResendOTP} />
                                 :
-                                <SendOTPBtn>
+                                <SendOTPBtn onClick={sendOTPSubmit}>
                                     Send OTP
                                 </SendOTPBtn>
                     }
@@ -119,7 +117,7 @@ const RegisterSectionArea = styled('div')({
     backgroundColor: '#1c1c1c',
 })
 
-const FormContainer = styled('form')({
+const FormContainer = styled('div')({
 
 })
 

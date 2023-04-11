@@ -1,4 +1,3 @@
-
 import 'dotenv/config'
 import express from "express"
 import bodyParser from 'body-parser'
@@ -7,15 +6,34 @@ import cors from 'cors'
 import initRoutes from './routes/routes.js'
 import ErrorHandler from './middlewares/error_handler.js'
 import fileUpload from 'express-fileupload'
-import './configs/cloudinary.js'
+import session from 'express-session'
+import mongoStore from './configs/session_store.js'
+
+const { SESSION_SECRET } = process.env
 
 const app = express()
 
-app.use(cookieParser())
+//body
 app.use(bodyParser.urlencoded({ extended: true })) //handle data with form-data
 app.use(bodyParser.json())
 app.use(express.json())
-app.use(cors())
+
+//session
+app.use(session({
+    secret: SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    store: mongoStore,
+}))
+
+//cookie
+app.use(cookieParser())
+
+//cors
+app.use(cors({
+    origin: 'http://localhost:3000',
+    credentials: true,
+}))
 
 //config for req.files
 app.use(fileUpload())

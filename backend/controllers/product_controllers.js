@@ -1,4 +1,4 @@
-import ProductsModel from '../models/product_schema.js'
+import ProductModel from '../models/product_schema.js'
 import BaseError from "../utils/base_error.js"
 import mongoose from "mongoose"
 import { uploadReviewImages } from '../utils/upload_images.js'
@@ -9,7 +9,7 @@ const getProduct = catchAsyncError(async (req, res, next) => {
     if (!req.params) throw new BaseError('Params doesn\'t exist', 400)
     if (!req.params.productId) throw new BaseError('Wrong request property', 400)
 
-    let product = await ProductsModel.findOne(
+    let product = await ProductModel.findOne(
         { _id: req.params.productId },
         { 'review.reviews': 0 },
     ).lean()
@@ -43,9 +43,9 @@ const getProducts = catchAsyncError(async (req, res, next) => {
 
     let sort = req.query.sort || { name: 'name', type: 1 }
 
-    let count_product = await ProductsModel.countDocuments(queryObject)
+    let count_product = await ProductModel.countDocuments(queryObject)
 
-    let products = await ProductsModel
+    let products = await ProductModel
         .find(queryObject, { 'review.reviews': 0 })
         .skip((pagination - 1) * (limit * 1))
         .sort({ [sort.name]: sort.type })
@@ -70,7 +70,7 @@ const getReviews = catchAsyncError(async (req, res, next) => {
     pagination -= 1
     limit *= 1
 
-    let review = await ProductsModel.aggregate([
+    let review = await ProductModel.aggregate([
         { $match: { _id: mongoose.Types.ObjectId(productId) } },
         {
             $project: {
@@ -101,7 +101,7 @@ const newReview = catchAsyncError(async (req, res, next) => {
     if (upload_error instanceof Error) throw upload_error
 
     //remove a review existed 
-    let product_after_remove_review = await ProductsModel.findOneAndUpdate(
+    let product_after_remove_review = await ProductModel.findOneAndUpdate(
         { _id: productId },
         { $pull: { 'review.reviews': { email } } },
         {
@@ -131,7 +131,7 @@ const newReview = catchAsyncError(async (req, res, next) => {
     }
 
     //update review in database
-    await ProductsModel.updateOne(
+    await ProductModel.updateOne(
         { _id: productId },
         {
             $set: {

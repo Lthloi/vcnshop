@@ -6,8 +6,6 @@ const project_info = {
     country: 'Viet Nam',
 }
 
-const minutes_for_otp_is_expire = 5
-
 const { GMAIL_USERNAME, GMAIL_PASSWORD } = process.env
 
 const transporter = nodemailer.createTransport({
@@ -19,46 +17,50 @@ const transporter = nodemailer.createTransport({
     },
 })
 
-const sendMail = async (otp_code, receiver, subject, message) => {
+const sendMail = async (OTP_code, OTP_expire, receiver, subject, message) => {
     try {
         await transporter.sendMail({
             from: `"VCN Shop" <${GMAIL_USERNAME}>`,
             to: receiver,
-            subject: subject ? subject :'VCN Shop - Verify Email ✔',
-            text: 'This is OTP code: ' + token,
+            subject: subject ? subject : 'VCN Shop - Verify OTP ✔',
+            text: 'This is OTP code: ' + OTP_code,
             html: message ? message :
                 `
-                <div style="font-family: Helvetica,Arial,sans-serif;min-width:1000px;overflow:auto;line-height:2">
-                    <div style="margin:50px auto;width:70%;padding:20px 0">
-                        <div style="border-bottom:1px solid #eee">
-                            <a href="" style="font-size:1.4em;color: #00466a;text-decoration:none;font-weight:600">
+                <div style="font-family: Helvetica,Arial,sans-serif; width: 100%; display: flex; justify-content: center; align-items: center; box-sizing: border-box; ">
+                    <div style="padding: 10px; ">
+                        <div style="border-bottom: 1px solid #c1c1c1; padding: 5px 0 15px;">
+                            <a href="https://www.vcnshop.new" style="font-size: 1.4em; color: #00466a; text-decoration: none; font-weight: 600; ">
                                 ${project_info.name}
                             </a>
                         </div>
-                        <p style="font-size:1.1em">Hi,</p>
+                        <p style="font-size: 1.1em; ">Hi,</p>
                         <p>
                             Thank you for choosing ${project_info.name}. Use the following OTP to
-                            complete your register procedures. OTP is valid for ${minutes_for_otp_is_expire} minutes
+                            complete your register procedures. OTP is valid for ${OTP_expire} minutes.
                         </p>
-                        <h2 style="background: #00466a;margin: 0 auto;width: max-content;padding: 0 10px;color: #fff;border-radius: 4px;">
-                            ${otp_code}
+                        <h2 style="background: #00466a; margin: 0 auto; width: fit-content; padding: 5px 10px; color: #fff; border-radius: 4px; ">
+                            ${OTP_code}
                         </h2>
-                        <p style="font-size:0.9em;">
-                            Regards,<br />
-                            ${project_info.name}
+                        <p style="font-size: 0.9em; ">
+                            <span>Regards,</span>
+                            <br />
+                            <span>${project_info.name}</span>
                         </p>
-                        <hr style="border:none;border-top:1px solid #eee" />
-                        <div style="float:right;padding:8px 0;color:#aaa;font-size:0.8em;line-height:1;font-weight:300">
-                            <p>${project_info.name}</p>
-                            <p>${project_info.address}</p>
-                            <p>${project_info.country}</p>
+                        <hr style="border: none; border-top: 1px solid #c1c1c1; " />
+                        <div style="display: flex; justify-content: space-between; ">
+                            <div></div>
+                            <div style="font-size: 0.8em; ">
+                                <p>${project_info.name}</p>
+                                <p>${project_info.address}</p>
+                                <p>${project_info.country}</p>
+                            </div>
                         </div>
                     </div>
                 </div>
                 `,
         })
     } catch (error) {
-        return error
+        throw error
     }
 }
 

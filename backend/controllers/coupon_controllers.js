@@ -1,5 +1,5 @@
-import UsersModel from "../models/user_schema.js"
-import CouponsModel from '../models/coupon_schema.js'
+import UserModel from "../models/user_schema.js"
+import CouponModel from '../models/coupon_schema.js'
 import BaseError from "../utils/base_error.js"
 import moment from 'moment'
 import catchAsyncError from "../middlewares/catch_async_error.js"
@@ -8,7 +8,7 @@ import catchAsyncError from "../middlewares/catch_async_error.js"
 const getCoupons = catchAsyncError(async (req, res, next) => {
     if (!req.params.email) throw new BaseError('Wrong request property', 400)
 
-    let [{ user_coupon_codes }] = await UsersModel.aggregate([
+    let [{ user_coupon_codes }] = await UserModel.aggregate([
         { $match: { 'email': req.params.email } },
         {
             $project: {
@@ -36,7 +36,7 @@ const getCoupons = catchAsyncError(async (req, res, next) => {
 
     let codes = user_coupon_codes.filter((code) => !!code)
 
-    let coupons = await CouponsModel.aggregate([
+    let coupons = await CouponModel.aggregate([
         {
             $match: { code: { $in: codes } }
         },
@@ -79,7 +79,7 @@ const getCoupon = catchAsyncError(async (req, res, next) => {
     let { couponCode } = req.params
     if (!couponCode) throw new BaseError('Wrong request property', 400)
 
-    let coupon = await CouponsModel.findOne(
+    let coupon = await CouponModel.findOne(
         {
             code: couponCode,
         },

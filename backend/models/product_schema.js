@@ -2,7 +2,7 @@ import mongoose from 'mongoose'
 
 const { Schema } = mongoose
 
-const ProductsSchema = new Schema({
+const ProductSchema = new Schema({
     image_link: {
         type: String,
         required: true,
@@ -111,6 +111,6 @@ const ProductsSchema = new Schema({
     },
 })
 
-const ProductsModel = mongoose.model('products', ProductsSchema)
+const ProductModel = mongoose.model('products', ProductSchema)
 
-export default ProductsModel
+export default ProductModel
