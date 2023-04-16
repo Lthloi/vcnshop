@@ -56,7 +56,6 @@ const RenderInputWarnings = (input_warning) => {
 }
 
 const InformationInputs = ({ register, errors, reset }) => {
-
     const [showPassword, setShowPassword] = useState(false)
 
     const handleShowPassword = () => setShowPassword(!showPassword)
@@ -139,8 +138,7 @@ const InformationInputs = ({ register, errors, reset }) => {
                             </InputWarningContainer>
                         }
                     </InfoFormGroup>
-                )
-                )
+                ))
             }
 
             <DateOfBirth />

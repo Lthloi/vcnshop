@@ -12,9 +12,10 @@ import { toast } from 'react-toastify'
 import EmailIcon from '@mui/icons-material/Email'
 import { useDispatch, useSelector } from 'react-redux'
 import { sendOTP } from "../../../store/actions/user_actions"
+import ProvideInfoSection from "./provide_info"
 
 const RegisterSection = () => {
-    const { user: { receivedOTP }, loading } = useSelector(({ user }) => user)
+    const { user: { receivedOTP, successToVerifyOTP }, loading } = useSelector(({ user }) => user)
     const [openProblemSection, setOpenProblemSection] = useState(false)
     const email_input_ref = useRef()
     const dispatch = useDispatch()
@@ -23,7 +24,7 @@ const RegisterSection = () => {
 
     const handleOpenProblemSection = open => setOpenProblemSection(open)
 
-    const sendOTPSubmit = (e) => {
+    const sendOTPSubmit = () => {
         let email = email_input_ref.current.value
         if (email.length === 0) return toast.warning('Please enter your email!')
         let email_regex = /^[a-zA-Z0-9]+([\\._\\-][a-zA-Z0-9]+)*@[a-zA-Z0-9]+([\\.\\-][a-zA-Z0-9]+)*\.[a-zA-Z]{2,}$/
@@ -33,71 +34,79 @@ const RegisterSection = () => {
         dispatch(sendOTP(email))
     }
 
+    const catchEnterKey = (e) => {
+        if (e.key === 'Enter') sendOTPSubmit()
+    }
+
     return (
-        <RegisterSectionArea id="RegisterSectionArea">
+        successToVerifyOTP ?
+            <ProvideInfoSection email={email_input_ref.current && email_input_ref.current.value} />
+            :
+            <RegisterSectionArea id="RegisterSectionArea">
 
-            <ProblemSection
-                open={openProblemSection}
-                handleOpen={handleOpenProblemSection}
-            />
+                <ProblemSection
+                    open={openProblemSection}
+                    handleOpen={handleOpenProblemSection}
+                />
 
-            <FormContainer>
-                <FormTitle>Register</FormTitle>
-                {
-                    receivedOTP ?
-                        <OTPInput />
-                        :
-                        <>
-                            <FormGroup>
-                                <Label htmlFor="StyledPhoneInput">
-                                    Enter your email here
-                                </Label>
-                                <div style={{ display: 'flex', columnGap: '10px' }}>
-                                    <EmailIcon sx={{ color: 'white' }} />
-                                    <EmailInput
-                                        ref={email_input_ref}
-                                        type="email"
-                                        placeholder="Enter your email here..."
-                                    />
-                                </div>
-                            </FormGroup>
-                            <HelperText>
-                                An OTP code will be sent to your email to verify.
-                            </HelperText>
-                        </>
-                }
-                <SendOTPArea>
-                    <Problems onClick={() => handleOpenProblemSection(true)}>
-                        Have problem ?
-                    </Problems>
+                <FormContainer>
+                    <FormTitle>Register</FormTitle>
                     {
-                        loading ?
-                            <SendOTPBtn>
-                                <CircularProgress sx={{ color: 'black', }}
-                                    size={18} thickness={6}
-                                />
-                            </SendOTPBtn>
+                        receivedOTP ?
+                            <OTPInput />
                             :
-                            receivedOTP ?
-                                <ResendOTP secondsStarter={timeToResendOTP} />
-                                :
-                                <SendOTPBtn onClick={sendOTPSubmit}>
-                                    Send OTP
-                                </SendOTPBtn>
+                            <>
+                                <FormGroup>
+                                    <Label htmlFor="StyledPhoneInput">
+                                        Enter your email here
+                                    </Label>
+                                    <div style={{ display: 'flex', columnGap: '10px' }}>
+                                        <EmailIcon sx={{ color: 'white' }} />
+                                        <EmailInput
+                                            ref={email_input_ref}
+                                            type="email"
+                                            placeholder="Enter your email here..."
+                                            onKeyDown={catchEnterKey}
+                                        />
+                                    </div>
+                                </FormGroup>
+                                <HelperText>
+                                    An OTP code will be sent to your email to verify.
+                                </HelperText>
+                            </>
                     }
-                </SendOTPArea>
-            </FormContainer>
+                    <SendOTPArea>
+                        <Problems onClick={() => handleOpenProblemSection(true)}>
+                            Have problem ?
+                        </Problems>
+                        {
+                            loading ?
+                                <SendOTPBtn>
+                                    <CircularProgress sx={{ color: 'black', }}
+                                        size={18} thickness={6}
+                                    />
+                                </SendOTPBtn>
+                                :
+                                receivedOTP ?
+                                    <ResendOTP secondsStarter={timeToResendOTP} />
+                                    :
+                                    <SendOTPBtn onClick={sendOTPSubmit}>
+                                        Send OTP
+                                    </SendOTPBtn>
+                        }
+                    </SendOTPArea>
+                </FormContainer>
 
-            <SignIn >
-                <span>Already have an account ? </span>
-                <NavLink to="/auth/login" className="NavLink">
-                    Sign In.
-                </NavLink>
-            </SignIn>
+                <SignIn >
+                    <span>Already have an account ? </span>
+                    <NavLink to="/auth/login" className="NavLink">
+                        Sign In.
+                    </NavLink>
+                </SignIn>
 
-            <BottomForm />
+                <BottomForm />
 
-        </RegisterSectionArea>
+            </RegisterSectionArea>
     )
 }
 

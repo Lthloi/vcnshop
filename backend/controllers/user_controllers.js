@@ -6,22 +6,6 @@ import { uploadUserAvatar } from '../utils/upload_images.js'
 import { SESSION_OTP_EXPIRE } from '../utils/contants.js'
 import mongoStore from '../configs/session_store.js'
 
-// const sendOTP = catchAsyncError(async (req, res, next) => {
-//     let { email } = req.body
-//     if (!email) throw new BaseError('Wrong property name', 400)
-
-//     let user_is_exist = await UserModel.findOne({ email }, { 'email': 1, _id: 0 }).lean()
-//     if (user_is_exist) return res.status(200).json({ fail: 'User with the email is exist!' })
-
-//     let OTP_code = UserModel.getOTPCode()
-
-//     await UserModel.create({ email }, { $set: { OTP_code } })
-
-//     await sendMail(OTP_code, email)
-
-//     res.status(200).json({ success: true })
-// })
-//>>> fix this
 const sendOTP = catchAsyncError(async (req, res, next) => {
     let { email } = req.body
     if (!email) throw new BaseError('Wrong property name', 400)
@@ -33,10 +17,9 @@ const sendOTP = catchAsyncError(async (req, res, next) => {
     let user_instance = new UserModel()
     let OTP_code = user_instance.getOTPCode()
 
-    // await sendMail(OTP_code, SESSION_OTP_EXPIRE, email)
+    await sendMail(OTP_code, SESSION_OTP_EXPIRE, email)
 
     req.session.cookie.maxAge = SESSION_OTP_EXPIRE
-    req.session.email = email
     req.session.OTP_code = OTP_code
     
     res
@@ -44,17 +27,15 @@ const sendOTP = catchAsyncError(async (req, res, next) => {
         .cookie('OTP_sid', req.session.id, {
             maxAge: SESSION_OTP_EXPIRE,
             httpOnly: true,
-            path: '/auth/register',
+            path: '/',
             domain: req.hostname,
         })
         .json({ success: true })
 })
-//>>> fix this
+
 const verifyOTP = catchAsyncError(async (req, res, next) => {
     let { OTP_code } = req.body
     if (!OTP_code) throw new BaseError('Wrong property name', 400)
-
-    console.log('>>> req.cookies verify >>>', req.cookies)
 
     let OTP_sid_from_user = req.cookies.OTP_sid
     if (!OTP_sid_from_user) throw new BaseError('Not found session id of OTP from user', 400)
@@ -81,20 +62,6 @@ const verifyOTP = catchAsyncError(async (req, res, next) => {
 
     res.status(200).json({ success: true })
 })
-
-// const verifyOTP = catchAsyncError(async (req, res, next) => {
-//     let { OTP_code, email } = req.body
-//     if (!OTP_code) throw new BaseError('Wrong property name', 400)
-
-//     let OTP_isValid = totp.verify({ token: OTP_code, secret: OTP_SECRET_KEY })
-//     if (!OTP_isValid) throw new BaseError('OTP is not valid', 400)
-
-//     let user_with_OTP_code = await UserModel.findOne({ email }, { 'OTP_code': 1, _id: 0 })
-//     if (!user_with_OTP_code)
-//         return res.status(200).json({ fail: 'Time for register is over, please reregister!' })
-//     if (user_with_OTP_code.OTP_code !== OTP_code)
-//         return res.status(200).json({ fail: 'The OTP code is wrong!' })
-// })
 
 const register = catchAsyncError(async (req, res, next) => {
     let { name, password, email } = req.body

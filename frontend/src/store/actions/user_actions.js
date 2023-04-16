@@ -61,6 +61,8 @@ const verifyOTP = (OTP_code) => async (dispatch) => {
     }
 }
 
+const register=(email,)=>{}
+
 export {
     sendOTP, verifyOTP,
 }

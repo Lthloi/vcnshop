@@ -9,7 +9,6 @@ import LoginSection from '../components/auth/login'
 import RegisterSection from '../components/auth/register/register'
 import ForgotPasswordSection from '../components/auth/forgot_password'
 import NewPasswordSection from '../components/auth/new_password'
-import ProvideInfoSection from '../components/auth/provide_info/provide_info'
 import { Route, Routes } from "react-router-dom"
 
 const Auth = () => {
@@ -54,7 +53,6 @@ const Auth = () => {
                     <Route path='/register' element={<RegisterSection />} />
                     <Route path='/forgotPassword' element={<ForgotPasswordSection />} />
                     <Route path='/newPassword' element={<NewPasswordSection />} />
-                    <Route path='/provideInfo' element={<ProvideInfoSection />} />
                 </Routes>
 
             </AuthSection>

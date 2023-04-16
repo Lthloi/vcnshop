@@ -25,6 +25,7 @@ export const userSlice = createSlice({
             state.loading = true
         },
         verifyOTPSuccess: (state, action) => {
+            state.user.successToVerifyOTP = true
             state.loading = false
         },
         verifyOTPFail: (state, action) => {

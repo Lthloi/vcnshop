@@ -4,9 +4,9 @@ import ClearIcon from '@mui/icons-material/Clear'
 import { useDispatch } from "react-redux"
 import { verifyOTP } from "../../../store/actions/user_actions"
 
-const VALID_DEGIT = /^\d+$/
+const input_value_validator = /^\d+$/
 
-const OTPInput = ({ email }) => {
+const OTPInput = () => {
     const [OTPInputValue, setOTPInputValue] = useState('')
     const OTPInputContainerRef = useRef()
     const dispatch = useDispatch()
@@ -23,7 +23,7 @@ const OTPInput = ({ email }) => {
         let main_values = []
         for (let i = 0; i < 4; i++) {
             let char = temp_values[i]
-            if (VALID_DEGIT.test(char)) {
+            if (input_value_validator.test(char)) {
                 main_values.push(char)
             } else {
                 main_values.push('')
@@ -36,7 +36,7 @@ const OTPInput = ({ email }) => {
         OTPInputContainerRef.current.firstElementChild.focus()
     }, [OTPInputContainerRef])
 
-    const handlePressKey = (e) => {
+    const pressKeyHandler = (e) => {
         let target = e.target
         let entered_value = target.value
         let key_event = e.key
@@ -62,34 +62,22 @@ const OTPInput = ({ email }) => {
             }
         }
     }
-//>>> fix this
-    const handleOnChangeInput = (e, index) => {
-        // let input_value = e.target.value.trim()
-
-
-
+    //>>> fix this
+    const enterOTPHandler = (e, index) => {
         let target = e.target
         let input_value = target.value.trim()
-        let nextElementSibling = target.nextElementSibling
-        if (!VALID_DEGIT.test(input_value) && input_value !== '')
-            return
-        if (input_value === '' && nextElementSibling && nextElementSibling.value !== '') 
+        let next_input = target.nextElementSibling
+        if (input_value === '' && next_input && next_input.value !== '')
             input_value = '#'
-        let new_value =
-            `${OTPInputValue.substring(0, index)}${input_value}${OTPInputValue.substring(index + 1)}`
-        if (new_value.length > 4) return
+        let new_value = OTPInputValue.slice(0, index) + input_value + OTPInputValue.slice(index + 1)
+        if (new_value.length > 4) new_value = new_value.slice(0, 5)
         setOTPInputValue(new_value)
-        if (input_value === '' || input_value === '#') return
-        if (input_value.length === 4) {
-            target.blur()
-            return
-        }
-        if (nextElementSibling) {
-            nextElementSibling.focus()
-        }
+        if (input_value === '') return
+        if (input_value.length === 4) return target.blur()
+        if (next_input) next_input.focus()
     }
 
-    const handleOnFocus = (e) => {
+    const FocusHandler = (e) => {
         let target = e.target
         let target_value = target.value
         target.setSelectionRange(0, target.value.length)
@@ -125,9 +113,9 @@ const OTPInput = ({ email }) => {
                             maxLength={6}
                             className="otp_input"
                             value={items}
-                            onChange={(e) => handleOnChangeInput(e, index)}
-                            onKeyDown={handlePressKey}
-                            onFocus={handleOnFocus}
+                            onChange={(e) => enterOTPHandler(e, index)}
+                            onKeyDown={pressKeyHandler}
+                            onFocus={FocusHandler}
                         />
                     ))
                 }

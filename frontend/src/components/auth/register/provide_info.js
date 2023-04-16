@@ -6,38 +6,35 @@ import Divider from '@mui/material/Divider'
 import Checkbox from '@mui/material/Checkbox'
 import CircularProgress from '@mui/material/CircularProgress'
 import "react-toastify/dist/ReactToastify.css"
-import { toast } from 'react-toastify'
 
-const ProvideInfoSection = () => {
-    const [checkboxChecked, setCheckboxChecked] = useState(false)
-    const [showWarningCheckbox, setShowWarning] = useState(false)
-    const [shakeWarningCheckbox, setShakeWarning] = useState(false)
-    const [submitChecking, setSubmitChecking] = useState(false)
+const ProvideInfoSection = ({ email }) => {
     const { register, handleSubmit, formState: { errors }, reset } = useForm()
+    const [checkboxChecked, setCheckboxChecked] = useState(false)
+    const [showWarningCheckbox, setShowWarningCheckbox] = useState(false)
+    const [shakeWarningCheckbox, setShakeWarningCheckbox] = useState(false)
+    const [submitChecking, setSubmitChecking] = useState(false)
 
     const handleChangeCheckbox = (e) => {
         setCheckboxChecked(!checkboxChecked)
-        if (e.target.checked) {
-            setShowWarning(false)
-        }
+        if (e.target.checked) setShowWarningCheckbox(false)
     }
 
-    const checkProvideInfo = (data, e) => {
-        if (!checkboxChecked) setShowWarning(true)
-        setShakeWarning(true)
-        if (!checkboxChecked) return
-        setSubmitChecking(true)
-        try {
-            toast.success('Updated your profile!')
-            e.target.submit()
-        } catch (err) {
-            toast.error('Something went wrong!')
+    const submitProvideInfo = (data, e) => {
+        e.preventDefault()
+        if (!checkboxChecked) {
+            setShowWarningCheckbox(true)
+            setShakeWarningCheckbox(true)
+            return
         }
+        console.log('>>> data >>>', data)
     }
 
     return (
-        <ProvideInfoForm id="ProvideInfoSection" action="#" method="post"
-            onSubmit={handleSubmit(checkProvideInfo)}
+        <ProvideInfoForm
+            id="ProvideInfoSection"
+            action="#"
+            method="post"
+            onSubmit={handleSubmit(submitProvideInfo)}
         >
             <Title>We need more information...</Title>
             <Desc>
@@ -54,12 +51,9 @@ const ProvideInfoSection = () => {
             <Divider sx={{ backgroundColor: '#999999', marginTop: '10px', }} />
 
             <TermOfUseContainer>
-                <Checkbox color="default" size="small"
-                    sx={{
-                        color: 'red',
-                        width: '1em',
-                        height: '1em',
-                    }}
+                <Checkbox
+                    color="default" size="small"
+                    sx={{ color: 'red', width: '1em', height: '1em' }}
                     id="TermOfUseCheckbox"
                     onChange={handleChangeCheckbox}
                 />
@@ -70,8 +64,9 @@ const ProvideInfoSection = () => {
             </TermOfUseContainer>
             {
                 showWarningCheckbox &&
-                <CheckboxWarning className={shakeWarningCheckbox ? 'shake_warning' : ''}
-                    onAnimationEnd={() => setShakeWarning(false)}
+                <CheckboxWarning
+                    className={shakeWarningCheckbox ? 'shake_warning' : ''}
+                    onAnimationEnd={() => setShakeWarningCheckbox(false)}
                 >
                     You must acccept our terms of use. Please!
                 </CheckboxWarning>
@@ -169,9 +164,9 @@ const CheckboxWarning = styled('span')({
     color: 'red',
     marginTop: '5px',
     '&.shake_warning': {
-        animation: 'shake_warning 0.5s 1',
+        animation: 'Shake_Warning 0.5s 1',
     },
-    '@keyframes shake_warning': {
+    '@keyframes Shake_Warning': {
         '0%': { 'transform': 'translate(1px, 1px) rotate(0deg)' },
         '10%': { 'transform': 'translate(-1px, -2px) rotate(1deg)' },
         '20%': { 'transform': 'translate(-3px, 0px) rotate(-1deg)' },
@@ -200,4 +195,10 @@ const SubmitBtnContainer = styled('button')({
     border: 'unset',
     borderRadius: '3px',
     position: 'relative',
+    '& span': {
+        transition: 'letter-spacing 0.2s',
+    },
+    '&:hover span': {
+        letterSpacing: '1px',
+    }
 })
