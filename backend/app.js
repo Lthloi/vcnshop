@@ -6,10 +6,6 @@ import cors from 'cors'
 import initRoutes from './routes/routes.js'
 import ErrorHandler from './middlewares/error_handler.js'
 import fileUpload from 'express-fileupload'
-import session from 'express-session'
-import mongoStore from './configs/session_store.js'
-
-const { SESSION_SECRET } = process.env
 
 const app = express()
 
@@ -17,14 +13,6 @@ const app = express()
 app.use(bodyParser.urlencoded({ extended: true })) //handle data with form-data
 app.use(bodyParser.json())
 app.use(express.json())
-
-//session
-app.use(session({
-    secret: SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false,
-    store: mongoStore,
-}))
 
 //cookie
 app.use(cookieParser())

@@ -24,7 +24,7 @@ const ProductSchema = new Schema({
         value: {
             type: Number,
             required: true,
-            min: [0, 'Number of `value` must not smaller than or equal 0'],
+            min: [0, 'Number of value must not smaller than or equal 0'],
         },
         currency: {
             type: Number,
@@ -47,19 +47,19 @@ const ProductSchema = new Schema({
             type: Number,
             required: true,
             default: 0,
-            min: [0, 'Number of `count` must not smaller than or equal 0'],
+            min: [0, 'Number of count must not smaller than or equal 0'],
         },
         in_a_week: {
             type: Number,
             required: true,
             default: 0,
-            minLength: [0, 'Number of `in_a_week` must not smaller than or equal 0'],
+            minLength: [0, 'Number of in_a_week must not smaller than or equal 0'],
         }
     },
     stock: {
         type: Number,
         required: true,
-        min: [0, 'Number of `stock` must not smaller than or equal 0'],
+        min: [0, 'Number of stock must not smaller than or equal 0'],
     },
     sku: {
         type: String,
@@ -80,12 +80,12 @@ const ProductSchema = new Schema({
         average_rating: {
             type: Number,
             default: 0,
-            min: [0, 'Number of `average rating` must not smaller than or equal 0'],
+            min: [0, 'Number of average rating must not smaller than or equal 0'],
         },
         count_review: {
             type: Number,
             default: 0,
-            min: [0, 'Number of `count review` must not smaller than or equal 0'],
+            min: [0, 'Number of count review must not smaller than or equal 0'],
         },
         reviews: [{
             name: { type: String, required: true, },

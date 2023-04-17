@@ -5,7 +5,7 @@ const { Schema } = mongoose
 const ShopSchema = new Schema({
     username: {
         type: String,
-        require: true,
+        required: true,
         index: true,
         unique: true,
     },
@@ -20,7 +20,7 @@ const ShopSchema = new Schema({
         ids: [{ type: mongoose.Types.ObjectId }],
         count: {
             type: Number,
-            min: [0, 'Number of `count` must not lower than 0'],
+            min: [0, 'Number of count must not lower than 0'],
         }
     },
     contact_info: {

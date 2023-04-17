@@ -8,17 +8,20 @@ const UserSchema = new Schema({
     name: {
         type: String,
         default: 'Unname-User',
+        minLength: [2, 'The length of name must not shorter than 2 characters'],
+        maxLength: [25, 'The length of name must not longer than 25 characters'],
     },
     email: {
         type: String,
-        require: true,
+        required: true,
         index: true,
         unique: true,
-        maxLength: [35, 'The length of email must not longer than 25 characters']
+        maxLength: [35, 'The length of email must not longer than 25 characters'],
     },
     password: {
         type: String,
-        required: true,
+        maxLength: [25, 'The length of password must not longer than 25 characters'],
+        minLength: [6, 'The length of name must not shorter than 6 characters'],
     },
     avatar: {
         type: String,
@@ -26,7 +29,7 @@ const UserSchema = new Schema({
     coupons: {
         count: {
             type: Number,
-            required: true,
+            default: 0,
         },
         list: [{
             type: { type: String, },
@@ -40,9 +43,19 @@ const UserSchema = new Schema({
         type: Date,
         default: Date.now,
     },
+    active: {
+        type: Boolean,
+        default: false,
+    },
 })
 
 const { OTP_SECRET_KEY } = process.env
+
+UserSchema.pre('save', function (next) {
+    if (this.active) this.password = true
+    else this.password = false
+    next()
+})
 
 UserSchema.methods.getOTPCode = function () {
     totp.options = { digits: 4 }

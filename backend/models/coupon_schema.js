@@ -11,7 +11,7 @@ const CouponSchema = new Schema({
     },
     type: {
         type: String,
-        require: true,
+        required: true,
     },
     cost: {
         type: Number,
@@ -20,7 +20,7 @@ const CouponSchema = new Schema({
     },
     img: {
         type: String,
-        require: true,
+        required: true,
     },
     shop: {
         id: {
