@@ -64,6 +64,8 @@ export const couponsSlice = createSlice({
             state.error = action.payload.error
             state.loading = false
         },
+
+
         checkCouponRequest: (state) => {
             state.error = null
             state.checking = true
@@ -90,6 +92,8 @@ export const couponsSlice = createSlice({
             state.error = action.payload.error
             state.checking = false
         },
+
+        
         resetPickedCoupons: (state) => {
             state.pickedCoupons = []
         },

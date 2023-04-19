@@ -27,6 +27,8 @@ export const productDetailSlice = createSlice({
             state.error = action.payload.error
             state.loading = false
         },
+
+
         getReviewRequest: (state, action) => {
             state.reviewsState.error = null
             state.reviewsState.loading = true
@@ -39,6 +41,8 @@ export const productDetailSlice = createSlice({
             state.reviewsState.error = action.payload.error
             state.reviewsState.loading = false
         },
+
+        
         newReviewRequest: (state, action) => {
             state.newReviewProcessing = true
         },

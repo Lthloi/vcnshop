@@ -4,8 +4,10 @@ import ClearIcon from '@mui/icons-material/Clear'
 import ArrowRightIcon from '@mui/icons-material/ArrowRight'
 import VisibilityIcon from '@mui/icons-material/Visibility'
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff'
-import DateOfBirth from "./date_of_birth_inputs"
 import CancelIcon from '@mui/icons-material/Cancel'
+import RadioGroup from '@mui/material/RadioGroup'
+import { FormControlLabel } from "@mui/material"
+import { Radio } from "@mui/material"
 
 const inputs = [
     {
@@ -13,27 +15,20 @@ const inputs = [
         required: false,
         max_length: 25,
         helper_text: 'We will use this one to display to other members.',
-        pattern: /^([a-zA-Z0-9_\- ]){2,}$/,
-        warning:
-            `Full Name field mustn't contain special characters. 
-            And must be between 2 and 25 characters long.`,
-    }, {
-        label: 'Email',
-        required: true,
-        max_length: 35,
-        helper_text: 'Receive mail for events, order track, recover password, etc.',
-        pattern: /^[a-zA-Z0-9]+([\\._\\-][a-zA-Z0-9]+)*@[a-zA-Z0-9]+([\\.\\-][a-zA-Z0-9]+)*\.[a-zA-Z]{2,}$/,
-        warning: `Please enter format of email correctly.`,
+        warning: 'Full Name field mustn\'t contain special characters. And must be between 2 and 25 characters long.',
     }, {
         label: 'Password',
         required: true,
         max_length: 20,
-        helper_text: 'Use this one with email or phone number to login',
-        pattern: /^(?=.*[a-z])(?=.*[A-Z])(?!.*\s).{6,}$/,
-        warning:
-            `Password must be between 6 and 20 characters long. 
-            And can contain only capital letters and .`,
-    },
+        helper_text: 'Use this one with your email to login',
+        warning: 'Password must be between 6 and 20 characters long. And must contain at least one capital letter and one number and one lowercase letter.',
+    }, {
+        label: 'Retype Password',
+        required: true,
+        max_length: 20,
+        helper_text: 'Must match the typed password',
+        warning: 'Not match the typed password',
+    }
 ]
 
 const input_icon_style = {
@@ -43,7 +38,14 @@ const input_icon_style = {
     transition: 'transform 0.2s',
     '&:hover': {
         transform: 'scale(1.1)',
-    }
+    },
+}
+
+const radio_style = {
+    color: 'white',
+    '&.Mui-checked': {
+        color: '#00faff',
+    },
 }
 
 const RenderInputWarnings = (input_warning) => {
@@ -55,14 +57,14 @@ const RenderInputWarnings = (input_warning) => {
     )
 }
 
-const InformationInputs = ({ register, errors, reset }) => {
+const InformationInputs = ({ register, errors, reset, emailWasTyped }) => {
     const [showPassword, setShowPassword] = useState(false)
 
     const handleShowPassword = () => setShowPassword(!showPassword)
 
     const clearInput = (input_label) => {
         reset({
-            [input_label]: ''
+            [input_label]: '',
         }, {
             keepErrors: false,
             keepDirty: false,
@@ -70,96 +72,103 @@ const InformationInputs = ({ register, errors, reset }) => {
     }
 
     return (
-        <InputsContainer id="InputsContainer">
+        <InputsArea id="InputsArea">
+            <InputFormGroup sx={{ opacity: '0.7' }}>
+                <InputLabelContainer>
+                    <InputLabel>Email</InputLabel>
+                </InputLabelContainer>
+                <InputContainer>
+                    <Input value={emailWasTyped} readOnly />
+                </InputContainer>
+                <HelperText>Email you provided</HelperText>
+            </InputFormGroup>
             {
-                inputs.map(({ label, helper_text, required, max_length, pattern, warning }) => (
-                    <InfoFormGroup key={label}>
-                        <InfoLabelContainer>
-                            <InfoLabel htmlFor={label}>
+                inputs.map(({ label, helper_text, required, max_length, warning }) => (
+                    <InputFormGroup key={label}>
+                        <InputLabelContainer>
+                            <InputLabel htmlFor={label}>
                                 {label}
-                            </InfoLabel>
+                            </InputLabel>
                             {required && <span className="force">*</span>}
-                        </InfoLabelContainer>
-                        <InfoInputWrapper>
-                            <InfoInput
+                        </InputLabelContainer>
+                        <InputContainer>
+                            <Input
+                                autoComplete="on"
                                 id={label} //input
-                                name={label}
-                                type={label === 'Password' ?
-                                    showPassword ? 'text' : 'password' : 'text'}
-                                {...register(label,
-                                    {
-                                        pattern: pattern,
-                                        required: required,
-                                    }
-                                )}
                                 maxLength={max_length}
+                                type={label !== 'Password' && label !== 'Retype Password' ? 'text' : showPassword ? 'text' : 'password'}
+                                {...register(label, { required })}
                             />
                             <ArrowIconWrapper className="ArrowIconWrapper">
                                 <ArrowRightIcon
-                                    sx={{
-                                        color: 'white',
-                                        width: '1.2em',
-                                        height: '1.2em',
-                                    }}
+                                    sx={{ color: 'white', width: '1.2em', height: '1.2em' }}
                                 />
                             </ArrowIconWrapper>
-                            <IconInputWrapper>
+                            <InputIconWrapper>
                                 {
-                                    label === 'Password' ?
-                                        showPassword ?
-                                            <VisibilityIcon sx={input_icon_style}
-                                                onClick={handleShowPassword}
-                                            />
-                                            :
-                                            <VisibilityOffIcon sx={input_icon_style}
-                                                onClick={handleShowPassword}
-                                            />
-                                        :
-                                        <ClearIcon sx={input_icon_style}
+                                    label !== 'Password' && label !== 'Retype Password' ? (
+                                        <ClearIcon
+                                            sx={input_icon_style}
                                             onClick={() => clearInput(label)}
                                         />
+                                    ) : showPassword ? (
+                                        <VisibilityIcon
+                                            sx={input_icon_style}
+                                            onClick={handleShowPassword}
+                                        />
+                                    ) :
+                                        <VisibilityOffIcon
+                                            sx={input_icon_style}
+                                            onClick={handleShowPassword}
+                                        />
                                 }
-                            </IconInputWrapper>
-                        </InfoInputWrapper>
-                        <HelperText>
-                            {helper_text}
-                        </HelperText>
+                            </InputIconWrapper>
+                        </InputContainer>
+                        <HelperText>{helper_text}</HelperText>
                         {
                             errors[label] &&
                             <InputWarningContainer className="InputWarningContainer">
-                                {
-                                    label === 'Full Name' && warning ?
-                                        RenderInputWarnings(warning)
-                                        : label === 'Email' && warning ?
-                                            RenderInputWarnings(warning)
-                                            : label === 'Password' && warning &&
-                                            RenderInputWarnings(warning)
-                                }
+                                {label === 'Full Name' && RenderInputWarnings(warning)}
+                                {label === 'Password' && RenderInputWarnings(warning)}
+                                {label === 'Retype Password' && RenderInputWarnings(warning)}
                             </InputWarningContainer>
                         }
-                    </InfoFormGroup>
+                    </InputFormGroup>
                 ))
             }
 
-            <DateOfBirth />
+            <InputFormGroup>
+                <InputLabelContainer sx={{ fontSize: '1.1em' }}>
+                    <InputLabel>Gender</InputLabel>
+                </InputLabelContainer>
+                <RadioGroup
+                    row
+                    defaultValue={'Female'}
+                    sx={{ marginLeft: '5px' }}
+                >
+                    <FormControlLabel sx={{ color: 'white' }} value="Female" control={<Radio {...register('Gender')} size="small" color="default" sx={radio_style} />} label="Female" />
+                    <FormControlLabel sx={{ color: 'white' }} value="Male" control={<Radio {...register('Gender')} size="small" color="default" sx={radio_style} />} label="Male" />
+                    <FormControlLabel sx={{ color: 'white' }} value="Other" control={<Radio {...register('Gender')} size="small" color="default" sx={radio_style} />} label="Other" />
+                </RadioGroup>
+            </InputFormGroup>
 
-        </InputsContainer>
+        </InputsArea>
     )
 }
 
 export default InformationInputs
 
-const InputsContainer = styled('div')({
+const InputsArea = styled('div')({
     margin: '20px 0 0',
 })
 
-const InfoFormGroup = styled('div')({
+const InputFormGroup = styled('div')({
     '&:not(:first-of-type)': {
         marginTop: '20px',
     }
 })
 
-const InfoLabelContainer = styled('div')({
+const InputLabelContainer = styled('div')({
     display: 'flex',
     '& span.force': {
         color: 'red',
@@ -168,7 +177,7 @@ const InfoLabelContainer = styled('div')({
     }
 })
 
-const InfoLabel = styled('label')({
+const InputLabel = styled('label')({
     display: 'block',
     width: 'fit-content',
     color: 'white',
@@ -177,19 +186,24 @@ const InfoLabel = styled('label')({
     fontFamily: 'arial',
 })
 
-const InfoInputWrapper = styled('div')({
+const InputContainer = styled('div')({
+    display: 'flex',
+    justifyContent: 'space-between',
     position: 'relative',
+    border: '1.5px #00faff solid',
+    boxSizing: 'border-box',
+    padding: '5px',
+    paddingRight: '8px',
 })
 
-const InfoInput = styled('input')({
+const Input = styled('input')({
     color: 'white',
     margin: '0',
     outline: 'unset',
-    padding: '8px 30px 8px 10px',
     fontSize: '0.9em',
-    border: '1.5px #00faff solid',
-    borderRadius: '3px',
-    width: '100%',
+    border: 'none',
+    paddingLeft: '5px',
+    width: '90%',
     boxSizing: 'border-box',
     backgroundColor: 'transparent',
     letterSpacing: '1px',
@@ -220,13 +234,10 @@ const HelperText = styled('div')({
     marginLeft: '3px',
 })
 
-const IconInputWrapper = styled('div')({
+const InputIconWrapper = styled('div')({
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    position: 'absolute',
-    top: '0',
-    right: '9px',
     height: '100%',
 })
 

@@ -9,6 +9,12 @@ import fileUpload from 'express-fileupload'
 
 const app = express()
 
+//block requests from a origin is different with own origin
+app.use(cors({
+    origin: 'http://localhost:3000',
+    credentials: true,
+}))
+
 //body
 app.use(bodyParser.urlencoded({ extended: true })) //handle data with form-data
 app.use(bodyParser.json())
@@ -16,12 +22,6 @@ app.use(express.json())
 
 //cookie
 app.use(cookieParser())
-
-//cors
-app.use(cors({
-    origin: 'http://localhost:3000',
-    credentials: true,
-}))
 
 //config for req.files
 app.use(fileUpload())

@@ -15,7 +15,7 @@ const Reviews = ({ productId, srollReviewRef }) => {
     const { reviews, loading, error } = useSelector(({ productDetail }) => productDetail.reviewsState)
     const [reviewPage, setReviewPage] = useState(1)
     const dispatch = useDispatch()
-    console.log('>>> revieews >>>', reviews)
+
     useEffect(() => {
         dispatch(getReviews(productId, 1))
     }, [dispatch])

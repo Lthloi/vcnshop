@@ -34,6 +34,8 @@ export const productsSlice = createSlice({
             state.productsSearch.error = action.payload.error
             state.productsSearch.loading = false
         },
+
+
         getTopWeekRequest: (state, action) => {
             state.topWeek.error = null
             state.topWeek.loading = true
@@ -46,6 +48,8 @@ export const productsSlice = createSlice({
             state.topWeek.error = action.payload.error
             state.topWeek.loading = false
         },
+
+        
         getBestSellingRequest: (state, action) => {
             state.bestSelling.error = null
             state.bestSelling.loading = true

@@ -1,6 +1,7 @@
 import mongoose from 'mongoose'
 import { totp } from 'otplib'
 import bcrypt from 'bcrypt'
+import moment from 'moment'
 
 const { Schema } = mongoose
 
@@ -23,8 +24,16 @@ const UserSchema = new Schema({
         maxLength: [25, 'The length of password must not longer than 25 characters'],
         minLength: [6, 'The length of name must not shorter than 6 characters'],
     },
+    gender: {
+        type: String,
+        default: 'Female',
+    },
     avatar: {
         type: String,
+    },
+    role: {
+        type: String,
+        default: 'User',
     },
     coupons: {
         count: {
@@ -43,6 +52,19 @@ const UserSchema = new Schema({
         type: Date,
         default: Date.now,
     },
+
+
+    OTP_code: {
+        value: {
+            type: String,
+            minLength: [4, 'The OTP code must not be shorter than 4 characters'],
+            maxLength: [6, 'The OTP code must not be longer than 6 characters'],
+        },
+        expireAt: {
+            type: Date,
+            default: moment().add(5, 'minutes'),
+        },
+    },
     active: {
         type: Boolean,
         default: false,
@@ -52,8 +74,11 @@ const UserSchema = new Schema({
 const { OTP_SECRET_KEY } = process.env
 
 UserSchema.pre('save', function (next) {
-    if (this.active) this.password = true
-    else this.password = false
+    if (this.isModified('active')) {
+        if (this.active) {
+            this.password.required = [true, 'The password is required']
+        }
+    }
     next()
 })
 

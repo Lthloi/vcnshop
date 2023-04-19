@@ -17,7 +17,7 @@ const transporter = nodemailer.createTransport({
     },
 })
 
-const sendMail = async (OTP_code, OTP_expire, receiver, subject, message) => {
+const sendMail = async (OTP_code, OTP_expire_in_minutes, receiver, subject, message) => {
     try {
         await transporter.sendMail({
             from: `"VCN Shop" <${GMAIL_USERNAME}>`,
@@ -30,13 +30,13 @@ const sendMail = async (OTP_code, OTP_expire, receiver, subject, message) => {
                     <div style="padding: 10px; ">
                         <div style="border-bottom: 1px solid #c1c1c1; padding: 5px 0 15px;">
                             <a href="https://www.vcnshop.new" style="font-size: 1.4em; color: #00466a; text-decoration: none; font-weight: 600; ">
-                                ${project_info.name}
+                                ${project_info.name + '- OTP verification'}
                             </a>
                         </div>
                         <p style="font-size: 1.1em; ">Hi,</p>
                         <p>
                             Thank you for choosing ${project_info.name}. Use the following OTP to
-                            complete your register procedures. OTP is valid for ${OTP_expire} minutes.
+                            complete your register procedures. OTP is valid for ${OTP_expire_in_minutes} minutes.
                         </p>
                         <h2 style="background: #00466a; margin: 0 auto; width: fit-content; padding: 5px 10px; color: #fff; border-radius: 4px; ">
                             ${OTP_code}

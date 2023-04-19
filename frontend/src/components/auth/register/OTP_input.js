@@ -6,28 +6,24 @@ import { verifyOTP } from "../../../store/actions/user_actions"
 
 const input_value_validator = /^\d+$/
 
-const OTPInput = () => {
+const OTPInput = ({ emailWasTyped }) => {
     const [OTPInputValue, setOTPInputValue] = useState('')
     const OTPInputContainerRef = useRef()
     const dispatch = useDispatch()
 
     useEffect(() => {
-        if (OTPInputValue.length === 4) {
-            dispatch(verifyOTP(OTPInputValue))
-            setOTPInputValue('')
-        }
+        if (OTPInputValue.length === 4)
+            dispatch(verifyOTP(OTPInputValue, emailWasTyped))
     }, [OTPInputValue])
 
     const input_values = useMemo(() => {
         let temp_values = OTPInputValue.split('')
         let main_values = []
         for (let i = 0; i < 4; i++) {
-            let char = temp_values[i]
-            if (input_value_validator.test(char)) {
-                main_values.push(char)
-            } else {
+            if (input_value_validator.test(temp_values[i]))
+                main_values.push(temp_values[i])
+            else
                 main_values.push('')
-            }
         }
         return main_values
     }, [OTPInputValue])
@@ -38,31 +34,21 @@ const OTPInput = () => {
 
     const pressKeyHandler = (e) => {
         let target = e.target
-        let entered_value = target.value
-        let key_event = e.key
-        let previousElementSibling = target.previousElementSibling
-        let nextElementSibling = target.nextElementSibling
-        if (key_event === 'Backspace' && entered_value === '') {
-            if (previousElementSibling) {
-                previousElementSibling.focus()
-            }
-            return
-        }
-        if (key_event === 'ArrowRight' || key_event === 'ArrowDown') {
+        let key_of_event = e.key
+        let previousInput = target.previousElementSibling
+        let nextInput = target.nextElementSibling
+        if (key_of_event === 'Backspace' && target.value === '') {
+            if (previousInput)
+                previousInput.focus()
+        } else if (key_of_event === 'ArrowRight' || key_of_event === 'ArrowDown') {
             e.preventDefault()
-            if (nextElementSibling) {
-                nextElementSibling.focus()
-            }
-            return
-        }
-        if (key_event === 'ArrowLeft' || key_event === 'ArrowUp') {
+            if (nextInput) nextInput.focus()
+        } else if (key_of_event === 'ArrowLeft' || key_of_event === 'ArrowUp') {
             e.preventDefault()
-            if (previousElementSibling) {
-                previousElementSibling.focus()
-            }
+            if (previousInput) previousInput.focus()
         }
     }
-    //>>> fix this
+
     const enterOTPHandler = (e, index) => {
         let target = e.target
         let input_value = target.value.trim()
@@ -70,22 +56,19 @@ const OTPInput = () => {
         if (input_value === '' && next_input && next_input.value !== '')
             input_value = '#'
         let new_value = OTPInputValue.slice(0, index) + input_value + OTPInputValue.slice(index + 1)
-        if (new_value.length > 4) new_value = new_value.slice(0, 5)
+        if (new_value.length > 4) new_value = new_value.slice(0, 4)
         setOTPInputValue(new_value)
-        if (input_value === '') return
-        if (input_value.length === 4) return target.blur()
+        if (input_value === '#') return
         if (next_input) next_input.focus()
     }
 
-    const FocusHandler = (e) => {
+    const onFocusHandler = (e) => {
         let target = e.target
         let target_value = target.value
-        target.setSelectionRange(0, target.value.length)
-        let previousElementSibling = target.previousElementSibling
-        if (previousElementSibling && previousElementSibling.value === '' &&
-            target_value === '') {
-            previousElementSibling.focus()
-        }
+        target.setSelectionRange(0, target_value.length)
+        let previousInput = target.previousElementSibling
+        if (previousInput && previousInput.value === '' && target_value === '')
+            previousInput.focus()
     }
 
     const clearInput = () => {
@@ -96,11 +79,6 @@ const OTPInput = () => {
     return (
         <VerifyOTPFormGroup id="VerifyOTPFormGroup">
             <Label>Enter the OTP code here...</Label>
-
-            <input id="HiddenOTPToGetValue" style={{ display: 'none' }}
-                name="HiddenOTPInput"
-            />
-
             <OTPInputContainer ref={OTPInputContainerRef}>
                 {
                     input_values.map((items, index) => (
@@ -110,12 +88,12 @@ const OTPInput = () => {
                             inputMode="numeric"
                             autoComplete="one-time-code"
                             pattern="\d{1}"
-                            maxLength={6}
+                            maxLength={4}
                             className="otp_input"
                             value={items}
                             onChange={(e) => enterOTPHandler(e, index)}
                             onKeyDown={pressKeyHandler}
-                            onFocus={FocusHandler}
+                            onFocus={onFocusHandler}
                         />
                     ))
                 }
@@ -139,7 +117,7 @@ const OTPInput = () => {
             </OTPInputContainer>
             <Saying>
                 A four-digit OTP code was sent to your email.
-                Please check the email and enter the code into above.
+                Please check the email and enter or paste the code to above.
             </Saying>
         </VerifyOTPFormGroup>
     )

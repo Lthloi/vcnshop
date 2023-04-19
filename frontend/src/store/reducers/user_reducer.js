@@ -20,6 +20,8 @@ export const userSlice = createSlice({
             state.error = action.payload.error
             state.loading = false
         },
+
+
         verifyOTPRequest: (state, action) => {
             state.error = null
             state.loading = true
@@ -32,24 +34,26 @@ export const userSlice = createSlice({
             state.error = action.payload.error
             state.loading = false
         },
-        // registerRequest: (state, action) => {
-        //     state.error = null
-        //     state.loading = true
-        // },
-        // registerSuccess: (state, action) => {
 
-        //     state.loading = false
-        // },
-        // registerFail: (state, action) => {
-        //     state.error = action.payload.error
-        //     state.loading = false
-        // },
+
+        completeRegisterRequest: (state, action) => {
+            state.error = null
+            state.loading = true
+        },
+        completeRegisterSuccess: (state, action) => {
+            state.loading = false
+        },
+        completeRegisterFail: (state, action) => {
+            state.error = action.payload.error
+            state.loading = false
+        },
     },
 })
 
 export const {
     sendOTPRequest, sendOTPSuccess, sendOTPFail,
     verifyOTPRequest, verifyOTPSuccess, verifyOTPFail,
+    completeRegisterRequest, completeRegisterSuccess, completeRegisterFail,
 } = userSlice.actions
 
 export default userSlice.reducer

@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { styled } from '@mui/material/styles'
 import InformationInputs from "./Information_inputs"
@@ -6,13 +6,21 @@ import Divider from '@mui/material/Divider'
 import Checkbox from '@mui/material/Checkbox'
 import CircularProgress from '@mui/material/CircularProgress'
 import "react-toastify/dist/ReactToastify.css"
+import { useDispatch } from "react-redux"
+import { completeRegister } from "../../../store/actions/user_actions"
+import { useSelector } from "react-redux"
 
-const ProvideInfoSection = ({ email }) => {
-    const { register, handleSubmit, formState: { errors }, reset } = useForm()
+const CompleteRegister = ({ emailWasTyped }) => {
+    const { register, handleSubmit, setError, formState: { errors }, reset } = useForm()
     const [checkboxChecked, setCheckboxChecked] = useState(false)
     const [showWarningCheckbox, setShowWarningCheckbox] = useState(false)
     const [shakeWarningCheckbox, setShakeWarningCheckbox] = useState(false)
-    const [submitChecking, setSubmitChecking] = useState(false)
+    const { user, loading } = useSelector(({ user }) => user)
+    const dispatch = useDispatch()
+
+    useEffect(() => {
+        if (user.isAuthenticated) window.open('/account', '_self')
+    }, [user.isAuthenticated])
 
     const handleChangeCheckbox = (e) => {
         setCheckboxChecked(!checkboxChecked)
@@ -21,17 +29,37 @@ const ProvideInfoSection = ({ email }) => {
 
     const submitProvideInfo = (data, e) => {
         e.preventDefault()
+
+        let full_name_regex = /^([a-zA-Z0-9_\- ]){2,}$/
+        let password_regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?!.*\s).{6,}$/
+        let isError = false
+
+        if (data['Full Name'] !== '' && !full_name_regex.test(data['Full Name'])) {
+            setError('Full Name')
+            isError = true
+        }
+        if (!password_regex.test(data.Password)) {
+            setError('Password')
+            isError = true
+        }
+        if (data['Retype Password'] !== data.Password) {
+            setError('Retype Password')
+            isError = true
+        }
+
         if (!checkboxChecked) {
             setShowWarningCheckbox(true)
-            setShakeWarningCheckbox(true)
-            return
+            return setShakeWarningCheckbox(true)
         }
-        console.log('>>> data >>>', data)
+
+        if (isError) return
+
+        dispatch(completeRegister(data['Full Name'], emailWasTyped, data.Password, data.datOfBirth))
     }
 
     return (
         <ProvideInfoForm
-            id="ProvideInfoSection"
+            id="CompleteRegister"
             action="#"
             method="post"
             onSubmit={handleSubmit(submitProvideInfo)}
@@ -46,7 +74,7 @@ const ProvideInfoSection = ({ email }) => {
 
             <Divider sx={{ backgroundColor: '#999999', marginTop: '10px' }} />
 
-            <InformationInputs register={register} reset={reset} errors={errors} />
+            <InformationInputs register={register} reset={reset} errors={errors} emailWasTyped={emailWasTyped} />
 
             <Divider sx={{ backgroundColor: '#999999', marginTop: '10px', }} />
 
@@ -74,10 +102,10 @@ const ProvideInfoSection = ({ email }) => {
 
             <SubmitBtnContainer>
                 {
-                    submitChecking ?
+                    loading ?
                         <CircularProgress
                             sx={{ color: 'black' }}
-                            size={20}
+                            size={22}
                             thickness={6}
                         />
                         : <span>Start Shopping</span>
@@ -87,7 +115,7 @@ const ProvideInfoSection = ({ email }) => {
     )
 }
 
-export default ProvideInfoSection
+export default CompleteRegister
 
 const ProvideInfoForm = styled('form')({
     display: 'flex',
@@ -186,7 +214,9 @@ const SubmitBtnContainer = styled('button')({
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: '20px',
-    padding: '7px',
+    padding: '8px',
+    height: '36px',
+    boxSizing: 'border-box',
     fontSize: '1em',
     fontWeight: 'bold',
     fontFamily: '"Nunito", "sans-serif"',

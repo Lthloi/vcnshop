@@ -1,17 +1,15 @@
 import express from 'express'
 import {
-    sendOTP, verifyOTP,
+    sendRegisterOTP, verifyRegisterOTP,
+    completeRegister,
 } from '../controllers/user_controllers.js'
 
 const router = express.Router()
 
-// router.use(function (req, res, next) {
-//     res.header('Access-Control-Allow-Credentials', true)
-//     next()
-// })
+router.post('/sendRegisterOTP', sendRegisterOTP)
 
-router.post('/sendOTP', sendOTP)
+router.post('/verifyRegisterOTP', verifyRegisterOTP)
 
-router.post('/verifyOTP', verifyOTP)
+router.post('/completeRegister', completeRegister)
 
 export default router

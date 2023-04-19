@@ -33,6 +33,8 @@ export const cartSlice = createSlice({
             state.error = action.payload.error || null
             state.loading = false
         },
+
+
         changeQuantityRequest: (state, action) => {
             let { productId, option } = action.payload
 
@@ -45,6 +47,8 @@ export const cartSlice = createSlice({
             state.error = action.payload.error
             state.loading = false
         },
+
+        
         removeItemFromCartRequest: (state, action) => {
             let { productId } = action.payload
 
