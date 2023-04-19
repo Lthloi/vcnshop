@@ -12,7 +12,7 @@ const OTPInput = ({ emailWasTyped }) => {
     const dispatch = useDispatch()
 
     useEffect(() => {
-        if (OTPInputValue.length === 4)
+        if (/^\d{4}$/.test(OTPInputValue))
             dispatch(verifyOTP(OTPInputValue, emailWasTyped))
     }, [OTPInputValue])
 

@@ -1,38 +1,73 @@
-import React, { useState } from "react"
+import React, { useState, useRef, useEffect } from "react"
 import { styled } from '@mui/material/styles'
-import AccountBoxIcon from '@mui/icons-material/AccountBox'
+import EmailIcon from '@mui/icons-material/Email'
 import LockIcon from '@mui/icons-material/Lock'
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff'
 import VisibilityIcon from '@mui/icons-material/Visibility'
 import BottomForm from "./bottom_form"
 import { NavLink } from "react-router-dom"
+import { useDispatch, useSelector } from "react-redux"
+import { loginUser } from "../../store/actions/user_actions"
+import validator from 'validator'
+import { toast } from "react-toastify"
+import CircularProgress from '@mui/material/CircularProgress'
+
+const form_group_icon_style = { color: 'white', marginLeft: '10px' }
 
 const LoginSection = () => {
     const [showPassword, setShowPassword] = useState(false)
+    const email_input_ref = useRef()
+    const password_input_ref = useRef()
+    const { user, loading } = useSelector(({ user }) => user)
+    const dispatch = useDispatch()
+
+    useEffect(() => {
+        if (user.isAuthenticated) {
+            let timeout = setTimeout(() => {
+                window.open('/account', '_self')
+            }, 2000)
+            return () => clearTimeout(timeout)
+        }
+    }, [user.isAuthenticated])
 
     const handleShowPassword = () => setShowPassword(!showPassword)
 
+    const loginSubmit = () => {
+        let email = email_input_ref.current.value
+        if (!validator.isEmail(email))
+            return toast.warning('Please type format of the email correctly!')
+
+        let password = password_input_ref.current.value
+        if (password === '') return toast.warning('Please type the password!')
+
+        dispatch(loginUser(email, password))
+    }
+
     return (
         <LoginSectionArea id="LoginSectionArea">
-            <LoginSectionForm action="#" method="post">
-                <FormTitle>
-                    Sign In
-                </FormTitle>
+            <LoginSectionForm>
+                <FormTitle>Sign In</FormTitle>
                 <EmailFormGroup>
-                    <AccountBoxIcon
-                        sx={{ color: 'white', position: 'absolute', left: '15px', top: '18px', }}
-                    />
+                    <EmailIcon sx={form_group_icon_style} />
                     <EmailInput
+                        ref={email_input_ref}
                         type="email"
                         id="email"
                         placeholder=" "
                         name="Email"
                     />
-                    <EmailLabel htmlFor="email">
-                        E-mail or Phone Number
-                    </EmailLabel>
+                    <EmailLabel htmlFor="email">Enter your e-mail</EmailLabel>
                 </EmailFormGroup>
                 <PasswordFormGroup>
+                    <LockIcon sx={form_group_icon_style} />
+                    <PasswordInput
+                        ref={password_input_ref}
+                        id="password"
+                        placeholder=" "
+                        name="Password"
+                        type={showPassword ? "text" : "password"}
+                    />
+                    <PasswordLabel htmlFor="password">Enter your password</PasswordLabel>
                     <ShowPasswordIconWrapper onClick={() => handleShowPassword()}>
                         {
                             showPassword ?
@@ -41,26 +76,26 @@ const LoginSection = () => {
                                 <VisibilityOffIcon sx={{ color: 'white' }} />
                         }
                     </ShowPasswordIconWrapper>
-                    <LockIcon
-                        sx={{ color: 'white', position: 'absolute', left: '15px', top: '18px', }}
-                    />
-                    <PasswordInput id="password" placeholder=" " name="Password"
-                        type={showPassword ? "text" : "password"}
-                    />
-                    <PasswordLabel htmlFor="password">
-                        Password
-                    </PasswordLabel>
                 </PasswordFormGroup>
                 <ForgotPasswordArea>
-                    <ForgotPassword to="/auth/forgotPassword">
-                        Forgot Password ?
-                    </ForgotPassword>
-                    <SignInBtn type="submit">Login</SignInBtn>
+                    <ForgotPassword to="/auth/forgotPassword">Forgot Password ?</ForgotPassword>
+                    <SignInBtn onClick={loginSubmit}>
+                        {
+                            loading ?
+                                <CircularProgress
+                                    sx={{ color: 'black' }}
+                                    size={22}
+                                    thickness={6}
+                                />
+                                : <span>Login</span>
+                        }
+                    </SignInBtn>
                 </ForgotPasswordArea>
             </LoginSectionForm>
             <SignUp>
                 <span>Don't have an account ? </span>
-                <NavLink className="NavLink"
+                <NavLink
+                    className="NavLink"
                     to="/auth/register"
                 >
                     Sign Up.
@@ -75,39 +110,40 @@ export default LoginSection
 
 const FormGroup = styled('div')({
     display: 'flex',
-    justifyContent: 'center',
     alignItems: 'center',
-    flexDirection: 'column',
     position: 'relative',
+    border: '1.5px #33b8b6 solid',
+    columnGap: '10px',
+    padding: '6px 0',
+    paddingRight: '6px',
 })
 
 const Label = styled('label')({
     color: 'grey',
+    fontSize: '0.9em',
     fontFamily: '"Roboto", "sans-serif"',
     fontWeight: '500',
     padding: '2px 12px',
     position: 'absolute',
-    top: '18px',
-    left: '40px',
+    top: '24%',
+    left: '10%',
     transition: 'top 0.3s , left 0.3s , background-color 0.3s ease-in , color 0.3s ease-in',
     borderRadius: '3px',
     cursor: 'text',
 })
 
 const Input = styled('input')({
-    marginTop: '7px',
     width: '100%',
     fontSize: '1.1em',
-    padding: '12px 46px 10px',
+    padding: '5px 8px',
     boxSizing: 'border-box',
-    border: '1.5px #33b8b6 solid',
-    borderRadius: '5px',
+    border: 'none',
     outline: 'unset',
     backgroundColor: 'transparent',
     color: 'white',
     '&:focus ~ label , :not(:placeholder-shown) ~ label': {
-        top: '-8px',
-        left: '50px',
+        top: '-33%',
+        left: '12%',
         backgroundColor: '#33b8b6',
         color: 'black',
     }
@@ -135,7 +171,7 @@ const FormTitle = styled('h2')({
     margin: '10px 0 15px',
 })
 
-const LoginSectionForm = styled('form')({
+const LoginSectionForm = styled('div')({
 
 })
 
@@ -152,14 +188,15 @@ const EmailInput = styled(Input)({
 })
 
 const PasswordFormGroup = styled(FormGroup)({
-    marginTop: '35px',
+    marginTop: '20px',
 })
 
 const ShowPasswordIconWrapper = styled('div')({
-    position: 'absolute',
-    top: '18px',
-    right: '15px',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
     cursor: 'pointer',
+    marginRight: '5px',
 })
 
 const PasswordLabel = styled(Label)({
@@ -189,14 +226,15 @@ const ForgotPassword = styled(NavLink)({
 })
 
 const SignInBtn = styled('button')({
-    border: 'unset',
+    display: 'flex',
+    alignItems: 'center',
     fontSize: '1em',
     fontWeight: 'bold',
     cursor: 'pointer',
-    color: 'white',
-    backgroundColor: '#953bff',
-    padding: '8px 30px',
+    backgroundColor: '#00b0a7',
+    padding: '7px 15px',
     borderRadius: '5px',
+    border: '1px black solid',
 })
 
 const SignUp = styled('div')({

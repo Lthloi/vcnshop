@@ -1,8 +1,12 @@
 import React, { useEffect, useState } from "react"
 import { styled } from '@mui/material/styles'
+import { getFloatNumber } from '../../../utils/methods.js'
+import { sendOTP } from "../../../store/actions/user_actions.js"
+import { useDispatch } from "react-redux"
 
-const ResendOTP = ({ secondsStarter }) => {
+const ResendOTP = ({ secondsStarter, emailWasTyped }) => {
     const [countdown, setCountdown] = useState(secondsStarter)
+    const dispatch = useDispatch()
 
     useEffect(() => {
         if (countdown && countdown > 0) {
@@ -14,20 +18,25 @@ const ResendOTP = ({ secondsStarter }) => {
     }, [countdown])
 
     const convertToWords = () => {
-        let minutes = (countdown / 60).toFixed(0) * 1
-        let seconds = (countdown % 60).toFixed(0) * 1
-        let timing =
-            (minutes < 10 ? '0' + minutes : minutes) + ':' +
-            (seconds < 10 ? '0' + seconds : seconds)
+        let minutes = getFloatNumber(countdown / 60, 0)
+        let seconds = getFloatNumber(countdown % 60, 0)
+        let timing = (minutes < 10 ? '0' + minutes : minutes) + ':' + (seconds < 10 ? '0' + seconds : seconds)
         return timing
     }
 
+    const resendOTP = () => {
+        dispatch(sendOTP(emailWasTyped))
+    }
+
     return (
-        <ResendOTPBtn id="ResendOTPBtn"
-            sx={countdown > 0 ?
-                { opacity: '0.6', pointerEvents: 'none', }
-                :
-                { opacity: '1', pointerEvents: 'initial', }
+        <ResendOTPBtn
+            id="ResendOTPBtn"
+            onClick={resendOTP}
+            sx={
+                countdown > 0 ?
+                    { opacity: '0.6', pointerEvents: 'none', }
+                    :
+                    { opacity: '1', pointerEvents: 'initial', }
             }
         >
             {

@@ -6,6 +6,7 @@ export const userSlice = createSlice({
         user: {},
         loading: false,
         error: null,
+        fail: null,
     },
     reducers: {
         sendOTPRequest: (state, action) => {
@@ -17,7 +18,10 @@ export const userSlice = createSlice({
             state.loading = false
         },
         sendOTPFail: (state, action) => {
-            state.error = action.payload.error
+            if (action.payload.error)
+                state.error = action.payload.error
+            else
+                state.fail = action.payload.fail
             state.loading = false
         },
 
@@ -31,7 +35,10 @@ export const userSlice = createSlice({
             state.loading = false
         },
         verifyOTPFail: (state, action) => {
-            state.error = action.payload.error
+            if (action.payload.error)
+                state.error = action.payload.error
+            else
+                state.fail = action.payload.fail
             state.loading = false
         },
 
@@ -41,10 +48,31 @@ export const userSlice = createSlice({
             state.loading = true
         },
         completeRegisterSuccess: (state, action) => {
+            state.user.isAuthenticated = true
             state.loading = false
         },
         completeRegisterFail: (state, action) => {
-            state.error = action.payload.error
+            if (action.payload.error)
+                state.error = action.payload.error
+            else
+                state.fail = action.payload.fail
+            state.loading = false
+        },
+
+
+        loginRequest: (state, action) => {
+            state.error = null
+            state.loading = true
+        },
+        loginSuccess: (state, action) => {
+            state.user.isAuthenticated = true
+            state.loading = false
+        },
+        loginFail: (state, action) => {
+            if (action.payload.error)
+                state.error = action.payload.error
+            else
+                state.fail = action.payload.fail
             state.loading = false
         },
     },
@@ -54,6 +82,7 @@ export const {
     sendOTPRequest, sendOTPSuccess, sendOTPFail,
     verifyOTPRequest, verifyOTPSuccess, verifyOTPFail,
     completeRegisterRequest, completeRegisterSuccess, completeRegisterFail,
+    loginRequest, loginSuccess, loginFail,
 } = userSlice.actions
 
 export default userSlice.reducer

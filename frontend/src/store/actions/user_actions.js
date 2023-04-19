@@ -3,6 +3,7 @@ import {
     sendOTPRequest, sendOTPSuccess, sendOTPFail,
     verifyOTPRequest, verifyOTPSuccess, verifyOTPFail,
     completeRegisterRequest, completeRegisterSuccess, completeRegisterFail,
+    loginRequest, loginSuccess, loginFail,
 } from '../reducers/user_reducer.js'
 import axios from 'axios'
 import { EXPRESS_SERVER } from '../../utils/constants.js'
@@ -17,16 +18,15 @@ const sendOTP = (email) => async (dispatch) => {
         let { data } = await axios.post(
             EXPRESS_SERVER + api_to_send_OTP,
             { email },
-            { withCredentials: true }
         )
 
         if (data.success) {
             dispatch(sendOTPSuccess())
-            toast.success('OTP was sent!')
-        } else {
-            dispatch(sendOTPFail({ fail: data.fail }))
-            toast.warning(data.fail)
+            return toast.success('OTP was sent!')
         }
+
+        dispatch(sendOTPFail({ fail: data.fail }))
+        toast.warning(data.fail)
     } catch (error) {
         let errorObject = actionsErrorHandler(error, 'Error Warning: fail to send OTP.')
 
@@ -44,12 +44,13 @@ const verifyOTP = (OTP_code, email) => async (dispatch) => {
         let { data } = await axios.post(
             EXPRESS_SERVER + api_to_verify_OTP,
             { OTP_code, email },
-            { withCredentials: true }
         )
 
         if (data.fail) {
             dispatch(verifyOTPFail({ fail: data.fail }))
-            return toast.warning(data.fail)
+            toast.warning(data.fail)
+            if (data.OTPIsExpire) setTimeout(() => { window.location.reload() }, 2000)
+            return
         }
 
         dispatch(verifyOTPSuccess())
@@ -70,16 +71,19 @@ const completeRegister = (name, email, password, gender) => async (dispatch) => 
 
         let { data } = await axios.post(
             EXPRESS_SERVER + api_to_complete_register,
-            { name, email, password, gender }
+            { name, email, password, gender },
+            { withCredentials: true }
         )
 
         if (data.fail) {
-            dispatch(completeRegisterFail(data.fail))
-            return toast.warning(data.fail)
+            dispatch(completeRegisterFail({ fail: data.fail }))
+            toast.warning(data.fail)
+            if (data.registerIsExpire) setTimeout(() => { window.location.reload() }, 2000)
+            return
         }
 
         dispatch(completeRegisterSuccess())
-        toast.warning('Register successfully!')
+        toast.success('Register successfully!')
     } catch (error) {
         let errorObject = actionsErrorHandler(error, 'Error Warning: fail to verify OTP.')
 
@@ -88,6 +92,31 @@ const completeRegister = (name, email, password, gender) => async (dispatch) => 
     }
 }
 
+const loginUser = (email, password) => async (dispatch) => {
+    try {
+        dispatch(loginRequest())
+
+        let api_to_login = '/api/loginUser'
+
+        let { data } = await axios.post(
+            EXPRESS_SERVER + api_to_login,
+            { email, password },
+            { withCredentials: true }
+        )
+
+        if (data.fail) {
+            dispatch(loginFail({ fail: data.fail }))
+            return toast.warning(data.fail)
+        }
+
+        dispatch(loginSuccess())
+        toast.success('Login successfully!')
+    } catch (error) {
+
+    }
+}
+
 export {
     sendOTP, verifyOTP, completeRegister,
+    loginUser,
 }

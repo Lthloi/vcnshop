@@ -18,7 +18,9 @@ import validator from 'validator'
 const RegisterSection = () => {
     const { user: { receivedOTP, successToVerifyOTP }, loading } = useSelector(({ user }) => user)
     const [openProblemSection, setOpenProblemSection] = useState(false)
+    const [sendOTPNote, setSendOTPNote] = useState(false)
     const email_input_ref = useRef()
+    const email_was_typed_ref = useRef()
     const dispatch = useDispatch()
 
     const timeToResendOTP = 120
@@ -31,7 +33,9 @@ const RegisterSection = () => {
         if (!validator.isEmail(email))
             return toast.warning('Please enter format of email correctly!')
 
+        email_was_typed_ref.current = email
         dispatch(sendOTP(email))
+        setSendOTPNote(true)
     }
 
     const catchEnterKey = (e) => {
@@ -40,7 +44,7 @@ const RegisterSection = () => {
 
     return (
         successToVerifyOTP ? (
-            <CompleteRegister emailWasTyped={email_input_ref.current && email_input_ref.current.value} />
+            <CompleteRegister emailWasTyped={email_was_typed_ref.current && email_was_typed_ref.current} />
         ) :
             <RegisterSectionArea id="RegisterSectionArea">
 
@@ -52,8 +56,8 @@ const RegisterSection = () => {
                 <FormContainer>
                     <FormTitle>Register</FormTitle>
                     {
-                        true ?
-                            <OTPInput emailWasTyped={email_input_ref.current && email_input_ref.current.value} />
+                        receivedOTP ?
+                            <OTPInput emailWasTyped={email_was_typed_ref.current && email_was_typed_ref.current} />
                             :
                             <>
                                 <FormGroup>
@@ -71,7 +75,13 @@ const RegisterSection = () => {
                                     </div>
                                 </FormGroup>
                                 <HelperText>
-                                    An OTP code will be sent to your email to verify.
+                                    <span>An OTP code will be sent to your email to verify.</span>
+                                    {
+                                        sendOTPNote &&
+                                        <span className="send_OTP_note">
+                                            Please wait! The time for sending OTP could take up to 4 or 6 seconds
+                                        </span>
+                                    }
                                 </HelperText>
                             </>
                     }
@@ -86,8 +96,8 @@ const RegisterSection = () => {
                                         size={18} thickness={6}
                                     />
                                 </SendOTPBtn>
-                            ) : true ? (
-                                <ResendOTP secondsStarter={timeToResendOTP} />
+                            ) : receivedOTP ? (
+                                <ResendOTP secondsStarter={timeToResendOTP} emailWasTyped={email_was_typed_ref.current && email_was_typed_ref.current} />
                             ) :
                                 <SendOTPBtn onClick={sendOTPSubmit}>
                                     Send OTP
@@ -164,12 +174,19 @@ const EmailInput = styled('input')({
 })
 
 const HelperText = styled('p')({
+    display: 'flex',
+    flexDirection: 'column',
+    rowGap: '5px',
     margin: '5px 0 10px',
     fontStyle: 'italic',
     fontFamily: 'sans-serif',
     color: 'white',
     fontSize: '0.8em',
     marginTop: '10px',
+    '& span.send_OTP_note': {
+        fontSize: '0.95em',
+        color: '#d32f2f',
+    }
 })
 
 const SendOTPArea = styled('div')({

@@ -2,6 +2,7 @@ import mongoose from 'mongoose'
 import { totp } from 'otplib'
 import bcrypt from 'bcrypt'
 import moment from 'moment'
+import jwt from 'jsonwebtoken'
 
 const { Schema } = mongoose
 
@@ -23,6 +24,7 @@ const UserSchema = new Schema({
         type: String,
         maxLength: [25, 'The length of password must not longer than 25 characters'],
         minLength: [6, 'The length of name must not shorter than 6 characters'],
+        required: true,
     },
     gender: {
         type: String,
@@ -71,16 +73,7 @@ const UserSchema = new Schema({
     },
 })
 
-const { OTP_SECRET_KEY } = process.env
-
-UserSchema.pre('save', function (next) {
-    if (this.isModified('active')) {
-        if (this.active) {
-            this.password.required = [true, 'The password is required']
-        }
-    }
-    next()
-})
+const { OTP_SECRET_KEY, JWT_SECRET_KEY, JWT_TOKEN_MAX_AGE_IN_DAY } = process.env
 
 UserSchema.methods.getOTPCode = function () {
     totp.options = { digits: 4 }
@@ -90,12 +83,17 @@ UserSchema.methods.getOTPCode = function () {
 
 UserSchema.methods.getHashedPassword = async function (password) {
     let saltRounds = 10
-    let hashed_password = await bcrypt.hash(password, saltRounds)
-    return hashed_password
+    return bcrypt.hash(password, saltRounds)
 }
 
 UserSchema.methods.compareHashedPassword = async function (password) {
-    return await bcrypt.compare(password, this.password)
+    return bcrypt.compare(password, this.password)
+}
+
+UserSchema.methods.getJWTToken = function () {
+    let payload = { userId: this._id }
+    let token = jwt.sign(payload, JWT_SECRET_KEY, { 'expiresIn': JWT_TOKEN_MAX_AGE_IN_DAY + ' days' })
+    return token
 }
 
 const UserModel = mongoose.model('users', UserSchema)

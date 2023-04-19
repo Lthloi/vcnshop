@@ -9,10 +9,8 @@ import ClearIcon from '@mui/icons-material/Clear'
 import "react-toastify/dist/ReactToastify.css"
 import CircularProgress from '@mui/material/CircularProgress'
 import { NavLink } from "react-router-dom"
-import {toast} from 'react-toastify'
-
-const validate_recover =
-    /(\+?\(?([0-9]{3})\)?([ .-]?)([0-9]{3})([0-9]{4,6})|^[\w-]{2,}@([a-z]{2,12}\.){1,5}[a-z]{2,5}$)/
+import { toast } from 'react-toastify'
+import validator from "validator"
 
 const ForgotPasswordSection = () => {
     const { register, handleSubmit, formState: { errors }, reset } = useForm()
@@ -50,79 +48,70 @@ const ForgotPasswordSection = () => {
     }
 
     return (
-        <>
+        <ForgotPasswordArea>
+
             <ProblemSection open={openProblemSection}
                 handleOpen={handleOpenProblemSection}
             />
 
-            <ForgotPasswordArea>
-                <FormContainer id="FormContainer" method="post" action="#"
-                    onSubmit={handleSubmit(checkSubmit, checkError)}
-                >
-                    <Title>Forgot Password</Title>
-                    <Desc>
-                        Use your email or phone number to recover password.
-                        We will send an four-digit code to that and then please
-                        typing the code to recover. Thanks!
-                    </Desc>
+            <FormContainer id="FormContainer" method="post" action="#"
+                onSubmit={handleSubmit(checkSubmit, checkError)}
+            >
+                <Title>Forgot Password</Title>
+                <Desc>
+                    Use your email or phone number to recover password.
+                    We will send an four-digit code to that and then please
+                    typing the code to recover. Thanks!
+                </Desc>
 
-                    <Divider sx={{ backgroundColor: '#999999' }} />
+                <Divider sx={{ backgroundColor: '#999999' }} />
 
-                    <FormGroup>
-                        <Label htmlFor="RecoverPasswordInput">
-                            Enter email or phone number
-                        </Label>
-                        <InputWrapper>
-                            <Input type="text" id="RecoverPasswordInput"
-                                name="RecoverPasswordInput" //input
-                                {...register("recover",
-                                    {
-                                        pattern: validate_recover,
-                                        required: true,
-                                    }
-                                )}
-                                placeholder={onFocus ? "" : "Enteremail or phone number here..."}
-                                onFocus={() => handleOnFocus(true)}
-                                onBlur={() => handleOnFocus(false)}
-                            />
-                            <ClearIconWrapper>
-                                <StyledClearIcon onClick={() => clearInput('recover')} />
-                            </ClearIconWrapper>
-                        </InputWrapper>
+                <FormGroup>
+                    <Label htmlFor="RecoverPasswordInput">Enter your email</Label>
+                    <InputWrapper>
+                        <Input
+                            type="text"
+                            id="RecoverPasswordInput"
+                            {...register("recover")}
+                            placeholder={onFocus ? "" : "Enteremail or phone number here..."}
+                            onFocus={() => handleOnFocus(true)}
+                            onBlur={() => handleOnFocus(false)}
+                        />
+                        <ClearIconWrapper>
+                            <StyledClearIcon onClick={() => clearInput('recover')} />
+                        </ClearIconWrapper>
+                    </InputWrapper>
+                    {
+                        errors.recover &&
+                        <TypingWarning>
+                            <CancelIcon sx={{ height: '0.7em', color: 'red', }} />
+                            <TypingWarningText>Email is not valid</TypingWarningText>
+                        </TypingWarning>
+                    }
+                </FormGroup>
+                <SubmitBtnContainer>
+                    <SignInBtn onClick={() => handleOpenProblemSection(true)}>
+                        Have problem ?
+                    </SignInBtn>
+                    <SubmitBtn>
                         {
-                            errors.recover &&
-                            <TypingWarning>
-                                <CancelIcon sx={{ height: '0.7em', color: 'red', }} />
-                                <TypingWarningText>
-                                    Email or phone number is not valid
-                                </TypingWarningText>
-                            </TypingWarning>
+                            submitInProgress ?
+                                <CircularProgress sx={{ color: 'black', margin: 'auto', }}
+                                    size={18} thickness={6}
+                                />
+                                : <span>Send recover code</span>
                         }
-                    </FormGroup>
-                    <SubmitBtnContainer>
-                        <SignInBtn onClick={() => handleOpenProblemSection(true)}>
-                            Have problem ?
-                        </SignInBtn>
-                        <SubmitBtn>
-                            {
-                                submitInProgress ?
-                                    <CircularProgress sx={{ color: 'black', margin: 'auto', }}
-                                        size={18} thickness={6}
-                                    />
-                                    : 'Send recover code'
-                            }
-                        </SubmitBtn>
-                    </SubmitBtnContainer>
-                </FormContainer>
-                <SignIn>
-                    Already have an account ?&nbsp;
-                    <NavLink to="/auth/login" className="NavLink">
-                        Sign In.
-                    </NavLink>
-                </SignIn>
-                <BottomForm />
-            </ForgotPasswordArea>
-        </>
+                    </SubmitBtn>
+                </SubmitBtnContainer>
+            </FormContainer>
+            <SignIn>
+                <span>Already have an account ? </span>
+                <NavLink to="/auth/login" className="NavLink">
+                    Sign In.
+                </NavLink>
+            </SignIn>
+            <BottomForm />
+        </ForgotPasswordArea>
     )
 }
 
@@ -198,6 +187,7 @@ const Input = styled('input')({
     fontSize: '1em',
     color: 'white',
     padding: '8px 15px',
+    paddingRight: '30px',
     width: '100%',
     boxSizing: 'border-box',
     borderRadius: '5px',

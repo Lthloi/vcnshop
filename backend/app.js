@@ -11,6 +11,7 @@ const app = express()
 
 //block requests from a origin is different with own origin
 app.use(cors({
+    //>>> fix this: change orgin
     origin: 'http://localhost:3000',
     credentials: true,
 }))

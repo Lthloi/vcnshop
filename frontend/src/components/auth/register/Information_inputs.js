@@ -18,13 +18,13 @@ const inputs = [
         warning: 'Full Name field mustn\'t contain special characters. And must be between 2 and 25 characters long.',
     }, {
         label: 'Password',
-        required: true,
+        required: false,
         max_length: 20,
         helper_text: 'Use this one with your email to login',
         warning: 'Password must be between 6 and 20 characters long. And must contain at least one capital letter and one number and one lowercase letter.',
     }, {
         label: 'Retype Password',
-        required: true,
+        required: false,
         max_length: 20,
         helper_text: 'Must match the typed password',
         warning: 'Not match the typed password',
@@ -73,7 +73,7 @@ const InformationInputs = ({ register, errors, reset, emailWasTyped }) => {
 
     return (
         <InputsArea id="InputsArea">
-            <InputFormGroup sx={{ opacity: '0.7' }}>
+            <InputFormGroup sx={{ opacity: '0.6' }}>
                 <InputLabelContainer>
                     <InputLabel>Email</InputLabel>
                 </InputLabelContainer>
