@@ -1,61 +1,27 @@
-import { createSlice } from '@reduxjs/toolkit'
+import { createSlice, current } from '@reduxjs/toolkit'
 
 export const userSlice = createSlice({
     name: 'user',
     initialState: {
-        user: {},
+        user: {
+            registerStep: 1,
+            forgotPasswordStep: 1,
+            loginStep: 1,
+        },
         loading: false,
         error: null,
-        fail: null,
     },
     reducers: {
-        sendOTPRequest: (state, action) => {
+        registerRequest: (state, action) => {
             state.error = null
             state.loading = true
         },
-        sendOTPSuccess: (state, action) => {
-            state.user.receivedOTP = true
+        registerSuccess: (state, action) => {
+            state.user.registerStep = action.payload.registerStep
             state.loading = false
         },
-        sendOTPFail: (state, action) => {
-            if (action.payload.error)
-                state.error = action.payload.error
-            else
-                state.fail = action.payload.fail
-            state.loading = false
-        },
-
-
-        verifyOTPRequest: (state, action) => {
-            state.error = null
-            state.loading = true
-        },
-        verifyOTPSuccess: (state, action) => {
-            state.user.successToVerifyOTP = true
-            state.loading = false
-        },
-        verifyOTPFail: (state, action) => {
-            if (action.payload.error)
-                state.error = action.payload.error
-            else
-                state.fail = action.payload.fail
-            state.loading = false
-        },
-
-
-        completeRegisterRequest: (state, action) => {
-            state.error = null
-            state.loading = true
-        },
-        completeRegisterSuccess: (state, action) => {
-            state.user.isAuthenticated = true
-            state.loading = false
-        },
-        completeRegisterFail: (state, action) => {
-            if (action.payload.error)
-                state.error = action.payload.error
-            else
-                state.fail = action.payload.fail
+        registerFail: (state, action) => {
+            state.error = action.payload.error
             state.loading = false
         },
 
@@ -65,24 +31,34 @@ export const userSlice = createSlice({
             state.loading = true
         },
         loginSuccess: (state, action) => {
-            state.user.isAuthenticated = true
+            state.user.loginStep = action.payload.loginStep
             state.loading = false
         },
         loginFail: (state, action) => {
-            if (action.payload.error)
-                state.error = action.payload.error
-            else
-                state.fail = action.payload.fail
+            state.error = action.payload.error
+            state.loading = false
+        },
+
+
+        forgotPasswordRequest: (state, action) => {
+            state.error = null
+            state.loading = true
+        },
+        forgotPasswordSuccess: (state, action) => {
+            state.user.forgotPasswordStep = action.payload.forgotPasswordStep
+            state.loading = false
+        },
+        forgotPasswordFail: (state, action) => {
+            state.error = action.payload.error
             state.loading = false
         },
     },
 })
 
 export const {
-    sendOTPRequest, sendOTPSuccess, sendOTPFail,
-    verifyOTPRequest, verifyOTPSuccess, verifyOTPFail,
-    completeRegisterRequest, completeRegisterSuccess, completeRegisterFail,
+    registerRequest, registerSuccess, registerFail,
     loginRequest, loginSuccess, loginFail,
+    forgotPasswordRequest, forgotPasswordSuccess, forgotPasswordFail,
 } = userSlice.actions
 
 export default userSlice.reducer

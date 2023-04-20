@@ -1,4 +1,6 @@
 import nodemailer from 'nodemailer'
+import UserModel from '../models/user_schema'
+import moment from 'moment'
 
 const project_info = {
     name: 'VCN Shop',
@@ -17,14 +19,16 @@ const transporter = nodemailer.createTransport({
     },
 })
 
-const sendMail = async (OTP_code, OTP_expire_in_minutes, receiver, subject, message) => {
+const sendOTPViaEmail = async (
+    OTP_code, OTP_expire_in_minute, receiver, subject, message, update_OTP_via_UserModel = true,
+) => {
     try {
         await transporter.sendMail({
             from: `"VCN Shop" <${GMAIL_USERNAME}>`,
             to: receiver,
-            subject: subject ? subject : 'VCN Shop - Verify OTP ✔',
+            subject: subject || 'VCN Shop - Verify OTP ✔',
             text: 'This is OTP code: ' + OTP_code,
-            html: message ? message :
+            html: message ||
                 `
                 <div style="font-family: Helvetica,Arial,sans-serif; width: 100%; display: flex; justify-content: center; align-items: center; box-sizing: border-box; ">
                     <div style="padding: 10px; ">
@@ -36,7 +40,7 @@ const sendMail = async (OTP_code, OTP_expire_in_minutes, receiver, subject, mess
                         <p style="font-size: 1.1em; ">Hi,</p>
                         <p>
                             Thank you for choosing ${project_info.name}. Use the following OTP to
-                            complete your register procedures. OTP is valid for ${OTP_expire_in_minutes} minutes.
+                            complete your register procedures. OTP is valid for ${OTP_expire_in_minute} minutes.
                         </p>
                         <h2 style="background: #00466a; margin: 0 auto; width: fit-content; padding: 5px 10px; color: #fff; border-radius: 4px; ">
                             ${OTP_code}
@@ -59,9 +63,21 @@ const sendMail = async (OTP_code, OTP_expire_in_minutes, receiver, subject, mess
                 </div>
                 `,
         })
+
+        if (update_OTP_via_UserModel)
+            await UserModel.updateOne(
+                { email: receiver },
+                {
+                    $set: {
+                        'OTP_code.value': OTP_code,
+                        'OTP_code.expireAt': moment().add(OTP_expire_in_minute, 'minutes'),
+                    }
+                }
+            )
+        
     } catch (error) {
         throw error
     }
 }
 
-export default sendMail
+export default sendOTPViaEmail

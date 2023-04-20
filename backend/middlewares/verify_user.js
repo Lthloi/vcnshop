@@ -7,18 +7,18 @@ const { JWT_SECRET_KEY } = process.env
 
 const verifyJWTtoken = catchAsyncError(async (req, res, next) => {
     let token = req.cookies.JWT_token
-    if (!token) next(new BaseError('Token not found', 404))
+    if (!token) throw new BaseError('Token not found', 401)
 
     let decoded_data
 
     try {
         decoded_data = jwt.verify(token, JWT_SECRET_KEY)
     } catch (error) {
-        next(error)
+        throw error
     }
 
     let user = await UserModel.findOne({ _id: decoded_data.userId })
-    if (!user) next(new BaseError('User not found', 404))
+    if (!user) throw new BaseError('User not found', 404)
 
     next()
 })

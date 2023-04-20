@@ -18,9 +18,9 @@ const ResendOTP = ({ secondsStarter, emailWasTyped }) => {
     }, [countdown])
 
     const convertToWords = () => {
-        let minutes = getFloatNumber(countdown / 60, 0)
-        let seconds = getFloatNumber(countdown % 60, 0)
-        let timing = (minutes < 10 ? '0' + minutes : minutes) + ':' + (seconds < 10 ? '0' + seconds : seconds)
+        let minutes = parseInt(countdown / 60)
+        let seconds = countdown % 60
+        let timing = '0' + minutes + ':' + (seconds < 10 ? '0' + seconds : seconds)
         return timing
     }
 
@@ -34,7 +34,7 @@ const ResendOTP = ({ secondsStarter, emailWasTyped }) => {
             onClick={resendOTP}
             sx={
                 countdown > 0 ?
-                    { opacity: '0.6', pointerEvents: 'none', }
+                    { opacity: '0.5', pointerEvents: 'none', }
                     :
                     { opacity: '1', pointerEvents: 'initial', }
             }

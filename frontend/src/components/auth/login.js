@@ -18,17 +18,17 @@ const LoginSection = () => {
     const [showPassword, setShowPassword] = useState(false)
     const email_input_ref = useRef()
     const password_input_ref = useRef()
-    const { user, loading } = useSelector(({ user }) => user)
+    const { user: { loginStep }, loading } = useSelector(({ user }) => user)
     const dispatch = useDispatch()
 
     useEffect(() => {
-        if (user.isAuthenticated) {
+        if (loginStep === 2) {
             let timeout = setTimeout(() => {
                 window.open('/account', '_self')
             }, 2000)
             return () => clearTimeout(timeout)
         }
-    }, [user.isAuthenticated])
+    }, [loginStep])
 
     const handleShowPassword = () => setShowPassword(!showPassword)
 
@@ -43,6 +43,10 @@ const LoginSection = () => {
         dispatch(loginUser(email, password))
     }
 
+    const catchEnterKey = (e) => {
+        if (e.key === 'Enter') loginSubmit()
+    }
+
     return (
         <LoginSectionArea id="LoginSectionArea">
             <LoginSectionForm>
@@ -55,6 +59,7 @@ const LoginSection = () => {
                         id="email"
                         placeholder=" "
                         name="Email"
+                        onKeyDown={catchEnterKey}
                     />
                     <EmailLabel htmlFor="email">Enter your e-mail</EmailLabel>
                 </EmailFormGroup>
@@ -66,6 +71,7 @@ const LoginSection = () => {
                         placeholder=" "
                         name="Password"
                         type={showPassword ? "text" : "password"}
+                        onKeyDown={catchEnterKey}
                     />
                     <PasswordLabel htmlFor="password">Enter your password</PasswordLabel>
                     <ShowPasswordIconWrapper onClick={() => handleShowPassword()}>
@@ -77,7 +83,7 @@ const LoginSection = () => {
                         }
                     </ShowPasswordIconWrapper>
                 </PasswordFormGroup>
-                <ForgotPasswordArea>
+                <SubmitBtnContainer>
                     <ForgotPassword to="/auth/forgotPassword">Forgot Password ?</ForgotPassword>
                     <SignInBtn onClick={loginSubmit}>
                         {
@@ -90,7 +96,7 @@ const LoginSection = () => {
                                 : <span>Login</span>
                         }
                     </SignInBtn>
-                </ForgotPasswordArea>
+                </SubmitBtnContainer>
             </LoginSectionForm>
             <SignUp>
                 <span>Don't have an account ? </span>
@@ -207,7 +213,7 @@ const PasswordInput = styled(Input)({
 
 })
 
-const ForgotPasswordArea = styled('div')({
+const SubmitBtnContainer = styled('div')({
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -235,6 +241,7 @@ const SignInBtn = styled('button')({
     padding: '7px 15px',
     borderRadius: '5px',
     border: '1px black solid',
+    height: '35px',
 })
 
 const SignUp = styled('div')({

@@ -16,7 +16,7 @@ import CompleteRegister from "./complete_register"
 import validator from 'validator'
 
 const RegisterSection = () => {
-    const { user: { receivedOTP, successToVerifyOTP }, loading } = useSelector(({ user }) => user)
+    const { user: { registerStep }, loading } = useSelector(({ user }) => user)
     const [openProblemSection, setOpenProblemSection] = useState(false)
     const [sendOTPNote, setSendOTPNote] = useState(false)
     const email_input_ref = useRef()
@@ -43,7 +43,7 @@ const RegisterSection = () => {
     }
 
     return (
-        successToVerifyOTP ? (
+        registerStep === 3 ? (
             <CompleteRegister emailWasTyped={email_was_typed_ref.current && email_was_typed_ref.current} />
         ) :
             <RegisterSectionArea id="RegisterSectionArea">
@@ -56,52 +56,62 @@ const RegisterSection = () => {
                 <FormContainer>
                     <FormTitle>Register</FormTitle>
                     {
-                        receivedOTP ?
-                            <OTPInput emailWasTyped={email_was_typed_ref.current && email_was_typed_ref.current} />
-                            :
-                            <>
-                                <FormGroup>
-                                    <Label htmlFor="StyledPhoneInput">
-                                        Enter your email here
-                                    </Label>
-                                    <div style={{ display: 'flex', columnGap: '10px' }}>
-                                        <EmailIcon sx={{ color: 'white' }} />
-                                        <EmailInput
-                                            ref={email_input_ref}
-                                            type="email"
-                                            placeholder="Enter your email here..."
-                                            onKeyDown={catchEnterKey}
-                                        />
-                                    </div>
-                                </FormGroup>
-                                <HelperText>
-                                    <span>An OTP code will be sent to your email to verify.</span>
-                                    {
-                                        sendOTPNote &&
-                                        <span className="send_OTP_note">
-                                            Please wait! The time for sending OTP could take up to 4 or 6 seconds
-                                        </span>
-                                    }
-                                </HelperText>
-                            </>
+
+                        registerStep === 0 &&
+                        <>
+                            <FormGroup>
+                                <Label htmlFor="StyledPhoneInput">
+                                    Enter your email here
+                                </Label>
+                                <div style={{ display: 'flex', columnGap: '10px' }}>
+                                    <EmailIcon sx={{ color: 'white' }} />
+                                    <EmailInput
+                                        ref={email_input_ref}
+                                        type="email"
+                                        placeholder="Enter your email here..."
+                                        onKeyDown={catchEnterKey}
+                                    />
+                                </div>
+                            </FormGroup>
+                            <HelperText>
+                                <span>An OTP code will be sent to your email to verify.</span>
+                                {
+                                    sendOTPNote &&
+                                    <span className="send_OTP_note">
+                                        Please wait! The time for sending OTP could take up to 4 or 6 seconds
+                                    </span>
+                                }
+                            </HelperText>
+                        </>
+                    }
+                    {
+                        registerStep === 2 &&
+                        <OTPInput emailWasTyped={email_was_typed_ref.current && email_was_typed_ref.current} />
                     }
                     <SendOTPArea>
                         <Problems onClick={() => handleOpenProblemSection(true)}>
                             Have problem ?
                         </Problems>
                         {
-                            loading ? (
-                                <SendOTPBtn>
-                                    <CircularProgress sx={{ color: 'black', }}
-                                        size={18} thickness={6}
-                                    />
-                                </SendOTPBtn>
-                            ) : receivedOTP ? (
-                                <ResendOTP secondsStarter={timeToResendOTP} emailWasTyped={email_was_typed_ref.current && email_was_typed_ref.current} />
-                            ) :
-                                <SendOTPBtn onClick={sendOTPSubmit}>
-                                    Send OTP
-                                </SendOTPBtn>
+                            loading &&
+                            <SendOTPBtn>
+                                <CircularProgress sx={{ color: 'black', }}
+                                    size={18} thickness={6}
+                                />
+                            </SendOTPBtn>
+                        }
+                        {
+                            registerStep === 1 &&
+                            <SendOTPBtn onClick={sendOTPSubmit}>
+                                Send OTP
+                            </SendOTPBtn>
+                        }
+                        {
+                            registerStep === 2 &&
+                            <ResendOTP
+                                secondsStarter={timeToResendOTP}
+                                emailWasTyped={email_was_typed_ref.current && email_was_typed_ref.current}
+                            />
                         }
                     </SendOTPArea>
                 </FormContainer>
@@ -115,7 +125,7 @@ const RegisterSection = () => {
 
                 <BottomForm />
 
-            </RegisterSectionArea>
+            </RegisterSectionArea >
     )
 }
 

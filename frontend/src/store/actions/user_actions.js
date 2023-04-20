@@ -1,9 +1,8 @@
 import { toast } from 'react-toastify'
 import {
-    sendOTPRequest, sendOTPSuccess, sendOTPFail,
-    verifyOTPRequest, verifyOTPSuccess, verifyOTPFail,
-    completeRegisterRequest, completeRegisterSuccess, completeRegisterFail,
+    registerRequest, registerSuccess, registerFail,
     loginRequest, loginSuccess, loginFail,
+    forgotPasswordRequest, forgotPasswordSuccess, forgotPasswordFail,
 } from '../reducers/user_reducer.js'
 import axios from 'axios'
 import { EXPRESS_SERVER } from '../../utils/constants.js'
@@ -11,84 +10,71 @@ import actionsErrorHandler from '../../utils/error_handler.js'
 
 const sendOTP = (email) => async (dispatch) => {
     try {
-        dispatch(sendOTPRequest())
+        dispatch(registerRequest())
 
         let api_to_send_OTP = '/api/sendRegisterOTP'
 
-        let { data } = await axios.post(
-            EXPRESS_SERVER + api_to_send_OTP,
-            { email },
-        )
+        await axios.post(EXPRESS_SERVER + api_to_send_OTP, { email })
 
-        if (data.success) {
-            dispatch(sendOTPSuccess())
-            return toast.success('OTP was sent!')
-        }
-
-        dispatch(sendOTPFail({ fail: data.fail }))
-        toast.warning(data.fail)
+        dispatch(registerSuccess({ registerStep: 2 }))
+        toast.success('OTP was sent!')
     } catch (error) {
-        let errorObject = actionsErrorHandler(error, 'Error Warning: fail to send OTP.')
+        let errorObject = actionsErrorHandler(error, 'Something went wrong on system, please try again some minutes later!')
 
-        dispatch(sendOTPFail({ error: errorObject }))
-        toast.error('Something went wrong on system, please try again some minutes later!')
+        dispatch(registerFail({ error: errorObject }))
+
+        if (errorObject.isUserError) toast.warning(errorObject.message)
+        else toast.error(errorObject.message)
     }
 }
 
 const verifyOTP = (OTP_code, email) => async (dispatch) => {
     try {
-        dispatch(verifyOTPRequest())
+        dispatch(registerRequest())
 
         let api_to_verify_OTP = '/api/verifyRegisterOTP'
 
-        let { data } = await axios.post(
-            EXPRESS_SERVER + api_to_verify_OTP,
-            { OTP_code, email },
-        )
+        await axios.post(EXPRESS_SERVER + api_to_verify_OTP, { OTP_code, email })
 
-        if (data.fail) {
-            dispatch(verifyOTPFail({ fail: data.fail }))
-            toast.warning(data.fail)
-            if (data.OTPIsExpire) setTimeout(() => { window.location.reload() }, 2000)
-            return
-        }
-
-        dispatch(verifyOTPSuccess())
+        dispatch(registerSuccess({ registerStep: 3 }))
         toast.success('Verify OTP successfully!')
     } catch (error) {
-        let errorObject = actionsErrorHandler(error, 'Error Warning: fail to verify OTP.')
+        let errorObject = actionsErrorHandler(error, 'Something went wrong on system, please try again some minutes later!')
 
-        dispatch(verifyOTPFail({ error: errorObject }))
-        toast.error('Something went wrong on system, please try again some minutes later!')
+        dispatch(registerFail({ error: errorObject }))
+
+        if (errorObject.isUserError) {
+            toast.warning(errorObject.message)
+            if (errorObject.statusCode === 408) setTimeout(() => { window.location.reload() }, 2000)
+        } else
+            toast.error(errorObject.message)
     }
 }
 
 const completeRegister = (name, email, password, gender) => async (dispatch) => {
     try {
-        dispatch(completeRegisterRequest())
+        dispatch(registerRequest())
 
         let api_to_complete_register = '/api/completeRegister'
 
-        let { data } = await axios.post(
+        await axios.post(
             EXPRESS_SERVER + api_to_complete_register,
             { name, email, password, gender },
             { withCredentials: true }
         )
 
-        if (data.fail) {
-            dispatch(completeRegisterFail({ fail: data.fail }))
-            toast.warning(data.fail)
-            if (data.registerIsExpire) setTimeout(() => { window.location.reload() }, 2000)
-            return
-        }
-
-        dispatch(completeRegisterSuccess())
+        dispatch(registerSuccess({ registerStep: 4 }))
         toast.success('Register successfully!')
     } catch (error) {
-        let errorObject = actionsErrorHandler(error, 'Error Warning: fail to verify OTP.')
+        let errorObject = actionsErrorHandler(error, 'Fail to register, please try again some minutes later!')
 
-        dispatch(completeRegisterFail({ error: errorObject }))
-        toast.error('Fail to register, please try again some minutes later!')
+        dispatch(registerFail({ error: errorObject }))
+
+        if (errorObject.isUserError) {
+            toast.warning(errorObject.message)
+            if (errorObject.statusCode === 408) setTimeout(() => { window.location.reload() }, 2000)
+        } else
+            toast.error(errorObject.message)
     }
 }
 
@@ -98,25 +84,45 @@ const loginUser = (email, password) => async (dispatch) => {
 
         let api_to_login = '/api/loginUser'
 
-        let { data } = await axios.post(
+        await axios.post(
             EXPRESS_SERVER + api_to_login,
             { email, password },
             { withCredentials: true }
         )
 
-        if (data.fail) {
-            dispatch(loginFail({ fail: data.fail }))
-            return toast.warning(data.fail)
-        }
-
-        dispatch(loginSuccess())
+        dispatch(loginSuccess({ loginStep: 2 }))
         toast.success('Login successfully!')
     } catch (error) {
+        let errorObject = actionsErrorHandler(error, 'Fail to login, please try again some minutes later!')
 
+        dispatch(loginFail({ error: errorObject }))
+
+        if (errorObject.isUserError) toast.warning(errorObject.message)
+        else toast.error(errorObject.message)
+    }
+}
+
+const forgotPassword = (email) => async (dispatch) => {
+    try {
+        dispatch(forgotPasswordRequest())
+
+        let api_of_forgot_password = '/api/forgotPassword'
+
+        await axios.post(EXPRESS_SERVER + api_of_forgot_password, { email })
+
+        dispatch(forgotPasswordSuccess())
+        toast.success('OTP was sent!')
+    } catch (error) {
+        let errorObject = actionsErrorHandler(error, 'Fail to send OTP, please try again some minutes later!')
+
+        dispatch(forgotPasswordFail({ error: errorObject }))
+
+        if (errorObject.isUserError) toast.warning(errorObject.message)
+        else toast.error(errorObject.message)
     }
 }
 
 export {
     sendOTP, verifyOTP, completeRegister,
-    loginUser,
+    loginUser, forgotPassword,
 }

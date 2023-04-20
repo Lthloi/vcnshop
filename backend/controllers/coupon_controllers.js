@@ -76,33 +76,6 @@ const getCoupons = catchAsyncError(async (req, res, next) => {
 })
 
 const getCoupon = catchAsyncError(async (req, res, next) => {
-    let { couponCode } = req.params
-    if (!couponCode) throw new BaseError('Wrong request property', 400)
-
-    let coupon = await CouponModel.findOne(
-        {
-            code: couponCode,
-        },
-    ).lean()
-
-    if (!coupon)
-        return res.status(200).json({
-            noCoupon: 1,
-        })
-
-    if (coupon.stock === 0)
-        return res.status(200).json({
-            outOfStock: 1,
-        })
-
-    if (moment(coupon.expireAt).isBefore(moment()))
-        return res.status(200).json({
-            outOfDate: 1,
-        })
-
-    res.status(200).json({
-        coupon,
-    })
 })
 
 export {

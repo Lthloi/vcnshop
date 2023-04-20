@@ -19,11 +19,11 @@ const CompleteRegister = ({ emailWasTyped }) => {
     const dispatch = useDispatch()
 
     useEffect(() => {
-        if (user.isAuthenticated) {
+        if (user.registerStep === 4) {
             let timeout = setTimeout(() => { window.open('/account', '_self') }, 2000)
             return () => clearTimeout(timeout)
         }
-    }, [user.isAuthenticated])
+    }, [user.registerStep])
 
     const handleChangeCheckbox = (e) => {
         setCheckboxChecked(!checkboxChecked)
