@@ -38,7 +38,7 @@ const sendRegisterOTP = catchAsyncError(async (req, res, next) => {
     res.status(200).json({ success: true })
 })
 
-const verifyRegisterOTP = catchAsyncError(async (req, res, next) => {
+const verifyOTP = catchAsyncError(async (req, res, next) => {
     let { OTP_code, email } = req.body
     if (!OTP_code || !email) throw new BaseError('Wrong property name', 400)
 
@@ -52,21 +52,24 @@ const verifyRegisterOTP = catchAsyncError(async (req, res, next) => {
 
     if (user.OTP_code.value !== OTP_code) throw new BaseError('OTP code is incorrect!', 401, null, true)
 
-    await UserModel.updateOne({ email }, { $set: { 'OTP_code.expireAt': moment().add(30, 'minutes') } })
+    let OTP_verification_expire_in_minute = 30
+    await UserModel.updateOne(
+        { email },
+        {
+            $set: {
+                'OTP_code.expireAt': moment().add(OTP_verification_expire_in_minute, 'minutes'),
+            }
+        }
+    )
 
     res.status(200).json({ success: true })
 })
 
 const completeRegister = catchAsyncError(async (req, res, next) => {
-    let { name, email, password } = req.body
+    let { name, email, password, gender } = req.body
     if (!email || !password) throw new BaseError('Wrong property name', 400)
 
-    let user = await UserModel.findOne(
-        {
-            email,
-            'OTP_code.expireAt': { $gt: moment() }
-        }
-    ).lean()
+    let user = await UserModel.findOne({ email, 'OTP_code.expireAt': { $gt: moment() } }).lean()
     if (!user) throw new BaseError('Time for register is over!', 408, null, true)
 
     let user_instance = new UserModel()
@@ -80,6 +83,7 @@ const completeRegister = catchAsyncError(async (req, res, next) => {
                 email,
                 password: hashed_password,
                 active: true,
+                gender,
             }
         }
     )
@@ -118,8 +122,8 @@ const loginUser = catchAsyncError(async (req, res, next) => {
     //>>> fix this: change domain property in cookie
     let cookie_option = { path: '/', domain: 'localhost', httpOnly: true, maxAge: JWT_TOKEN_MAX_AGE_IN_DAY * 86400000 }
 
-    res.cookie('user_avatar', user.name, cookie_option)
-    if (user.avatar) res.cookie('user_name', user.avatar, cookie_option)
+    res.cookie('user_name', user.name, cookie_option)
+    if (user.avatar) res.cookie('user_avatar', user.avatar, cookie_option)
 
     res.status(200).json({ success: true })
 })
@@ -138,12 +142,29 @@ const forgotPassword = catchAsyncError(async (req, res, next) => {
     let OTP_code = user_instance.getOTPCode()
     let OTP_expire_in_minute = 5
 
-    await sendOTPViaEmail(OTP_code, OTP_expire_in_minute, email)
+    await sendOTPViaEmail(OTP_code, OTP_expire_in_minute, email, 'VCN Shop - Verify OTP For Forgot Password ✔')
+
+    res.status(200).json({ success: true })
+})
+
+const resetPassword = catchAsyncError(async (req, res, next) => {
+    let { email, newPassword } = req.body
+    if (!email || !newPassword) throw new BaseError('Wrong property name', 400)
+
+    let user = await UserModel.findOne({ email, 'OTP_code.expireAt': { $gt: moment() } }).lean()
+    if (!user) throw new BaseError('Time for reset password is over!', 408, null, true)
+
+    let user_instance = new UserModel()
+    let hashed_password = await user_instance.getHashedPassword(newPassword)
+
+    await UserModel.updateOne({ email }, { $set: { 'password': hashed_password } })
+
+    sendJWTToken(res, user._id)
 
     res.status(200).json({ success: true })
 })
 
 export {
-    sendRegisterOTP, verifyRegisterOTP, completeRegister,
-    loginUser, forgotPassword,
+    sendRegisterOTP, verifyOTP, completeRegister,
+    loginUser, forgotPassword, resetPassword,
 }

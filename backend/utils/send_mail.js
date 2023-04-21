@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer'
-import UserModel from '../models/user_schema'
+import UserModel from '../models/user_schema.js'
 import moment from 'moment'
 
 const project_info = {
@@ -26,8 +26,8 @@ const sendOTPViaEmail = async (
         await transporter.sendMail({
             from: `"VCN Shop" <${GMAIL_USERNAME}>`,
             to: receiver,
-            subject: subject || 'VCN Shop - Verify OTP ✔',
-            text: 'This is OTP code: ' + OTP_code,
+            subject: subject || 'VCN Shop - Verify OTP For Register ✔',
+            text: 'This is your OTP code: ' + OTP_code + '. If you have not requested this email then, please ignore it.',
             html: message ||
                 `
                 <div style="font-family: Helvetica,Arial,sans-serif; width: 100%; display: flex; justify-content: center; align-items: center; box-sizing: border-box; ">
@@ -74,7 +74,7 @@ const sendOTPViaEmail = async (
                     }
                 }
             )
-        
+
     } catch (error) {
         throw error
     }

@@ -10,19 +10,21 @@ import { NavLink } from "react-router-dom"
 import { toast } from 'react-toastify'
 import validator from "validator"
 import { useDispatch, useSelector } from "react-redux"
-import NewPasswordSection from "./new_password"
+import ResetPasswordSection from "./reset_password"
+import { forgotPassword } from "../../store/actions/user_actions"
+import ForgotPasswordVerifyOTP from './forgot_password_verify_OTP'
 
 const ForgotPasswordSection = () => {
     const [openProblemSection, setOpenProblemSection] = useState(false)
     const email_input_ref = useRef()
+    const email_was_typed_ref = useRef()
+    const [sendOTPNote, setSendOTPNote] = useState(false)
     const { user: { forgotPasswordStep }, loading } = useSelector(({ user }) => user)
     const dispatch = useDispatch()
 
     useEffect(() => {
-        if (forgotPasswordStep === 3) {
-            let timeout = setTimeout(() => {
-                window.open('/account', '_self')
-            }, 2000)
+        if (forgotPasswordStep === 4) {
+            let timeout = setTimeout(() => { window.open('/account', '_self') }, 1000)
             return () => clearTimeout(timeout)
         }
     }, [forgotPasswordStep])
@@ -38,7 +40,9 @@ const ForgotPasswordSection = () => {
         if (!validator.isEmail(email))
             return toast.warning('Please enter format of the email correctly!')
 
-        dispatch()
+        email_was_typed_ref.current = email
+        dispatch(forgotPassword(email))
+        setSendOTPNote(true)
     }
 
     const catchEnterKey = (e) => {
@@ -46,8 +50,8 @@ const ForgotPasswordSection = () => {
     }
 
     return (
-        forgotPasswordStep === 2 ? (
-            <NewPasswordSection />
+        forgotPasswordStep === 3 ? (
+            <ResetPasswordSection emailWasTyped={email_was_typed_ref.current} loading={loading} />
         ) :
             <ForgotPasswordArea>
 
@@ -60,19 +64,20 @@ const ForgotPasswordSection = () => {
                     <Title>Forgot Password</Title>
                     <Desc>
                         Use your email to recover your password.
-                        We will send an four-digit code to that and then please
+                        We will send an four-digit code to your email and then please
                         typing the code to recover. Thanks!
                     </Desc>
 
                     <Divider sx={{ backgroundColor: '#999999' }} />
 
-                    <FormGroup>
+                    <FormGroup sx={{ opacity: forgotPasswordStep !== 1 ? '0.5' : '1' }}>
                         <Label htmlFor="RecoverPasswordInput">Enter your email</Label>
                         <InputWrapper>
-                            <Input
+                            <EmailInput
                                 ref={email_input_ref}
+                                id="RecoverPasswordInput"
                                 type="text"
-                                placeholder="Enteremail or phone number here..."
+                                placeholder="Enter your email here..."
                                 onKeyDown={catchEnterKey}
                             />
                             <ClearIconWrapper>
@@ -80,29 +85,48 @@ const ForgotPasswordSection = () => {
                             </ClearIconWrapper>
                         </InputWrapper>
                     </FormGroup>
-                    <SubmitBtnContainer>
-                        <ProblemBtn onClick={() => handleOpenProblemSection(true)}>
-                            Have problem ?
-                        </ProblemBtn>
-                        <SendRecoverCode onClick={forgotPasswordSubmit}>
-                            {
-                                loading ?
-                                    <CircularProgress
-                                        sx={{ color: 'black', margin: 'auto' }}
-                                        size={18}
-                                        thickness={6}
-                                    />
-                                    : <span>Send recover code</span>
-                            }
-                        </SendRecoverCode>
-                    </SubmitBtnContainer>
+                    {
+                        sendOTPNote &&
+                        <HelperText>
+                            <span className="send_OTP_note">
+                                Please wait! The time for sending OTP could take up to 4 or 6 seconds
+                            </span>
+                        </HelperText>
+                    }
+                    {
+                        forgotPasswordStep === 1 &&
+                        <SubmitBtnContainer>
+                            <ProblemBtn onClick={() => handleOpenProblemSection(true)}>
+                                Have problem ?
+                            </ProblemBtn>
+                            <SendRecoverCode onClick={forgotPasswordSubmit}>
+                                {
+                                    loading ?
+                                        <CircularProgress
+                                            sx={{ color: 'black', margin: 'auto' }}
+                                            size={18}
+                                            thickness={6}
+                                        />
+                                        : <span>Send recover code</span>
+                                }
+                            </SendRecoverCode>
+                        </SubmitBtnContainer>
+                    }
+                    {
+                        forgotPasswordStep === 2 &&
+                        <ForgotPasswordVerifyOTP
+                            emailWasTyped={email_was_typed_ref.current}
+                            handleOpenProblemSection={handleOpenProblemSection}
+                            loading={loading}
+                        />
+                    }
                 </FormContainer>
-                <SignIn>
+                <SignInContainer>
                     <span>Already have an account ? </span>
                     <NavLink to="/auth/login" className="NavLink">
                         Sign In.
                     </NavLink>
-                </SignIn>
+                </SignInContainer>
                 <BottomForm />
             </ForgotPasswordArea>
     )
@@ -122,6 +146,7 @@ const ForgotPasswordArea = styled('div')({
     padding: '20px 40px 30px',
     boxSizing: 'border-box',
     backgroundColor: '#1c1c1c',
+    overflowY: 'auto',
 })
 
 const FormContainer = styled('div')({
@@ -173,7 +198,7 @@ const InputWrapper = styled('div')({
     position: 'relative',
 })
 
-const Input = styled('input')({
+const EmailInput = styled('input')({
     backgroundColor: 'transparent',
     border: '2px #00ffe6 solid',
     outline: 'unset',
@@ -186,7 +211,7 @@ const Input = styled('input')({
     borderRadius: '5px',
     '&:focus': {
         borderRightWidth: '10px',
-    }
+    },
 })
 
 const ClearIconWrapper = styled('div')({
@@ -207,6 +232,14 @@ const StyledClearIcon = styled(ClearIcon)({
     '&:hover': {
         transform: 'scale(1.1)',
     }
+})
+
+const HelperText = styled('div')({
+    fontFamily: 'sans-serif',
+    fontSize: '0.8em',
+    color: '#ffe859',
+    marginTop: '5px',
+    paddingLeft: '5px',
 })
 
 const SubmitBtnContainer = styled('div')({
@@ -239,7 +272,8 @@ const SendRecoverCode = styled('button')({
     height: '35px',
 })
 
-const SignIn = styled('div')({
+const SignInContainer = styled('div')({
+    marginTop: '15px',
     color: 'white',
     fontFamily: 'nunito',
     '& .NavLink': {

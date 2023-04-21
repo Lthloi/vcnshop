@@ -60,7 +60,7 @@ const RenderInputWarnings = (input_warning) => {
 const InformationInputs = ({ register, errors, reset, emailWasTyped }) => {
     const [showPassword, setShowPassword] = useState(false)
 
-    const handleShowPassword = () => setShowPassword(!showPassword)
+    const handleShowPassword = () => setShowPassword(pre=>!pre)
 
     const clearInput = (input_label) => {
         reset({
@@ -100,9 +100,7 @@ const InformationInputs = ({ register, errors, reset, emailWasTyped }) => {
                                 {...register(label, { required })}
                             />
                             <ArrowIconWrapper className="ArrowIconWrapper">
-                                <ArrowRightIcon
-                                    sx={{ color: 'white', width: '1.2em', height: '1.2em' }}
-                                />
+                                <ArrowRightIcon sx={{ color: 'white', width: '1.2em', height: '1.2em' }} />
                             </ArrowIconWrapper>
                             <InputIconWrapper>
                                 {

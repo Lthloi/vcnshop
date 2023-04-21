@@ -2,18 +2,18 @@ import React, { useEffect, useMemo, useRef, useState } from "react"
 import { styled } from '@mui/material/styles'
 import ClearIcon from '@mui/icons-material/Clear'
 import { useDispatch } from "react-redux"
-import { verifyOTP } from "../../../store/actions/user_actions"
+import { verifyRegisterOTP } from "../../../store/actions/user_actions"
 
 const input_value_validator = /^\d+$/
 
-const OTPInput = ({ emailWasTyped }) => {
+const VerifyOTP = ({ emailWasTyped }) => {
     const [OTPInputValue, setOTPInputValue] = useState('')
     const OTPInputContainerRef = useRef()
     const dispatch = useDispatch()
 
     useEffect(() => {
         if (/^\d{4}$/.test(OTPInputValue))
-            dispatch(verifyOTP(OTPInputValue, emailWasTyped))
+            dispatch(verifyRegisterOTP(OTPInputValue, emailWasTyped))
     }, [OTPInputValue])
 
     const input_values = useMemo(() => {
@@ -123,7 +123,7 @@ const OTPInput = ({ emailWasTyped }) => {
     )
 }
 
-export default OTPInput
+export default VerifyOTP
 
 const VerifyOTPFormGroup = styled('div')({
     marginTop: '20px',

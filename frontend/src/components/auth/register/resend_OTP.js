@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react"
 import { styled } from '@mui/material/styles'
-import { getFloatNumber } from '../../../utils/methods.js'
-import { sendOTP } from "../../../store/actions/user_actions.js"
+import { sendRegisterOTP } from "../../../store/actions/user_actions.js"
 import { useDispatch } from "react-redux"
 
 const ResendOTP = ({ secondsStarter, emailWasTyped }) => {
@@ -25,7 +24,7 @@ const ResendOTP = ({ secondsStarter, emailWasTyped }) => {
     }
 
     const resendOTP = () => {
-        dispatch(sendOTP(emailWasTyped))
+        dispatch(sendRegisterOTP(emailWasTyped))
     }
 
     return (

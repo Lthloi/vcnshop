@@ -1,8 +1,8 @@
-import React, { useRef, useState } from "react"
+import React, { useRef, useState, useEffect } from "react"
 import { styled } from '@mui/material/styles'
 import 'react-phone-number-input/style.css'
 import ProblemSection from "../../problem_section"
-import OTPInput from "./OTP_input"
+import VerifyOTP from "./verify_OTP"
 import BottomForm from "../bottom_form"
 import "react-toastify/dist/ReactToastify.css"
 import CircularProgress from '@mui/material/CircularProgress'
@@ -11,7 +11,7 @@ import { NavLink } from "react-router-dom"
 import { toast } from 'react-toastify'
 import EmailIcon from '@mui/icons-material/Email'
 import { useDispatch, useSelector } from 'react-redux'
-import { sendOTP } from "../../../store/actions/user_actions"
+import { sendRegisterOTP } from "../../../store/actions/user_actions"
 import CompleteRegister from "./complete_register"
 import validator from 'validator'
 
@@ -22,6 +22,13 @@ const RegisterSection = () => {
     const email_input_ref = useRef()
     const email_was_typed_ref = useRef()
     const dispatch = useDispatch()
+
+    useEffect(() => {
+        if (registerStep === 4) {
+            let timeout = setTimeout(() => { window.open('/account', '_self') }, 1000)
+            return () => clearTimeout(timeout)
+        }
+    }, [registerStep])
 
     const timeToResendOTP = 120
 
@@ -34,7 +41,7 @@ const RegisterSection = () => {
             return toast.warning('Please enter format of email correctly!')
 
         email_was_typed_ref.current = email
-        dispatch(sendOTP(email))
+        dispatch(sendRegisterOTP(email))
         setSendOTPNote(true)
     }
 
@@ -44,7 +51,7 @@ const RegisterSection = () => {
 
     return (
         registerStep === 3 ? (
-            <CompleteRegister emailWasTyped={email_was_typed_ref.current && email_was_typed_ref.current} />
+            <CompleteRegister emailWasTyped={email_was_typed_ref.current} loading={loading} />
         ) :
             <RegisterSectionArea id="RegisterSectionArea">
 
@@ -57,7 +64,7 @@ const RegisterSection = () => {
                     <FormTitle>Register</FormTitle>
                     {
 
-                        registerStep === 0 &&
+                        registerStep === 1 &&
                         <>
                             <FormGroup>
                                 <Label htmlFor="StyledPhoneInput">
@@ -86,7 +93,7 @@ const RegisterSection = () => {
                     }
                     {
                         registerStep === 2 &&
-                        <OTPInput emailWasTyped={email_was_typed_ref.current && email_was_typed_ref.current} />
+                        <VerifyOTP emailWasTyped={email_was_typed_ref.current} />
                     }
                     <SendOTPArea>
                         <Problems onClick={() => handleOpenProblemSection(true)}>
@@ -101,13 +108,13 @@ const RegisterSection = () => {
                             </SendOTPBtn>
                         }
                         {
-                            registerStep === 1 &&
+                            !loading && registerStep === 1 &&
                             <SendOTPBtn onClick={sendOTPSubmit}>
                                 Send OTP
                             </SendOTPBtn>
                         }
                         {
-                            registerStep === 2 &&
+                            !loading && registerStep === 2 &&
                             <ResendOTP
                                 secondsStarter={timeToResendOTP}
                                 emailWasTyped={email_was_typed_ref.current && email_was_typed_ref.current}
@@ -195,7 +202,7 @@ const HelperText = styled('p')({
     marginTop: '10px',
     '& span.send_OTP_note': {
         fontSize: '0.95em',
-        color: '#d32f2f',
+        color: '#ffe859',
     }
 })
 

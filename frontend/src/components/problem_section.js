@@ -17,11 +17,10 @@ import CircularProgress from '@mui/material/CircularProgress'
 import { toast } from 'react-toastify'
 
 const problems = [
-    { option: 'Not receive OTP message' },
-    { option: 'OTP code is not exist in message' },
+    { option: 'Not receive OTP mail in register period' },
+    { option: 'Received OTP mail but no OTP code in my email' },
     { option: 'Can\'t send OTP' },
-    { option: 'Not receive recover password code in my email' },
-    { option: 'Not receive recover password code in my phone number' },
+    { option: 'Not receive recover code of password in my email' },
 ]
 
 const ProblemSection = ({ open, handleOpen }) => {

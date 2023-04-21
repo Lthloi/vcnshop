@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react"
+import React, { useState, useEffect } from "react"
 import { styled } from '@mui/material/styles'
 import EmailIcon from '@mui/icons-material/Email'
 import LockIcon from '@mui/icons-material/Lock'
@@ -11,33 +11,33 @@ import { loginUser } from "../../store/actions/user_actions"
 import validator from 'validator'
 import { toast } from "react-toastify"
 import CircularProgress from '@mui/material/CircularProgress'
+import { useForm } from "react-hook-form"
 
 const form_group_icon_style = { color: 'white', marginLeft: '10px' }
 
 const LoginSection = () => {
     const [showPassword, setShowPassword] = useState(false)
-    const email_input_ref = useRef()
-    const password_input_ref = useRef()
+    const { register, handleSubmit } = useForm()
     const { user: { loginStep }, loading } = useSelector(({ user }) => user)
     const dispatch = useDispatch()
 
     useEffect(() => {
         if (loginStep === 2) {
-            let timeout = setTimeout(() => {
-                window.open('/account', '_self')
-            }, 2000)
+            let timeout = setTimeout(() => { window.open('/account', '_self') }, 1000)
             return () => clearTimeout(timeout)
         }
     }, [loginStep])
 
-    const handleShowPassword = () => setShowPassword(!showPassword)
+    const handleShowPassword = () => setShowPassword(pre => !pre)
 
-    const loginSubmit = () => {
-        let email = email_input_ref.current.value
-        if (!validator.isEmail(email))
-            return toast.warning('Please type format of the email correctly!')
+    const loginSubmit = (data, e) => {
+        e.preventDefault()
+        if (!data.Email || !data.Password) return toast.warning('Please don\'t empty the email and password input!')
 
-        let password = password_input_ref.current.value
+        let email = data.Email.trim()
+        if (!validator.isEmail(email)) return toast.warning('Please type format of the email correctly!')
+
+        let password = data.Password
         if (password === '') return toast.warning('Please type the password!')
 
         dispatch(loginUser(email, password))
@@ -49,29 +49,29 @@ const LoginSection = () => {
 
     return (
         <LoginSectionArea id="LoginSectionArea">
-            <LoginSectionForm>
+            <LoginSectionForm onSubmit={handleSubmit(loginSubmit)}>
                 <FormTitle>Sign In</FormTitle>
                 <EmailFormGroup>
                     <EmailIcon sx={form_group_icon_style} />
                     <EmailInput
-                        ref={email_input_ref}
+                        {...register('Email')}
                         type="email"
                         id="email"
                         placeholder=" "
-                        name="Email"
                         onKeyDown={catchEnterKey}
+                        autoComplete="on"
                     />
                     <EmailLabel htmlFor="email">Enter your e-mail</EmailLabel>
                 </EmailFormGroup>
                 <PasswordFormGroup>
                     <LockIcon sx={form_group_icon_style} />
                     <PasswordInput
-                        ref={password_input_ref}
+                        {...register('Password')}
                         id="password"
                         placeholder=" "
-                        name="Password"
                         type={showPassword ? "text" : "password"}
                         onKeyDown={catchEnterKey}
+                        autoComplete="on"
                     />
                     <PasswordLabel htmlFor="password">Enter your password</PasswordLabel>
                     <ShowPasswordIconWrapper onClick={() => handleShowPassword()}>
@@ -85,7 +85,7 @@ const LoginSection = () => {
                 </PasswordFormGroup>
                 <SubmitBtnContainer>
                     <ForgotPassword to="/auth/forgotPassword">Forgot Password ?</ForgotPassword>
-                    <SignInBtn onClick={loginSubmit}>
+                    <SignInBtn type="submit">
                         {
                             loading ?
                                 <CircularProgress
@@ -177,7 +177,7 @@ const FormTitle = styled('h2')({
     margin: '10px 0 15px',
 })
 
-const LoginSectionForm = styled('div')({
+const LoginSectionForm = styled('form')({
 
 })
 

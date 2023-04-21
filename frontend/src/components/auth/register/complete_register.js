@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useState } from "react"
 import { useForm } from "react-hook-form"
 import { styled } from '@mui/material/styles'
 import InformationInputs from "./Information_inputs"
@@ -8,25 +8,16 @@ import CircularProgress from '@mui/material/CircularProgress'
 import "react-toastify/dist/ReactToastify.css"
 import { useDispatch } from "react-redux"
 import { completeRegister } from "../../../store/actions/user_actions"
-import { useSelector } from "react-redux"
 
-const CompleteRegister = ({ emailWasTyped }) => {
+const CompleteRegister = ({ emailWasTyped, loading }) => {
     const { register, handleSubmit, setError, formState: { errors }, reset } = useForm()
     const [checkboxChecked, setCheckboxChecked] = useState(false)
     const [showWarningCheckbox, setShowWarningCheckbox] = useState(false)
     const [shakeWarningCheckbox, setShakeWarningCheckbox] = useState(false)
-    const { user, loading } = useSelector(({ user }) => user)
     const dispatch = useDispatch()
 
-    useEffect(() => {
-        if (user.registerStep === 4) {
-            let timeout = setTimeout(() => { window.open('/account', '_self') }, 2000)
-            return () => clearTimeout(timeout)
-        }
-    }, [user.registerStep])
-
     const handleChangeCheckbox = (e) => {
-        setCheckboxChecked(!checkboxChecked)
+        setCheckboxChecked(pre=>!pre)
         if (e.target.checked) setShowWarningCheckbox(false)
     }
 
@@ -63,8 +54,6 @@ const CompleteRegister = ({ emailWasTyped }) => {
     return (
         <ProvideInfoForm
             id="CompleteRegister"
-            action="#"
-            method="post"
             onSubmit={handleSubmit(submitProvideInfo)}
         >
             <Title>We need more information...</Title>
