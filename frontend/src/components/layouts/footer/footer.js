@@ -99,9 +99,7 @@ const Footer = () => {
                 />
 
                 <SocialsContainer id="SocialsContainer">
-                    <SocialText>
-                        Contact us on social networks!
-                    </SocialText>
+                    <SocialText>Contact us on social networks!</SocialText>
                     <Socials>
                         <FacebookIcon sx={social_icon_style} titleAccess="Facebook" />
                         <YouTubeIcon sx={social_icon_style} titleAccess="Youtube" />
@@ -117,15 +115,9 @@ const Footer = () => {
                             <LogoWrapper>
                                 <LogoImg src={logo} />
                                 <LogoTextContainer>
-                                    <LogoName>
-                                        VCN Shop | Fox COR
-                                    </LogoName>
-                                    <SmallText>
-                                        Shopping anywhere
-                                    </SmallText>
-                                    <SmallText>
-                                        Shopping too easy
-                                    </SmallText>
+                                    <LogoName>VCN Shop | Fox COR</LogoName>
+                                    <SmallText>Shopping anywhere</SmallText>
+                                    <SmallText>Shopping too easy</SmallText>
                                 </LogoTextContainer>
                             </LogoWrapper>
                             <LogoDescription>
@@ -134,25 +126,19 @@ const Footer = () => {
                                     Dong Nai of the international e-commerce group Fox COR
                                     based in HCM City.
                                 </div>
-                                <div>
-                                    Thank for VCN VLy distribution center of goods and services.
-                                </div>
+                                <div>Thank for VCN VLy distribution center of goods and services.</div>
                             </LogoDescription>
                         </LogoContainer>
                         {
                             information.map(({ type, content }) => (
                                 <Infos key={type} className="Infos">
-                                    <InfoTitle>
-                                        {type}
-                                    </InfoTitle>
+                                    <InfoTitle>{type}</InfoTitle>
                                     {
                                         content.map(({ icon, desc, action }) => (
                                             <Content key={desc}>
                                                 {
                                                     icon &&
-                                                    <InfoIconWrapper>
-                                                        {icon}
-                                                    </InfoIconWrapper>
+                                                    <InfoIconWrapper>{icon}</InfoIconWrapper>
                                                 }
                                                 <Desc
                                                     sx={action ? desc_hover_style : {}}
@@ -174,12 +160,8 @@ const Footer = () => {
             </FooterArea>
 
             <LicenseBar id="LicenseBar">
-                <Text>
-                    &copy; 2022 Fox Operator Corporation Relational E-commerce
-                </Text>
-                <Website>
-                    Website: https://www.vcnshop.new
-                </Website>
+                <Text> 2022 Fox Operator Corporation Relational E-commerce</Text>
+                <Website>Website: https://www.vcnshop.new</Website>
             </LicenseBar>
         </>
     )
@@ -292,7 +274,6 @@ const Infos = styled('div')({
     marginLeft: '10px',
     '&:last-child': {
         width: '22vw',
-
         '& h2': {
             marginLeft: '32px',
         }
@@ -319,16 +300,16 @@ const InfoIconWrapper = styled('div')({
     cursor: 'pointer',
 })
 
-const Desc = styled('div')(({ theme, action }) => ({
+const Desc = styled('div')({
     color: 'white',
     fontFamily: '"Nunito", "sans-serif"',
-}))
+})
 
 const LicenseBar = styled('div')({
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#cccbcb',
+    backgroundColor: '##e0e0e0',
     padding: '3px',
 })
 

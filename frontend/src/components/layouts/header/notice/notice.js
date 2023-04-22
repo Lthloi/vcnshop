@@ -27,7 +27,7 @@ export default Notice
 
 const NoticeBar = styled('div')({
     display: 'flex',
-    background: '#f3b7c1',
+    background: '#e0e0e0',
     padding: '5px 0',
     color: 'black',
     overflow: 'hidden',

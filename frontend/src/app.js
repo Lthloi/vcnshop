@@ -8,6 +8,7 @@ import Product from './pages/product'
 import SearchResult from './pages/search_result'
 import LoadingApp from './components/loading_app'
 import Auth from './pages/auth'
+import Account from './pages/account'
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
           <Route path='/cart' element={<Cart />} />
           <Route path='/productDetail/:productId' element={<Product />} />
           <Route path='/search/:keyword' element={<SearchResult />} />
+          <Route path='/account/*' element={<Account />} />
         </Route>
 
         <Route path='/auth/*' element={<Auth />} />

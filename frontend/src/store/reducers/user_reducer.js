@@ -7,6 +7,7 @@ export const userSlice = createSlice({
             registerStep: 1,
             forgotPasswordStep: 1,
             loginStep: 1,
+            isAuthenticated: false,
         },
         loading: false,
         error: null,
@@ -18,6 +19,8 @@ export const userSlice = createSlice({
         },
         registerSuccess: (state, action) => {
             state.user.registerStep = action.payload.registerStep
+            if (action.payload.isAuthenticated)
+                state.user.isAuthenticated = true
             state.loading = false
         },
         registerFail: (state, action) => {
@@ -46,6 +49,8 @@ export const userSlice = createSlice({
         },
         forgotPasswordSuccess: (state, action) => {
             state.user.forgotPasswordStep = action.payload.forgotPasswordStep
+            if (action.payload.isAuthenticated)
+                state.user.isAuthenticated = true
             state.loading = false
         },
         forgotPasswordFail: (state, action) => {

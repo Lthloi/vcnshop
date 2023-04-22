@@ -63,7 +63,7 @@ const completeRegister = (name, email, password, gender) => async (dispatch) => 
             { withCredentials: true }
         )
 
-        dispatch(registerSuccess({ registerStep: 4 }))
+        dispatch(registerSuccess({ registerStep: 3, isAuthenticated: true }))
         toast.success('Register successfully!')
     } catch (error) {
         let errorObject = actionsErrorHandler(error, 'Fail to complete register, please try again some minutes later!')
@@ -157,7 +157,7 @@ const resetPassword = (email, new_password) => async (dispatch) => {
             { withCredentials: true }
         )
 
-        dispatch(forgotPasswordSuccess({ forgotPasswordStep: 4 }))
+        dispatch(forgotPasswordSuccess({ forgotPasswordStep: 3, isAuthenticated: true }))
         toast.success('Reset Password Successfully!')
     } catch (error) {
         let errorObject = actionsErrorHandler(error, 'Fail to reset password, please try again some minutes later!')

@@ -19,11 +19,11 @@ const ForgotPasswordSection = () => {
     const email_input_ref = useRef()
     const email_was_typed_ref = useRef()
     const [sendOTPNote, setSendOTPNote] = useState(false)
-    const { user: { forgotPasswordStep }, loading } = useSelector(({ user }) => user)
+    const { user: { forgotPasswordStep, isAuthenticated }, loading } = useSelector(({ user }) => user)
     const dispatch = useDispatch()
 
     useEffect(() => {
-        if (forgotPasswordStep === 4) {
+        if (forgotPasswordStep === 3 && isAuthenticated) {
             let timeout = setTimeout(() => { window.open('/account', '_self') }, 1000)
             return () => clearTimeout(timeout)
         }
@@ -70,7 +70,7 @@ const ForgotPasswordSection = () => {
 
                     <Divider sx={{ backgroundColor: '#999999' }} />
 
-                    <FormGroup sx={{ opacity: forgotPasswordStep !== 1 ? '0.5' : '1' }}>
+                    <FormGroup sx={forgotPasswordStep !== 1 && { opacity: '0.5', pointerEvents: 'none' }}>
                         <Label htmlFor="RecoverPasswordInput">Enter your email</Label>
                         <InputWrapper>
                             <EmailInput
@@ -194,21 +194,26 @@ const Label = styled('label')({
 })
 
 const InputWrapper = styled('div')({
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    columnGap: '10px',
     marginTop: '5px',
-    position: 'relative',
+    padding: '5px',
+    border: '2px #00ffe6 solid',
+    borderRadius: '5px',
 })
 
 const EmailInput = styled('input')({
     backgroundColor: 'transparent',
-    border: '2px #00ffe6 solid',
+    border: 'none',
     outline: 'unset',
     fontSize: '1em',
     color: 'white',
-    padding: '8px 15px',
+    padding: '5px 10px',
     paddingRight: '30px',
-    width: '100%',
+    width: '90%',
     boxSizing: 'border-box',
-    borderRadius: '5px',
     '&:focus': {
         borderRightWidth: '10px',
     },
@@ -216,11 +221,7 @@ const EmailInput = styled('input')({
 
 const ClearIconWrapper = styled('div')({
     display: 'flex',
-    justifyContent: 'center',
     alignItems: 'center',
-    position: 'absolute',
-    top: '0',
-    right: '12px',
     height: '100%',
 })
 

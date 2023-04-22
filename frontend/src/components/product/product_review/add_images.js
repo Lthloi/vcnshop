@@ -27,11 +27,11 @@ const AddImages = ({ images, changeImages }) => {
         //create a image list for remove images were duplicate
         let current_images = imageObjects.map(({ file }) => file.name)
 
-        //init file object list and remove images were duplicate
-        files = Array.from(files)
-        files = files.filter((file) => !current_images.includes(file.name))
-
         //remove elements are in false
+        files = Array.from(files)
+        files = files.filter(({ name }) => !current_images.includes(name))
+
+        //init file object list and remove images were duplicate
         files = files.map((file) => ({ file, preview: URL.createObjectURL(file) }))
 
         setImageObjects(pre => [...pre, ...files])
@@ -50,7 +50,6 @@ const AddImages = ({ images, changeImages }) => {
             <input //fake input
                 style={{ display: 'none' }}
                 type="file"
-                name="upload_review_image"
                 id="upload_review_image"
                 onChange={uploadImg}
                 multiple

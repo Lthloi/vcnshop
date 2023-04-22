@@ -16,7 +16,7 @@ import CompleteRegister from "./complete_register"
 import validator from 'validator'
 
 const RegisterSection = () => {
-    const { user: { registerStep }, loading } = useSelector(({ user }) => user)
+    const { user: { registerStep, isAuthenticated}, loading } = useSelector(({ user }) => user)
     const [openProblemSection, setOpenProblemSection] = useState(false)
     const [sendOTPNote, setSendOTPNote] = useState(false)
     const email_input_ref = useRef()
@@ -24,7 +24,7 @@ const RegisterSection = () => {
     const dispatch = useDispatch()
 
     useEffect(() => {
-        if (registerStep === 4) {
+        if (registerStep === 3 && isAuthenticated) {
             let timeout = setTimeout(() => { window.open('/account', '_self') }, 1000)
             return () => clearTimeout(timeout)
         }
