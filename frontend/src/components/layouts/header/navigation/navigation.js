@@ -191,7 +191,7 @@ const AuthBtn = styled('a')({
     cursor: 'pointer',
     textDecoration: 'unset',
     '&:hover': {
-        color: 'pink',
+        color: '#d28dff',
     },
 })
 

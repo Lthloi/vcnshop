@@ -28,9 +28,11 @@ const MenuBar = () => {
                     Home
                 </Title>
             </HomeOption>
-            <DropdownOption className="drop_down_menu_wrapper"
+            <DropdownOption
+                className="drop_down_menu_wrapper"
                 onMouseOver={() => setShowDropdownMenu(true)}
-                onMouseOut={() => setShowDropdownMenu(false)}>
+                onMouseOut={() => setShowDropdownMenu(false)}
+            >
                 <DropdownOptionContent>
                     <IconOption>
                         <CategoryIcon />
@@ -48,16 +50,18 @@ const MenuBar = () => {
                 </DropdownOptionContent>
                 <HoverAnimationBar className="HoverAnimationBar" />
             </DropdownOption>
-            {non_dropdown_options.map(({ title, icon, action }) => (
-                <Option key={title} href={action}>
-                    <IconOption>
-                        {icon}
-                    </IconOption>
-                    <Title>
-                        {title}
-                    </Title>
-                </Option>
-            ))}
+            {
+                non_dropdown_options.map(({ title, icon, action }) => (
+                    <Option key={title} href={action}>
+                        <IconOption>
+                            {icon}
+                        </IconOption>
+                        <Title>
+                            {title}
+                        </Title>
+                    </Option>
+                ))
+            }
         </MenuBarArea>
     )
 }
@@ -87,7 +91,6 @@ const Option = styled('a')({
     position: 'relative',
     textDecoration: 'unset',
     color: 'black',
-
     '&::after': {
         content: '""',
         height: '4px',
@@ -97,7 +100,6 @@ const Option = styled('a')({
         bottom: '0',
         transition: 'width 0.2s',
     },
-
     '&:hover::after': {
         width: '100%',
     }
@@ -157,7 +159,6 @@ const HoverAnimationBar = styled('div')({
     position: 'relative',
     display: 'flex',
     justifyContent: 'center',
-
     '&::after': {
         content: '""',
         height: '4px',

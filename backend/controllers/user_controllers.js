@@ -5,6 +5,7 @@ import catchAsyncError from '../middlewares/catch_async_error.js'
 import moment from 'moment'
 import sendJWTToken from '../utils/JWT_token.js'
 import crypto from 'crypto'
+import { uploadUserAvatar } from '../utils/upload_images.js'
 
 const { JWT_TOKEN_MAX_AGE_IN_DAY } = process.env
 
@@ -147,6 +148,7 @@ const forgotPassword = catchAsyncError(async (req, res, next) => {
     res.status(200).json({ success: true })
 })
 
+//only for register period
 const resetPassword = catchAsyncError(async (req, res, next) => {
     let { email, newPassword } = req.body
     if (!email || !newPassword) throw new BaseError('Wrong property name', 400)
@@ -164,7 +166,56 @@ const resetPassword = catchAsyncError(async (req, res, next) => {
     res.status(200).json({ success: true })
 })
 
+const updateProfile = catchAsyncError(async (req, res, next) => {
+    let { nameOfUser, email, gender, dateOfBirth } = req.body
+    if (!nameOfUser || !email || !gender || !dateOfBirth) throw new BaseError('Wrong property name', 400)
+
+    let user_id = req.user._id
+
+    await UserModel.updateOne(
+        { _id: user_id },
+        {
+            $set: {
+                'name': nameOfUser,
+                'email': email,
+                'gender': gender,
+                'date_of_birth': dateOfBirth,
+            }
+        }
+    )
+
+    res.status(200).json({ success: true })
+})
+
+const changePassword = catchAsyncError(async (req, res, next) => {
+    let { oldPassword, newPassword } = req.body
+    let user_id = req.user._id
+    if (!oldPassword || !newPassword) throw new BaseError('Wrong property name', 400)
+
+    let user = await UserModel.findOne({ _id: user_id }, { 'password': 1 })
+    let user_instance = new UserModel({ password: user.password })
+    let isMatched = await user_instance.compareHashedPassword(oldPassword)
+    if (!isMatched) throw new BaseError('The old password is not correct!', 401, null, true)
+
+    let hashed_newPassword = await user_instance.getHashedPassword(newPassword)
+    await UserModel.updateOne({ _id: user_id }, { $set: { 'password': hashed_newPassword } })
+
+    res.status(200).json({ sucess: true })
+})
+
+const updateAvatarUser = catchAsyncError(async (req, res, next) => {
+    let { avatarImage } = req.files
+    let user_id = req.user._id
+    let avatar_url = await uploadUserAvatar(avatarImage, user_id)
+    if (!avatar_url) throw new BaseError('Can\'t upload image', 500)
+
+    await UserModel.updateOne({ _id: user_id }, { $set: { 'avatar': avatar_url } })
+
+    res.status(200).json({ avatarUrl: avatar_url })
+})
+
 export {
     sendRegisterOTP, verifyOTP, completeRegister,
     loginUser, forgotPassword, resetPassword,
+    updateProfile, changePassword, updateAvatarUser,
 }

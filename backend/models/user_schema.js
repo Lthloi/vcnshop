@@ -22,7 +22,7 @@ const UserSchema = new Schema({
     },
     password: {
         type: String,
-        maxLength: [25, 'The length of password must not longer than 25 characters'],
+        maxLength: [20, 'The length of password must not longer than 25 characters'],
         minLength: [6, 'The length of name must not shorter than 6 characters'],
         required: true,
     },
@@ -32,6 +32,9 @@ const UserSchema = new Schema({
     },
     avatar: {
         type: String,
+    },
+    date_of_birth: {
+        type: String, //dd-mm-yyyy
     },
     role: {
         type: String,

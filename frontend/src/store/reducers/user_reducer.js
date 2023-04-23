@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit'
+import { createSlice, current } from '@reduxjs/toolkit'
 
 export const userSlice = createSlice({
     name: 'user',
@@ -57,6 +57,35 @@ export const userSlice = createSlice({
             state.error = action.payload.error
             state.loading = false
         },
+
+
+        updateUserRequest: (state, action) => {
+            state.error = null
+            state.loading = true
+        },
+        updateUserSuccess: (state, action) => {
+            let new_avatar = action.payload.newAvatar
+            if (new_avatar) state.user.avatar = new_avatar
+
+            let update_profile = action.payload.updateProfile
+            if (update_profile) {
+                let { nameOfUser, email, gender, dateOfBirth } = update_profile
+                let current_user = current(state).user
+                state.user = {
+                    ...current_user,
+                    name: nameOfUser,
+                    email,
+                    gender,
+                    date_of_birth: dateOfBirth,
+                }
+            }
+
+            state.loading = false
+        },
+        updateUserFail: (state, action) => {
+            state.error = action.payload.error
+            state.loading = false
+        },
     },
 })
 
@@ -64,6 +93,7 @@ export const {
     registerRequest, registerSuccess, registerFail,
     loginRequest, loginSuccess, loginFail,
     forgotPasswordRequest, forgotPasswordSuccess, forgotPasswordFail,
+    updateUserRequest, updateUserSuccess, updateUserFail,
 } = userSlice.actions
 
 export default userSlice.reducer

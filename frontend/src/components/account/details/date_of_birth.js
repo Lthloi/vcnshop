@@ -1,15 +1,23 @@
-import React, { useMemo } from "react"
+import React, { useEffect, useMemo, useState } from "react"
 import { styled } from '@mui/material/styles'
 import FormControl from '@mui/material/FormControl'
 import Select from '@mui/material/Select'
 
 const RenderOptions = (items) => (
-    <option value={items} key={items}>
+    <option
+        value={items}
+        key={items}
+    >
         {items}
     </option>
 )
 
-const DateOfBirth = ({ required }) => {
+const DateOfBirth = ({ required, dateOfBirthRef }) => {
+    const [dateOfBirth, setDateOfBirth] = useState(['00', '00', '0000']) //dd-mm-yyyy
+
+    useEffect(() => {
+        dateOfBirthRef.current = dateOfBirth.join('-')
+    }, [dateOfBirth])
 
     const days = useMemo(() => {
         let values = []
@@ -29,6 +37,14 @@ const DateOfBirth = ({ required }) => {
         return values
     }, [])
 
+    const handlePickDate = (e, label) => {
+        let value = e.target.value
+        value = value * 1 > 9 ? value : '0' + value
+        if (label === 'Day') setDateOfBirth(pre => [value, pre[1], pre[2]])
+        else if (label === 'Month') setDateOfBirth(pre => [pre[0], value, pre[2]])
+        else if (label === 'Year') setDateOfBirth(pre => [pre[0], pre[1], value])
+    }
+
     return (
         <DateOfBirthFormGroup id="DateOfBirthFormGroup">
             <Label>
@@ -37,27 +53,27 @@ const DateOfBirth = ({ required }) => {
             </Label>
             <DateOfBirthInputs>
                 {
-                    ['Day',
-                        'Month', 'Year'].map((label) => (
-                            <FormControl
-                                key={label}
-                                sx={{ flex: '1', width: '25%' }}
+                    ['Day', 'Month', 'Year'].map((label) => (
+                        <FormControl
+                            key={label}
+                            sx={{ flex: '1', width: '25%' }}
+                        >
+                            <SelectLabel>{label}</SelectLabel>
+                            <StyledSelect
+                                autoWidth
+                                defaultValue=""
+                                inputProps={{ name: label }}
+                                variant="outlined"
+                                native
+                                onChange={(e) => handlePickDate(e, label)}
                             >
-                                <SelectLabel>{label}</SelectLabel>
-                                <StyledSelect
-                                    autoWidth
-                                    defaultValue=""
-                                    inputProps={{ name: label }}
-                                    variant="outlined"
-                                    native
-                                >
-                                    <option value=""></option>
-                                    {label === 'Year' && years.map((label) => (RenderOptions(label)))}
-                                    {label === 'Month' && months.map((label) => (RenderOptions(label)))}
-                                    {label === 'Day' && days.map((label) => (RenderOptions(label)))}
-                                </StyledSelect>
-                            </FormControl>
-                        ))
+                                <option value=""></option>
+                                {label === 'Year' && years.map((label) => (RenderOptions(label)))}
+                                {label === 'Month' && months.map((label) => (RenderOptions(label)))}
+                                {label === 'Day' && days.map((label) => (RenderOptions(label)))}
+                            </StyledSelect>
+                        </FormControl>
+                    ))
                 }
             </DateOfBirthInputs>
         </DateOfBirthFormGroup>

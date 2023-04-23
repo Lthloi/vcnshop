@@ -5,6 +5,7 @@ const get_data_uri = (mimetype, data) => `data:${mimetype};base64,${data.toStrin
 const uploadReviewImages = async (files_in_request, product_id, email) => {
     let destination_of_uploading = 'products/' + product_id + '/reviews/' + email
 
+    //delete the old images before upload
     try {
         await cloudinary.v2.api.delete_resources_by_prefix(destination_of_uploading)
     } catch (error) {
@@ -47,14 +48,16 @@ const uploadReviewImages = async (files_in_request, product_id, email) => {
     return image_urls
 }
 
-const uploadUserAvatar = async (avatar_image, email) => {
-    let destination_of_uploading = 'users/' + email + '/profile'
+const uploadUserAvatar = async (avatar_image, user_id_string) => {
+    let destination_of_uploading = 'users/' + user_id_string + '/profile'
     let data_uri = get_data_uri(avatar_image.mimetype, avatar_image.data)
     let avatar_public_id = 'avatar.' + avatar_image.mimetype.split('/')[0]
 
     let response
 
     try {
+        await cloudinary.v2.api.delete_resources_by_prefix(destination_of_uploading) //delete the old avatar before upload
+
         response = await cloudinary.v2.uploader.upload(
             data_uri,
             {

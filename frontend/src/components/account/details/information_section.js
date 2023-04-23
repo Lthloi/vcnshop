@@ -1,15 +1,15 @@
-import React from "react"
+import React, { useRef } from "react"
 import { styled } from '@mui/material/styles'
 import { useForm } from 'react-hook-form'
 import RadioGroup from '@mui/material/RadioGroup'
 import { FormControlLabel } from "@mui/material"
 import { Radio } from "@mui/material"
-import ClearIcon from '@mui/icons-material/Clear'
-import VisibilityIcon from '@mui/icons-material/Visibility'
-import VisibilityOffIcon from '@mui/icons-material/VisibilityOff'
 import CancelIcon from '@mui/icons-material/Cancel'
 import DateOfBirth from "./date_of_birth"
 import SaveAltIcon from '@mui/icons-material/SaveAlt'
+import validator from 'validator'
+import { useDispatch } from "react-redux"
+import { updateProfile } from "../../../store/actions/user_actions"
 
 const inputs = [
     {
@@ -22,16 +22,6 @@ const inputs = [
         required: true,
         maxLength: 35,
         warning: 'Please enter format of the email correctly!',
-    }, {
-        label: 'Password',
-        required: true,
-        maxLength: 20,
-        warning: 'Password must be between 6 and 20 characters long. And must contain at least one capital letter and one number and one lowercase letter.',
-    }, {
-        label: 'Retype Password',
-        required: true,
-        maxLength: 20,
-        warning: 'Password doesn\'t match',
     },
 ]
 
@@ -42,23 +32,39 @@ const radio_style = {
 }
 
 const InformationSection = () => {
-    let full_name_regex = /^([a-zA-Z0-9_\- ]){2,}$/
-    let password_regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?!.*\s).{6,}$/
-    const { register, formState: { errors }, handleSubmit } = useForm()
+    const { register, formState: { errors }, handleSubmit, setError } = useForm()
+    const date_of_birth_ref = useRef()
+    const dispatch = useDispatch()
+
+    const saveChangeSubmit = (data, e) => {
+        e.preventDefault()
+
+        let isError = false
+        let full_name_regex = /^([a-zA-Z0-9_\- ]){2,}$/
+
+        if (data['Full Name'] !== '' && !full_name_regex.test(data['Full Name'])) {
+            isError = true
+            return setError('Full Name')
+        }
+        if (!validator.isEmail(data.Email)) {
+            isError = true
+            return setError('Email')
+        }
+        if (isError) return
+
+        dispatch(updateProfile(data['Full Name'], data.Email, data.Gender, date_of_birth_ref.current))
+    }
 
     return (
         <Information id="InformationSection">
             <Title>PERSONAL INFORMATION</Title>
             <HelperText>
-                <span>Feel free to edit any your detail below if you want to update your information.</span>
-                <span> Note that the fields with </span>
-                <span className="dot_required">*</span>
-                <span> is required.</span>
+                Feel free to edit any your detail below if you want to update your information. Note that the fields with * is required.
             </HelperText>
 
             <div style={{ width: '100%', margin: '20px 0 30px' }}><Dash /></div>
 
-            <InformationForm>
+            <InformationForm onSubmit={handleSubmit(saveChangeSubmit)}>
                 {
                     inputs.map(({ label, required, warning, maxLength }) => (
                         <FormGroup key={label}>
@@ -75,7 +81,10 @@ const InformationSection = () => {
                             />
                             {
                                 errors[label] &&
-                                <InputWarning>{warning}</InputWarning>
+                                <InputWarning>
+                                    <CancelIcon sx={{ color: 'red', fontSize: '1em' }} />
+                                    <span>{warning}</span>
+                                </InputWarning>
                             }
                         </FormGroup>
                     ))
@@ -94,7 +103,7 @@ const InformationSection = () => {
                     </RadioGroup>
                 </FormGroup>
 
-                <DateOfBirth />
+                <DateOfBirth dateOfBirthRef={date_of_birth_ref} required={false} />
 
                 <SaveChangeBtn type="submit" title="Click to save the change">
                     <SaveAltIcon />
@@ -109,7 +118,7 @@ export default InformationSection
 
 const Information = styled('div')(({ theme }) => ({
     backgroundColor: '#F5F5F5',
-    padding: '20px 30px',
+    padding: '20px 30px 40px',
     boxSizing: 'border-box',
     width: '100%',
 }))
@@ -176,12 +185,17 @@ const Input = styled('input')({
     border: '2px black solid',
     padding: '8px 15px',
     fontFamily: '"Nunito", "sans-serif"',
-    fontSize: '1.1em',
+    fontSize: '1em',
     outline: 'unset',
     boxSizing: 'border-box',
 })
 
 const InputWarning = styled('div')({
+    display: 'flex',
+    columnGap: '3px',
+    alignItems: 'center',
+    marginTop: '3px',
+    marginLeft: '3px',
     fontFamily: '"Nunito", "sans-serif"',
     color: 'red',
 })
@@ -191,9 +205,10 @@ const SaveChangeBtn = styled('button')({
     justifyContent: 'center',
     alignItems: 'center',
     columnGap: '10px',
-    border: 'none',
+    border: '2px #2D2D2D solid',
     backgroundColor: '#2D2D2D',
     margin: '0 auto',
+    boxSizing: 'border-box',
     width: 'fit-content',
     padding: '10px 35px',
     color: 'white',
@@ -202,4 +217,12 @@ const SaveChangeBtn = styled('button')({
     fontFamily: '"Kanit", "sans-serif"',
     fontSize: '1em',
     cursor: 'pointer',
+    '&:hover': {
+        backgroundColor: 'white',
+        color: 'black',
+    },
+    '&:active': {
+        backgroundColor: '#2D2D2D',
+        color: 'white',
+    }
 })

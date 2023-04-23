@@ -48,15 +48,6 @@ const radio_style = {
     },
 }
 
-const RenderInputWarnings = (input_warning) => {
-    return (
-        <>
-            <CancelIcon sx={{ height: '0.7em', color: 'red', }} />
-            <InputWarningText>{input_warning}</InputWarningText>
-        </>
-    )
-}
-
 const InformationInputs = ({ register, errors, reset, emailWasTyped }) => {
     const [showPassword, setShowPassword] = useState(false)
 
@@ -126,9 +117,8 @@ const InformationInputs = ({ register, errors, reset, emailWasTyped }) => {
                         {
                             errors[label] &&
                             <InputWarningContainer className="InputWarningContainer">
-                                {label === 'Full Name' && RenderInputWarnings(warning)}
-                                {label === 'Password' && RenderInputWarnings(warning)}
-                                {label === 'Retype Password' && RenderInputWarnings(warning)}
+                                <CancelIcon sx={{ height: '0.7em', color: 'red', }} />
+                                <InputWarningText>{warning}</InputWarningText>
                             </InputWarningContainer>
                         }
                     </InputFormGroup>

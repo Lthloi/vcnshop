@@ -7,6 +7,7 @@ import ScrollToTopBtn from "../components/scroll_top_top_btn"
 import { Route, Routes } from "react-router-dom"
 import Information from "../components/account/details/information_section"
 import MyOrders from "../components/account/details/my_orders"
+import ChangePassword from "../components/account/details/change_password"
 
 const Account = () => {
     return (
@@ -26,6 +27,7 @@ const Account = () => {
                     <Routes>
                         <Route path="/information" element={<Information />} />
                         <Route path="/myOrders" element={<MyOrders />} />
+                        <Route path="/changePassword" element={<ChangePassword />} />
                     </Routes>
                 </DetailsContainer>
             </NavigationAndDetail>

@@ -3,6 +3,7 @@ import {
     registerRequest, registerSuccess, registerFail,
     loginRequest, loginSuccess, loginFail,
     forgotPasswordRequest, forgotPasswordSuccess, forgotPasswordFail,
+    updateUserRequest, updateUserSuccess, updateUserFail,
 } from '../reducers/user_reducer.js'
 import axios from 'axios'
 import { EXPRESS_SERVER } from '../../utils/constants.js'
@@ -145,6 +146,7 @@ const verifyOTPOfForgotPassword = (OTP_code, email) => async (dispatch) => {
     }
 }
 
+//only for register period
 const resetPassword = (email, new_password) => async (dispatch) => {
     try {
         dispatch(forgotPasswordRequest())
@@ -172,8 +174,75 @@ const resetPassword = (email, new_password) => async (dispatch) => {
     }
 }
 
+const updateAvatarUser = (avatar) => async (dispatch) => {
+    try {
+        dispatch(updateUserRequest())
+
+        let formData = new FormData()
+        formData.set('avatarImage', avatar)
+
+        let api_to_update_avatar = '/api/updateAvatarUser'
+
+        let { data } = await axios.put(EXPRESS_SERVER + api_to_update_avatar, formData)
+
+        dispatch(updateUserSuccess({ newAvatar: data.avatarUrl }))
+    } catch (error) {
+        let errorObject = actionsErrorHandler(error, 'Fail to update avatar, please try again some minutes later!')
+
+        dispatch(updateUserFail({ error: errorObject }))
+
+        if (errorObject.isUserError) {
+            toast.warning(errorObject.message)
+        } else
+            toast.error(errorObject.message)
+    }
+}
+
+const updateProfile = (nameOfUser, email, gender, dateOfBirth) => async (dispatch) => {
+    try {
+        dispatch(updateUserRequest())
+
+        let api_to_update_avatar = '/api/updateProfile'
+
+        await axios.put(EXPRESS_SERVER + api_to_update_avatar, { nameOfUser, email, gender, dateOfBirth })
+
+        dispatch(updateUserSuccess({ updateProfile: { nameOfUser, email, gender, dateOfBirth } }))
+    } catch (error) {
+        let errorObject = actionsErrorHandler(error, 'Fail to update profile, please try again some minutes later!')
+
+        dispatch(updateUserFail({ error: errorObject }))
+
+        if (errorObject.isUserError) {
+            toast.warning(errorObject.message)
+        } else
+            toast.error(errorObject.message)
+    }
+}
+
+const changePassword = (oldPassword, newPassword) => async (dispatch) => {
+    try {
+        dispatch(updateUserRequest())
+
+        let api_to_update_avatar = '/api/changePassword'
+
+        await axios.put(EXPRESS_SERVER + api_to_update_avatar, { oldPassword, newPassword })
+
+        dispatch(updateUserSuccess())
+    } catch (error) {
+        let errorObject = actionsErrorHandler(error, 'Fail to update profile, please try again some minutes later!')
+
+        dispatch(updateUserFail({ error: errorObject }))
+
+        if (errorObject.isUserError) {
+            toast.warning(errorObject.message)
+        } else
+            toast.error(errorObject.message)
+    }
+}
+
 export {
     sendRegisterOTP, verifyRegisterOTP, completeRegister,
     loginUser,
     forgotPassword, verifyOTPOfForgotPassword, resetPassword,
+    updateAvatarUser, updateProfile, changePassword,
 }

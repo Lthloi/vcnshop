@@ -119,6 +119,7 @@ const newReview = catchAsyncError(async (req, res, next) => {
     let sum_of_previous_ratings = product_after_remove_review.review.reviews.reduce((acc, curr) => acc + curr, 0)
     let new_average_rating = sum_of_previous_ratings === 0 ? rating : (sum_of_previous_ratings + rating) / 2
 
+    //>>> fix this: fix
     let new_review = {
         name: 'VCN MAX',
         email: 'codevoicainay@gmail.com',

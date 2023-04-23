@@ -4,11 +4,13 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle'
 import AllInboxIcon from '@mui/icons-material/AllInbox'
 import LogoutIcon from '@mui/icons-material/Logout'
 import { useNavigate } from "react-router-dom"
+import PasswordIcon from '@mui/icons-material/Password';
 
 const icon_style = { color: 'black' }
 
 const navigation_list = [
     { label: 'Information', icon: () => <AccountCircleIcon sx={icon_style} />, href: '/information' },
+    { label: 'Change Password', icon: () => <PasswordIcon sx={icon_style} />, href: '/changePassword' },
     { label: 'My Orders', icon: () => <AllInboxIcon sx={icon_style} />, href: '/myOrders' },
     { label: 'Log Out', icon: () => <LogoutIcon sx={icon_style} />, href: -1 },
 ]

@@ -61,7 +61,9 @@ const Avatar = ({ nameOfUser, userAvatar }) => {
 
             <NameTextContainer>
                 <div>Hello,</div>
-                <div>{RenderConvertNameOfUser(nameOfUser)}</div>
+                <div title={nameOfUser}>
+                    {RenderConvertNameOfUser(nameOfUser)}
+                </div>
             </NameTextContainer>
 
         </AvatarSection>
