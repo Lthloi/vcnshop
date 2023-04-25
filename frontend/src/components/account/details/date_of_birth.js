@@ -12,7 +12,7 @@ const RenderOptions = (items) => (
     </option>
 )
 
-const DateOfBirth = ({ required, dateOfBirthRef }) => {
+const DateOfBirth = ({ required, dateOfBirthRef, dateOfBirthDefault }) => {
     const [dateOfBirth, setDateOfBirth] = useState(['00', '00', '0000']) //dd-mm-yyyy
 
     useEffect(() => {
@@ -53,7 +53,7 @@ const DateOfBirth = ({ required, dateOfBirthRef }) => {
             </Label>
             <DateOfBirthInputs>
                 {
-                    ['Day', 'Month', 'Year'].map((label) => (
+                    ['Day', 'Month', 'Year'].map((label, index) => (
                         <FormControl
                             key={label}
                             sx={{ flex: '1', width: '25%' }}
@@ -61,7 +61,7 @@ const DateOfBirth = ({ required, dateOfBirthRef }) => {
                             <SelectLabel>{label}</SelectLabel>
                             <StyledSelect
                                 autoWidth
-                                defaultValue=""
+                                defaultValue={dateOfBirthDefault && dateOfBirthDefault.split('-')[index]}
                                 inputProps={{ name: label }}
                                 variant="outlined"
                                 native

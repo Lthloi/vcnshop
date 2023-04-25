@@ -5,7 +5,7 @@ import catchAsyncError from '../middlewares/catch_async_error.js'
 import moment from 'moment'
 import sendJWTToken from '../utils/JWT_token.js'
 import crypto from 'crypto'
-import { uploadUserAvatar } from '../utils/upload_images.js'
+import { uploadOneImage } from '../utils/image_uploading.js'
 
 const { JWT_TOKEN_MAX_AGE_IN_DAY } = process.env
 
@@ -91,6 +91,13 @@ const completeRegister = catchAsyncError(async (req, res, next) => {
 
     sendJWTToken(res, user._id)
 
+    //>>> fix this: change domain property in cookie
+    res.cookie(
+        'user_name',
+        name || 'Unname-User',
+        { path: '/', domain: 'localhost', httpOnly: true, maxAge: JWT_TOKEN_MAX_AGE_IN_DAY * 86400000 }
+    )
+
     res.status(200).json({ success: true })
 })
 
@@ -166,6 +173,22 @@ const resetPassword = catchAsyncError(async (req, res, next) => {
     res.status(200).json({ success: true })
 })
 
+const getUser = catchAsyncError(async (req, res, next) => {
+    let user = await UserModel.findOne(
+        { _id: req.user._id },
+        {
+            '_id': 0,
+            'name': 1,
+            'email': 1,
+            'gender': 1,
+            'avatar': 1,
+            'date_of_birth': 1,
+        }
+    ).lean()
+
+    res.status(200).json({ user })
+})
+
 const updateProfile = catchAsyncError(async (req, res, next) => {
     let { nameOfUser, email, gender, dateOfBirth } = req.body
     if (!nameOfUser || !email || !gender || !dateOfBirth) throw new BaseError('Wrong property name', 400)
@@ -206,7 +229,7 @@ const changePassword = catchAsyncError(async (req, res, next) => {
 const updateAvatarUser = catchAsyncError(async (req, res, next) => {
     let { avatarImage } = req.files
     let user_id = req.user._id
-    let avatar_url = await uploadUserAvatar(avatarImage, user_id)
+    let avatar_url = await uploadOneImage(avatarImage, 'users/' + user_id_string + '/profile')
     if (!avatar_url) throw new BaseError('Can\'t upload image', 500)
 
     await UserModel.updateOne({ _id: user_id }, { $set: { 'avatar': avatar_url } })
@@ -216,6 +239,8 @@ const updateAvatarUser = catchAsyncError(async (req, res, next) => {
 
 export {
     sendRegisterOTP, verifyOTP, completeRegister,
-    loginUser, forgotPassword, resetPassword,
+    loginUser,
+    forgotPassword, resetPassword,
+    getUser,
     updateProfile, changePassword, updateAvatarUser,
 }

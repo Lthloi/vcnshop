@@ -7,6 +7,7 @@ import SaveAltIcon from '@mui/icons-material/SaveAlt'
 import CancelIcon from '@mui/icons-material/Cancel'
 import { changePassword } from "../../../store/actions/user_actions"
 import { useDispatch } from 'react-redux'
+import { CircularProgress } from "@mui/material"
 
 const inputs = [
     {
@@ -36,7 +37,7 @@ const password_style = {
     }
 }
 
-const ChangePassword = () => {
+const ChangePassword = ({ loading }) => {
     const { register, formState: { errors }, handleSubmit, setError } = useForm()
     const [showPassword, setShowPassword] = useState([false, false, false])
     const dispatch = useDispatch()
@@ -115,8 +116,19 @@ const ChangePassword = () => {
                 }
 
                 <SaveChangeBtn type="submit" title="Click to save the change">
-                    <SaveAltIcon />
-                    <span>Save Change</span>
+                    {
+                        loading ?
+                            <CircularProgress
+                                sx={{ color: 'white' }}
+                                size={24}
+                                thickness={7}
+                            />
+                            :
+                            <>
+                                <SaveAltIcon />
+                                <span>Save Change</span>
+                            </>
+                    }
                 </SaveChangeBtn>
             </ChangePasswordForm>
         </ChangePasswordSection>
@@ -140,7 +152,8 @@ const Title = styled('h2')({
     fontSize: '2.2em',
 })
 
-const HelperText = styled('div')({
+const HelperText = styled('p')({
+    margin: '0',
     fontSize: '0.9em',
     textAlign: 'center',
     fontFamily: '"Kanit", "sans-serif"',

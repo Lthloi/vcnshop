@@ -7,16 +7,17 @@ import './styles/toastify.scss'
 import './styles/problem_section.scss'
 import { Provider } from 'react-redux'
 import store from './store/store'
-import { BrowserRouter } from "react-router-dom"
+import ErrorBoundary from './components/error_boundary'
+import ErrorPage from './pages/error_page'
 
 const root = ReactDOM.createRoot(document.getElementById('root'))
 root.render(
   <React.StrictMode>
-    <BrowserRouter>
-      <Provider store={store}>
+    <Provider store={store}>
+      <ErrorBoundary fallback={<ErrorPage />}>
         <App />
-      </Provider>
-    </BrowserRouter>
+      </ErrorBoundary>
+    </Provider>
   </React.StrictMode>
 )
 

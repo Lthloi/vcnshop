@@ -11,7 +11,7 @@ const getCoupons = (picked_coupon_codes = []) => async (dispatch, getState) => {
     try {
         dispatch(getCouponsRequest())
         
-        let api_to_get_coupons = '/api/getCoupons/' + localStorage.getItem('emailVCNShop')
+        let api_to_get_coupons = '/api/getCoupons'
 
         let { data } = await axios.get(EXPRESS_SERVER + api_to_get_coupons)
 
@@ -31,7 +31,7 @@ const confirmCoupons = (coupon_codes = []) => async (dispatch, getState) => {
     try {
         dispatch(checkCouponRequest())
 
-        let api_to_confirm = '/api/getCoupons/' + localStorage.getItem('emailVCNShop')
+        let api_to_confirm = '/api/getCoupons'
 
         let { data } = await axios.get(EXPRESS_SERVER + api_to_confirm)
 
@@ -41,7 +41,7 @@ const confirmCoupons = (coupon_codes = []) => async (dispatch, getState) => {
             cartItems: getState().cart.cartItems,
         }))
 
-        toast.success('Applied coupons you chose!')
+        toast.success('Applied coupons you selected!')
     } catch (error) {
         let errorObject = actionsErrorHandler(error, 'Error Warning: fail to confirm coupons.')
 
@@ -55,7 +55,7 @@ const cancelPickCoupons = (type) => async (dispatch) => {
     try {
         dispatch(checkCouponSuccess({ type }))
     } catch (error) {
-        let errorObject = actionsErrorHandler(error, 'Error Warning: fail to cancel pick coupon.')
+        let errorObject = actionsErrorHandler(error, 'Error Warning: fail to cancel pick coupons.')
 
         dispatch(checkCouponFail({ error: errorObject }))
     }

@@ -3,7 +3,7 @@ import {
     registerRequest, registerSuccess, registerFail,
     loginRequest, loginSuccess, loginFail,
     forgotPasswordRequest, forgotPasswordSuccess, forgotPasswordFail,
-    updateUserRequest, updateUserSuccess, updateUserFail,
+    getUserRequest, getUserSuccess, getUserFail,
 } from '../reducers/user_reducer.js'
 import axios from 'axios'
 import { EXPRESS_SERVER } from '../../utils/constants.js'
@@ -174,9 +174,30 @@ const resetPassword = (email, new_password) => async (dispatch) => {
     }
 }
 
+const getUser = () => async (dispatch) => {
+    try {
+        dispatch(getUserRequest())
+
+        let api_to_get_user = '/api/getUser'
+
+        let { data } = await axios.get(EXPRESS_SERVER + api_to_get_user, { withCredentials: true })
+
+        dispatch(getUserSuccess({ ...data.user }))
+    } catch (error) {
+        let errorObject = actionsErrorHandler(error, 'Session is expired or not a authenticated user!')
+
+        dispatch(getUserFail({ error: errorObject }))
+
+        if (errorObject.isUserError) {
+            toast.warning(errorObject.message)
+        } else
+            toast.error(errorObject.client_message)
+    }
+}
+
 const updateAvatarUser = (avatar) => async (dispatch) => {
     try {
-        dispatch(updateUserRequest())
+        dispatch(getUserRequest())
 
         let formData = new FormData()
         formData.set('avatarImage', avatar)
@@ -185,11 +206,11 @@ const updateAvatarUser = (avatar) => async (dispatch) => {
 
         let { data } = await axios.put(EXPRESS_SERVER + api_to_update_avatar, formData)
 
-        dispatch(updateUserSuccess({ newAvatar: data.avatarUrl }))
+        dispatch(getUserSuccess({ avatar: data.avatarUrl }))
     } catch (error) {
         let errorObject = actionsErrorHandler(error, 'Fail to update avatar, please try again some minutes later!')
 
-        dispatch(updateUserFail({ error: errorObject }))
+        dispatch(getUserFail({ error: errorObject }))
 
         if (errorObject.isUserError) {
             toast.warning(errorObject.message)
@@ -200,17 +221,17 @@ const updateAvatarUser = (avatar) => async (dispatch) => {
 
 const updateProfile = (nameOfUser, email, gender, dateOfBirth) => async (dispatch) => {
     try {
-        dispatch(updateUserRequest())
+        dispatch(getUserRequest())
 
         let api_to_update_avatar = '/api/updateProfile'
 
         await axios.put(EXPRESS_SERVER + api_to_update_avatar, { nameOfUser, email, gender, dateOfBirth })
 
-        dispatch(updateUserSuccess({ updateProfile: { nameOfUser, email, gender, dateOfBirth } }))
+        dispatch(getUserSuccess({ name: nameOfUser, email, gender, date_of_birth: dateOfBirth }))
     } catch (error) {
         let errorObject = actionsErrorHandler(error, 'Fail to update profile, please try again some minutes later!')
 
-        dispatch(updateUserFail({ error: errorObject }))
+        dispatch(getUserFail({ error: errorObject }))
 
         if (errorObject.isUserError) {
             toast.warning(errorObject.message)
@@ -221,17 +242,17 @@ const updateProfile = (nameOfUser, email, gender, dateOfBirth) => async (dispatc
 
 const changePassword = (oldPassword, newPassword) => async (dispatch) => {
     try {
-        dispatch(updateUserRequest())
+        dispatch(getUserRequest())
 
         let api_to_update_avatar = '/api/changePassword'
 
         await axios.put(EXPRESS_SERVER + api_to_update_avatar, { oldPassword, newPassword })
 
-        dispatch(updateUserSuccess())
+        dispatch(getUserSuccess())
     } catch (error) {
         let errorObject = actionsErrorHandler(error, 'Fail to update profile, please try again some minutes later!')
 
-        dispatch(updateUserFail({ error: errorObject }))
+        dispatch(getUserFail({ error: errorObject }))
 
         if (errorObject.isUserError) {
             toast.warning(errorObject.message)
@@ -244,5 +265,6 @@ export {
     sendRegisterOTP, verifyRegisterOTP, completeRegister,
     loginUser,
     forgotPassword, verifyOTPOfForgotPassword, resetPassword,
+    getUser,
     updateAvatarUser, updateProfile, changePassword,
 }

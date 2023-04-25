@@ -1,9 +1,10 @@
-const actionsErrorHandler = (error, message) => {
+const actionsErrorHandler = (error, client_message) => {
     let errorObject = {
         originalError: error,
         statusCode: 500,
-        message: message,
+        message: '',
         isUserError: false,
+        client_message,
     }
 
     let response_of_error = error.response

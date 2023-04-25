@@ -48,6 +48,7 @@ const Auth = () => {
                 </TextAndImage>
 
                 <Routes>
+                    <Route path='/' element={<LoginSection />} />
                     <Route path='/login' element={<LoginSection />} />
                     <Route path='/register' element={<RegisterSection />} />
                     <Route path='/forgotPassword' element={<ForgotPasswordSection />} />

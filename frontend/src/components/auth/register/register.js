@@ -16,7 +16,7 @@ import CompleteRegister from "./complete_register"
 import validator from 'validator'
 
 const RegisterSection = () => {
-    const { user: { registerStep, isAuthenticated}, loading } = useSelector(({ user }) => user)
+    const { user: { registerStep, isAuthenticated }, loading } = useSelector(({ user }) => user)
     const [openProblemSection, setOpenProblemSection] = useState(false)
     const [sendOTPNote, setSendOTPNote] = useState(false)
     const email_input_ref = useRef()
@@ -28,7 +28,7 @@ const RegisterSection = () => {
             let timeout = setTimeout(() => { window.open('/account', '_self') }, 1000)
             return () => clearTimeout(timeout)
         }
-    }, [registerStep])
+    }, [isAuthenticated])
 
     const timeToResendOTP = 120
 
@@ -102,8 +102,10 @@ const RegisterSection = () => {
                         {
                             loading &&
                             <SendOTPBtn>
-                                <CircularProgress sx={{ color: 'black', }}
-                                    size={18} thickness={6}
+                                <CircularProgress
+                                    sx={{ color: 'black', }}
+                                    size={18}
+                                    thickness={6}
                                 />
                             </SendOTPBtn>
                         }

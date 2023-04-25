@@ -1,7 +1,7 @@
 import ProductModel from '../models/product_schema.js'
 import BaseError from "../utils/base_error.js"
 import mongoose from "mongoose"
-import { uploadReviewImages } from '../utils/upload_images.js'
+import { uploadImages } from '../utils/image_uploading.js'
 import catchAsyncError from "../middlewares/catch_async_error.js"
 
 //get a product by _id
@@ -91,19 +91,20 @@ const getReviews = catchAsyncError(async (req, res, next) => {
 
 //insert new review to DB
 const newReview = catchAsyncError(async (req, res, next) => {
-    let { email, productId } = req.query
-    if (!email || !productId) throw new BaseError('Wrong request property', 400)
+    let { productId } = req.query
+    let user_id = req.user._id
+    if (!productId) throw new BaseError('Wrong request property', 400)
 
     let { rating, comment, title } = req.body
     if (!rating || !comment || !title) throw new BaseError('Wrong request property', 400)
 
-    let image_urls = await uploadReviewImages(req.files, productId, email)
+    let image_urls = await uploadImages(req.files, 'products/' + productId + '/reviews/' + user_id)
     if (upload_error instanceof Error) throw upload_error
 
     //remove a review existed 
     let product_after_remove_review = await ProductModel.findOneAndUpdate(
         { _id: productId },
-        { $pull: { 'review.reviews': { email } } },
+        { $pull: { 'review.reviews': { user_id } } },
         {
             new: true,
             projection: {
@@ -122,7 +123,7 @@ const newReview = catchAsyncError(async (req, res, next) => {
     //>>> fix this: fix
     let new_review = {
         name: 'VCN MAX',
-        email: 'codevoicainay@gmail.com',
+        user_id: 'codevoicainay@gmail.com',
         avatar: 'https://img.freepik.com/premium-vector/cute-fox-sitting-cartoon-character-animal-nature-isolated_138676-3172.jpg?w=2000',
         createdAt: new Date(),
         rating,

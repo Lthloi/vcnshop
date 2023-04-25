@@ -90,7 +90,7 @@ const LoginSection = () => {
                             loading ?
                                 <CircularProgress
                                     sx={{ color: 'black' }}
-                                    size={22}
+                                    size={19}
                                     thickness={6}
                                 />
                                 : <span>Login</span>

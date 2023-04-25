@@ -13,6 +13,29 @@ export const userSlice = createSlice({
         error: null,
     },
     reducers: {
+        getUserRequest: (state, action) => {
+            state.error = null
+            state.loading = true
+        },
+        getUserSuccess: (state, action) => {
+            let update_account = action.payload
+            if (update_account) {
+                let current_user = current(state).user
+                state.user = {
+                    ...current_user,
+                    ...update_account,
+                }
+            }
+
+            state.user.isAuthenticated = true
+            state.loading = false
+        },
+        getUserFail: (state, action) => {
+            state.error = action.payload.error
+            state.loading = false
+        },
+
+
         registerRequest: (state, action) => {
             state.error = null
             state.loading = true
@@ -35,6 +58,7 @@ export const userSlice = createSlice({
         },
         loginSuccess: (state, action) => {
             state.user.loginStep = action.payload.loginStep
+            state.user.isAuthenticated = true
             state.loading = false
         },
         loginFail: (state, action) => {
@@ -57,35 +81,6 @@ export const userSlice = createSlice({
             state.error = action.payload.error
             state.loading = false
         },
-
-
-        updateUserRequest: (state, action) => {
-            state.error = null
-            state.loading = true
-        },
-        updateUserSuccess: (state, action) => {
-            let new_avatar = action.payload.newAvatar
-            if (new_avatar) state.user.avatar = new_avatar
-
-            let update_profile = action.payload.updateProfile
-            if (update_profile) {
-                let { nameOfUser, email, gender, dateOfBirth } = update_profile
-                let current_user = current(state).user
-                state.user = {
-                    ...current_user,
-                    name: nameOfUser,
-                    email,
-                    gender,
-                    date_of_birth: dateOfBirth,
-                }
-            }
-
-            state.loading = false
-        },
-        updateUserFail: (state, action) => {
-            state.error = action.payload.error
-            state.loading = false
-        },
     },
 })
 
@@ -93,7 +88,7 @@ export const {
     registerRequest, registerSuccess, registerFail,
     loginRequest, loginSuccess, loginFail,
     forgotPasswordRequest, forgotPasswordSuccess, forgotPasswordFail,
-    updateUserRequest, updateUserSuccess, updateUserFail,
+    getUserRequest, getUserSuccess, getUserFail,
 } = userSlice.actions
 
 export default userSlice.reducer

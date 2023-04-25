@@ -46,8 +46,8 @@ const Reviews = ({ productId, srollReviewRef }) => {
                     </>
                 ) : error ? (
                     <ReviewError>{error.message}</ReviewError>
-                ) : reviews && reviews.length > 0 ? reviews.map(({ name, email, comment, rating, title, createdAt, avatar, imageURLs }) =>
-                    <ReviewContainer key={email}>
+                ) : reviews && reviews.length > 0 ? reviews.map(({ _id, name, comment, rating, title, createdAt, avatar, imageURLs }) =>
+                    <ReviewContainer key={_id}>
                         <Date>
                             <span>Written On </span>
                             <span>{convertDate(new window.Date(createdAt).toLocaleDateString())}</span>

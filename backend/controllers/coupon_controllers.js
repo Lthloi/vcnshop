@@ -3,17 +3,16 @@ import CouponModel from '../models/coupon_schema.js'
 import BaseError from "../utils/base_error.js"
 import moment from 'moment'
 import catchAsyncError from "../middlewares/catch_async_error.js"
+import mongoose from "mongoose"
 
 //get coupons info from an user
 const getCoupons = catchAsyncError(async (req, res, next) => {
-    if (!req.params.email) throw new BaseError('Wrong request property', 400)
-
-    let [{ user_coupon_codes }] = await UserModel.aggregate([
-        { $match: { 'email': req.params.email } },
+    let user = await UserModel.aggregate([
+        { $match: { _id: mongoose.Types.ObjectId(req.user._id) } },
         {
             $project: {
                 '_id': 0,
-                'user_coupon_codes': {
+                'coupon_codes': {
                     $map: {
                         input: '$coupons.list',
                         as: 'coupon',
@@ -32,9 +31,9 @@ const getCoupons = catchAsyncError(async (req, res, next) => {
         }
     ])
 
-    if (!user_coupon_codes) throw new BaseError('User Not Found', 404)
+    if (!user) throw new BaseError('User Not Found', 404)
 
-    let codes = user_coupon_codes.filter((code) => !!code)
+    let codes = user.coupon_codes.filter((code) => !!code)
 
     let coupons = await CouponModel.aggregate([
         {

@@ -10,20 +10,7 @@ import SaveAltIcon from '@mui/icons-material/SaveAlt'
 import validator from 'validator'
 import { useDispatch } from "react-redux"
 import { updateProfile } from "../../../store/actions/user_actions"
-
-const inputs = [
-    {
-        label: 'Full Name',
-        required: false,
-        maxLength: 25,
-        warning: 'Full Name field mustn\'t contain special characters. And must be between 2 and 25 characters long.',
-    }, {
-        label: 'Email',
-        required: true,
-        maxLength: 35,
-        warning: 'Please enter format of the email correctly!',
-    },
-]
+import { CircularProgress } from "@mui/material"
 
 const radio_style = {
     '&.Mui-checked': {
@@ -31,10 +18,26 @@ const radio_style = {
     },
 }
 
-const InformationSection = () => {
+const InformationSection = ({ loading, nameOfUser, email, gender, dateOfBirthDefault }) => {
     const { register, formState: { errors }, handleSubmit, setError } = useForm()
     const date_of_birth_ref = useRef()
     const dispatch = useDispatch()
+
+    const inputs = [
+        {
+            label: 'Full Name',
+            defaultValue: nameOfUser,
+            required: false,
+            maxLength: 25,
+            warning: 'Full Name field mustn\'t contain special characters. And must be between 2 and 25 characters long.',
+        }, {
+            label: 'Email',
+            defaultValue: email,
+            required: true,
+            maxLength: 35,
+            warning: 'Please enter format of the email correctly!',
+        },
+    ]
 
     const saveChangeSubmit = (data, e) => {
         e.preventDefault()
@@ -94,7 +97,7 @@ const InformationSection = () => {
                     <Label>Gender</Label>
                     <RadioGroup
                         row
-                        defaultValue={'Female'}
+                        defaultValue={gender}
                         sx={{ marginLeft: '5px' }}
                     >
                         <FormControlLabel sx={{ color: 'black' }} value="Female" control={<Radio {...register('Gender')} size="small" color="default" sx={radio_style} />} label="Female" />
@@ -103,11 +106,22 @@ const InformationSection = () => {
                     </RadioGroup>
                 </FormGroup>
 
-                <DateOfBirth dateOfBirthRef={date_of_birth_ref} required={false} />
+                <DateOfBirth dateOfBirthRef={date_of_birth_ref} required={false} dateOfBirthDefault={dateOfBirthDefault} />
 
                 <SaveChangeBtn type="submit" title="Click to save the change">
-                    <SaveAltIcon />
-                    <span>Save Change</span>
+                    {
+                        loading ?
+                            <CircularProgress
+                                sx={{ color: 'white' }}
+                                size={24}
+                                thickness={7}
+                            />
+                            :
+                            <>
+                                <SaveAltIcon />
+                                <span>Save Change</span>
+                            </>
+                    }
                 </SaveChangeBtn>
             </InformationForm>
         </Information>
@@ -131,7 +145,8 @@ const Title = styled('h2')({
     fontSize: '2.2em',
 })
 
-const HelperText = styled('div')({
+const HelperText = styled('p')({
+    margin: '0',
     fontSize: '0.9em',
     textAlign: 'center',
     fontFamily: '"Kanit", "sans-serif"',
@@ -220,6 +235,9 @@ const SaveChangeBtn = styled('button')({
     '&:hover': {
         backgroundColor: 'white',
         color: 'black',
+        '& svg': {
+            color: 'black',
+        }
     },
     '&:active': {
         backgroundColor: '#2D2D2D',

@@ -9,25 +9,41 @@ import SearchResult from './pages/search_result'
 import LoadingApp from './components/loading_app'
 import Auth from './pages/auth'
 import Account from './pages/account'
+import { BrowserRouter } from "react-router-dom"
+import ProtectedRoute from './utils/protected_route'
 
 function App() {
   return (
     <div id="React-App">
-      <Routes>
+      <BrowserRouter>
+        <Routes>
 
-        <Route path='/' element={<PageLayout />}>
-          <Route index element={<Home />} />
-          <Route path='/cart' element={<Cart />} />
-          <Route path='/productDetail/:productId' element={<Product />} />
-          <Route path='/search/:keyword' element={<SearchResult />} />
-          <Route path='/account/*' element={<Account />} />
-        </Route>
+          <Route path='/' element={<PageLayout />}>
 
-        <Route path='/auth/*' element={<Auth />} />
+            <Route index element={<Home />} />
 
-        <Route path='*' element={<NotFound404 />} />
+            <Route
+              path='/cart'
+              element={<ProtectedRoute> <Cart /> </ProtectedRoute>}
+            />
 
-      </Routes>
+            <Route path='/productDetail/:productId' element={<Product />} />
+
+            <Route path='/search/:keyword' element={<SearchResult />} />
+
+            <Route
+              path='/account/*'
+              element={<ProtectedRoute> <Account /> </ProtectedRoute>}
+            />
+
+          </Route>
+
+          <Route path='/auth/*' element={<Auth />} />
+
+          <Route path='*' element={<NotFound404 />} />
+
+        </Routes>
+      </BrowserRouter>
 
       <ToastContainer limit={3} autoClose={2000} pauseOnHover={true} draggable={false} />
       <LoadingApp />

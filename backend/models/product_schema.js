@@ -89,7 +89,7 @@ const ProductSchema = new Schema({
         },
         reviews: [{
             name: { type: String, required: true, },
-            email: { type: String, required: true },
+            user_id: { type: mongoose.Types.ObjectId, required: true },
             avatar: { type: String, required: true, },
             createdAt: { type: Date, default: Date.now },
             rating: { type: Number, required: true, },
