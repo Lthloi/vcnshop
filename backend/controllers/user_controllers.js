@@ -3,7 +3,7 @@ import sendOTPViaEmail from '../utils/send_mail.js'
 import UserModel from '../models/user_schema.js'
 import catchAsyncError from '../middlewares/catch_async_error.js'
 import moment from 'moment'
-import sendJWTToken from '../utils/JWT_token.js'
+import { removeJWTToken, sendJWTToken } from '../utils/JWT_token.js'
 import crypto from 'crypto'
 import { uploadOneImage } from '../utils/image_uploading.js'
 
@@ -226,10 +226,10 @@ const changePassword = catchAsyncError(async (req, res, next) => {
     res.status(200).json({ sucess: true })
 })
 
-const updateAvatarUser = catchAsyncError(async (req, res, next) => {
+const updateUserAvatar = catchAsyncError(async (req, res, next) => {
     let { avatarImage } = req.files
     let user_id = req.user._id
-    let avatar_url = await uploadOneImage(avatarImage, 'users/' + user_id_string + '/profile')
+    let avatar_url = await uploadOneImage(avatarImage, 'users/' + user_id + '/profile')
     if (!avatar_url) throw new BaseError('Can\'t upload image', 500)
 
     await UserModel.updateOne({ _id: user_id }, { $set: { 'avatar': avatar_url } })
@@ -237,10 +237,17 @@ const updateAvatarUser = catchAsyncError(async (req, res, next) => {
     res.status(200).json({ avatarUrl: avatar_url })
 })
 
+const logout = catchAsyncError(async (req, res, next) => {
+    removeJWTToken(res)
+
+    res.status(200).json({ success: true })
+})
+
 export {
     sendRegisterOTP, verifyOTP, completeRegister,
     loginUser,
     forgotPassword, resetPassword,
     getUser,
-    updateProfile, changePassword, updateAvatarUser,
+    updateProfile, changePassword, updateUserAvatar,
+    logout,
 }

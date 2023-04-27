@@ -92,8 +92,9 @@ const getReviews = catchAsyncError(async (req, res, next) => {
 //insert new review to DB
 const newReview = catchAsyncError(async (req, res, next) => {
     let { productId } = req.query
-    let user_id = req.user._id
     if (!productId) throw new BaseError('Wrong request property', 400)
+    
+    let { _id: user_id, avatar, name: user_name } = req.user
 
     let { rating, comment, title } = req.body
     if (!rating || !comment || !title) throw new BaseError('Wrong request property', 400)
@@ -120,11 +121,10 @@ const newReview = catchAsyncError(async (req, res, next) => {
     let sum_of_previous_ratings = product_after_remove_review.review.reviews.reduce((acc, curr) => acc + curr, 0)
     let new_average_rating = sum_of_previous_ratings === 0 ? rating : (sum_of_previous_ratings + rating) / 2
 
-    //>>> fix this: fix
     let new_review = {
-        name: 'VCN MAX',
-        user_id: 'codevoicainay@gmail.com',
-        avatar: 'https://img.freepik.com/premium-vector/cute-fox-sitting-cartoon-character-animal-nature-isolated_138676-3172.jpg?w=2000',
+        name: user_name,
+        user_id,
+        avatar,
         createdAt: new Date(),
         rating,
         title,

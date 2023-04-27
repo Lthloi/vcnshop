@@ -3,7 +3,7 @@ import {
     sendRegisterOTP, verifyOTP, completeRegister,
     loginUser, forgotPassword, resetPassword,
     getUser,
-    updateProfile, changePassword, updateAvatarUser,
+    updateProfile, changePassword, updateUserAvatar, logout,
 } from '../controllers/user_controllers.js'
 import { verifyJWTtoken } from '../middlewares/verify_user.js'
 
@@ -27,6 +27,8 @@ router.put('/updateProfile', verifyJWTtoken, updateProfile)
 
 router.put('/changePassword', verifyJWTtoken, changePassword)
 
-router.put('/updateAvatarUser', verifyJWTtoken, updateAvatarUser)
+router.put('/updateUserAvatar', verifyJWTtoken, updateUserAvatar)
+
+router.post('/logout', logout)
 
 export default router
