@@ -7,15 +7,15 @@ import InstagramIcon from '@mui/icons-material/Instagram'
 const socials = [
     {
         name: 'Facebook',
-        icon: () => <FacebookIcon sx={{ color: 'white', }} />,
+        icon: <FacebookIcon sx={{ color: 'white', }} />,
         background_color: '#1877F2',
     }, {
         name: 'Twitter',
-        icon: () => <TwitterIcon sx={{ color: 'white', }} />,
+        icon: <TwitterIcon sx={{ color: 'white', }} />,
         background_color: '#1DA1F2',
     }, {
         name: 'Instagram',
-        icon: () => <InstagramIcon sx={{ color: 'white', }} />,
+        icon: <InstagramIcon sx={{ color: 'white', }} />,
         background_color: '#E4405F',
     },
 ]
@@ -35,7 +35,7 @@ const BottomForm = () => {
                                 key={items.name}
                             >
                                 <>
-                                    {items.icon()}
+                                    {items.icon}
                                 </>
                                 <Name>
                                     {items.name}

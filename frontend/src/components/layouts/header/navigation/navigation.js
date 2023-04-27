@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react"
 import Badge from '@mui/material/Badge'
 import { styled } from '@mui/material'
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
-import foxLogo from '../../../../assets/images/logo_app.svg'
+import foxLogoWhite from '../../../../assets/images/logo_app_white.svg'
 import SearchIcon from '@mui/icons-material/Search'
 import MenuBar from "./menu_bar"
 import SearchDialog from "./search_dialog"
@@ -37,24 +37,21 @@ const Navigation = () => {
 
             <NavigationBar id="NavigationBar" >
                 <LeftArea className="LeftArea" >
-                    <Language> EN </Language>
+                    <Language>EN</Language>
                     <SearchContainer
                         id="SearchContainerNavigation"
                         onClick={() => handleOpenSearchDialog(true)}
                     >
                         <SearchIcon />
-                        <SearchText> Enter Brands, Names... </SearchText>
+                        <SearchText>Enter Brands, Names...</SearchText>
                     </SearchContainer>
                 </LeftArea>
 
                 <CenterArea className="CenterArea" href="/">
-                    <Logo src={foxLogo} alt="Can't load logo" />
+                    <Logo src={foxLogoWhite} alt="Can't load logo" sx={{ fill: 'white' }} />
                     <TitleArea>
-                        <Title>
-                            <span>VCN SHOP -</span>
-                            <span> FOX COR</span>
-                        </Title>
-                        <Subtitle> Kingdom of fashion </Subtitle>
+                        <Title>VCN SHOP - FOX COR</Title>
+                        <Subtitle>Kingdom of fashion</Subtitle>
                     </TitleArea>
                 </CenterArea>
 
@@ -68,7 +65,14 @@ const Navigation = () => {
                     <a href="/cart">
                         <StyledBadge
                             badgeContent={cartItems.length}
-                            color="secondary" showZero
+                            color="default"
+                            sx={{
+                                color: 'black',
+                                ' span.MuiBadge-anchorOriginTopRight': {
+                                    backgroundColor: '#3FACB1'
+                                },
+                            }}
+                            showZero
                         >
                             <StyledShoppingCartIcon titleAccess="Cart" />
                         </StyledBadge>
@@ -156,17 +160,14 @@ const TitleArea = styled('div')({
     alignItems: 'center',
 })
 
-const Title = styled('div')({
+const Title = styled('h2')({
     ...text_style,
+    margin: '0',
     lineHeight: '1em',
     fontSize: '1.3em',
     fontWeight: 'bold',
-    wordSpacing: '5px',
     cursor: 'pointer',
-    '& span': {
-        fontFamily: '"Kalam", "cursive"',
-        wordSpacing: '0px',
-    }
+    fontFamily: '"Roboto", "sans-serif"',
 })
 
 const Subtitle = styled('div')({
@@ -191,7 +192,8 @@ const AuthBtn = styled('a')({
     cursor: 'pointer',
     textDecoration: 'unset',
     '&:hover': {
-        color: '#d28dff',
+        color: '#51fff6',
+        textDecoration: 'underline',
     },
 })
 

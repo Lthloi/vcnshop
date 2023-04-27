@@ -42,7 +42,7 @@ const Account = () => {
                         </AvatarAndNavLoading>
                         <UserDetailLoading />
                     </LoadingContainer>
-                ) : error ? (
+                ) : error && !error.isUserError ? (
                     <Error>{error.message}</Error>
                 ) : user && user.name &&
                 <NavigationAndDetail>
@@ -184,6 +184,5 @@ const GreetingText = styled('div')({
 })
 
 const Mascot = styled('img')({
-    width: '280px',
     height: '220px',
 })

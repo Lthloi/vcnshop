@@ -6,13 +6,20 @@ import InstagramIcon from '@mui/icons-material/Instagram'
 import TwitterIcon from '@mui/icons-material/Twitter'
 import LinkedInIcon from '@mui/icons-material/LinkedIn'
 import footer_background_image from '../../../assets/images/footer_background_image.jpg'
-import logo from '../../../assets/images/logo_app.svg'
+import foxLogoWhite from '../../../assets/images/logo_app_white.svg'
 import LocationOnIcon from '@mui/icons-material/LocationOn'
 import PhoneIcon from '@mui/icons-material/Phone'
 import MailIcon from '@mui/icons-material/Mail'
 import TelegramIcon from '@mui/icons-material/Telegram'
 import TermsOfUse from "../../terms_of_use"
-import PaymentMethods from './payment_methods'
+import paypal from '../../../assets/images/payment_methods/paypal.png'
+import payeer from '../../../assets/images/payment_methods/payeer.png'
+import perfect_money from '../../../assets/images/payment_methods/perfect_money.png'
+import MoMo from '../../../assets/images/payment_methods/MoMo.png'
+import zalopay from '../../../assets/images/payment_methods/zalopay.png'
+import cash from '../../../assets/images/payment_methods/cash.png'
+import visa from '../../../assets/images/payment_methods/visa.png'
+import mastercard from '../../../assets/images/payment_methods/mastercard.png'
 
 const social_icon_style = {
     color: 'white',
@@ -35,7 +42,7 @@ const information = [
     {
         type: 'About us',
         content: [
-            { desc: 'Terms of use', action: true },
+            { desc: 'Terms of use', action: 1 },
             { desc: 'Return policy', },
             { desc: 'Blogs', },
             { desc: 'News', },
@@ -76,6 +83,17 @@ const information = [
     },
 ]
 
+const payment_methods = [
+    { name: 'Paypal', img: paypal },
+    { name: 'Payeer', img: payeer },
+    { name: 'Perfect Money', img: perfect_money },
+    { name: 'MoMo', img: MoMo },
+    { name: 'Zalo Pay', img: zalopay },
+    { name: 'Visa', img: visa },
+    { name: 'Mastercard', img: mastercard },
+    { name: 'Cash', img: cash },
+]
+
 const Footer = () => {
     const [openTermsOfUse, setTermsOfUse] = useState(false)
 
@@ -83,87 +101,97 @@ const Footer = () => {
         setTermsOfUse(open)
     }
 
-    const handleActions = (desc, action) => {
+    const handleActions = (action) => {
         if (!action) return
-        if (desc === 'Terms of use')
+        if (action === 1)
             handleOpenTermsOfUse(true)
     }
 
     return (
-        <>
-            <FooterArea id="FooterArea">
+        <FooterArea id="FooterArea">
 
-                <TermsOfUse
-                    openDialog={openTermsOfUse}
-                    handleOpenDialog={handleOpenTermsOfUse}
-                />
+            <TermsOfUse
+                openDialog={openTermsOfUse}
+                handleOpenDialog={handleOpenTermsOfUse}
+            />
 
-                <SocialsContainer id="SocialsContainer">
-                    <SocialText>Contact us on social networks!</SocialText>
-                    <Socials>
-                        <FacebookIcon sx={social_icon_style} titleAccess="Facebook" />
-                        <YouTubeIcon sx={social_icon_style} titleAccess="Youtube" />
-                        <InstagramIcon sx={social_icon_style} titleAccess="Instagram" />
-                        <TwitterIcon sx={social_icon_style} titleAccess="Twitter" />
-                        <LinkedInIcon sx={social_icon_style} titleAccess="LinkedIn" />
-                    </Socials>
-                </SocialsContainer>
-                <InformationsArea id="InformationsArea">
-                    <Modalbase id="Modalbase" />
-                    <InformationsContainer>
-                        <LogoContainer id="LogoContainer">
-                            <LogoWrapper>
-                                <LogoImg src={logo} />
-                                <LogoTextContainer>
-                                    <LogoName>VCN Shop | Fox COR</LogoName>
-                                    <SmallText>Shopping anywhere</SmallText>
-                                    <SmallText>Shopping too easy</SmallText>
-                                </LogoTextContainer>
-                            </LogoWrapper>
-                            <LogoDescription>
-                                <div>
-                                    VCN Shop is an online clothing store and a branch in
-                                    Dong Nai of the international e-commerce group Fox COR
-                                    based in HCM City.
-                                </div>
-                                <div>Thank for VCN VLy distribution center of goods and services.</div>
-                            </LogoDescription>
-                        </LogoContainer>
-                        {
-                            information.map(({ type, content }) => (
-                                <Infos key={type} className="Infos">
-                                    <InfoTitle>{type}</InfoTitle>
-                                    {
-                                        content.map(({ icon, desc, action }) => (
-                                            <Content key={desc}>
-                                                {
-                                                    icon &&
-                                                    <InfoIconWrapper>{icon}</InfoIconWrapper>
-                                                }
-                                                <Desc
-                                                    sx={action ? desc_hover_style : {}}
-                                                    onClick={() => handleActions(desc, action)}
-                                                >
-                                                    {desc}
-                                                </Desc>
-                                            </Content>
-                                        ))
-                                    }
-                                </Infos>
-                            ))
-                        }
-                    </InformationsContainer>
+            <SocialsContainer>
+                <SocialText>Contact us on social networks!</SocialText>
+                <Socials>
+                    <FacebookIcon sx={social_icon_style} titleAccess="Facebook" />
+                    <YouTubeIcon sx={social_icon_style} titleAccess="Youtube" />
+                    <InstagramIcon sx={social_icon_style} titleAccess="Instagram" />
+                    <TwitterIcon sx={social_icon_style} titleAccess="Twitter" />
+                    <LinkedInIcon sx={social_icon_style} titleAccess="LinkedIn" />
+                </Socials>
+            </SocialsContainer>
+            <InformationsArea>
+                <Modalbase />
+                <InformationsContainer>
+                    <LogoContainer>
+                        <LogoWrapper>
+                            <LogoImg src={foxLogoWhite} />
+                            <LogoTextContainer>
+                                <LogoName>VCN Shop</LogoName>
+                                <SmallText>Shopping anywhere</SmallText>
+                                <SmallText>Shopping too easy</SmallText>
+                            </LogoTextContainer>
+                        </LogoWrapper>
+                        <LogoDescription>
+                            <div>
+                                VCN Shop is an online clothing store and a branch in
+                                Dong Nai of the international e-commerce group Fox COR
+                                based in HCM City.
+                            </div>
+                            <div>Thank for VCN VLy distribution center of goods and services.</div>
+                        </LogoDescription>
+                    </LogoContainer>
+                    {
+                        information.map(({ type, content }) => (
+                            <Infos key={type}>
+                                <InfoTitle>{type}</InfoTitle>
+                                {
+                                    content.map(({ icon, desc, action }) => (
+                                        <Content key={desc}>
+                                            {icon && <InfoIconWrapper>{icon}</InfoIconWrapper>}
+                                            <Desc
+                                                sx={action ? desc_hover_style : {}}
+                                                onClick={() => handleActions(action)}
+                                            >
+                                                {desc}
+                                            </Desc>
+                                        </Content>
+                                    ))
+                                }
+                            </Infos>
+                        ))
+                    }
+                </InformationsContainer>
 
-                    <PaymentMethods />
+                <PaymentMethods id="PaymentMethods">
+                    <PaymentMethodsContainer>
+                        <TitleWrapper>
+                            <Title>Accept payment via</Title>
+                        </TitleWrapper>
+                        <Methods>
+                            {
+                                payment_methods.map(({ name, img }) => (
+                                    <Method src={img} key={name}
+                                        title={name}
+                                    />
+                                ))
+                            }
+                        </Methods>
+                    </PaymentMethodsContainer>
+                </PaymentMethods>
 
-                </InformationsArea>
-            </FooterArea>
+            </InformationsArea>
 
-            <LicenseBar id="LicenseBar">
-                <Text> 2022 Fox Operator Corporation Relational E-commerce</Text>
+            <LicenseBar id="FooterLicense">
+                <Text>2022 Fox Operator Corporation Relational E-commerce</Text>
                 <Website>Website: https://www.vcnshop.new</Website>
             </LicenseBar>
-        </>
+        </FooterArea>
     )
 }
 
@@ -178,7 +206,7 @@ const SocialsContainer = styled('div')({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: '15px 30px',
-    backgroundColor: '#9000ec',
+    backgroundColor: '#3facb1',
 })
 
 const SocialText = styled('p')({
@@ -286,7 +314,7 @@ const InfoTitle = styled('h2')({
     color: 'white',
     fontFamily: '"Chakra Petch", "sans-serif"',
     paddingBottom: '7px',
-    borderBottom: '3px #9000ec solid',
+    borderBottom: '3px #3FACB1 solid',
 })
 
 const Content = styled('div')({
@@ -322,4 +350,43 @@ const Website = styled('div')({
     fontFamily: '"Nunito", "sans-serif"',
     fontSize: '0.8em',
     marginLeft: '65px',
+})
+
+const PaymentMethods = styled('div')(({ theme }) => ({
+    display: 'flex',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    position: 'relative',
+    zIndex: '2',
+    marginTop: '20px',
+}))
+
+const PaymentMethodsContainer = styled('div')({
+
+})
+
+const TitleWrapper = styled('div')({
+    display: 'flex',
+    width: '100%',
+})
+
+const Title = styled('h2')({
+    margin: 'auto',
+    color: 'white',
+    fontFamily: '"Chakra Petch", "sans-serif"',
+    fontSize: '1.6em',
+    paddingBottom: '10px',
+    borderBottom: '3px #3FACB1 solid',
+    width: 'fit-content',
+})
+
+const Methods = styled('div')({
+    display: 'flex',
+    columnGap: '20px',
+    marginTop: '15px',
+})
+
+const Method = styled('img')({
+    height: '35px',
+    width: '35px',
 })

@@ -94,7 +94,7 @@ const Option = styled('a')({
     '&::after': {
         content: '""',
         height: '4px',
-        backgroundColor: 'pink',
+        backgroundColor: '#51fff6',
         width: '0',
         position: 'absolute',
         bottom: '0',
@@ -162,7 +162,7 @@ const HoverAnimationBar = styled('div')({
     '&::after': {
         content: '""',
         height: '4px',
-        backgroundColor: 'pink',
+        backgroundColor: '#51fff6',
         width: '0',
         position: 'absolute',
         bottom: '0',

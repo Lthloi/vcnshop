@@ -6,9 +6,11 @@ import { useDispatch, useSelector } from 'react-redux'
 import { getTopWeek } from "../../../store/actions/product_actions"
 import TopWeekProduct from "./top_week_product"
 import CircularProgress from "@mui/material/CircularProgress"
+import LoadingApp from "../../loading_app"
 
 const TopWeek = forwardRef((props, scrollRef) => {
     const { products, error, loading } = useSelector(({ products }) => products.topWeek)
+    const { loading: addToCartLoading } = useSelector(({ cart }) => cart)
     const dispatch = useDispatch()
     const [translateX, setTranslateX] = useState(0)
 
@@ -19,10 +21,9 @@ const TopWeek = forwardRef((props, scrollRef) => {
     const top_week_products = useMemo(() => {
         if (products.length > 0) {
             let top_week_products_temp = []
-            for (let i = 0; i < 3; i++) { //divide product into three array for set frontend top week
-                let top_week_products_slide = products.slice(i * 3, i * 3 + 3)
-                top_week_products_temp.push(top_week_products_slide)
-            }
+            for (let i = 0; i < 3; i++) //divide product into three array for set frontend top week
+                top_week_products_temp.push(products.slice(i * 3, i * 3 + 3))
+
             return top_week_products_temp
         }
         return []
@@ -41,57 +42,59 @@ const TopWeek = forwardRef((props, scrollRef) => {
     }
 
     return (
-        <>
-            <TopWeekArea id="TopWeekArea" ref={scrollRef}>
-                <TopWeekContainer>
-                    <TopWeekTitle>
-                        TOP WEEK
-                    </TopWeekTitle>
-                    <StackWrapper>
-                        <StyledPagination
-                            count={top_week_products.length > 0 ? top_week_products.length : 1}
-                            variant="outlined"
-                            page={translateX + 1} onChange={paginate} color="primary"
-                        />
-                    </StackWrapper>
-                </TopWeekContainer>
-            </TopWeekArea>
+        <TopWeekSection>
+            {addToCartLoading && <LoadingApp />}
+
+            <TopWeekTitleContainer id="TopWeekTitleContainer" ref={scrollRef}>
+                <TopWeekTitle>TOP WEEK</TopWeekTitle>
+                <StackWrapper>
+                    <StyledPagination
+                        count={top_week_products.length > 0 ? top_week_products.length : 0}
+                        variant="outlined"
+                        page={translateX + 1}
+                        onChange={paginate}
+                        color="primary"
+                    />
+                </StackWrapper>
+            </TopWeekTitleContainer>
 
             <SliderArea id="SliderArea">
-                <ArrowIconWrapper className="arrow_icon_hover left" >
-                    <StyledExpandCircleDownIcon className="left"
+                <ArrowIconWrapper className="arrow_icon_hover left">
+                    <StyledExpandCircleDownIcon
+                        className="left"
                         onClick={() => clickArrow('left')}
                     />
                 </ArrowIconWrapper>
-                <ArrowIconWrapper className="arrow_icon_hover right" >
-                    <StyledExpandCircleDownIcon className="right"
+                <ArrowIconWrapper className="arrow_icon_hover right">
+                    <StyledExpandCircleDownIcon
+                        className="right"
                         onClick={() => clickArrow('right')}
                     />
                 </ArrowIconWrapper>
-                {loading ? (
-                    <Loading>
-                        <CircularProgress
-                            thickness={6}
-                            size={40}
-                            sx={{ margin: 'auto', color: 'black' }}
-                        />
-                    </Loading>
-                ) : error ?
-                    <Error>
-                        {error.message}
-                    </Error>
-                    :
-                    top_week_products.length > 0 &&
+                {
+                    loading ? (
+                        <Loading>
+                            <CircularProgress
+                                thickness={6}
+                                size={40}
+                                sx={{ margin: 'auto', color: 'black' }}
+                            />
+                        </Loading>
+                    ) : error ? (
+                        <Error>
+                            {error.message}
+                        </Error>
+                    ) : top_week_products.length > 0 &&
                     top_week_products.map((items, index) => (
-                        <SlidesContainer key={index}
-                            className="SlidesContainer" translateX={translateX}
+                        <SlidesContainer
+                            key={index}
+                            className="SlidesContainer"
+                            translateX={translateX}
                         >
                             {
                                 items.map((product_item) => (
                                     <React.Fragment key={product_item._id}>
-                                        <TopWeekProduct
-                                            product={product_item}
-                                        />
+                                        <TopWeekProduct product={product_item} />
                                     </React.Fragment>
                                 ))
                             }
@@ -99,27 +102,28 @@ const TopWeek = forwardRef((props, scrollRef) => {
                     ))
                 }
             </SliderArea>
-        </>
+        </TopWeekSection>
     )
 })
 
 export default TopWeek
 
-const TopWeekArea = styled('div')({
+const TopWeekSection = styled('div')({
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    width: '100%',
+})
+
+const TopWeekTitleContainer = styled('div')({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: '30px',
-})
-
-const TopWeekContainer = styled('div')({
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: '97.5%',
     position: 'relative',
     backgroundColor: 'black',
     borderRadius: '10px',
+    width: '97.5%',
 })
 
 const TopWeekTitle = styled('h2')({

@@ -1,27 +1,25 @@
 import React from "react"
 import { styled } from '@mui/material/styles'
-import LogoApp from '../assets/images/logo_app.svg'
-import { useSelector } from "react-redux"
+import foxLogoBlack from '../assets/images/logo_app_black.svg'
 
-const LoadingApp = () => {
-    const { loading: addToCartLoading } = useSelector(({ cart }) => cart)
-    const { newReviewProcessing } = useSelector(({ productDetail }) => productDetail)
+const LoadingApp = ({ isAuthorization }) => {
+    return (
+        <LoadingAppModalBase
+            id="LoadingApp"
+            sx={isAuthorization && { backgroundColor: 'white' }}
+        >
+            <ImageAnimationContainer>
 
-    if (
-        addToCartLoading || newReviewProcessing
-    ) {
-        return (
-            <LoadingAppModalBase id="LoadingApp">
-                <ImageAnimationContainer>
+                <CircularAnimation sx={isAuthorization && { borderColor: 'black' }} />
 
-                    <CircularAnimation />
+                <ImageAnimation
+                    src={foxLogoBlack}
+                    sx={isAuthorization && { color: 'black' }}
+                />
 
-                    <ImageAnimation src={LogoApp} />
-
-                </ImageAnimationContainer>
-            </LoadingAppModalBase>
-        )
-    }
+            </ImageAnimationContainer>
+        </LoadingAppModalBase>
+    )
 }
 
 export default LoadingApp

@@ -1,16 +1,15 @@
 import React from "react"
 import Header from "./header/header"
 import Footer from "./footer/footer"
-import { Outlet } from "react-router-dom"
 
-const PageLayout = () => {
+const PageLayoutChildren = ({ children }) => {
     return (
         <>
             <Header />
-            <Outlet />
+            {children}
             <Footer />
         </>
     )
 }
 
-export default PageLayout
+export default PageLayoutChildren

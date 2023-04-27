@@ -8,7 +8,8 @@ const AddImages = ({ images, changeImages }) => {
     const [imageObjects, setImageObjects] = useState([])
 
     useEffect(() => {
-        changeImages(imageObjects) //set review in parent component
+        let images = imageObjects.map(({ file }) => file) //get "file" from object list
+        changeImages(images) //set review in parent component
     }, [imageObjects])
 
     useEffect(() => {

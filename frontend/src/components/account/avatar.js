@@ -1,8 +1,8 @@
-import React, { useState } from "react"
+import React, { useState, useRef, useEffect } from "react"
 import { styled } from '@mui/material/styles'
 import AddAPhotoIcon from '@mui/icons-material/AddAPhoto'
 import { useDispatch } from "react-redux"
-import { updateAvatarUser } from "../../store/actions/user_actions"
+import { updateUserAvatar } from "../../store/actions/user_actions"
 import { CircularProgress } from "@mui/material"
 
 const RenderFirstCharacterOfName = (name_of_user) => {
@@ -18,41 +18,48 @@ const RenderFirstCharacterOfName = (name_of_user) => {
 
 const RenderNameOfUserConvertion = (name_of_user) => {
     let name_of_user_trimed = name_of_user.trim()
-    let includes_space = name_of_user_trimed.includes(' ')
-    if (!includes_space && name_of_user_trimed.length > 6)
-        name_of_user_trimed = name_of_user_trimed.slice(0, 6) + '...'
-    else if (includes_space && name_of_user_trimed.length > 6)
-        name_of_user_trimed = name_of_user_trimed.slice(0, 12) + '...'
+    if (name_of_user_trimed.length > 5)
+        name_of_user_trimed = name_of_user_trimed.slice(0, 8) + '...'
 
     return name_of_user_trimed
 }
 
-const Avatar = ({ nameOfUser, userAvatar, loading }) => {
-    const [avatarChanging, setAvatarChanging] = useState(null)
+const Avatar = ({ nameOfUser, userAvatar }) => {
+    const [openChangeAvatarSection, setOpenChangeAvatarSection] = useState(false)
+    const [updating, setUpdating] = useState(false)
+    const [avatarUrl, setAvatarUrl] = useState(null)
+    const image_to_upload_ref = useRef(null)
     const dispatch = useDispatch()
 
+    useEffect(() => {
+        setAvatarUrl(userAvatar)
+        setUpdating(false)
+        setOpenChangeAvatarSection(false)
+    }, [userAvatar])
+
     const handleChangeAvatar = (e) => {
-        let files = e.target.files
-        let image_url_temp = URL.createObjectURL(files[0])
-        setAvatarChanging(image_url_temp)
+        let image = e.target.files[0]
+        image_to_upload_ref.current = image
+        setAvatarUrl(URL.createObjectURL(image))
+        setOpenChangeAvatarSection(true)
     }
 
     const changeAvatarAction = (is_changing) => {
         if (is_changing) {
-            dispatch(updateAvatarUser(avatarChanging))
-        } else {
-            setAvatarChanging(userAvatar || null)
-        }
+            setUpdating(true)
+            dispatch(updateUserAvatar(image_to_upload_ref.current))
+        } else
+            setOpenChangeAvatarSection(false)
     }
 
     return (
         <AvatarSection id="AvatarSection">
 
             {
-                !!avatarChanging &&
+                !!openChangeAvatarSection &&
                 <AvatarChangingModalBase>
                     <ChangeAvatarSection>
-                        <AvatarWarraper sx={{ margin: '0 auto', backgroundImage: `url("${avatarChanging}")`, backgroundSize: '100% 100%' }} />
+                        <AvatarWarraper sx={{ margin: '0 auto', backgroundImage: `url("${avatarUrl}")`, backgroundSize: '100% 100%' }} />
                         <TextConfirm>Set this image to your avatar ?</TextConfirm>
                         <CancelAgreeContainer>
                             <span></span>
@@ -62,7 +69,7 @@ const Avatar = ({ nameOfUser, userAvatar, loading }) => {
                                 </CancelBtn>
                                 <AgreeBtn onClick={() => changeAvatarAction(true)}>
                                     {
-                                        loading ?
+                                        updating ?
                                             <CircularProgress
                                                 sx={{ color: 'black', margin: 'auto' }}
                                                 size={15}
@@ -81,7 +88,7 @@ const Avatar = ({ nameOfUser, userAvatar, loading }) => {
             <input
                 style={{ display: 'none' }}
                 type="file"
-                id="avatar_fake_input"
+                id="fake_avatar_input"
                 onChange={handleChangeAvatar}
             />
 
@@ -91,7 +98,7 @@ const Avatar = ({ nameOfUser, userAvatar, loading }) => {
                 <ChangeAvatarBtn
                     title="Click to change avatar"
                     className="change_avatar_btn"
-                    htmlFor="avatar_fake_input"
+                    htmlFor="fake_avatar_input"
                 >
                     <AddAPhotoIcon sx={{ margin: 'auto', width: '40%', height: '40%', color: 'black' }} />
                 </ChangeAvatarBtn>
@@ -162,14 +169,13 @@ const CancelBtn = styled('span')({
     backgroundColor: '#d6d6d6',
     borderRadius: '5px',
     cursor: 'pointer',
+    ':hover': {
+        outline: '2px black solid',
+    }
 })
 
-const AgreeBtn = styled('span')({
+const AgreeBtn = styled(CancelBtn)({
     display: 'flex',
-    padding: '5px 15px',
-    backgroundColor: '#d6d6d6',
-    borderRadius: '5px',
-    cursor: 'pointer',
 })
 
 const AvatarWarraper = styled('div')({
@@ -205,8 +211,12 @@ const ChangeAvatarBtn = styled('label')({
 const NameTextContainer = styled('div')({
     fontFamily: '"Kanit", "sans-serif"',
     marginLeft: '15px',
+    overflowX: 'hidden',
     '& div:nth-of-type(2)': {
         fontWeight: 'bold',
         fontSize: '1.2em',
+        overflowX: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
     },
 })

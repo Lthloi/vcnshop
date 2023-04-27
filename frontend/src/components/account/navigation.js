@@ -9,10 +9,10 @@ import PasswordIcon from '@mui/icons-material/Password';
 const icon_style = { color: 'black' }
 
 const navigation_list = [
-    { label: 'Information', icon: () => <AccountCircleIcon sx={icon_style} />, href: '/information' },
-    { label: 'Change Password', icon: () => <PasswordIcon sx={icon_style} />, href: '/changePassword' },
-    { label: 'My Orders', icon: () => <AllInboxIcon sx={icon_style} />, href: '/myOrders' },
-    { label: 'Log Out', icon: () => <LogoutIcon sx={icon_style} />, href: -1 },
+    { label: 'Information', icon: <AccountCircleIcon sx={icon_style} />, href: '/information' },
+    { label: 'Change Password', icon: <PasswordIcon sx={icon_style} />, href: '/changePassword' },
+    { label: 'My Orders', icon: <AllInboxIcon sx={icon_style} />, href: '/myOrders' },
+    { label: 'Log Out', icon: <LogoutIcon sx={icon_style} />, href: -1 },
 ]
 
 const Navigation = () => {
@@ -33,7 +33,7 @@ const Navigation = () => {
                         key={label}
                         onClick={() => handleNavigation(href)}
                     >
-                        {icon()}
+                        {icon}
                         <Text>{label}</Text>
                     </ItemContainer>
                 ))

@@ -1,20 +1,30 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { Navigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { getUser } from '../store/actions/user_actions'
+import LoadingApp from '../components/loading_app'
 
 const ProtectedRoute = ({ children }) => {
-    const { user } = useSelector(({ user }) => user)
+    const [auth, setAuth] = useState(false)
+    const { user, error } = useSelector(({ user }) => user)
     const dispatch = useDispatch()
+    const navigate = useNavigate()
 
     useEffect(() => {
         if (!user.isAuthenticated) dispatch(getUser())
     }, [])
 
-    if (user.isAuthenticated)
-        return children
-    else
-        return <Navigate to={'/auth/login'} replace={true} />
+    useEffect(() => {
+        if (user.isAuthenticated) setAuth(true)
+        if (!user.isAuthenticated && error) navigate('/auth/login')
+    }, [user.isAuthenticated, error])
+
+
+    if (auth) return children
+
+    return (
+        <LoadingApp isAuthorization={true} />
+    )
 }
 
 export default ProtectedRoute

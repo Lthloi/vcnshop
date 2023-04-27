@@ -9,7 +9,7 @@ import "react-toastify/dist/ReactToastify.css"
 import { useDispatch } from "react-redux"
 import { completeRegister } from "../../../store/actions/user_actions"
 
-const CompleteRegister = ({ emailWasTyped, loading }) => {
+const CompleteRegister = ({ emailWasTyped, loading, authTheme }) => {
     const { register, handleSubmit, setError, formState: { errors }, reset } = useForm()
     const [checkboxChecked, setCheckboxChecked] = useState(false)
     const [showWarningCheckbox, setShowWarningCheckbox] = useState(false)
@@ -17,7 +17,7 @@ const CompleteRegister = ({ emailWasTyped, loading }) => {
     const dispatch = useDispatch()
 
     const handleChangeCheckbox = (e) => {
-        setCheckboxChecked(pre=>!pre)
+        setCheckboxChecked(pre => !pre)
         if (e.target.checked) setShowWarningCheckbox(false)
     }
 
@@ -48,13 +48,14 @@ const CompleteRegister = ({ emailWasTyped, loading }) => {
 
         if (isError) return
 
-        dispatch(completeRegister(data['Full Name'], emailWasTyped, data.Password, data.datOfBirth))
+        dispatch(completeRegister(data['Full Name'], emailWasTyped, data.Password, data.Gender))
     }
 
     return (
         <ProvideInfoForm
             id="CompleteRegister"
             onSubmit={handleSubmit(submitProvideInfo)}
+            theme={authTheme}
         >
             <Title>We need more information...</Title>
             <Desc>
@@ -109,20 +110,10 @@ const CompleteRegister = ({ emailWasTyped, loading }) => {
 
 export default CompleteRegister
 
-const ProvideInfoForm = styled('form')({
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-    width: '45%',
-    height: '100%',
-    position: 'absolute',
-    zIndex: '2',
-    right: '0',
-    padding: '30px 40px 20px',
-    boxSizing: 'border-box',
-    backgroundColor: '#1c1c1c',
+const ProvideInfoForm = styled('form')(({ theme }) => ({
+    ...theme,
     overflowY: 'auto',
-})
+}))
 
 const Title = styled('h2')({
     color: 'white',

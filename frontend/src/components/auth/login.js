@@ -15,7 +15,7 @@ import { useForm } from "react-hook-form"
 
 const form_group_icon_style = { color: 'white', marginLeft: '10px' }
 
-const LoginSection = () => {
+const LoginSection = ({ authTheme }) => {
     const [showPassword, setShowPassword] = useState(false)
     const { register, handleSubmit } = useForm()
     const { user: { loginStep }, loading } = useSelector(({ user }) => user)
@@ -48,7 +48,7 @@ const LoginSection = () => {
     }
 
     return (
-        <LoginSectionArea id="LoginSectionArea">
+        <LoginSectionArea id="LoginSectionArea" theme={authTheme}>
             <LoginSectionForm onSubmit={handleSubmit(loginSubmit)}>
                 <FormTitle>Sign In</FormTitle>
                 <EmailFormGroup>
@@ -150,24 +150,14 @@ const Input = styled('input')({
     '&:focus ~ label , :not(:placeholder-shown) ~ label': {
         top: '-33%',
         left: '12%',
-        backgroundColor: '#33b8b6',
+        backgroundColor: '#00B0A7',
         color: 'black',
     }
 })
 
-const LoginSectionArea = styled('div')({
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-    width: '45%',
-    height: '100%',
-    position: 'absolute',
-    zIndex: '2',
-    right: '0',
-    padding: '20px 40px 30px',
-    boxSizing: 'border-box',
-    backgroundColor: '#1c1c1c',
-})
+const LoginSectionArea = styled('div')(({ theme }) => ({
+    ...theme,
+}))
 
 const FormTitle = styled('h2')({
     fontFamily: '"Roboto", "sans-serif"',

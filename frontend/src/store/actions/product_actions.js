@@ -133,9 +133,7 @@ const newReview = (productId, images, rating, title, comment) => async (dispatch
     try {
         dispatch(newReviewRequest())
 
-        let email = localStorage.getItem('emailVCNShop') //get user from local
-
-        let api_to_make_new_review = '/api/newReview?productId=' + productId + '&email=' + email
+        let api_to_make_new_review = '/api/newReview?productId=' + productId
 
         let { data } = await axios.post(
             EXPRESS_SERVER + api_to_make_new_review,

@@ -15,7 +15,7 @@ import { sendRegisterOTP } from "../../../store/actions/user_actions"
 import CompleteRegister from "./complete_register"
 import validator from 'validator'
 
-const RegisterSection = () => {
+const RegisterSection = ({ authTheme }) => {
     const { user: { registerStep, isAuthenticated }, loading } = useSelector(({ user }) => user)
     const [openProblemSection, setOpenProblemSection] = useState(false)
     const [sendOTPNote, setSendOTPNote] = useState(false)
@@ -51,9 +51,9 @@ const RegisterSection = () => {
 
     return (
         registerStep === 3 ? (
-            <CompleteRegister emailWasTyped={email_was_typed_ref.current} loading={loading} />
+            <CompleteRegister emailWasTyped={email_was_typed_ref.current} loading={loading} authTheme={authTheme} />
         ) :
-            <RegisterSectionArea id="RegisterSectionArea">
+            <RegisterSectionArea id="RegisterSectionArea" theme={authTheme}>
 
                 <ProblemSection
                     open={openProblemSection}
@@ -73,6 +73,7 @@ const RegisterSection = () => {
                                 <div style={{ display: 'flex', columnGap: '10px' }}>
                                     <EmailIcon sx={{ color: 'white' }} />
                                     <EmailInput
+                                        maxLength={25}
                                         ref={email_input_ref}
                                         type="email"
                                         placeholder="Enter your email here..."
@@ -140,19 +141,9 @@ const RegisterSection = () => {
 
 export default RegisterSection
 
-const RegisterSectionArea = styled('div')({
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-    width: '45%',
-    height: '100%',
-    position: 'absolute',
-    zIndex: '2',
-    right: '0',
-    padding: '20px 40px 30px',
-    boxSizing: 'border-box',
-    backgroundColor: '#1c1c1c',
-})
+const RegisterSectionArea = styled('div')(({ theme }) => ({
+    ...theme,
+}))
 
 const FormContainer = styled('div')({
 
@@ -187,7 +178,7 @@ const EmailInput = styled('input')({
     border: 'unset',
     fontSize: '1.1em',
     outline: 'unset',
-    backgroundColor: '#1c1c1c',
+    backgroundColor: '#242424',
     color: 'white',
     width: '100%',
 })

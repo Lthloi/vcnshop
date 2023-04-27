@@ -1,168 +1,150 @@
 import React, { useState } from "react"
-import { styled } from '@mui/material/styles'
-import background_auth_page from '../assets/images/background_auth/background_auth_page.jpg'
-import background_auth_section from '../assets/images/background_auth/background_auth_section.jpg'
-import Paper from '@mui/material/Paper'
+import { createTheme, styled } from '@mui/material/styles'
+import Mascot from '../assets/images/VCNShop_Mascot.png'
 import TermsOfUse from "../components/terms_of_use"
 import { NavLink } from "react-router-dom"
 import LoginSection from '../components/auth/login'
 import RegisterSection from '../components/auth/register/register'
 import ForgotPasswordSection from '../components/auth/forgot_password'
 import { Route, Routes } from "react-router-dom"
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline'
 
 const Auth = () => {
-    const [termsOfUseDialog, setTermsOfUseDialog] = useState(false)
+    const [openTermsOfUseDialog, setOpenTermsOfUseDialog] = useState(false)
 
-    const handleOpenTermsOfUseDialog = (open) => {
-        setTermsOfUseDialog(open)
-    }
+    const handleOpenTermsOfUseDialog = (open) => setOpenTermsOfUseDialog(open)
 
     return (
         <AuthArea id="AuthArea">
-
-            <TermsOfUse openDialog={termsOfUseDialog}
+            <TermsOfUse
+                openDialog={openTermsOfUseDialog}
                 handleOpenDialog={handleOpenTermsOfUseDialog}
             />
 
-            <AuthSection elevation={5}>
-                <TextAndImage id="TextAndImage">
-                    <Desc>
-                        Create lifestyle in your way.<br />
-                        Shopping and enjoy the moment.<br />
-                        Simply and smoothly.
-                    </Desc>
-                    <Visit to="/">
-                        VISIT VCN SHOP
-                    </Visit>
-                    <BottomText>
-                        <Text to="/">
-                            Home
-                        </Text>
-                        <Text
-                            onClick={() => handleOpenTermsOfUseDialog(true)}
-                        >
-                            Terms Of Use
-                        </Text>
-                        <Text>About Us</Text>
-                    </BottomText>
-                </TextAndImage>
+            <Layout>
+                <HeaderContainer>
+                    <Header>WELCOME TO VCN SHOP</Header>
+                    <Navigation>
+                        <Nav to="/">Home</Nav>
+                        <Nav onClick={() => handleOpenTermsOfUseDialog(true)}>
+                            Term Of Use
+                        </Nav>
+                        <Nav to="/faq">
+                            FAQ
+                        </Nav>
+                    </Navigation>
+                    <Text>
+                        <span>Create lifestyle in your way.</span>
+                        <StyledDoneIcon />
+                    </Text>
+                    <Text>
+                        <span>Shopping and enjoy the moment.</span>
+                        <StyledDoneIcon />
+                    </Text>
+                    <Text>
+                        <span>Simply and smoothly.</span>
+                        <StyledDoneIcon />
+                    </Text>
+                </HeaderContainer>
 
-                <Routes>
-                    <Route path='/' element={<LoginSection />} />
-                    <Route path='/login' element={<LoginSection />} />
-                    <Route path='/register' element={<RegisterSection />} />
-                    <Route path='/forgotPassword' element={<ForgotPasswordSection />} />
-                </Routes>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <MascotImage src={Mascot} alt="VCN Shop Mascot" className="flip" />
+                    <MascotImage src={Mascot} alt="VCN Shop Mascot" />
+                </div>
+            </Layout>
 
-            </AuthSection>
+            <Routes>
+                <Route path='/' element={<LoginSection authTheme={customTheme.auth_section_background} />} />
+                <Route path='/login' element={<LoginSection authTheme={customTheme.auth_section_background} />} />
+                <Route path='/register' element={<RegisterSection authTheme={customTheme.auth_section_background} />} />
+                <Route path='/forgotPassword' element={<ForgotPasswordSection authTheme={customTheme.auth_section_background} />} />
+            </Routes>
         </AuthArea>
     )
 }
 
 export default Auth
 
+const customTheme = createTheme({
+    auth_section_background: {
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        width: '40%',
+        height: '100%',
+        padding: '20px 40px 30px',
+        boxSizing: 'border-box',
+        backgroundColor: '#242424',
+    },
+})
+
 const AuthArea = styled('div')({
     display: 'flex',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
+    columnGap: '10px',
     alignItems: 'center',
     width: '100%',
     height: '100vh',
-    backgroundImage: `url(${background_auth_page})`,
-    backgroundRepeat: 'no-repeat',
-    backgroundSize: 'cover',
-    backgroundPosition: 'center',
-    position: 'relative',
-    '&::before': {
-        content: '""',
-        position: 'absolute',
-        top: '0',
-        bottom: '0',
-        right: '0',
-        left: '0',
-        backgroundColor: '#0000008c',
-    }
 })
 
-const AuthSection = styled(Paper)({
+const Layout = styled('div')({
     display: 'flex',
-    width: '85vw',
-    height: '80vh',
-    backgroundColor: 'white',
-    position: 'relative',
-    backgroundImage: `url(${background_auth_section})`,
-    backgroundSize: '60% 102%',
-    overflowY: 'hidden',
-})
-
-const TextAndImage = styled('div')({
-    display: 'flex',
-    justifyContent: 'center',
     flexDirection: 'column',
-    position: 'relative',
-    zIndex: '1',
-    width: '62%',
-    padding: '0 50px',
+    justifyContent: 'space-between',
+    width: '60%',
+    height: '100%',
+    padding: '40px',
+    paddingTop: '30px',
     boxSizing: 'border-box',
-    '&::before': {
-        content: '""',
-        position: 'absolute',
-        top: '0',
-        bottom: '0',
-        right: '0',
-        left: '0',
-        backgroundColor: '#00000073',
-    }
 })
 
-const Desc = styled('div')({
-    position: 'relative',
-    zIndex: '10',
-    fontFamily: '"Nunito", "sans-serif"',
-    color: 'white',
-    fontSize: '1.8em',
-    fontWeight: 'bold',
-    textShadow: '2px 2px black',
-})
-
-const Visit = styled(NavLink)({
-    position: 'relative',
-    color: 'black',
-    zIndex: '10',
-    padding: '8px 28px',
-    backgroundColor: 'white',
-    borderRadius: '3px',
-    width: 'fit-content',
-    marginTop: '20px',
-    fontWeight: 'bold',
-    fontFamily: '"Nunito", "sans-serif"',
-    fontSize: '0.9em',
-    cursor: 'pointer',
-    boxShadow: '3px 3px black',
-    textDecoration: 'unset',
-    '&:active': {
-        top: '3px',
-        left: '3px',
-        boxShadow: 'unset',
-    }
-})
-
-const BottomText = styled('div')({
+const HeaderContainer = styled('div')({
     display: 'flex',
-    position: 'absolute',
-    bottom: '30px',
-    left: '5%',
+    alignItems: 'center',
+    flexDirection: 'column',
+    marginBottom: '10px',
 })
 
-const Text = styled(NavLink)({
-    marginLeft: '45px',
-    width: 'max-content',
+const Header = styled('div')({
+    fontFamily: '"Kanit", "sans-serif"',
     fontWeight: 'bold',
-    fontFamily: '"Nunito", "sans-serif"',
-    fontStyle: 'italic',
-    color: 'white',
-    cursor: 'pointer',
+    fontSize: '3em',
+})
+
+const Navigation = styled('div')({
+    display: 'flex',
+    columnGap: '40px',
+})
+
+const Nav = styled(NavLink)({
+    fontFamily: '"Kanit", "sans-serif"',
+    fontSize: '0.9em',
+    color: 'black',
     textDecoration: 'unset',
+    cursor: 'pointer',
     '&:hover': {
         textDecoration: 'underline',
+    }
+})
+
+const Text = styled('div')({
+    display: 'flex',
+    columnGap: '10px',
+    alignItems: 'center',
+    marginTop: '10px',
+    fontFamily: '"Nunito", "sans-serif"',
+    fontSize: '1.2em',
+    fontWeight: 'bold',
+})
+
+const StyledDoneIcon = styled(CheckCircleOutlineIcon)({
+    fontSize: '1.2em',
+})
+
+const MascotImage = styled('img')({
+    color: 'black',
+    height: '15em',
+    '&.flip': {
+        transform: 'rotateY(180deg)',
     }
 })

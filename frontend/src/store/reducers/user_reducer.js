@@ -1,14 +1,16 @@
 import { createSlice, current } from '@reduxjs/toolkit'
 
+const defaultValues = {
+    registerStep: 1,
+    forgotPasswordStep: 1,
+    loginStep: 1,
+    isAuthenticated: false,
+}
+
 export const userSlice = createSlice({
     name: 'user',
     initialState: {
-        user: {
-            registerStep: 1,
-            forgotPasswordStep: 1,
-            loginStep: 1,
-            isAuthenticated: false,
-        },
+        user: defaultValues,
         loading: false,
         error: null,
     },
@@ -80,6 +82,14 @@ export const userSlice = createSlice({
         forgotPasswordFail: (state, action) => {
             state.error = action.payload.error
             state.loading = false
+        },
+
+        
+        logoutSuccess: (state, action) => {
+
+        },
+        logoutFail: (state, action) => {
+
         },
     },
 })

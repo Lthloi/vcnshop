@@ -195,18 +195,17 @@ const getUser = () => async (dispatch) => {
     }
 }
 
-const updateAvatarUser = (avatar) => async (dispatch) => {
+const updateUserAvatar = (avatar) => async (dispatch) => {
     try {
-        dispatch(getUserRequest())
-
         let formData = new FormData()
         formData.set('avatarImage', avatar)
 
-        let api_to_update_avatar = '/api/updateAvatarUser'
+        let api_to_update_avatar = '/api/updateUserAvatar'
 
-        let { data } = await axios.put(EXPRESS_SERVER + api_to_update_avatar, formData)
+        let { data } = await axios.put(EXPRESS_SERVER + api_to_update_avatar, formData, { withCredentials: true })
 
         dispatch(getUserSuccess({ avatar: data.avatarUrl }))
+        toast.success('Update user avatar successfully!')
     } catch (error) {
         let errorObject = actionsErrorHandler(error, 'Fail to update avatar, please try again some minutes later!')
 
@@ -261,10 +260,18 @@ const changePassword = (oldPassword, newPassword) => async (dispatch) => {
     }
 }
 
+const logout = () => async (dispatch) => {
+    try {
+        
+    } catch (error) {
+        
+    }
+}
+
 export {
     sendRegisterOTP, verifyRegisterOTP, completeRegister,
     loginUser,
     forgotPassword, verifyOTPOfForgotPassword, resetPassword,
     getUser,
-    updateAvatarUser, updateProfile, changePassword,
+    updateUserAvatar, updateProfile, changePassword,
 }

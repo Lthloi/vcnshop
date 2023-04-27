@@ -69,7 +69,7 @@ const InformationSection = ({ loading, nameOfUser, email, gender, dateOfBirthDef
 
             <InformationForm onSubmit={handleSubmit(saveChangeSubmit)}>
                 {
-                    inputs.map(({ label, required, warning, maxLength }) => (
+                    inputs.map(({ label, required, warning, maxLength, defaultValue }) => (
                         <FormGroup key={label}>
                             <Label htmlFor={label}>
                                 <span>{label}</span>
@@ -81,6 +81,7 @@ const InformationSection = ({ loading, nameOfUser, email, gender, dateOfBirthDef
                                 type={label !== 'Password' ? 'text' : 'password'}
                                 maxLength={maxLength}
                                 autoComplete="on"
+                                defaultValue={defaultValue}
                             />
                             {
                                 errors[label] &&

@@ -2,15 +2,17 @@ import React, { useRef, useState } from "react"
 import { styled } from '@mui/material/styles'
 import ReviewsIcon from '@mui/icons-material/Reviews'
 import Reviews from './reviews'
-import { useDispatch } from "react-redux"
+import { useDispatch, useSelector } from "react-redux"
 import { newReview } from "../../../store/actions/product_actions"
 import ScoreCard from "./score_card"
 import AddImages from "./add_images"
 import RatingSet from "./rating_set"
 import { toast } from 'react-toastify'
 import CommentIcon from '@mui/icons-material/Comment'
+import LoadingApp from "../../loading_app"
 
 const ProductReview = ({ productId }) => {
+    const { newReviewProcessing } = useSelector(({ productDetail }) => productDetail)
     const [review, setReview] = useState({ rating: 0, images: [] })
     const comment_title_ref = useRef()
     const comment_ref = useRef()
@@ -32,7 +34,6 @@ const ProductReview = ({ productId }) => {
     }
 
     const changeImages = (images) => {
-        images = images.map(({ file }) => file) //get "file" keys from object list
         setReview(pre => ({ ...pre, images }))
     }
 
@@ -42,6 +43,8 @@ const ProductReview = ({ productId }) => {
 
     return (
         <ProductReviewArea id="ProductReviewArea">
+            {newReviewProcessing && <LoadingApp />}
+
             <div style={{ display: 'flex', columnGap: '10px', alignItems: 'center' }}>
                 <ReviewsIcon />
                 <ProductReviewTitle>Customer Reviews</ProductReviewTitle>
