@@ -4,7 +4,9 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle'
 import AllInboxIcon from '@mui/icons-material/AllInbox'
 import LogoutIcon from '@mui/icons-material/Logout'
 import { useNavigate } from "react-router-dom"
-import PasswordIcon from '@mui/icons-material/Password';
+import PasswordIcon from '@mui/icons-material/Password'
+import { useDispatch } from "react-redux"
+import { logoutUser } from "../../store/actions/user_actions"
 
 const icon_style = { color: 'black' }
 
@@ -17,10 +19,11 @@ const navigation_list = [
 
 const Navigation = () => {
     const navigate = useNavigate()
+    const dispatch = useDispatch()
 
     const handleNavigation = (href) => {
         if (href === -1) {
-
+            dispatch(logoutUser())
         } else
             navigate('/account' + href)
     }

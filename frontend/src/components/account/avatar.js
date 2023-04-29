@@ -37,9 +37,8 @@ const Avatar = ({ nameOfUser, userAvatar }) => {
         setOpenChangeAvatarSection(false)
     }, [userAvatar])
 
-    const handleChangeAvatar = (e) => {
-        let image = e.target.files[0]
-        image_to_upload_ref.current = image
+    const handleChangeAvatar = () => {
+        let image = image_to_upload_ref.current.files[0]
         setAvatarUrl(URL.createObjectURL(image))
         setOpenChangeAvatarSection(true)
     }
@@ -47,9 +46,13 @@ const Avatar = ({ nameOfUser, userAvatar }) => {
     const changeAvatarAction = (is_changing) => {
         if (is_changing) {
             setUpdating(true)
-            dispatch(updateUserAvatar(image_to_upload_ref.current))
-        } else
+            let avatar_to_update = image_to_upload_ref.current.files[0]
+            dispatch(updateUserAvatar(avatar_to_update))
+        } else {
             setOpenChangeAvatarSection(false)
+            setUpdating(false)
+            image_to_upload_ref.current.value = null
+        }
     }
 
     return (
@@ -86,6 +89,7 @@ const Avatar = ({ nameOfUser, userAvatar }) => {
             }
 
             <input
+                ref={image_to_upload_ref}
                 style={{ display: 'none' }}
                 type="file"
                 id="fake_avatar_input"

@@ -7,9 +7,11 @@ import SearchIcon from '@mui/icons-material/Search'
 import MenuBar from "./menu_bar"
 import SearchDialog from "./search_dialog"
 import { useSelector } from "react-redux"
+import AccountButton from "./account_button"
 
 const Navigation = () => {
-    const { cartItems } = useSelector(({ cart }) => cart)
+    const numberOfCartItems = useSelector(({ cart }) => cart.cartItems.length)
+    
     const [openSearchDialog, setOpenSearchDialog] = useState(false)
 
     useEffect(() => {
@@ -25,7 +27,6 @@ const Navigation = () => {
     }
 
     return (
-
         <NavigationArea>
 
             {
@@ -36,7 +37,7 @@ const Navigation = () => {
             }
 
             <NavigationBar id="NavigationBar" >
-                <LeftArea className="LeftArea" >
+                <LeftSection className="LeftSection" >
                     <Language>EN</Language>
                     <SearchContainer
                         id="SearchContainerNavigation"
@@ -45,39 +46,32 @@ const Navigation = () => {
                         <SearchIcon />
                         <SearchText>Enter Brands, Names...</SearchText>
                     </SearchContainer>
-                </LeftArea>
+                </LeftSection>
 
-                <CenterArea className="CenterArea" href="/">
+                <CenterSection className="CenterSection" href="/">
                     <Logo src={foxLogoWhite} alt="Can't load logo" sx={{ fill: 'white' }} />
                     <TitleArea>
                         <Title>VCN SHOP - FOX COR</Title>
                         <Subtitle>Kingdom of fashion</Subtitle>
                     </TitleArea>
-                </CenterArea>
+                </CenterSection>
 
-                <RightArea className="RightArea" >
-                    <AuthBtn href="/auth/login">
-                        Sign In
-                    </AuthBtn>
-                    <AuthBtn href="/auth/register">
-                        Sign Up
-                    </AuthBtn>
-                    <a href="/cart">
-                        <StyledBadge
-                            badgeContent={cartItems.length}
-                            color="default"
-                            sx={{
-                                color: 'black',
-                                ' span.MuiBadge-anchorOriginTopRight': {
-                                    backgroundColor: '#3FACB1'
-                                },
-                            }}
-                            showZero
-                        >
-                            <StyledShoppingCartIcon titleAccess="Cart" />
-                        </StyledBadge>
-                    </a>
-                </RightArea>
+                <RightSection className="RightSection" >
+                    <span></span>
+                    <div style={{ display: 'flex', alignItems: 'center', columnGap: '20px' }}>
+                        <AccountButton />
+                        
+                        <a href="/cart">
+                            <StyledBadge
+                                badgeContent={numberOfCartItems}
+                                color="default"
+                                showZero
+                            >
+                                <StyledShoppingCartIcon titleAccess="Cart" />
+                            </StyledBadge>
+                        </a>
+                    </div>
+                </RightSection>
             </NavigationBar>
 
             <MenuBar />
@@ -97,7 +91,7 @@ const text_style = {
 }
 
 const NavigationArea = styled('div')({
-    width: '100%'
+    width: '100%',
 })
 
 const NavigationBar = styled('div')({
@@ -107,20 +101,19 @@ const NavigationBar = styled('div')({
     backgroundColor: 'black',
 })
 
-const LeftArea = styled('div')({
+const LeftSection = styled('div')({
     display: 'flex',
     alignItems: 'center',
-    columnGap: '10px',
+    flex: '1',
+    columnGap: '15px',
     minHeight: '100%',
-    width: '19.7%',
-    justifyContent: 'space-between',
 })
 
 const Language = styled('div')({
     ...text_style,
     cursor: 'pointer',
     '&:hover': {
-        color: 'pink',
+        color: '#51fff6',
     },
 })
 
@@ -135,7 +128,7 @@ const SearchContainer = styled('div')({
     overflow: 'hidden',
     backgroundColor: 'white',
     '&:hover': {
-        outline: '3px pink solid',
+        outline: '3px #51fff6 solid',
     }
 })
 
@@ -145,7 +138,7 @@ const SearchText = styled('div')({
     fontFamily: '"Roboto", "sans-serif"',
 })
 
-const CenterArea = styled('a')({
+const CenterSection = styled('a')({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
@@ -182,24 +175,20 @@ const Logo = styled('img')({
     cursor: 'pointer',
 })
 
-const RightArea = styled(LeftArea)({
-    paddingLeft: '55px',
-    boxSizing: 'border-box',
-})
-
-const AuthBtn = styled('a')({
-    ...text_style,
-    cursor: 'pointer',
-    textDecoration: 'unset',
-    '&:hover': {
-        color: '#51fff6',
-        textDecoration: 'underline',
-    },
+const RightSection = styled('div')({
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    flex: '1',
 })
 
 const StyledBadge = styled(Badge)({
     marginRight: '10px',
     cursor: 'pointer',
+    color: 'black',
+    ' span.MuiBadge-anchorOriginTopRight': {
+        backgroundColor: '#3FACB1'
+    },
     '& svg': {
         transition: 'transform 0.2s',
     },

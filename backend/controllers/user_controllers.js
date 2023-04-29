@@ -7,8 +7,6 @@ import { removeJWTToken, sendJWTToken } from '../utils/JWT_token.js'
 import crypto from 'crypto'
 import { uploadOneImage } from '../utils/image_uploading.js'
 
-const { JWT_TOKEN_MAX_AGE_IN_DAY } = process.env
-
 const sendRegisterOTP = catchAsyncError(async (req, res, next) => {
     let { email } = req.body
     if (!email) throw new BaseError('Wrong property name', 400)
@@ -91,13 +89,6 @@ const completeRegister = catchAsyncError(async (req, res, next) => {
 
     sendJWTToken(res, user._id)
 
-    //>>> fix this: change domain property in cookie
-    res.cookie(
-        'user_name',
-        name || 'Unname-User',
-        { path: '/', domain: 'localhost', httpOnly: true, maxAge: JWT_TOKEN_MAX_AGE_IN_DAY * 86400000 }
-    )
-
     res.status(200).json({ success: true })
 })
 
@@ -126,12 +117,6 @@ const loginUser = catchAsyncError(async (req, res, next) => {
         throw new BaseError('Incorrect email or password, please try again!', 401, null, true)
 
     sendJWTToken(res, user._id)
-
-    //>>> fix this: change domain property in cookie
-    let cookie_option = { path: '/', domain: 'localhost', httpOnly: true, maxAge: JWT_TOKEN_MAX_AGE_IN_DAY * 86400000 }
-
-    res.cookie('user_name', user.name, cookie_option)
-    if (user.avatar) res.cookie('user_avatar', user.avatar, cookie_option)
 
     res.status(200).json({ success: true })
 })
@@ -237,7 +222,7 @@ const updateUserAvatar = catchAsyncError(async (req, res, next) => {
     res.status(200).json({ avatarUrl: avatar_url })
 })
 
-const logout = catchAsyncError(async (req, res, next) => {
+const logoutUser = catchAsyncError(async (req, res, next) => {
     removeJWTToken(res)
 
     res.status(200).json({ success: true })
@@ -249,5 +234,5 @@ export {
     forgotPassword, resetPassword,
     getUser,
     updateProfile, changePassword, updateUserAvatar,
-    logout,
+    logoutUser,
 }

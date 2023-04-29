@@ -84,12 +84,10 @@ export const userSlice = createSlice({
             state.loading = false
         },
 
-        
+
         logoutSuccess: (state, action) => {
-
-        },
-        logoutFail: (state, action) => {
-
+            state.error = null
+            state.user = defaultValues
         },
     },
 })
@@ -99,6 +97,7 @@ export const {
     loginRequest, loginSuccess, loginFail,
     forgotPasswordRequest, forgotPasswordSuccess, forgotPasswordFail,
     getUserRequest, getUserSuccess, getUserFail,
+    logoutSuccess,
 } = userSlice.actions
 
 export default userSlice.reducer

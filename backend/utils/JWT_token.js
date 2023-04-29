@@ -18,7 +18,7 @@ const sendJWTToken = (response, user_id) => {
 }
 
 const removeJWTToken = (response) => {
-    response.clearCookie('JWT_token', cookie_option)
+    response.clearCookie('JWT_token', { domain: cookie_option.domain, path: cookie_option.path })
 }
 
 export {

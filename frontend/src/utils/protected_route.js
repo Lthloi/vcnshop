@@ -1,26 +1,25 @@
 import React, { useEffect, useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
-import { getUser } from '../store/actions/user_actions'
 import LoadingApp from '../components/loading_app'
+import { Outlet } from 'react-router-dom'
+import { toast } from 'react-toastify'
 
-const ProtectedRoute = ({ children }) => {
+const ProtectedRoute = () => {
     const [auth, setAuth] = useState(false)
-    const { user, error } = useSelector(({ user }) => user)
-    const dispatch = useDispatch()
+    const { user: { isAuthenticated }, error } = useSelector(({ user }) => user)
     const navigate = useNavigate()
 
     useEffect(() => {
-        if (!user.isAuthenticated) dispatch(getUser())
-    }, [])
+        if (isAuthenticated) setAuth(true)
+        if (!isAuthenticated && error) {
+            toast.warning('Session is expired or not a authenticated user!')
+            navigate('/auth/login')
+        }
+    }, [isAuthenticated, error])
 
-    useEffect(() => {
-        if (user.isAuthenticated) setAuth(true)
-        if (!user.isAuthenticated && error) navigate('/auth/login')
-    }, [user.isAuthenticated, error])
 
-
-    if (auth) return children
+    if (auth) return <Outlet />
 
     return (
         <LoadingApp isAuthorization={true} />

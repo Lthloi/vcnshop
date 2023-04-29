@@ -26,7 +26,6 @@ export const cartSlice = createSlice({
             }
 
             state.cartItems = [addProduct, ...current_cartItems]
-
             state.loading = false
         },
         addProductToCartFail: (state, action) => {
@@ -48,7 +47,7 @@ export const cartSlice = createSlice({
             state.loading = false
         },
 
-        
+
         removeItemFromCartRequest: (state, action) => {
             let { productId } = action.payload
 

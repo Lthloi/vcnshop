@@ -4,6 +4,7 @@ import {
     loginRequest, loginSuccess, loginFail,
     forgotPasswordRequest, forgotPasswordSuccess, forgotPasswordFail,
     getUserRequest, getUserSuccess, getUserFail,
+    logoutSuccess,
 } from '../reducers/user_reducer.js'
 import axios from 'axios'
 import { EXPRESS_SERVER } from '../../utils/constants.js'
@@ -184,14 +185,9 @@ const getUser = () => async (dispatch) => {
 
         dispatch(getUserSuccess({ ...data.user }))
     } catch (error) {
-        let errorObject = actionsErrorHandler(error, 'Session is expired or not a authenticated user!')
+        let errorObject = actionsErrorHandler(error)
 
         dispatch(getUserFail({ error: errorObject }))
-
-        if (errorObject.isUserError) {
-            toast.warning(errorObject.message)
-        } else
-            toast.error(errorObject.client_message)
     }
 }
 
@@ -205,6 +201,7 @@ const updateUserAvatar = (avatar) => async (dispatch) => {
         let { data } = await axios.put(EXPRESS_SERVER + api_to_update_avatar, formData, { withCredentials: true })
 
         dispatch(getUserSuccess({ avatar: data.avatarUrl }))
+
         toast.success('Update user avatar successfully!')
     } catch (error) {
         let errorObject = actionsErrorHandler(error, 'Fail to update avatar, please try again some minutes later!')
@@ -224,9 +221,15 @@ const updateProfile = (nameOfUser, email, gender, dateOfBirth) => async (dispatc
 
         let api_to_update_avatar = '/api/updateProfile'
 
-        await axios.put(EXPRESS_SERVER + api_to_update_avatar, { nameOfUser, email, gender, dateOfBirth })
+        await axios.put(
+            EXPRESS_SERVER + api_to_update_avatar,
+            { nameOfUser, email, gender, dateOfBirth },
+            { withCredentials: true }
+        )
 
         dispatch(getUserSuccess({ name: nameOfUser, email, gender, date_of_birth: dateOfBirth }))
+
+        toast.success('Update profile successfully!')
     } catch (error) {
         let errorObject = actionsErrorHandler(error, 'Fail to update profile, please try again some minutes later!')
 
@@ -245,7 +248,11 @@ const changePassword = (oldPassword, newPassword) => async (dispatch) => {
 
         let api_to_update_avatar = '/api/changePassword'
 
-        await axios.put(EXPRESS_SERVER + api_to_update_avatar, { oldPassword, newPassword })
+        await axios.put(
+            EXPRESS_SERVER + api_to_update_avatar,
+            { oldPassword, newPassword },
+            { withCredentials: true }
+        )
 
         dispatch(getUserSuccess())
     } catch (error) {
@@ -260,11 +267,17 @@ const changePassword = (oldPassword, newPassword) => async (dispatch) => {
     }
 }
 
-const logout = () => async (dispatch) => {
+const logoutUser = () => async (dispatch) => {
     try {
-        
+        let api_to_logout = '/api/logoutUser'
+
+        await axios.post(EXPRESS_SERVER + api_to_logout, {}, { withCredentials: true })
+
+        window.open('/', '_self')
+
+        dispatch(logoutSuccess())
     } catch (error) {
-        
+        toast.error('Fail to logout, please try again some minutes later!')
     }
 }
 
@@ -274,4 +287,5 @@ export {
     forgotPassword, verifyOTPOfForgotPassword, resetPassword,
     getUser,
     updateUserAvatar, updateProfile, changePassword,
+    logoutUser,
 }

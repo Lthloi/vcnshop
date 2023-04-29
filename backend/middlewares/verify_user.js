@@ -7,7 +7,7 @@ const { JWT_SECRET_KEY } = process.env
 
 const verifyJWTtoken = catchAsyncError(async (req, res, next) => {
     let token = req.cookies.JWT_token
-    if (!token) throw new BaseError('Token not found', 401)
+    if (!token) throw new BaseError('Token not found', 401, null, true)
 
     let decoded_data
 
