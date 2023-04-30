@@ -6,6 +6,7 @@ import moment from 'moment'
 import { removeJWTToken, sendJWTToken } from '../utils/JWT_token.js'
 import crypto from 'crypto'
 import { uploadOneImage } from '../utils/image_uploading.js'
+import { IP2_ERROR } from '../utils/constant.js'
 
 const sendRegisterOTP = catchAsyncError(async (req, res, next) => {
     let { email } = req.body
@@ -228,11 +229,29 @@ const logoutUser = catchAsyncError(async (req, res, next) => {
     res.status(200).json({ success: true })
 })
 
+const getUserLocation = catchAsyncError(async (req, res, next) => {
+    let ip2_fetchor = await fetch(`https://api.ip2location.io/?key=${process.env.IP2LOCATION_APIKEY}&format=json`)
+    if (!ip2_fetchor) throw new BaseError('NetWork or system error', 502)
+
+    let user_location_detail = await ip2_fetchor.json()
+
+    let ip2_error = user_location_detail.error
+    if (ip2_error)
+        throw new BaseError('Location service is not usable now', ip2_error.error_code, IP2_ERROR)
+
+    res.status(200).json({
+        country_name: user_location_detail.country_name,
+        region_name: user_location_detail.region_name,
+        city_name: user_location_detail.city_name,
+        zip_code: user_location_detail.zip_code,
+    })
+})
+
 export {
     sendRegisterOTP, verifyOTP, completeRegister,
     loginUser,
     forgotPassword, resetPassword,
     getUser,
     updateProfile, changePassword, updateUserAvatar,
-    logoutUser,
+    logoutUser, getUserLocation,
 }

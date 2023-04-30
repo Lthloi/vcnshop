@@ -14,7 +14,7 @@ const NotFound404 = () => {
     }
 
     return (
-        <NotFound404Area id="NotFound404Area">
+        <NotFound404Page id="NotFound404Page">
             <ImgWrapper>
                 <Img src={not_found_404} />
             </ImgWrapper>
@@ -35,13 +35,13 @@ const NotFound404 = () => {
                     </Button>
                 </ButtonContainer>
             </Desc>
-        </NotFound404Area>
+        </NotFound404Page>
     )
 }
 
 export default NotFound404
 
-const NotFound404Area = styled('div')(({ theme }) => ({
+const NotFound404Page = styled('div')(({ theme }) => ({
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',

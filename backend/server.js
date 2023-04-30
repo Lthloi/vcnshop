@@ -1,7 +1,7 @@
 
 import 'dotenv/config'
 import app from "./app.js"
-import connectDB from '../backend/configs/connectDB.js'
+import connectMongoDB from '../backend/configs/connectDB.js'
 import './configs/cloudinary.js'
 
 //process error
@@ -14,7 +14,7 @@ process.on("uncaughtException", (error) => {
 })
 
 //connect to database
-connectDB()
+connectMongoDB()
 
 const { PORT } = process.env || 8080
 

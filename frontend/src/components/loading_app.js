@@ -12,7 +12,7 @@ const LoadingApp = ({ isAuthorization }) => {
 
                 <CircularAnimation sx={isAuthorization && { borderColor: 'black' }} />
 
-                <ImageAnimation
+                <Image
                     src={foxLogoBlack}
                     sx={isAuthorization && { color: 'black' }}
                 />
@@ -75,7 +75,7 @@ const CircularAnimation = styled('div')({
     }
 })
 
-const ImageAnimation = styled('img')({
+const Image = styled('img')({
     width: '100%',
     height: '100%',
 })

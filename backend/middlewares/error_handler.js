@@ -1,6 +1,8 @@
+import { IP2_ERROR } from '../utils/constant.js'
+
 const ErrorHandler = (err, req, res, next) => {
     //init error original detail
-    let newError = {
+    let setError = {
         statusCode: err.statusCode || 500,
         name: err.name,
         message: err.message || "Internal Server Error",
@@ -10,29 +12,25 @@ const ErrorHandler = (err, req, res, next) => {
     }
 
     //mongoose error due to casting
-    if (err.name === 'ValidationError') {
-        newError = {
-            ...newError,
+    if (setError.name === 'ValidationError')
+        setError = {
+            ...setError,
             message: 'Invalid data type for mongoose: ' + err.message,
             statusCode: 400,
         }
+
+    //ip2 error
+    if (setError.name === IP2_ERROR) {
+        setError.statusCode = 500
+        if (err.statusCode === 10001) setError.message = 'Invalid IP address.'
     }
 
-    //mongoose error due to duplicate key
-    if (err.code === 11000) {
-        newError = {
-            ...newError,
-            message: 'Mongoose duplicate key 11000',
-            statusCode: 400,
-        }
-    }
-
-    res.status(newError.statusCode).json({
-        name: newError.name,
-        message: newError.message,
-        trace: newError.trace,
-        createdAt: newError.createdAt,
-        isUserError: newError.isUserError,
+    res.status(setError.statusCode).json({
+        name: setError.name,
+        message: setError.message,
+        trace: setError.trace,
+        createdAt: setError.createdAt,
+        isUserError: setError.isUserError,
     })
 }
 

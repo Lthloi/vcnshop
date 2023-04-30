@@ -15,7 +15,7 @@ const Auth = () => {
     const handleOpenTermsOfUseDialog = (open) => setOpenTermsOfUseDialog(open)
 
     return (
-        <AuthArea id="AuthArea">
+        <AuthPage id="AuthPage">
             <TermsOfUse
                 openDialog={openTermsOfUseDialog}
                 handleOpenDialog={handleOpenTermsOfUseDialog}
@@ -59,7 +59,7 @@ const Auth = () => {
                 <Route path='/register' element={<RegisterSection authTheme={customTheme.auth_section_background} />} />
                 <Route path='/forgotPassword' element={<ForgotPasswordSection authTheme={customTheme.auth_section_background} />} />
             </Routes>
-        </AuthArea>
+        </AuthPage>
     )
 }
 
@@ -78,7 +78,7 @@ const customTheme = createTheme({
     },
 })
 
-const AuthArea = styled('div')({
+const AuthPage = styled('div')({
     display: 'flex',
     justifyContent: 'space-between',
     columnGap: '10px',

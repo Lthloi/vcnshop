@@ -48,7 +48,7 @@ const ChangePassword = ({ loading }) => {
     }
 
     const changePasswordSubmit = (data, e) => {
-        e.prentDefault()
+        e.preventDefault()
 
         let isError = false
         let password_regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?!.*\s).{6,}$/
@@ -118,10 +118,10 @@ const ChangePassword = ({ loading }) => {
                 <SaveChangeBtn type="submit" title="Click to save the change">
                     {
                         loading ?
-                            <CircularProgress
-                                sx={{ color: 'white' }}
+                            <StyledCircularProgress
                                 size={24}
                                 thickness={7}
+                                className="loading"
                             />
                             :
                             <>
@@ -247,9 +247,16 @@ const SaveChangeBtn = styled('button')({
     '&:hover': {
         backgroundColor: 'white',
         color: 'black',
+        '& span.loading': {
+            color: 'black',
+        }
     },
     '&:active': {
         backgroundColor: '#2D2D2D',
         color: 'white',
     }
+})
+
+const StyledCircularProgress = styled(CircularProgress)({
+    color: 'white',
 })

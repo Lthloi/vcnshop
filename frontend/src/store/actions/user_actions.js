@@ -255,6 +255,8 @@ const changePassword = (oldPassword, newPassword) => async (dispatch) => {
         )
 
         dispatch(getUserSuccess())
+
+        toast.success('Change password successfully!')
     } catch (error) {
         let errorObject = actionsErrorHandler(error, 'Fail to update profile, please try again some minutes later!')
 

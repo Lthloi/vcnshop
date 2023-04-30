@@ -25,12 +25,14 @@ const convertNumberToWords = (number, currency = 'USD') => {
     let remainder_in_words = ''
 
     if (dot_index > 0) {
-        remainder = numberStr.slice(dot_index + 1, numberStr.length)
+        remainder = numberStr.slice(dot_index + 1, dot_index + 3) //length === 2
 
-        if (remainder.length === 2)
-            remainder_in_words = tenth[remainder[0] * 1] + ' ' + oneToTwenty[remainder[1] * 1]
+        if (remainder.length === 2) {
+            let tenth_part = tenth[remainder[0] * 1]
+            remainder_in_words = tenth_part ? tenth_part + ' ' + oneToTwenty[remainder[1] * 1] : oneToTwenty[remainder * 1]
+        }
         else
-            remainder_in_words = tenth[remainder[0] * 1] || oneToTwenty[remainder[0] * 10]
+            remainder_in_words = tenth[remainder[0] * 1] || 'ten '
 
         numberStr = numberStr.slice(0, dot_index)
     }
@@ -101,7 +103,7 @@ const SummarySection = ({ cartItems }) => {
         useMemo(() => convertNumberToWords(total), [total])
 
     const handleCheckOut = () => {
-        window.open('/login?redirect=shippingOrder', '_self').focus()
+        window.open('/checkout', '_self')
     }
 
     return (

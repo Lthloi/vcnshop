@@ -61,7 +61,7 @@ const DateOfBirth = ({ required, dateOfBirthRef, dateOfBirthDefault }) => {
                             <SelectLabel>{label}</SelectLabel>
                             <StyledSelect
                                 autoWidth
-                                defaultValue={dateOfBirthDefault && dateOfBirthDefault.split('-')[index]}
+                                defaultValue={dateOfBirthDefault && dateOfBirthDefault.split('-')[index] * 1}
                                 inputProps={{ name: label }}
                                 variant="outlined"
                                 native

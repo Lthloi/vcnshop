@@ -23,7 +23,7 @@ const Product = () => {
     }, [dispatch])
 
     return (
-        <ProductDetailArea id="ProductDetailArea">
+        <ProductDetailPage id="ProductDetailPage">
             <PageTitle>
                 <InfoIcon sx={{ height: '1.8em', width: '1.8em', }} />
                 <Text>
@@ -72,13 +72,13 @@ const Product = () => {
                     <HelpChat />
                 </>
             }
-        </ProductDetailArea>
+        </ProductDetailPage>
     )
 }
 
 export default Product
 
-const ProductDetailArea = styled('div')(({ theme }) => ({
+const ProductDetailPage = styled('div')(({ theme }) => ({
     padding: '0 30px',
     marginTop: '20px',
 }))

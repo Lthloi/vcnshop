@@ -11,7 +11,7 @@ const Cart = () => {
     const { cartItems } = useSelector(({ cart }) => cart)
 
     return (
-        <CartArea id="CartArea">
+        <CartPage id="CartPage">
             <PageTitle>
                 <ShoppingBagIcon sx={{ height: '1.8em', width: '1.8em', }} />
                 <Text>
@@ -31,13 +31,13 @@ const Cart = () => {
 
             <ScrollToTopBtn />
             <HelpChat />
-        </CartArea>
+        </CartPage>
     )
 }
 
 export default Cart
 
-const CartArea = styled('div')(({ theme }) => ({
+const CartPage = styled('div')(({ theme }) => ({
     display: 'flex',
     flexDirection: 'column',
     marginTop: '20px',

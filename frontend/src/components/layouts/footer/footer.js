@@ -20,6 +20,7 @@ import zalopay from '../../../assets/images/payment_methods/zalopay.png'
 import cash from '../../../assets/images/payment_methods/cash.png'
 import visa from '../../../assets/images/payment_methods/visa.png'
 import mastercard from '../../../assets/images/payment_methods/mastercard.png'
+import Short from "./short"
 
 const social_icon_style = {
     color: 'white',
@@ -187,10 +188,7 @@ const Footer = () => {
 
             </InformationsArea>
 
-            <LicenseBar id="FooterLicense">
-                <Text>2022 Fox Operator Corporation Relational E-commerce</Text>
-                <Website>Website: https://www.vcnshop.new</Website>
-            </LicenseBar>
+            <Short />
         </FooterArea>
     )
 }
@@ -331,25 +329,6 @@ const InfoIconWrapper = styled('div')({
 const Desc = styled('div')({
     color: 'white',
     fontFamily: '"Nunito", "sans-serif"',
-})
-
-const LicenseBar = styled('div')({
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '##e0e0e0',
-    padding: '3px',
-})
-
-const Text = styled('div')({
-    fontFamily: '"Nunito", "sans-serif"',
-    fontSize: '0.8em',
-})
-
-const Website = styled('div')({
-    fontFamily: '"Nunito", "sans-serif"',
-    fontSize: '0.8em',
-    marginLeft: '65px',
 })
 
 const PaymentMethods = styled('div')(({ theme }) => ({

@@ -37,7 +37,7 @@ const SearchResult = () => {
     }, [dispatch])
 
     return (
-        <SearchResultArea id="SearchResultArea">
+        <SearchResultPage id="SearchResultPage">
             <Header keyword={keyword} resultCount={countProduct} />
 
             <ResultArea ref={productsArea_ref}>
@@ -92,13 +92,13 @@ const SearchResult = () => {
 
             <HelpChat />
             <ScrollToTopBtn />
-        </SearchResultArea>
+        </SearchResultPage>
     )
 }
 
 export default SearchResult
 
-const SearchResultArea = styled('div')(({ theme }) => ({
+const SearchResultPage = styled('div')(({ theme }) => ({
     margin: '0',
 }))
 

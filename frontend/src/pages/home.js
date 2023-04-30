@@ -11,7 +11,7 @@ import HelpChat from "../components/help_chat"
 const Home = () => {
     const scrollRef = useRef()
     return (
-        <HomeComponents id="Home">
+        <HomePage id="Home">
             <Introduce scrollRef={scrollRef} />
             <SalesAndCoupons />
             <TopWeek ref={scrollRef} />
@@ -20,12 +20,12 @@ const Home = () => {
 
             <ScrollToTopBtn />
             <HelpChat />
-        </HomeComponents>
+        </HomePage>
     )
 }
 
 export default Home
 
-const HomeComponents = styled('div')({
+const HomePage = styled('div')({
     width: '100%',
 })

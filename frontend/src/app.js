@@ -14,6 +14,7 @@ import ProtectedRoute from './utils/protected_route'
 import { useEffect } from 'react'
 import { useDispatch } from 'react-redux'
 import { getUser } from './store/actions/user_actions'
+import Checkout from './pages/checkout'
 
 function App() {
   const dispatch = useDispatch()
@@ -49,6 +50,8 @@ function App() {
           </Route>
 
 
+          {/*Put other routes*/}
+          <Route path='/checkout' element={<Checkout />} />
           <Route path='/auth/*' element={<Auth />} />
 
           <Route path='*' element={<NotFound404 />} />
