@@ -6,12 +6,12 @@ import { Outlet } from 'react-router-dom'
 import { toast } from 'react-toastify'
 
 const ProtectedRoute = () => {
-    const [auth, setAuth] = useState(false)
+    const [isVerified, setIsVerified] = useState(false)
     const { user: { isAuthenticated }, error } = useSelector(({ user }) => user)
     const navigate = useNavigate()
 
     useEffect(() => {
-        if (isAuthenticated) setAuth(true)
+        if (isAuthenticated) setIsVerified(true)
         if (!isAuthenticated && error) {
             toast.warning('Session is expired or not a authenticated user!')
             navigate('/auth/login')
@@ -19,7 +19,7 @@ const ProtectedRoute = () => {
     }, [isAuthenticated, error])
 
 
-    if (auth) return <Outlet />
+    if (isVerified) return <Outlet />
 
     return (
         <LoadingApp isAuthorization={true} />

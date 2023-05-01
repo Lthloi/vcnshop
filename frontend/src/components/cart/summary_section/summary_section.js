@@ -2,7 +2,7 @@ import React, { useMemo } from "react"
 import { styled } from '@mui/material/styles'
 import paypal_checkout from '../../../assets/images/cart/paypal.svg'
 import PaymentType from "./payment_type"
-import { getFloatNumber } from "../../../utils/methods"
+import { useFloatNumber } from "../../../hooks/custom_hooks"
 import AddCoupons from "./add_coupons"
 import { useSelector } from "react-redux"
 
@@ -64,14 +64,14 @@ const convertNumberToWords = (number, currency = 'USD') => {
     }
 
     if (remainder.length > 0)
-        words += ' and ' + remainder_in_words +
-            (remainder.length === 1 || (remainder.length === 2 && remainder * 1 > 1) ? ' cents' : ' cent')
+        words += ' and ' + remainder_in_words + (remainder * 1 > 1 ? ' cents' : ' cent')
 
     return words
 }
 
 const SummarySection = ({ cartItems }) => {
     const { pickedCoupons } = useSelector(({ coupons }) => coupons)
+    const getFloatNumber = useFloatNumber()
 
     const subtotal = useMemo(() => {
         if (cartItems.length > 0)
@@ -86,7 +86,7 @@ const SummarySection = ({ cartItems }) => {
     const off = useMemo(() => {
         if (pickedCoupons && pickedCoupons.length > 0)
             return pickedCoupons.reduce(
-                (accumulator, { cost: { value } }) => getFloatNumber(value + accumulator), 0
+                (accumulator, { cost }) => getFloatNumber(cost + accumulator), 0
             )
         return 0
     }, [pickedCoupons])
@@ -103,7 +103,16 @@ const SummarySection = ({ cartItems }) => {
         useMemo(() => convertNumberToWords(total), [total])
 
     const handleCheckOut = () => {
-        window.open('/checkout', '_self')
+        let summary_object = {
+            subtotal,
+            total,
+            tax,
+            off,
+        }
+
+        sessionStorage.setItem('summary', JSON.stringify(summary_object))
+
+        window.open('/checkout?step=shipping_info', '_self')
     }
 
     return (

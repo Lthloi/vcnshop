@@ -31,9 +31,7 @@ const Navigation = () => {
 
             {
                 openSearchDialog &&
-                <SearchDialog
-                    handleOpenSearchDialog={handleOpenSearchDialog}
-                />
+                <SearchDialog handleOpenSearchDialog={handleOpenSearchDialog}/>
             }
 
             <NavigationBar id="NavigationBar" >

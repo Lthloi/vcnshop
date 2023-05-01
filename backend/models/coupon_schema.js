@@ -3,6 +3,10 @@ import mongoose from 'mongoose'
 const { Schema } = mongoose
 
 const CouponSchema = new Schema({
+    name: {
+        type: String,
+        required: true,
+    },
     code: {
         type: String,
         required: true,
@@ -18,7 +22,11 @@ const CouponSchema = new Schema({
         required: true,
         min: [0, 'The cost of coupon can\'t be smaller than or equal 0'],
     },
-    img: {
+    currency: {
+        type: String,
+        default: 'U',
+    },
+    image: {
         type: String,
         required: true,
     },
@@ -30,10 +38,6 @@ const CouponSchema = new Schema({
         name: {
             type: String,
         },
-    },
-    name: {
-        type: String,
-        required: true,
     },
     describe: {
         type: String,

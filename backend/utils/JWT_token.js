@@ -1,9 +1,9 @@
 import UserModel from '../models/user_schema.js'
 
-const { JWT_TOKEN_MAX_AGE_IN_DAY } = process.env
+const { JWT_TOKEN_MAX_AGE_IN_HOUR } = process.env
 
 const cookie_option = {
-    maxAge: JWT_TOKEN_MAX_AGE_IN_DAY * 86400000,
+    maxAge: JWT_TOKEN_MAX_AGE_IN_HOUR * 3600000,
     path: '/',
     httpOnly: true,
     //>>> fix this: change domain

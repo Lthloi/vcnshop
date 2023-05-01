@@ -14,6 +14,9 @@ import { EXPRESS_SERVER } from "../../utils/constants"
 import { toast } from "react-toastify"
 import WarningIcon from '@mui/icons-material/Warning'
 import LocalConvenienceStoreIcon from '@mui/icons-material/LocalConvenienceStore'
+import { useDispatch } from 'react-redux'
+import { useNavigate } from "react-router-dom"
+import { saveShippingInfo } from "../../store/actions/cart_actions"
 
 const defaultInputs = [
     {
@@ -49,8 +52,10 @@ const defaultInputs = [
 ]
 
 const ShippingInfo = () => {
-    const { register, handleSubmit, formState: { errors }, setValue, clearErrors, getValues } = useForm()
+    const { register, handleSubmit, formState: { errors }, setValue, clearErrors, getValues, setError } = useForm()
     const [getLocationLoading, setGetLocationLoading] = useState(false)
+    const dispatch = useDispatch()
+    const navigate = useNavigate()
 
     const getUserLocation = async () => {
         let api_to_get_user_location = '/api/getUserLocation'
@@ -84,7 +89,24 @@ const ShippingInfo = () => {
     const shippingSubmit = (data, e) => {
         e.preventDefault()
 
+        let shipping_info = {
+            Address: data.Address,
+            City: data.City,
+            State: data.State,
+            'Zip Code': data['Zip Code'],
+            Country: data.Country,
+            'Phone Number': data['Phone Number'],
+        }
 
+        if (data['Phone Number']) {
+            let phone_number = data['Phone Number'].trim()
+            if (phone_number[0] !== '+' || /[a-zA-Z]/.test(phone_number) || phone_number.length < 6)
+                return setError('Phone Number')
+        }
+
+        dispatch(saveShippingInfo(shipping_info))
+
+        navigate('/checkout?step=confirm_order')
     }
 
     return (
@@ -131,7 +153,14 @@ const ShippingInfo = () => {
                                 errors[label] &&
                                 <InputWarning>
                                     <WarningIcon sx={{ color: 'red', fontSize: '1.2em' }} />
-                                    <span>Please don't empty this field</span>
+                                    <span>
+                                        {
+                                            label === 'Phone Number' ?
+                                                'Please type a correct phone number format that starts with calling code. Example: +1...'
+                                                :
+                                                'Please don\'t empty this field'
+                                        }
+                                    </span>
                                 </InputWarning>
                             }
                         </FormGroup>

@@ -1,10 +1,11 @@
 import React from "react"
 import { styled } from '@mui/material/styles'
-import { convertPriceToPriceString } from "../../../../utils/methods"
+import { convertPriceToPriceString } from "../../../../utils/debounce"
+import { useCurrencyKeyboard } from "../../../../hooks/custom_hooks"
 import ErrorIcon from '@mui/icons-material/Error'
 
 const Coupon = ({ coupon, pickCoupon, category, defaultChecked, cartIsEmpty }) => {
-    const { name, type, cost, image, describe, code, isApplicable, expired, outOfStock } = coupon
+    const { name, type, cost, currency, image, describe, code, isApplicable, expired, outOfStock } = coupon
 
     const IsWarning = () => cartIsEmpty || !isApplicable
 
@@ -43,7 +44,7 @@ const Coupon = ({ coupon, pickCoupon, category, defaultChecked, cartIsEmpty }) =
                     <CouponType>{type}</CouponType>
                 </CouponInfo>
 
-                <Cost>{convertPriceToPriceString(cost.value)}</Cost>
+                <Cost>{cost + useCurrencyKeyboard(currency)}</Cost>
 
                 <CheckboxWrapper className="CheckboxWrapper">
                     <PickCouponButton

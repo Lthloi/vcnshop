@@ -2,7 +2,8 @@ import axios from 'axios'
 import {
     addProductToCartRequest, addProductToCartSuccess, addProductToCartFail,
     changeQuantityRequest, changeQuantityFail,
-    removeItemFromCartRequest, removeItemFromCartFail,
+    removeItemFromCartExecute,
+    saveShippingInfoExecute,
 } from '../../store/reducers/cart_reducer'
 import { toast } from 'react-toastify'
 import actionsErrorHandler from '../../utils/error_handler'
@@ -78,21 +79,23 @@ const changeQuantity = (product_id, option) => async (dispatch, getState) => {
 }
 
 const removeItemFromCart = (product_id) => async (dispatch, getState) => {
-    try {
-        dispatch(removeItemFromCartRequest({ productId: product_id }))
+    dispatch(removeItemFromCartExecute({ productId: product_id }))
 
-        let current_cartItems = getState().cart.cartItems
+    let current_cartItems = getState().cart.cartItems
 
-        localStorage.setItem('cartItems', JSON.stringify(current_cartItems))
+    localStorage.setItem('cartItems', JSON.stringify(current_cartItems))
 
-        dispatch(resetPickedCoupons())
-    } catch (error) {
-        let errorObject = actionsErrorHandler(error, 'Error Warning: fail to remove item from cart.')
+    dispatch(resetPickedCoupons())
+}
 
-        dispatch(removeItemFromCartFail({ error: errorObject }))
-    }
+const saveShippingInfo = (shipping_info) => async (dispatch) => {
+    // shipping_info: { Address, City, State, Country, Zip_Code, Phone_Number }
+    dispatch(saveShippingInfoExecute({ shipping_info }))
+
+    localStorage.setItem('shippingInfo', JSON.stringify(shipping_info))
 }
 
 export {
     addProductToCart, removeItemFromCart, changeQuantity,
+    saveShippingInfo,
 }

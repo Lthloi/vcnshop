@@ -76,7 +76,7 @@ const UserSchema = new Schema({
     },
 })
 
-const { OTP_SECRET_KEY, JWT_SECRET_KEY, JWT_TOKEN_MAX_AGE_IN_DAY } = process.env
+const { OTP_SECRET_KEY, JWT_SECRET_KEY, JWT_TOKEN_MAX_AGE_IN_HOUR } = process.env
 
 UserSchema.methods.getOTPCode = function () {
     totp.options = { digits: 4 }
@@ -95,7 +95,7 @@ UserSchema.methods.compareHashedPassword = async function (password) {
 
 UserSchema.methods.getJWTToken = function () {
     let payload = { userId: this._id }
-    let token = jwt.sign(payload, JWT_SECRET_KEY, { 'expiresIn': JWT_TOKEN_MAX_AGE_IN_DAY + ' days' })
+    let token = jwt.sign(payload, JWT_SECRET_KEY, { 'expiresIn': JWT_TOKEN_MAX_AGE_IN_HOUR + 'h' })
     return token
 }
 

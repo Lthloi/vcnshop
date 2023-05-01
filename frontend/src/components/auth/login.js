@@ -5,7 +5,7 @@ import LockIcon from '@mui/icons-material/Lock'
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff'
 import VisibilityIcon from '@mui/icons-material/Visibility'
 import BottomForm from "./bottom_form"
-import { NavLink } from "react-router-dom"
+import { NavLink, useLocation } from "react-router-dom"
 import { useDispatch, useSelector } from "react-redux"
 import { loginUser } from "../../store/actions/user_actions"
 import validator from 'validator'
@@ -20,10 +20,15 @@ const LoginSection = ({ authTheme }) => {
     const { register, handleSubmit } = useForm()
     const { user: { loginStep }, loading } = useSelector(({ user }) => user)
     const dispatch = useDispatch()
+    const search = useLocation().search
 
     useEffect(() => {
         if (loginStep === 2) {
-            let timeout = setTimeout(() => { window.open('/account', '_self') }, 1000)
+            let redirect
+            if (search && search.includes('redirect=')) redirect = search.split('redirect=')[1]
+
+            let timeout = setTimeout(() => { window.open(redirect || '/account', '_self') }, 1000)
+
             return () => clearTimeout(timeout)
         }
     }, [loginStep])

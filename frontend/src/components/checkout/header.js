@@ -3,7 +3,7 @@ import { styled } from '@mui/material/styles'
 import ExpandCircleDownIcon from '@mui/icons-material/ExpandCircleDown'
 import { useNavigate } from 'react-router-dom'
 
-const Navigation = () => {
+const Header = () => {
     const navigate = useNavigate()
     
     return (
@@ -21,7 +21,7 @@ const Navigation = () => {
     )
 }
 
-export default Navigation
+export default Header
 
 const NavigationSection = styled('div')(({ theme }) => ({
     display: 'flex',
