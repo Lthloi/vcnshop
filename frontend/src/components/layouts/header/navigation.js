@@ -2,12 +2,12 @@ import React, { useEffect, useState } from "react"
 import Badge from '@mui/material/Badge'
 import { styled } from '@mui/material'
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
-import foxLogoWhite from '../../../../assets/images/logo_app_white.svg'
+import foxLogoWhite from '../../../assets/images/logo_app_white.svg'
 import SearchIcon from '@mui/icons-material/Search'
 import MenuBar from "./menu_bar"
 import SearchDialog from "./search_dialog"
 import { useSelector } from "react-redux"
-import AccountButton from "./account_button"
+import UserNav from "./user_nav"
 
 const Navigation = () => {
     const numberOfCartItems = useSelector(({ cart }) => cart.cartItems.length)
@@ -57,7 +57,8 @@ const Navigation = () => {
                 <RightSection className="RightSection" >
                     <span></span>
                     <div style={{ display: 'flex', alignItems: 'center', columnGap: '20px' }}>
-                        <AccountButton />
+
+                        <UserNav />
                         
                         <a href="/cart">
                             <StyledBadge

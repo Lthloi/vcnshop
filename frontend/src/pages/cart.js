@@ -1,7 +1,7 @@
 import React from "react"
 import { styled } from '@mui/material/styles'
-import SummarySection from "../components/cart/summary_section/summary_section"
-import ProductCardsSection from "../components/cart/products/product_cards_section"
+import SummarySection from "../components/cart/summary_section"
+import ProductCardsSection from "../components/cart/product_cards_section"
 import { useSelector } from "react-redux"
 import ShoppingBagIcon from '@mui/icons-material/ShoppingBag'
 import ScrollToTopBtn from '../components/scroll_top_top_btn'

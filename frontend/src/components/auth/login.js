@@ -27,7 +27,7 @@ const LoginSection = ({ authTheme }) => {
             let redirect
             if (search && search.includes('redirect=')) redirect = search.split('redirect=')[1]
 
-            let timeout = setTimeout(() => { window.open(redirect || '/account', '_self') }, 1000)
+            let timeout = setTimeout(() => { window.open(redirect ? '/' + redirect : '/account', '_self') }, 1000)
 
             return () => clearTimeout(timeout)
         }

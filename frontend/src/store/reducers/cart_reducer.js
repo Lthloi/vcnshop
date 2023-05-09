@@ -70,6 +70,7 @@ export const {
     changeQuantityRequest, changeQuantityFail,
     removeItemFromCartExecute,
     saveShippingInfoExecute,
+    initPaymentRequest, initPaymentSuccess, initPaymentFail,
 } = cartSlice.actions
 
 export default cartSlice.reducer

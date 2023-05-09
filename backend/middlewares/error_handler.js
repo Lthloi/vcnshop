@@ -21,8 +21,8 @@ const ErrorHandler = (err, req, res, next) => {
 
     //ip2 error
     if (setError.name === IP2_ERROR) {
+        if (setError.statusCode === 10001) setError.message = 'Invalid IP address.'
         setError.statusCode = 500
-        if (err.statusCode === 10001) setError.message = 'Invalid IP address.'
     }
 
     res.status(setError.statusCode).json({

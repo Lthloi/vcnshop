@@ -1,6 +1,5 @@
 import React, { useRef, useState, useEffect } from "react"
 import { styled } from '@mui/material/styles'
-import 'react-phone-number-input/style.css'
 import ProblemSection from "../../problem_section"
 import VerifyOTP from "./verify_OTP"
 import BottomForm from "../bottom_form"

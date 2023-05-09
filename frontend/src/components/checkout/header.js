@@ -7,23 +7,23 @@ const Header = () => {
     const navigate = useNavigate()
     
     return (
-        <NavigationSection id="NavigationSection">
+        <HeaderSection id="HeaderSection">
             <GoBackIconContainer>
                 <Wrapper onClick={() => navigate(-1)}>
                     <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
                         <GoBackIcon />
-                        <GoBackText>BACK TO CART</GoBackText>
+                        <GoBackText>BACK</GoBackText>
                     </div>
                 </Wrapper>
             </GoBackIconContainer>
             <Title>CHECKOUT</Title>
-        </NavigationSection>
+        </HeaderSection>
     )
 }
 
 export default Header
 
-const NavigationSection = styled('div')(({ theme }) => ({
+const HeaderSection = styled('div')(({ theme }) => ({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',

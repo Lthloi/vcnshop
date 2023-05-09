@@ -6,7 +6,7 @@ import DeleteForeverIcon from '@mui/icons-material/DeleteForever'
 import StorefrontIcon from '@mui/icons-material/Storefront'
 import {
     removeItemFromCart, changeQuantity,
-} from "../../../store/actions/cart_actions"
+} from "../../store/actions/cart_actions"
 import { useDispatch } from "react-redux"
 import { Link } from 'react-router-dom'
 

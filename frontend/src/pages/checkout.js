@@ -40,8 +40,6 @@ const Checkout = () => {
                 ) : <Payment />
             }
 
-            <div style={{ marginTop: '50px' }}></div>
-
             <div style={{ position: 'absolute', bottom: '0', left: '0', width: '100%', borderTop: '2px black solid' }}>
                 <Short />
             </div>
@@ -55,6 +53,7 @@ export default Checkout
 
 const CheckoutPage = styled('div')(({ theme }) => ({
     padding: '10px',
+    paddingBottom: '35px',
     position: 'relative',
 }))
 

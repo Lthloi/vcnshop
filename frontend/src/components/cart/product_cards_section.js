@@ -1,6 +1,6 @@
 import React from "react"
 import { styled } from '@mui/material/styles'
-import empty_cart from '../../../assets/images/cart/empty_cart.svg'
+import empty_cart from '../../assets/images/cart/empty_cart.svg'
 import ProductCard from "./product_card"
 
 const description_titles = [

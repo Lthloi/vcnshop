@@ -23,7 +23,7 @@ const problems = [
     { option: 'Not receive recover code of password in my email' },
 ]
 
-const ProblemSection = ({ open, handleOpen }) => {
+const ProblemSection = ({ open, setOpen }) => {
     const [problemValue, setProblemValue] = useState('')
     const [openDescibeProblem, setOpenDescibeProblem] = useState(false)
     const [submitReportInProgress, setSubmitReportInProgress] = useState(false)
@@ -38,7 +38,7 @@ const ProblemSection = ({ open, handleOpen }) => {
             setSubmitReportInProgress(true)
             setTimeout(() => {
                 setSubmitReportInProgress(false)
-                handleOpen(false)
+                setOpen(false)
                 toast.success('The report was submitted. Thanks for your help!')
             }, 1000)
         } catch (err) {
@@ -57,7 +57,7 @@ const ProblemSection = ({ open, handleOpen }) => {
             <StyledDialog
                 open={open}
                 id="Problems Dialog"
-                onClose={() => handleOpen(false)}
+                onClose={() => setOpen(false)}
             >
                 <DialogTitle sx={{ padding: 0, margin: 0, fontSize: '1.5em', }}>
                     Report problems.
@@ -133,7 +133,7 @@ const ProblemSection = ({ open, handleOpen }) => {
                         <SubmitReportBtn
                             type="button"
                             sx={{ marginRight: '10px', }}
-                            onClick={() => handleOpen(false)}
+                            onClick={() => setOpen(false)}
                         >
                             Cancel
                         </SubmitReportBtn>

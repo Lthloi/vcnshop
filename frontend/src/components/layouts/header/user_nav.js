@@ -2,9 +2,12 @@ import React from "react"
 import { styled } from '@mui/material/styles'
 import { useSelector } from "react-redux"
 import PersonIcon from '@mui/icons-material/Person'
+import { useNavToRedirectLogin } from "../../../hooks/custom_hooks"
+import { CircularProgress } from "@mui/material"
 
-const AccountButton = () => {
+const UserNav = () => {
     const { user: { isAuthenticated }, error } = useSelector(({ user }) => user)
+    const navigate = useNavToRedirectLogin()
 
     if (isAuthenticated)
         return (
@@ -15,7 +18,7 @@ const AccountButton = () => {
     else if (!isAuthenticated && error)
         return (
             <>
-                <AuthBtn href="/auth/login">
+                <AuthBtn onClick={() => navigate()}>
                     Sign In
                 </AuthBtn>
                 <AuthBtn href="/auth/register">
@@ -23,9 +26,17 @@ const AccountButton = () => {
                 </AuthBtn>
             </>
         )
+    else
+        return (
+            <CircularProgress
+                size={15}
+                thickness={5}
+                sx={{ color: 'white' }}
+            />
+        )
 }
 
-export default AccountButton
+export default UserNav
 
 const AuthBtn = styled('a')({
     color: 'white',

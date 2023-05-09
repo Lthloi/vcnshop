@@ -59,7 +59,7 @@ const ShippingInfo = () => {
 
     const getUserLocation = async () => {
         let api_to_get_user_location = '/api/getUserLocation'
-        let user_location_detail = null
+        let user_location_detail
 
         setGetLocationLoading(true)
         try {
@@ -89,6 +89,12 @@ const ShippingInfo = () => {
     const shippingSubmit = (data, e) => {
         e.preventDefault()
 
+        if (data['Phone Number']) {
+            let phone_number = data['Phone Number'].trim()
+            if (phone_number[0] !== '+' || /[a-zA-Z]/.test(phone_number) || phone_number.length < 6)
+                return setError('Phone Number')
+        }
+
         let shipping_info = {
             Address: data.Address,
             City: data.City,
@@ -96,12 +102,6 @@ const ShippingInfo = () => {
             'Zip Code': data['Zip Code'],
             Country: data.Country,
             'Phone Number': data['Phone Number'],
-        }
-
-        if (data['Phone Number']) {
-            let phone_number = data['Phone Number'].trim()
-            if (phone_number[0] !== '+' || /[a-zA-Z]/.test(phone_number) || phone_number.length < 6)
-                return setError('Phone Number')
         }
 
         dispatch(saveShippingInfo(shipping_info))
@@ -120,7 +120,7 @@ const ShippingInfo = () => {
                 <StyledMyLocationIcon
                     titleAccess="Click to use your location"
                     onClick={getUserLocation}
-                    sx={getLocationLoading && { animationDuration: '2s', pointerEvents: 'none' }}
+                    sx={getLocationLoading && { animationDuration: '2s', pointerEvents: 'none', cursor: 'not-allowed' }}
                 />
                 <UserLocationText>USE MY LOCATION</UserLocationText>
             </UserLocationSection>

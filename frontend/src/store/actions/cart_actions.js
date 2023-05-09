@@ -4,11 +4,11 @@ import {
     changeQuantityRequest, changeQuantityFail,
     removeItemFromCartExecute,
     saveShippingInfoExecute,
+    initPaymentRequest, initPaymentSuccess, initPaymentFail,
 } from '../../store/reducers/cart_reducer'
 import { toast } from 'react-toastify'
 import actionsErrorHandler from '../../utils/error_handler'
 import { EXPRESS_SERVER } from '../../utils/constants.js'
-import { resetPickedCoupons } from '../reducers/coupons_reducer'
 
 const addProductToCart = (product_id, options) => async (dispatch, getState) => {
     try {
@@ -84,8 +84,6 @@ const removeItemFromCart = (product_id) => async (dispatch, getState) => {
     let current_cartItems = getState().cart.cartItems
 
     localStorage.setItem('cartItems', JSON.stringify(current_cartItems))
-
-    dispatch(resetPickedCoupons())
 }
 
 const saveShippingInfo = (shipping_info) => async (dispatch) => {

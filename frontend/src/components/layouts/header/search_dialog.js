@@ -3,8 +3,8 @@ import { styled } from '@mui/material/styles'
 import SearchIcon from '@mui/icons-material/Search'
 import CancelIcon from '@mui/icons-material/Cancel'
 import { useDispatch, useSelector } from 'react-redux'
-import debounce from '../../../../utils/debounce'
-import { getSearchSuggestions } from "../../../../store/actions/search_actions"
+import debounce from '../../../utils/debounce'
+import { getSearchSuggestions } from "../../../store/actions/search_actions"
 import { toast } from 'react-toastify'
 
 const SearchDialog = ({ handleOpenSearchDialog }) => {
