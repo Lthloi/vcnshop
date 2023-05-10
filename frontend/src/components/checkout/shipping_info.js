@@ -189,12 +189,16 @@ const ShippingInfoSection = styled('form')(({ theme }) => ({
 }))
 
 const SectionTitle = styled('h2')({
-    margin: '0',
-    marginTop: '20px',
-    fontFamily: '"Roboto", "sans-serif"',
-    borderBottom: '2px black solid',
-    fontSize: '1.8em',
-    paddingBottom: '3px',
+    color: 'white',
+    boxSizing: 'border-box',
+    margin: '20px 0',
+    fontFamily: '"Gill Sans", sans-serif',
+    textAlign: 'center',
+    padding: '15px',
+    width: '100%',
+    fontSize: '1.5em',
+    backgroundColor: 'black',
+    letterSpacing: '3px',
 })
 
 const UserLocationSection = styled('div')({

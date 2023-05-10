@@ -4,7 +4,7 @@ import { styled } from '@mui/material/styles'
 const ErrorPage = () => {
     return (
         <ErrorPageSection id="ErrorPageSection">
-            Something went wrong!!!
+            <h2>Something went wrong!!!</h2>
         </ErrorPageSection>
     )
 }

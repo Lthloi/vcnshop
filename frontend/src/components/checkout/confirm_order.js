@@ -23,7 +23,7 @@ const ConfirmOrder = () => {
 
     const summary = JSON.parse(sessionStorage.getItem('summary')) || summary_calculation()
 
-    const shipping_fee = shippingInfo.Country !== 'Viet Nam' || shippingInfo.Country !== 'VN' ? summary.subtotal * 0.1 : summary.subtotal * 0.2
+    const shipping_fee = get_float_number(shippingInfo.Country !== 'Viet Nam' || shippingInfo.Country !== 'VN' ? summary.subtotal * 0.1 : summary.subtotal * 0.2)
 
     const confirmOrder = () => {
         let order_info = {
@@ -146,12 +146,16 @@ const ConfirmOrderSection = styled('div')(({ theme }) => ({
 }))
 
 const SectionTitle = styled('h2')({
-    fontFamily: '"Roboto", "sans-serif"',
-    padding: '3px',
-    borderBottom: '3px black solid',
-    width: 'fit-content',
-    margin: '0 auto',
-    fontSize: '1.8em',
+    color: 'white',
+    boxSizing: 'border-box',
+    margin: '20px 0',
+    fontFamily: '"Gill Sans", sans-serif',
+    textAlign: 'center',
+    padding: '15px',
+    width: '100%',
+    fontSize: '1.5em',
+    backgroundColor: 'black',
+    letterSpacing: '3px',
 })
 
 const ConfirmOrderContainer = styled('div')({

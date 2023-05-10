@@ -1,6 +1,5 @@
 import React from "react"
 import { styled } from '@mui/material/styles'
-import CheckoutStep from "../components/checkout/checkout_step"
 import Header from '../components/checkout/header'
 import ShippingInfo from "../components/checkout/shipping_info"
 import Short from "../components/layouts/footer/short"
@@ -9,8 +8,9 @@ import { useLocation } from "react-router-dom"
 import NotFound404 from './not_found_404'
 import ConfirmOrder from "../components/checkout/confirm_order"
 import Payment from '../components/checkout/payment'
+import Success from '../components/checkout/success'
 
-const steps = ['shipping_info', 'confirm_order', 'payment']
+const steps = ['shipping_info', 'confirm_order', 'payment', 'success']
 
 const Checkout = () => {
     const search_string = useLocation().search
@@ -27,17 +27,16 @@ const Checkout = () => {
 
     return (
         <CheckoutPage id="CheckoutPage">
-            <Header />
-            <Hr />
-            <CheckoutStep stepIsCompleted={step_index} />
-            <Hr />
+            <Header stepIsCompleted={step_index} />
 
             {
                 step_index === 0 ? (
                     <ShippingInfo />
                 ) : step_index === 1 ? (
                     <ConfirmOrder />
-                ) : <Payment />
+                ) : step_index === 2 ? (
+                    <Payment />
+                ): <Success />
             }
 
             <div style={{ position: 'absolute', bottom: '0', left: '0', width: '100%', borderTop: '2px black solid' }}>
@@ -56,10 +55,3 @@ const CheckoutPage = styled('div')(({ theme }) => ({
     paddingBottom: '35px',
     position: 'relative',
 }))
-
-const Hr = styled('div')({
-    height: '1px',
-    width: '100%',
-    backgroundColor: '#dddddd',
-    margin: '0 auto',
-})
