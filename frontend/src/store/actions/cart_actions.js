@@ -4,7 +4,6 @@ import {
     changeQuantityRequest, changeQuantityFail,
     removeItemFromCartExecute,
     saveShippingInfoExecute,
-    initPaymentRequest, initPaymentSuccess, initPaymentFail,
 } from '../../store/reducers/cart_reducer'
 import { toast } from 'react-toastify'
 import actionsErrorHandler from '../../utils/error_handler'

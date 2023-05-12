@@ -7,7 +7,7 @@ import ProductCard from "./product_card"
 import { CircularProgress } from "@mui/material"
 
 const Stall = () => {
-    const { loading, products, error } = useSelector(({ products }) => products.bestSelling)
+    const { loading, products, error } = useSelector(({ product }) => product.bestSelling)
     const dispatch = useDispatch()
 
     useEffect(() => {

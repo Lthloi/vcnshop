@@ -12,7 +12,7 @@ import CommentIcon from '@mui/icons-material/Comment'
 import { LIMIT_GET_COMMENTS } from "../../../utils/constants"
 
 const Reviews = ({ productId, srollReviewRef }) => {
-    const { reviews, loading, error } = useSelector(({ productDetail }) => productDetail.reviewsState)
+    const { reviews, loading, error } = useSelector(({ product }) => product.productDetail.reviewsState)
     const [reviewPage, setReviewPage] = useState(1)
     const dispatch = useDispatch()
 

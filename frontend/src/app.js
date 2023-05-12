@@ -28,7 +28,7 @@ function App() {
       <BrowserRouter>
         <Routes>
 
-          {/*Put routes is not protected*/}
+          {/*Put routes is not protected with outlet layout*/}
           <Route path='/' element={<PageLayoutOutlet />}>
             <Route index element={<Home />} />
             <Route path='/cart' element={<Cart />} />
@@ -50,7 +50,7 @@ function App() {
           </Route>
 
 
-          {/*Put other routes*/}
+          {/*Put other routes with no layout*/}
           <Route path='/checkout' element={<Checkout />} />
           <Route path='/auth/*' element={<Auth />} />
 

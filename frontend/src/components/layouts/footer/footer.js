@@ -12,11 +12,6 @@ import PhoneIcon from '@mui/icons-material/Phone'
 import MailIcon from '@mui/icons-material/Mail'
 import TelegramIcon from '@mui/icons-material/Telegram'
 import TermsOfUse from "../../terms_of_use"
-import paypal from '../../../assets/images/payment_methods/paypal.png'
-import payeer from '../../../assets/images/payment_methods/payeer.png'
-import perfect_money from '../../../assets/images/payment_methods/perfect_money.png'
-import MoMo from '../../../assets/images/payment_methods/MoMo.png'
-import zalopay from '../../../assets/images/payment_methods/zalopay.png'
 import cash from '../../../assets/images/payment_methods/cash.png'
 import visa from '../../../assets/images/payment_methods/visa.png'
 import mastercard from '../../../assets/images/payment_methods/mastercard.png'
@@ -85,11 +80,6 @@ const information = [
 ]
 
 const payment_methods = [
-    { name: 'Paypal', img: paypal },
-    { name: 'Payeer', img: payeer },
-    { name: 'Perfect Money', img: perfect_money },
-    { name: 'MoMo', img: MoMo },
-    { name: 'Zalo Pay', img: zalopay },
     { name: 'Visa', img: visa },
     { name: 'Mastercard', img: mastercard },
     { name: 'Cash', img: cash },
@@ -361,6 +351,7 @@ const Title = styled('h2')({
 
 const Methods = styled('div')({
     display: 'flex',
+    justifyContent: 'center',
     columnGap: '20px',
     marginTop: '15px',
 })

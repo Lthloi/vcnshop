@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useState, useMemo } from "react"
 import { styled } from '@mui/material/styles'
 import HomeIcon from '@mui/icons-material/Home'
 import LocationCityIcon from '@mui/icons-material/LocationCity'
@@ -7,7 +7,6 @@ import PhoneIcon from '@mui/icons-material/Phone'
 import PublicIcon from '@mui/icons-material/Public'
 import { useForm } from 'react-hook-form'
 import DoubleArrowIcon from '@mui/icons-material/DoubleArrow'
-import DropdownCountry from "./dropdown_country"
 import MyLocationIcon from '@mui/icons-material/MyLocation'
 import axios from 'axios'
 import { EXPRESS_SERVER } from "../../utils/constants"
@@ -17,6 +16,8 @@ import LocalConvenienceStoreIcon from '@mui/icons-material/LocalConvenienceStore
 import { useDispatch } from 'react-redux'
 import { useNavigate } from "react-router-dom"
 import { saveShippingInfo } from "../../store/actions/cart_actions"
+import Select from '@mui/material/Select'
+import { getCodeList } from 'country-list'
 
 const defaultInputs = [
     {
@@ -109,6 +110,12 @@ const ShippingInfo = () => {
         navigate('/checkout?step=confirm_order')
     }
 
+    const changePickCountry = (e, label) => {
+        setValue(label, e.target.value)
+    }
+
+    const countries = useMemo(() => getCodeList(), [])
+
     return (
         <ShippingInfoSection
             id="ShippingInfoSection"
@@ -134,13 +141,26 @@ const ShippingInfo = () => {
                                 {icon}
                                 {
                                     label === 'Country' ?
-                                        <DropdownCountry
-                                            setCountryValue={setValue}
-                                            register={register}
-                                            label={label}
-                                            required={required}
-                                            errors={errors}
-                                        />
+                                        <FormGroup>
+                                            <StyledSelect
+                                                native
+                                                onChange={(e) => changePickCountry(e, label)}
+                                                fullWidth
+                                                {...register(label, { required })}
+                                            >
+                                                <option value=""></option>
+                                                {
+                                                    Object.keys(countries).map((key) => (
+                                                        <option
+                                                            key={key}
+                                                            value={countries[key]}
+                                                        >
+                                                            {countries[key]}
+                                                        </option>
+                                                    ))
+                                                }
+                                            </StyledSelect>
+                                        </FormGroup>
                                         :
                                         <Input
                                             placeholder={'Enter ' + label + ' here...'}
@@ -183,7 +203,6 @@ const ShippingInfoSection = styled('form')(({ theme }) => ({
     justifyContent: 'center',
     alignItems: 'center',
     flexDirection: 'column',
-    marginTop: '15px',
     width: '100%',
     position: 'relative',
 }))
@@ -250,6 +269,33 @@ const TitleAndInput = styled('div')({
     columnGap: '10px',
     width: '100%',
 })
+
+const StyledSelect = styled(Select)(({ theme }) => ({
+    borderRadius: 'unset',
+    '&:hover': {
+        '& .MuiOutlinedInput-notchedOutline': {
+            borderColor: 'unset',
+        }
+    },
+    '&.MuiInputBase-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+        borderRightWidth: '8px',
+        borderColor: 'unset',
+    },
+    '& fieldset': {
+        border: '1px black solid',
+    },
+    '& select': {
+        display: 'block',
+        padding: '10px 15px',
+        '& option': {
+            color: 'black',
+        }
+    },
+    '& svg': {
+        color: 'black',
+        fontSize: '2em',
+    }
+}))
 
 const InputLabel = styled('label')({
     display: 'block',

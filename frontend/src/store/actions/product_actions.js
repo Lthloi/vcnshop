@@ -3,12 +3,10 @@ import {
     getProductsRequest, getProductsSuccess, getProductsFail, //products search
     getTopWeekRequest, getTopWeekSuccess, getTopWeekFail, //top week
     getBestSellingRequest, getBestSellingSuccess, getBestSellingFail, //best selling
-} from '../reducers/products_reducer.js'
-import {
     getProductDetailRequest, getProductDetailSuccess, getProductDetailFail, //product detail
     newReviewRequest, newReviewSuccess, newReviewFail,
     getReviewRequest, getReviewSuccess, getReviewFail,
-} from '../reducers/product_detail_reducer.js'
+} from '../reducers/product_reducer.js'
 import { toast } from 'react-toastify'
 import actionsErrorHandler from '../../utils/error_handler.js'
 import {

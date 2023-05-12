@@ -15,22 +15,11 @@ const SummarySection = ({ cartItems }) => {
         return 0
     }, [cartItems])
 
-    const tax = get_float_number(subtotal * 0.18)
-
-    const total = useMemo(() => get_float_number(subtotal + tax), [subtotal, tax])
-
-    const subTotalInWords =
-        useMemo(() => number_to_words_convertor(subtotal), [subtotal])
-    const taxInWords =
-        useMemo(() => number_to_words_convertor(tax), [tax])
-    const totalInWords =
-        useMemo(() => number_to_words_convertor(total), [total])
+    const subTotalInWords = useMemo(() => number_to_words_convertor(subtotal), [subtotal])
 
     const handleCheckOut = () => {
         let summary_object = {
             subtotal,
-            tax,
-            total,
         }
 
         sessionStorage.setItem('summary', JSON.stringify(summary_object))
@@ -45,12 +34,6 @@ const SummarySection = ({ cartItems }) => {
             <Hr />
 
             <PaymentType title={'SUBTOTAL'} in_number={subtotal} in_words={subTotalInWords} />
-
-            <PaymentType title={'TAX'} in_number={tax} in_words={taxInWords} />
-
-            <Hr />
-
-            <PaymentType title={'TOTAL'} in_number={total} in_words={totalInWords} />
 
             <CheckoutBtn onClick={handleCheckOut}>
                 Check Out

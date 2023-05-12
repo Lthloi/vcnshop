@@ -31,7 +31,7 @@ const Introduction = ({ productDescription, shopUsername }) => {
                         <Loading sx={{ height: '300px' }} />
                     </>
                 ) : error ? (
-                    <Error>{error}</Error>
+                    <Error>{error.message}</Error>
                 ) : shop && shop.name &&
                 <>
                     <DetailsContainer>

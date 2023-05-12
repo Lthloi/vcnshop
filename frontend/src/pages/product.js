@@ -1,11 +1,11 @@
 import React, { useEffect } from "react"
 import { styled } from '@mui/material/styles'
-import ProductDetail from "../components/product/product_details/product_detail"
+import ProductDetail from "../components/product/product_detail/product_detail"
 import ScrollToTopBtn from '../components/scroll_top_top_btn'
 import ProductReview from "../components/product/product_review/product_review"
 import HelpChat from '../components/help_chat'
 import InfoIcon from '@mui/icons-material/Info'
-import Introduction from '../components/product/product_details/introduction'
+import Introduction from '../components/product/product_detail/introduction'
 import { useParams } from "react-router-dom"
 import { useDispatch, useSelector } from "react-redux"
 import { getProductDetail } from '../store/actions/product_actions'
@@ -14,7 +14,7 @@ import Skeleton from '@mui/material/Skeleton'
 const loading_widths = ['82%', '75%', '60%', '45%', '50%']
 
 const Product = () => {
-    const { product, loading, error } = useSelector(({ productDetail }) => productDetail)
+    const { product, loading, error } = useSelector(({ product }) => product.productDetail)
     const dispatch = useDispatch()
     const { productId } = useParams()
 
@@ -33,44 +33,45 @@ const Product = () => {
 
             <Hr />
 
-            {loading ? (
-                <LoadingContainer>
-                    <ProductSkeleton />
-                    <Detail>
-                        {loading_widths.map((width) => (
-                            <DetailSkeleton
-                                key={width}
-                                style={{ width }}
-                                animation="pulse"
-                                variant="rectangular"
-                            />
-                        ))}
-                    </Detail>
-                </LoadingContainer>
-            ) : error ? (
-                <Error>
-                    {error.message}
-                </Error>
-            ) :
-                <>
-                    {product && product._id && <ProductDetail product={product} />}
-
-                    <ReviewsAndDetails>
-                        {
-                            product && product._id &&
-                            <>
-                                <ProductReview productId={product._id} productReview={product.review} />
-                                <Introduction
-                                    productDescription={product.description}
-                                    shopUsername={product.shop.username}
+            {
+                loading ? (
+                    <LoadingContainer>
+                        <ProductSkeleton />
+                        <Detail>
+                            {loading_widths.map((width) => (
+                                <DetailSkeleton
+                                    key={width}
+                                    style={{ width }}
+                                    animation="pulse"
+                                    variant="rectangular"
                                 />
-                            </>
-                        }
-                    </ReviewsAndDetails>
+                            ))}
+                        </Detail>
+                    </LoadingContainer>
+                ) : error ? (
+                    <Error>
+                        {error.message}
+                    </Error>
+                ) :
+                    <>
+                        {product && product._id && <ProductDetail product={product} />}
 
-                    <ScrollToTopBtn />
-                    <HelpChat />
-                </>
+                        <ReviewsAndDetails>
+                            {
+                                product && product._id &&
+                                <>
+                                    <ProductReview productId={product._id} productReview={product.review} />
+                                    <Introduction
+                                        productDescription={product.description}
+                                        shopUsername={product.shop.username}
+                                    />
+                                </>
+                            }
+                        </ReviewsAndDetails>
+
+                        <ScrollToTopBtn />
+                        <HelpChat />
+                    </>
             }
         </ProductDetailPage>
     )

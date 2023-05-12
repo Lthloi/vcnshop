@@ -5,8 +5,8 @@ import Rating from '@mui/material/Rating'
 import { useSelector } from "react-redux"
 
 const ScoreCard = ({ commentTitleRef }) => {
-    const { average_rating, count_review } = useSelector(({ productDetail }) => productDetail.product.review)
-    const { reviews } = useSelector(({ productDetail }) => productDetail.reviewsState)
+    const { average_rating, count_review } = useSelector(({ product }) => product.productDetail.product.review)
+    const { reviews } = useSelector(({ product }) => product.productDetail.reviewsState)
 
     const countStar = useMemo(() => {
         let count_star = [

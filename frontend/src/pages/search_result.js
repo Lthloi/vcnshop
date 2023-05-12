@@ -15,8 +15,8 @@ import ProductCard from "../components/search_result/product_card"
 import { LIMIT_GET_PRODUCTS_DEFAULT } from "../utils/constants"
 
 const SearchResult = () => {
-    const { products, loading, error } = useSelector(({ products }) => products.productsSearch)
-    const { countProduct } = useSelector(({ products }) => products)
+    const { products, loading, error } = useSelector(({ product }) => product.search)
+    const { countProduct } = useSelector(({ product }) => product)
     const { keyword } = useParams()
     const dispatch = useDispatch()
     const productsArea_ref = useRef()

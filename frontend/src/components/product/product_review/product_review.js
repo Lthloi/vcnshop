@@ -12,7 +12,7 @@ import CommentIcon from '@mui/icons-material/Comment'
 import LoadingApp from "../../loading_app"
 
 const ProductReview = ({ productId }) => {
-    const { newReviewProcessing } = useSelector(({ productDetail }) => productDetail)
+    const { newReviewProcessing } = useSelector(({ product }) => product.productDetail)
     const [review, setReview] = useState({ rating: 0, images: [] })
     const comment_title_ref = useRef()
     const comment_ref = useRef()

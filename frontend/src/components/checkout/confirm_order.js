@@ -6,6 +6,9 @@ import { useFloatNumber, useNumerToWords } from "../../hooks/custom_hooks"
 import ErrorIcon from '@mui/icons-material/Error'
 import { useNavigate } from "react-router-dom"
 
+const shipping_fee_charge = 0.1
+const tax_charge = 0.18
+
 const ConfirmOrder = () => {
     const { cartItems, shippingInfo } = useSelector(({ cart }) => cart)
     const number_to_words_convertor = useNumerToWords()
@@ -16,22 +19,28 @@ const ConfirmOrder = () => {
         let subtotal = cartItems.reduce(
             (accumulator, { cost, quantity }) => get_float_number(cost * quantity + accumulator), 0
         )
-        let tax = get_float_number(subtotal * 0.18)
-        let total = subtotal + tax
-        return { subtotal, tax, total }
+        return { subtotal }
     }
 
     const summary = JSON.parse(sessionStorage.getItem('summary')) || summary_calculation()
 
-    const shipping_fee = get_float_number(shippingInfo.Country !== 'Viet Nam' || shippingInfo.Country !== 'VN' ? summary.subtotal * 0.1 : summary.subtotal * 0.2)
+    const tax_fee = summary.subtotal * tax_charge
+
+    const is_in_Viet_Nam = shippingInfo.Country !== 'Viet Nam' && shippingInfo.Country !== 'VN'
+    const shipping_fee = get_float_number(is_in_Viet_Nam ? summary.subtotal * shipping_fee_charge : 0)
+
+    const total_to_pay = get_float_number(summary.subtotal + shipping_fee + tax_fee)
 
     const confirmOrder = () => {
         let order_info = {
-            total_to_pay: summary.total,
+            total_to_pay: total_to_pay,
             shipping_fee,
-            tax: summary.tax,
+            tax_fee: tax_fee,
+            tax_charge: tax_charge,
+            shipping_fee_charge: shipping_fee_charge,
         }
 
+        sessionStorage.removeItem('summary')
         sessionStorage.setItem('orderInfo', JSON.stringify(order_info))
 
         navigate('/checkout?step=payment')
@@ -108,7 +117,7 @@ const ConfirmOrder = () => {
                         </SummaryItem>
                         <SummaryItem>
                             <Type>Tax</Type>
-                            <Value>{'$' + summary.tax}</Value>
+                            <Value>{'$' + tax_fee}</Value>
                         </SummaryItem>
                         <SummaryItem>
                             <Type>Shipping Fee</Type>
@@ -120,12 +129,12 @@ const ConfirmOrder = () => {
                                 Total To Pay
                             </Type>
                             <Value className="total_to_pay">
-                                {'$' + get_float_number(summary.total + shipping_fee)}
+                                {'$' + total_to_pay}
                             </Value>
                         </SummaryItem>
                         <TotalToPayInWords>
                             <span>In Words: </span>
-                            <span>{number_to_words_convertor(get_float_number(summary.total + shipping_fee))}</span>
+                            <span>{number_to_words_convertor(total_to_pay)}</span>
                         </TotalToPayInWords>
                     </SummarySection>
 

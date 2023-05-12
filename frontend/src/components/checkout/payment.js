@@ -9,6 +9,8 @@ import { loadStripe } from "@stripe/stripe-js"
 import axios from "axios"
 import { EXPRESS_SERVER } from "../../utils/constants"
 import OrderDetail from "./order_detail"
+import { toast } from "react-toastify"
+import actionsErrorHandler from "../../utils/error_handler"
 
 const payment_appearance = {
     theme: 'flat',
@@ -46,10 +48,8 @@ const payment_appearance = {
 
 const currency_code = 'usd'
 
-const count = 2
-
 const Payment = () => {
-    const [orderInit, setOrderInit] = useState({ client_secret: '', stripe_key: '' })
+    const [orderInit, setOrderInit] = useState({ client_secret: '', stripe_key: '', user_email: '' })
     const dispatch = useDispatch()
 
     const orderInfo = JSON.parse(sessionStorage.getItem('orderInfo'))
@@ -59,25 +59,36 @@ const Payment = () => {
 
     const initPayment = async () => {
         if (orderInfo && orderInfo.total_to_pay) {
-            let { data } = await axios.post(
-                EXPRESS_SERVER + '/api/initPayment',
-                { amount: orderInfo.total_to_pay * 100, currency: currency_code },
-                { withCredentials: true }
-            )
+            let data
+
+            try {
+                let response = await axios.post(
+                    EXPRESS_SERVER + '/api/initPayment',
+                    {
+                        amount: orderInfo.total_to_pay * 100,
+                        currency: currency_code,
+                    },
+                    { withCredentials: true }
+                )
+                data = response.data
+            } catch (error) {
+                let errorObject = actionsErrorHandler(error)
+                return toast.error(errorObject.message)
+            }
+
+            stripe_promise_ref.current = loadStripe(data.stripe_key)
+            client_secret_ref.current = data.client_secret
 
             setOrderInit({
                 client_secret: data.client_secret,
                 stripe_key: data.stripe_key,
+                user_email: data.user_email,
             })
-
-            stripe_promise_ref.current = loadStripe(data.stripe_key)
-            client_secret_ref.current = data.client_secret
         }
     }
 
     useEffect(() => {
-        if (count > 1)
-            initPayment()
+        initPayment()
     }, [dispatch])
 
     if (!orderInfo || !orderInfo.total_to_pay)
@@ -110,6 +121,7 @@ const Payment = () => {
                             clientSecret={orderInit.client_secret}
                             totalToPay={orderInfo.total_to_pay}
                             currencyCode={currency_code}
+                            userEmail={orderInit.user_email}
                         />
                     </ElementsProvider>
                 </PaymentCard>

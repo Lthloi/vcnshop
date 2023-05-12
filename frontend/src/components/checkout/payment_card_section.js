@@ -6,17 +6,25 @@ import EmailIcon from '@mui/icons-material/Email'
 import ErrorIcon from '@mui/icons-material/Error'
 import validator from 'validator'
 import { CircularProgress } from "@mui/material"
+import { useDispatch, useSelector } from "react-redux"
+import { createNewOrder } from '../../store/actions/order_actions'
 
-const PaymentCardSection = ({ clientSecret, totalToPay, currencyCode, default_email }) => {
+const email_is_read_only = true
+
+const step_after_complete_payment = 'success'
+
+const PaymentCardSection = ({ clientSecret, totalToPay, currencyCode, userEmail }) => {
+    const { shippingInfo } = useSelector(({ cart }) => cart)
     const stripe = useStripe()
     const elements = useElements()
     const [warning, setWarning] = useState(false)
     const [paying, setPaying] = useState(false)
+    const dispatch = useDispatch()
 
     const email_ref = useRef()
     const email_input_container = useRef()
 
-    const paymentSubmit = async () => {
+    const confirmPayment = async () => {
         if (!clientSecret) return toast.error('Something went wrong, please reload page and try again in some minutes later!')
         let email = email_ref.current.value
         if (email && !validator.isEmail(email)) {
@@ -26,12 +34,18 @@ const PaymentCardSection = ({ clientSecret, totalToPay, currencyCode, default_em
 
         setPaying(true)
 
-        let step_after_complete_payment = 'success'
-
         let { error } = await stripe.confirmPayment({
             elements: elements,
             confirmParams: {
                 return_url: window.location.origin + '/checkout?step=' + step_after_complete_payment,
+                shipping: {
+                    address: {
+                        country: shippingInfo.City,
+                        city: shippingInfo.City,
+                        state: shippingInfo.State,
+                    },
+                    phone: shippingInfo['Phone Number'],
+                },
             },
             redirect: 'if_required'
         })
@@ -44,9 +58,11 @@ const PaymentCardSection = ({ clientSecret, totalToPay, currencyCode, default_em
             }
             setPaying(false)
         } else {
-            setPaying(false)
-            toast.success('Payment Success.')
-            setTimeout(() => { window.open('/checkout?step=' + step_after_complete_payment, '_self') }, 1000)
+            let order_info = {
+
+            }
+
+            dispatch(createNewOrder(order_info, step_after_complete_payment))
         }
     }
 
@@ -61,11 +77,13 @@ const PaymentCardSection = ({ clientSecret, totalToPay, currencyCode, default_em
                 <Label htmlFor="email_receipts">Email Receipts</Label>
                 <InputContainer ref={email_input_container}>
                     <EmailInput
-                        ref={email_ref}
                         id="email_receipts"
+                        ref={email_ref}
+                        readOnly={email_is_read_only}
+                        sx={email_is_read_only && { pointerEvents: 'none' }}
                         maxLength={35}
                         onFocus={handleOnEventInput}
-                        defaultValue={default_email || ''}
+                        defaultValue={userEmail || ''}
                         placeholder="Enter your email for receipts..."
                     />
                     <EmailIcon />
@@ -82,7 +100,7 @@ const PaymentCardSection = ({ clientSecret, totalToPay, currencyCode, default_em
                 </Note>
             </EmailFromGroup>
             <PaymentElement o />
-            <PayNowBtn onClick={paymentSubmit}>
+            <PayNowBtn onClick={confirmPayment}>
                 {
                     paying ?
                         <CircularProgress

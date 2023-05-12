@@ -9,7 +9,7 @@ import CircularProgress from "@mui/material/CircularProgress"
 import LoadingApp from "../../loading_app"
 
 const TopWeek = forwardRef((props, scrollRef) => {
-    const { products, error, loading } = useSelector(({ products }) => products.topWeek)
+    const { products, error, loading } = useSelector(({ product }) => product.topWeek)
     const { loading: addToCartLoading } = useSelector(({ cart }) => cart)
     const dispatch = useDispatch()
     const [translateX, setTranslateX] = useState(0)
