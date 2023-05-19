@@ -15,13 +15,13 @@ class FileUploadFilter {
     }
 
     mimetypeIsValid() {
-        try {
-            let mimetype = this.file.type
-            let type = {
-                fileType: mimetype.split('/')[0],
-                mediaType: mimetype.split('/')[1],
-            }
+        let mimetype = this.file.type
+        let type = {
+            fileType: mimetype.split('/')[0],
+            mediaType: mimetype.split('/')[1],
+        }
 
+        try {
             //check type of file, ex: video or image or...
             if (!this.#fileTypes.includes(type.fileType))
                 throw new Error('Wrong type of the file, only images allowed')
@@ -38,9 +38,9 @@ class FileUploadFilter {
     }
 
     sizeIsValid() {
-        try {
-            let { size } = this.file
+        let { size } = this.file
 
+        try {
             if (size < this.#limitFileSize[0])
                 throw new Error('Limit file size, minimum is 100 BYTE')
 

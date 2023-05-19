@@ -49,7 +49,7 @@ const payment_appearance = {
 const currency_code = 'usd'
 
 const Payment = () => {
-    const [orderInit, setOrderInit] = useState({ client_secret: '', stripe_key: '', user_email: '' })
+    const [orderInit, setOrderInit] = useState({ client_secret: '', stripe_key: '', user_email: '', user_name: '' })
     const dispatch = useDispatch()
 
     const orderInfo = JSON.parse(sessionStorage.getItem('orderInfo'))
@@ -83,6 +83,7 @@ const Payment = () => {
                 client_secret: data.client_secret,
                 stripe_key: data.stripe_key,
                 user_email: data.user_email,
+                user_name: data.user_name,
             })
         }
     }
@@ -122,6 +123,10 @@ const Payment = () => {
                             totalToPay={orderInfo.total_to_pay}
                             currencyCode={currency_code}
                             userEmail={orderInit.user_email}
+                            userName={orderInit.user_name}
+                            taxFee={orderInfo.tax_fee}
+                            shippingFee={orderInfo.shipping_fee}
+                            subtotal={orderInfo.subtotal}
                         />
                     </ElementsProvider>
                 </PaymentCard>

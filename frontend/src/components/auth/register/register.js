@@ -72,7 +72,7 @@ const RegisterSection = ({ authTheme }) => {
                                 <div style={{ display: 'flex', columnGap: '10px' }}>
                                     <EmailIcon sx={{ color: 'white' }} />
                                     <EmailInput
-                                        maxLength={25}
+                                        maxLength={35}
                                         ref={email_input_ref}
                                         type="email"
                                         placeholder="Enter your email here..."

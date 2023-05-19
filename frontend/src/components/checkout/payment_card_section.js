@@ -13,8 +13,8 @@ const email_is_read_only = true
 
 const step_after_complete_payment = 'success'
 
-const PaymentCardSection = ({ clientSecret, totalToPay, currencyCode, userEmail }) => {
-    const { shippingInfo } = useSelector(({ cart }) => cart)
+const PaymentCardSection = ({ clientSecret, totalToPay, currencyCode, userEmail, userName, subtotal, taxFee, shippingFee }) => {
+    const { cartItems, shippingInfo } = useSelector(({ cart }) => cart)
     const stripe = useStripe()
     const elements = useElements()
     const [warning, setWarning] = useState(false)
@@ -34,7 +34,7 @@ const PaymentCardSection = ({ clientSecret, totalToPay, currencyCode, userEmail 
 
         setPaying(true)
 
-        let { error } = await stripe.confirmPayment({
+        let response = await stripe.confirmPayment({
             elements: elements,
             confirmParams: {
                 return_url: window.location.origin + '/checkout?step=' + step_after_complete_payment,
@@ -45,12 +45,14 @@ const PaymentCardSection = ({ clientSecret, totalToPay, currencyCode, userEmail 
                         state: shippingInfo.State,
                     },
                     phone: shippingInfo['Phone Number'],
+                    name: userName,
                 },
             },
-            redirect: 'if_required'
+            redirect: 'if_required',
         })
 
-        if (error) {
+        if (response.error) {
+            let error = response.error
             if (error.type === 'validation_error' || error.type === 'card_error') {
                 toast.error(error.message)
             } else if (error.type === 'invalid_request_error') {
@@ -58,8 +60,26 @@ const PaymentCardSection = ({ clientSecret, totalToPay, currencyCode, userEmail 
             }
             setPaying(false)
         } else {
+            let paymentIntent_info = response.paymentIntent
             let order_info = {
-
+                shipping_info: {
+                    city: shippingInfo.City,
+                    country: shippingInfo.Country,
+                    state: shippingInfo.State,
+                    address: shippingInfo.Address,
+                    zip_code: shippingInfo['Zip Code'],
+                    phone_number: shippingInfo['Phone Number'],
+                },
+                items_of_order: cartItems,
+                payment_info: {
+                    id: paymentIntent_info.id,
+                    method: 'card',
+                    status: paymentIntent_info.status,
+                },
+                price_of_items: subtotal,
+                tax_fee: taxFee,
+                shipping_fee: shippingFee,
+                total_to_pay: totalToPay,
             }
 
             dispatch(createNewOrder(order_info, step_after_complete_payment))

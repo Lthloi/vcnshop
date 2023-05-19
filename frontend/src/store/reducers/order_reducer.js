@@ -1,8 +1,9 @@
 import { createSlice } from '@reduxjs/toolkit'
 
-export const productsSlice = createSlice({
-    name: 'products',
+export const orderSlice = createSlice({
+    name: 'order',
     initialState: {
+        order: {},
         loading: false,
         error: null,
     },
@@ -18,11 +19,26 @@ export const productsSlice = createSlice({
             state.loading = false
             state.error = action.payload.error
         },
+
+
+        getOrderRequest: (state, action) => {
+            state.loading = true
+            state.error = null
+        },
+        getOrderSuccess: (state, action) => {
+            state.loading = false
+            state.order = action.payload.order
+        },
+        getOrderFail: (state, action) => {
+            state.loading = false
+            state.error = action.payload.error
+        },
     }
 })
 
 export const {
     createNewOrderRequest, createNewOrderSuccess, createNewOrderFail,
-} = productsSlice.actions
+    getOrderRequest, getOrderSuccess, getOrderFail,
+} = orderSlice.actions
 
-export default productsSlice.reducer
+export default orderSlice.reducer

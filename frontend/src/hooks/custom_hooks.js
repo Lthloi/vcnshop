@@ -75,7 +75,7 @@ const useNumerToWords = () => (number, currency_code = 'USD') => {
             oneToTwenty[matcher[5][1]]) : ''
     }
 
-    if (currency_code === 'USD') 
+    if (currency_code === 'USD')
         words += number > 1 ? ' dollars' : ' dollar'
 
     if (remainder.length > 0)
@@ -84,7 +84,26 @@ const useNumerToWords = () => (number, currency_code = 'USD') => {
     return words
 }
 
+const useGetQueryValue = () => (query_string, unique_string_name) => {
+    let non_official_value = query_string.split(
+        unique_string_name.includes('=') ? unique_string_name : unique_string_name + '='
+    )[1]
+
+    if (!non_official_value) return null
+
+    let index_of_link_up_letter = non_official_value.indexOf('&')
+
+    let official_value
+
+    if (index_of_link_up_letter !== -1)
+        official_value = non_official_value.slice(0, index_of_link_up_letter)
+
+    official_value = non_official_value.slice(0, non_official_value.length)
+
+    return official_value
+}
+
 export {
     useFloatNumber, useCurrencyKeyboard, useCurrencyCode,
-    useNavToRedirectLogin, useNumerToWords,
+    useNavToRedirectLogin, useNumerToWords, useGetQueryValue,
 }

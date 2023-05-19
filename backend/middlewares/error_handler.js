@@ -1,4 +1,4 @@
-import { IP2_ERROR } from '../utils/constant.js'
+import { IP2_ERROR } from '../utils/constants.js'
 
 const ErrorHandler = (err, req, res, next) => {
     //init error original detail

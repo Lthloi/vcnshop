@@ -35,28 +35,33 @@ const RenderStepIcon = ({ active, completed, error, icon, className }, icon_comp
     )
 }
 
-const Header = ({ stepIsCompleted }) => {
+const Header = ({ activeStep }) => {
     const navigate = useNavigate()
 
     return (
         <HeaderSection id="HeaderSection">
-            <TitleAndGoBack>
-                <GoBackIconContainer>
-                    <Wrapper onClick={() => navigate(-1)}>
-                        <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
-                            <GoBackIcon />
-                            <GoBackText>BACK</GoBackText>
-                        </div>
-                    </Wrapper>
-                </GoBackIconContainer>
-                <Title>CHECKOUT</Title>
-            </TitleAndGoBack>
+            {
+                activeStep < 3 &&
+                <>
+                    <TitleAndGoBack>
+                        <GoBackIconContainer>
+                            <Wrapper onClick={() => navigate(-1)}>
+                                <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                                    <GoBackIcon />
+                                    <GoBackText>BACK</GoBackText>
+                                </div>
+                            </Wrapper>
+                        </GoBackIconContainer>
+                        <Title>CHECKOUT</Title>
+                    </TitleAndGoBack>
 
-            <Hr />
+                    <Hr />
+                </>
+            }
 
             <CheckoutStepSection>
                 <Stepper
-                    activeStep={stepIsCompleted}
+                    activeStep={activeStep}
                     alternativeLabel
                     connector={<ColorlibConnector />}
                 >

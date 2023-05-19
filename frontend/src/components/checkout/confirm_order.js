@@ -38,6 +38,7 @@ const ConfirmOrder = () => {
             tax_fee: tax_fee,
             tax_charge: tax_charge,
             shipping_fee_charge: shipping_fee_charge,
+            subtotal: summary.subtotal,
         }
 
         sessionStorage.removeItem('summary')

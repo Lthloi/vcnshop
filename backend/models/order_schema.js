@@ -6,6 +6,7 @@ const OrderSchema = new Schema({
     shipping_info: {
         address: {
             type: String,
+            required: true,
         },
         city: {
             type: String,
@@ -63,6 +64,10 @@ const OrderSchema = new Schema({
         },
     },
     payment_info: {
+        id: {
+            type: String,
+            required: true,
+        },
         method: {
             type: String,
             required: true,

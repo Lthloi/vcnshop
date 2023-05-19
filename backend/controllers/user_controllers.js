@@ -1,12 +1,12 @@
 import BaseError from '../utils/base_error.js'
-import sendOTPViaEmail from '../utils/send_mail.js'
+import { sendOTPViaEmail } from '../utils/send_mail.js'
 import UserModel from '../models/user_schema.js'
 import catchAsyncError from '../middlewares/catch_async_error.js'
 import moment from 'moment'
 import { removeJWTToken, sendJWTToken } from '../utils/JWT_token.js'
 import crypto from 'crypto'
 import { uploadOneImage } from '../utils/image_uploading.js'
-import { IP2_ERROR } from '../utils/constant.js'
+import { IP2_ERROR } from '../utils/constants.js'
 
 const sendRegisterOTP = catchAsyncError(async (req, res, next) => {
     let { email } = req.body
@@ -20,7 +20,7 @@ const sendRegisterOTP = catchAsyncError(async (req, res, next) => {
     let OTP_code = user_instance.getOTPCode()
     let OTP_expire_in_minute = 5
 
-    await sendOTPViaEmail(OTP_code, OTP_expire_in_minute, email, null, null, false)
+    await sendOTPViaEmail(OTP_code, OTP_expire_in_minute, email, 'VCN Shop - Verify OTP For Register ✔', false)
 
     await UserModel.updateOne(
         { email },

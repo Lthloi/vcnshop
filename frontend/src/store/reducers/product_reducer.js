@@ -1,7 +1,7 @@
 import { createSlice, current } from '@reduxjs/toolkit'
 
 export const productsSlice = createSlice({
-    name: 'products',
+    name: 'product',
     initialState: {
         countProduct: 0,
         search: {
