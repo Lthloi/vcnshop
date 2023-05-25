@@ -44,7 +44,7 @@ const pdf_styles = PDFStyleSheet.create({
     },
 })
 
-const PDFReceipt = ({ items, website, systemEmail, deliveryInfo, receiverInfo, paymentId, totalToPay, shippingFee, taxFee }) => {
+const PDFReceipt = ({ items, website, systemEmail, deliveryInfo, receiverInfo, paymentInfo, totalToPay, shippingFee, taxFee }) => {
 
     const now = new Date()
 
@@ -55,7 +55,7 @@ const PDFReceipt = ({ items, website, systemEmail, deliveryInfo, receiverInfo, p
                     Payment Receipts
                 </PDFText>
                 <PDFText style={{ fontSize: 10, marginTop: 2 }}>
-                    {'ID: ' + paymentId}
+                    {'ID: ' + paymentInfo.id}
                 </PDFText>
                 <PDFText style={{ fontSize: 10, marginTop: 3 }}>
                     From:
@@ -76,11 +76,14 @@ const PDFReceipt = ({ items, website, systemEmail, deliveryInfo, receiverInfo, p
                             <PDFText style={pdf_styles.small_text}>
                                 {'Email: ' + receiverInfo.email}
                             </PDFText>
+                            {
+                                deliveryInfo && deliveryInfo.phone_number &&
+                                <PDFText style={pdf_styles.small_text}>
+                                    {'Phone: ' + deliveryInfo.phone_number}
+                                </PDFText>
+                            }
                             <PDFText style={pdf_styles.small_text}>
-                                {'Phone: ' + receiverInfo.phone}
-                            </PDFText>
-                            <PDFText style={pdf_styles.small_text}>
-                                {'Paid On: ' + receiverInfo.payment_method}
+                                {'Paid On: ' + paymentInfo.method}
                             </PDFText>
                         </PDFView>
                     </PDFView>
@@ -90,10 +93,10 @@ const PDFReceipt = ({ items, website, systemEmail, deliveryInfo, receiverInfo, p
                         </PDFText>
                         <PDFView style={{ marginTop: 5 }}>
                             <PDFText style={pdf_styles.small_text}>
-                                {'Address: ' + deliveryInfo.address}
+                                {'Address: ' + deliveryInfo.country + ', ' + deliveryInfo.city + ', ' + deliveryInfo.address}
                             </PDFText>
                             <PDFText style={pdf_styles.small_text}>
-                                {'Shipping Method: ' + deliveryInfo.shipping_method}
+                                {'Shipping Method: ' + deliveryInfo.method}
                             </PDFText>
                         </PDFView>
                     </PDFView>
@@ -120,7 +123,7 @@ const PDFReceipt = ({ items, website, systemEmail, deliveryInfo, receiverInfo, p
                         </PDFView>
                     </PDFView>
                     {
-                        items.map(({ name, quantity, price, _id }) => (
+                        items.map(({ name, quantity, cost, _id }) => (
                             <PDFView style={pdf_styles.tableRow} key={_id}>
                                 <PDFView style={[pdf_styles.tableCol, { width: '65%' }]}>
                                     <PDFText style={pdf_styles.tableCell}>
@@ -134,7 +137,7 @@ const PDFReceipt = ({ items, website, systemEmail, deliveryInfo, receiverInfo, p
                                 </PDFView>
                                 <PDFView style={[pdf_styles.tableCol, { width: '20%' }]}>
                                     <PDFText style={pdf_styles.tableCell}>
-                                        {price}
+                                        {cost}
                                     </PDFText>
                                 </PDFView>
                             </PDFView>

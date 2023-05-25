@@ -93,6 +93,7 @@ const EmptyCartContainer = styled('div')({
     alignItems: 'center',
     flexDirection: 'column',
     margin: 'auto',
+    padding: '50px 10px',
 })
 
 const EmptyImg = styled('img')({

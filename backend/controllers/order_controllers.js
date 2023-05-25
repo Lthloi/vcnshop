@@ -42,9 +42,10 @@ const newOrder = catchAsyncError(async (req, res, next) => {
         total_to_pay,
     } = req.body
 
-    if (
-        !shipping_info || !items_of_order || !payment_info || !price_of_items || !tax_fee || !shipping_fee || !total_to_pay
-    ) throw new BaseError('Wrong property name', 400)
+    if (!shipping_info || !items_of_order || !payment_info || !price_of_items || !total_to_pay)
+        throw new BaseError('Wrong property name', 400)
+    if ((!tax_fee && tax_fee !== 0) || (!shipping_fee && shipping_fee !== 0))
+        throw new BaseError('Wrong property name', 400)
 
     await OrderModel.create({
         shipping_info,
@@ -56,6 +57,7 @@ const newOrder = catchAsyncError(async (req, res, next) => {
         total_to_pay,
         user: {
             id: req.user._id,
+            email: req.user.email,
         },
     })
 
@@ -67,7 +69,9 @@ const newOrder = catchAsyncError(async (req, res, next) => {
 const sendReceipt = catchAsyncError(async (req, res, next) => {
     let { paymentId, deliveryInfo, receiverInfo, items, taxFee, shippingFee, totalToPay } = req.body
 
-    if (!paymentId || !deliveryInfo || !receiverInfo || !items || !taxFee || !shippingFee || !totalToPay)
+    if (!paymentId || !deliveryInfo || !receiverInfo || !items || !totalToPay)
+        throw new BaseError('Wrong property', 400)
+    if ((!taxFee && taxFee !== 0) || (!shippingFee && shippingFee !== 0))
         throw new BaseError('Wrong property', 400)
 
     await sendReceiptViaEmail(
@@ -88,7 +92,7 @@ const sendReceipt = catchAsyncError(async (req, res, next) => {
 })
 
 const getOrder = catchAsyncError(async (req, res, next) => {
-    let { paymentId, orderId } = req.body
+    let { paymentId, orderId } = req.query
     if (!paymentId && !orderId) throw new BaseError('Wrong property', 400)
 
     let order_query = {}
@@ -101,7 +105,38 @@ const getOrder = catchAsyncError(async (req, res, next) => {
     res.status(200).json({ order })
 })
 
+const getOrders = catchAsyncError(async (req, res, next) => {
+    let { page, limit } = req.query
+    if (!page || !limit) throw new BaseError('Wrong property', 400)
+    console.log('>>> page >>>', page)
+    console.log('>>> limit >>>', limit)
+    let user_id = req.user._id
+
+    let orders = await OrderModel
+        .find(
+            { 'user.id': user_id },
+            {
+                'createdAt': 1,
+                '_id': 1,
+                'order_status': 1,
+                'payment_info.status': 1,
+                'items_of_order': {
+                    $slice: [0, 2]
+                },
+            }
+        )
+        .skip((page - 1) * (limit * 1))
+        .sort({ 'createdAt': -1 })
+        .limit(limit * 1)
+
+    let count_product = await OrderModel.countDocuments({ 'user.id': user_id })
+
+    if (!orders) throw new BaseError('Orders not found', 404)
+
+    res.status(200).json({ orders, countOrder: count_product })
+})
+
 export {
     initPayment, newOrder, sendReceipt,
-    getOrder,
+    getOrder, getOrders,
 }

@@ -86,9 +86,9 @@ const ButtonContainer = styled('div')({
 const Button = styled('button')({
     fontFamily: '"Fontdiner Swanky", "cursive"',
     fontSize: '1.1em',
-    color: '#383838',
+    color: 'white',
     border: 'none',
-    backgroundColor: '#feadbb',
+    backgroundColor: 'black',
     padding: '10px 25px',
     marginTop: '10px',
     transform: 'skew(-5deg)',
@@ -97,9 +97,8 @@ const Button = styled('button')({
     position: 'relative',
     zIndex: '1',
     '&:hover': {
-        backgroundColor: '#dc5080',
+        backgroundColor: '#1e7870',
         transform: 'scale(1.15)',
-        color: 'white',
         zIndex: '2',
     }
 })

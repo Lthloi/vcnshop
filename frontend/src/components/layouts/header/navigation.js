@@ -11,7 +11,7 @@ import UserNav from "./user_nav"
 
 const Navigation = () => {
     const numberOfCartItems = useSelector(({ cart }) => cart.cartItems.length)
-    
+
     const [openSearchDialog, setOpenSearchDialog] = useState(false)
 
     useEffect(() => {
@@ -31,7 +31,7 @@ const Navigation = () => {
 
             {
                 openSearchDialog &&
-                <SearchDialog handleOpenSearchDialog={handleOpenSearchDialog}/>
+                <SearchDialog handleOpenSearchDialog={handleOpenSearchDialog} />
             }
 
             <NavigationBar id="NavigationBar" >
@@ -50,7 +50,7 @@ const Navigation = () => {
                     <Logo src={foxLogoWhite} alt="Can't load logo" sx={{ fill: 'white' }} />
                     <TitleArea>
                         <Title>VCN SHOP - FOX COR</Title>
-                        <Subtitle>Kingdom of fashion</Subtitle>
+                        <Subtitle>Shopping Too Easy</Subtitle>
                     </TitleArea>
                 </CenterSection>
 
@@ -59,7 +59,7 @@ const Navigation = () => {
                     <div style={{ display: 'flex', alignItems: 'center', columnGap: '20px' }}>
 
                         <UserNav />
-                        
+
                         <a href="/cart">
                             <StyledBadge
                                 badgeContent={numberOfCartItems}
@@ -144,12 +144,19 @@ const CenterSection = styled('a')({
     rowGap: '5px',
     textDecoration: 'unset',
     color: 'black',
+    padding: '10px 0',
+})
+
+const Logo = styled('img')({
+    height: '5em',
+    cursor: 'pointer',
 })
 
 const TitleArea = styled('div')({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
+    marginTop: '5px',
 })
 
 const Title = styled('h2')({
@@ -167,11 +174,7 @@ const Subtitle = styled('div')({
     wordSpacing: '3px',
     letterSpacing: '1px',
     cursor: 'pointer',
-})
-
-const Logo = styled('img')({
-    height: '5em',
-    cursor: 'pointer',
+    marginTop: '2px',
 })
 
 const RightSection = styled('div')({

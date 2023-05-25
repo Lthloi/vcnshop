@@ -18,31 +18,14 @@ import { EXPRESS_SERVER } from "../../utils/constants"
 import { CircularProgress } from "@mui/material"
 import { toast } from "react-toastify"
 import actionsErrorHandler from "../../utils/error_handler"
+import Skeleton from "@mui/material/Skeleton"
 
-const data = {
-    data: [
-        { name: 'vcn1', quantity: 1, price: 18, _id: 1 },
-        { name: 'vcn2', quantity: 2, price: 19, _id: 2 },
-        { name: 'vcn3', quantity: 3, price: 20, _id: 3 },
-    ],
-    project_info: {
-        email: 'vcnshop@gmail.com',
-        website: 'https://www.vcnshop.new',
-    },
-    delivery_info: {
-        address: 'street, city, state 0000',
-        shipping_method: 'Sea Transport',
-    },
-    receiver_info: {
-        email: 'JohnDoe@gmail.com',
-        phone: '555-555-5555',
-        payment_method: 'card',
-    },
-    payment_id: 'pi_nan23u190e0jdicnekj12ne1i10',
-    total_to_pay: 208.55,
-    shipping_fee: 21,
-    tax_fee: 12,
+const project_info = {
+    email: 'vcnshop@gmail.com',
+    website: 'https://www.vcnshop.new',
 }
+
+const SEA_TRANSPORT = 'Sea Transport'
 
 const RenderBillType = (icon, small_title, value_of_type) => (
     <SummaryType>
@@ -57,12 +40,12 @@ const RenderBillType = (icon, small_title, value_of_type) => (
 const Success = ({ paymentId }) => {
     const [sendReceiptLoading, setSendReceiptLoading] = useState(false)
     const { order } = useSelector(({ order }) => order)
-    console.log('>>> order >>>', order)
+
     const dispatch = useDispatch()
 
     useEffect(() => {
         dispatch(getOrder(paymentId))
-    }, [])
+    }, [dispatch])
 
     const sendReceiptViaEmail = async () => {
         setSendReceiptLoading(true)
@@ -71,13 +54,13 @@ const Success = ({ paymentId }) => {
             await axios.post(
                 EXPRESS_SERVER + '/api/sendReceiptViaEmail',
                 {
-                    paymentId: data.payment_id,
-                    deliveryInfo: data.delivery_info,
-                    receiverInfo: data.receiver_info,
-                    items: data.data,
-                    taxFee: data.tax_fee,
-                    shippingFee: data.shipping_fee,
-                    totalToPay: data.total_to_pay,
+                    paymentId: order.payment_info.id,
+                    deliveryInfo: order.shipping_info,
+                    receiverInfo: order.user,
+                    items: order.items_of_order,
+                    taxFee: order.tax_fee,
+                    shippingFee: order.shipping_fee,
+                    totalToPay: order.total_to_pay,
                 },
                 { withCredentials: true }
             )
@@ -96,79 +79,87 @@ const Success = ({ paymentId }) => {
                 <CheckCircleIcon sx={{ fontSize: '3em', color: 'white' }} />
                 <TitleText>Yay! Order Successfully Placed</TitleText>
             </Title>
-            <div style={{ display: 'flex', marginTop: '30px' }}>
-                <SummarySection>
-                    <SummaryContainer>
-                        <SummaryTitle>ORDER SUMMARY</SummaryTitle>
-                        {RenderBillType(<ListAltIcon />, '3 items', '$208.52')}
-                        {RenderBillType(<PaymentIcon />, 'Payment', 'Pay on card')}
-                        {RenderBillType(<AccessTimeIcon />, 'Delivery Date & Time', 'Today, 6 PM')}
-                        {RenderBillType(<PlaceIcon />, 'Delivery Address', 'Dong Nai, Bien Hoa, Tan Phong')}
-                    </SummaryContainer>
-                </SummarySection>
+            {
+                order && order.shipping_info ?
+                    <div style={{ display: 'flex', marginTop: '30px' }}>
+                        <SummarySection>
+                            <SummaryContainer>
+                                <SummaryTitle>ORDER SUMMARY</SummaryTitle>
+                                {RenderBillType(<ListAltIcon />, order.items_of_order.length + ' items', order.total_to_pay + ' USD')}
+                                {RenderBillType(<PaymentIcon />, 'Payment', 'Pay on ' + order.payment_info.method)}
+                                {RenderBillType(<AccessTimeIcon />, 'Delivery Date & Time', order.shipping_info.method === SEA_TRANSPORT ? 'Within 5 - 7 days' : '')}
+                                {RenderBillType(<PlaceIcon />, 'Delivery Address', order.shipping_info.country + ', ' + order.shipping_info.city + ', ' + order.shipping_info.address)}
+                            </SummaryContainer>
+                        </SummarySection>
 
-                <ThankingSection>
-                    <TruckAnimation src={deliveryIcon} />
-                    <ThankTitle>THANK YOU!</ThankTitle>
-                    <ThankText>
-                        We are getting started on your order right away, and you will receive an email for an invoice of
-                        your order.
-                    </ThankText>
-                    <ThankText sx={{ marginTop: '10px' }}>
-                        We suggest you should check your email regularly to receive your order in time. Thank
-                        for shopping in our site, have a nice day!
-                    </ThankText>
-                    <Buttons>
-                        <LeftBtn href="/">
-                            Continue Shopping
-                        </LeftBtn>
-                        <RightBtn href="/order/history">
-                            View Order
-                        </RightBtn>
-                    </Buttons>
-                </ThankingSection>
+                        <ThankingSection>
+                            <TruckAnimation src={deliveryIcon} />
+                            <ThankTitle>THANK YOU!</ThankTitle>
+                            <ThankText>
+                                We are getting started on your order right away, and you will receive an email for an invoice of
+                                your order.
+                            </ThankText>
+                            <ThankText sx={{ marginTop: '10px' }}>
+                                We suggest you should check your email regularly to receive your order in time. Thank
+                                for shopping in our site, have a nice day!
+                            </ThankText>
+                            <Buttons>
+                                <LeftBtn href="/">
+                                    Continue Shopping
+                                </LeftBtn>
+                                <RightBtn href="/account/myOrders">
+                                    View Order
+                                </RightBtn>
+                            </Buttons>
+                        </ThankingSection>
 
-                <ReceiptOptions>
-                    <ReceiptIconWrapper>
-                        <ReceiptIcon sx={{ fontSize: '3em', color: 'white', margin: 'auto' }} />
-                    </ReceiptIconWrapper>
-                    <Note>Get A Receipt For Your Order.</Note>
-                    <Option onClick={sendReceiptViaEmail}>
-                        {
-                            sendReceiptLoading ?
-                                <CircularProgress
-                                    sx={{ color: 'black' }}
-                                    thickness={6}
-                                    size={18}
-                                />
-                                :
-                                <>
-                                    <EmailIcon />
-                                    <span>Send A Receipt Via Email</span>
-                                </>
-                        }
-                    </Option>
-                    <DownloadOption
-                        document={
-                            <PDFReceipt
-                                items={data.data}
-                                systemEmail={data.project_info.email}
-                                website={data.project_info.website}
-                                receiverInfo={data.receiver_info}
-                                deliveryInfo={data.delivery_info}
-                                totalToPay={data.total_to_pay}
-                                taxFee={data.tax_fee}
-                                shippingFee={data.shipping_fee}
-                                paymentId={data.payment_id}
-                            />
-                        }
-                        fileName="VCNShop-Receipt.pdf"
-                    >
-                        <FileDownloadIcon />
-                        <span>Download A Receipt</span>
-                    </DownloadOption>
-                </ReceiptOptions>
-            </div>
+                        <ReceiptOptions>
+                            <ReceiptIconWrapper>
+                                <ReceiptIcon sx={{ fontSize: '3em', color: 'white', margin: 'auto' }} />
+                            </ReceiptIconWrapper>
+                            <Note>Get A Receipt For Your Order.</Note>
+                            <Option onClick={sendReceiptViaEmail}>
+                                {
+                                    sendReceiptLoading ?
+                                        <CircularProgress
+                                            sx={{ color: 'black' }}
+                                            thickness={6}
+                                            size={18}
+                                        />
+                                        :
+                                        <>
+                                            <EmailIcon />
+                                            <span>Send A Receipt Via Email</span>
+                                        </>
+                                }
+                            </Option>
+                            <DownloadOption
+                                fileName="VCNShop-Receipt.pdf"
+                                document={
+                                    <PDFReceipt
+                                        items={order.items_of_order}
+                                        systemEmail={project_info.email}
+                                        website={project_info.website}
+                                        receiverInfo={order.user}
+                                        deliveryInfo={order.shipping_info}
+                                        totalToPay={order.total_to_pay}
+                                        taxFee={order.tax_fee}
+                                        shippingFee={order.shipping_fee}
+                                        paymentInfo={order.payment_info}
+                                    />
+                                }
+                            >
+                                <FileDownloadIcon />
+                                <span>Download A Receipt</span>
+                            </DownloadOption>
+                        </ReceiptOptions>
+                    </div>
+                    :
+                    <div style={{ display: 'flex', columnGap: 10, width: '100%', padding: '15px 0' }}>
+                        <Loading animation="wave" />
+                        <Loading animation="wave" />
+                    </div>
+            }
         </SuccessSection >
     )
 }
@@ -387,4 +378,10 @@ const LeftBtn = styled(Button)({
 const RightBtn = styled(Button)({
     boxShadow: '0px 0px 3px gray',
     backgroundColor: 'white',
+})
+
+const Loading = styled(Skeleton)({
+    width: '100%',
+    height: '400px',
+    transform: 'scale(1)',
 })

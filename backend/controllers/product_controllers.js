@@ -49,7 +49,7 @@ const getProducts = catchAsyncError(async (req, res, next) => {
         .find(queryObject, { 'review.reviews': 0 })
         .skip((pagination - 1) * (limit * 1))
         .sort({ [sort.name]: sort.type })
-        .limit(limit)
+        .limit(limit * 1)
         .lean()
 
     if (!products) throw new BaseError('Products Not Found', 404)
@@ -93,7 +93,7 @@ const getReviews = catchAsyncError(async (req, res, next) => {
 const newReview = catchAsyncError(async (req, res, next) => {
     let { productId } = req.query
     if (!productId) throw new BaseError('Wrong request property', 400)
-    
+
     let { _id: user_id, avatar, name: user_name } = req.user
 
     let { rating, comment, title } = req.body

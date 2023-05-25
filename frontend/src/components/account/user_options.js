@@ -3,7 +3,7 @@ import { styled } from '@mui/material/styles'
 import AccountCircleIcon from '@mui/icons-material/AccountCircle'
 import AllInboxIcon from '@mui/icons-material/AllInbox'
 import LogoutIcon from '@mui/icons-material/Logout'
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useLocation } from "react-router-dom"
 import PasswordIcon from '@mui/icons-material/Password'
 import { useDispatch } from "react-redux"
 import { logoutUser } from "../../store/actions/user_actions"
@@ -20,6 +20,7 @@ const navigation_list = [
 const Navigation = () => {
     const navigate = useNavigate()
     const dispatch = useDispatch()
+    const indicator = useLocation().pathname.split('/account')[1]
 
     const handleNavigation = (href) => {
         if (href === -1) {
@@ -32,13 +33,14 @@ const Navigation = () => {
         <NavigationSection id="NavigationArea">
             {
                 navigation_list.map(({ label, icon, href }) => (
-                    <ItemContainer
+                    <Nav
                         key={label}
                         onClick={() => handleNavigation(href)}
+                        sx={indicator === href && { borderLeftColor: 'black' }}
                     >
                         {icon}
                         <Text>{label}</Text>
-                    </ItemContainer>
+                    </Nav>
                 ))
             }
         </NavigationSection>
@@ -51,7 +53,7 @@ const NavigationSection = styled('div')(({ theme }) => ({
 
 }))
 
-const ItemContainer = styled('div')({
+const Nav = styled('div')({
     display: 'flex',
     alignItems: 'center',
     columnGap: '8px',
@@ -59,6 +61,7 @@ const ItemContainer = styled('div')({
     padding: '15px 20px',
     cursor: 'pointer',
     borderTop: '1px #d1d1d1 solid',
+    borderLeft: '3px transparent solid',
     '&:last-child': {
         borderBottom: '1px #d1d1d1 solid',
     },

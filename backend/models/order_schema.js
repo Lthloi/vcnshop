@@ -26,16 +26,24 @@ const OrderSchema = new Schema({
         },
         phone_number: {
             type: Number,
-            required: true,
         },
+        method: {
+            type: String,
+            required: true,
+        }
     },
     items_of_order: [
         {
+            _id: {
+                type: mongoose.Schema.ObjectId,
+                ref: "products",
+                required: true,
+            },
             name: {
                 type: String,
                 required: true,
             },
-            price: {
+            cost: {
                 type: Number,
                 required: true,
             },
@@ -47,13 +55,12 @@ const OrderSchema = new Schema({
                 type: String,
                 required: true,
             },
-            product: {
-                id: {
-                    type: mongoose.Schema.ObjectId,
-                    ref: "products",
-                    required: true,
-                }
+            color: {
+                type: String,
             },
+            size: {
+                type: String,
+            }
         }
     ],
     user: {
@@ -62,6 +69,10 @@ const OrderSchema = new Schema({
             ref: "users",
             required: true,
         },
+        email: {
+            type: String,
+            required: true,
+        }
     },
     payment_info: {
         id: {
@@ -72,7 +83,7 @@ const OrderSchema = new Schema({
             type: String,
             required: true,
         },
-        status: {
+        status: { // stripe, payment intent: processing || canceled || succeeded 
             type: String,
             required: true,
         },
@@ -111,6 +122,6 @@ const OrderSchema = new Schema({
     },
 })
 
-const OrderModel = mongoose.model('coupons', OrderSchema)
+const OrderModel = mongoose.model('orders', OrderSchema)
 
 export default OrderModel

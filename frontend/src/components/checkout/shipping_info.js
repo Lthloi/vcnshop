@@ -18,6 +18,7 @@ import { useNavigate } from "react-router-dom"
 import { saveShippingInfo } from "../../store/actions/cart_actions"
 import Select from '@mui/material/Select'
 import { getCodeList } from 'country-list'
+import { Tooltip } from "@mui/material"
 
 const defaultInputs = [
     {
@@ -124,12 +125,16 @@ const ShippingInfo = () => {
             <SectionTitle>Shipping Info</SectionTitle>
 
             <UserLocationSection>
-                <StyledMyLocationIcon
-                    titleAccess="Click to use your location"
-                    onClick={getUserLocation}
-                    sx={getLocationLoading && { animationDuration: '2s', pointerEvents: 'none', cursor: 'not-allowed' }}
-                />
-                <UserLocationText>USE MY LOCATION</UserLocationText>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <Tooltip
+                        placement="right"
+                        title="Click to use your location"
+                        onClick={getUserLocation}
+                    >
+                        <StyledMyLocationIcon sx={getLocationLoading && { animationDuration: '2s', pointerEvents: 'none', cursor: 'not-allowed' }} />
+                    </Tooltip>
+                    <UserLocationText>USE MY LOCATION</UserLocationText>
+                </div>
             </UserLocationSection>
 
             <InputsContainer>
@@ -222,10 +227,10 @@ const SectionTitle = styled('h2')({
 
 const UserLocationSection = styled('div')({
     display: 'flex',
-    flexDirection: 'column',
+    alignItems: 'center',
     position: 'absolute',
-    top: '15%',
     right: '10%',
+    height: '100%',
 })
 
 const StyledMyLocationIcon = styled(MyLocationIcon)({

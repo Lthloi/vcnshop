@@ -1,10 +1,9 @@
-import React, { useRef, useState } from "react"
+import React, { useState } from "react"
 import { styled } from '@mui/material/styles'
 import { useStripe, PaymentElement, useElements } from '@stripe/react-stripe-js'
 import { toast } from "react-toastify"
 import EmailIcon from '@mui/icons-material/Email'
 import ErrorIcon from '@mui/icons-material/Error'
-import validator from 'validator'
 import { CircularProgress } from "@mui/material"
 import { useDispatch, useSelector } from "react-redux"
 import { createNewOrder } from '../../store/actions/order_actions'
@@ -17,20 +16,11 @@ const PaymentCardSection = ({ clientSecret, totalToPay, currencyCode, userEmail,
     const { cartItems, shippingInfo } = useSelector(({ cart }) => cart)
     const stripe = useStripe()
     const elements = useElements()
-    const [warning, setWarning] = useState(false)
     const [paying, setPaying] = useState(false)
     const dispatch = useDispatch()
 
-    const email_ref = useRef()
-    const email_input_container = useRef()
-
     const confirmPayment = async () => {
         if (!clientSecret) return toast.error('Something went wrong, please reload page and try again in some minutes later!')
-        let email = email_ref.current.value
-        if (email && !validator.isEmail(email)) {
-            email_input_container.current.classList.add('on_focus_with_error')
-            return setWarning(true)
-        }
 
         setPaying(true)
 
@@ -69,6 +59,7 @@ const PaymentCardSection = ({ clientSecret, totalToPay, currencyCode, userEmail,
                     address: shippingInfo.Address,
                     zip_code: shippingInfo['Zip Code'],
                     phone_number: shippingInfo['Phone Number'],
+                    method: 'Sea Transport',
                 },
                 items_of_order: cartItems,
                 payment_info: {
@@ -86,31 +77,21 @@ const PaymentCardSection = ({ clientSecret, totalToPay, currencyCode, userEmail,
         }
     }
 
-    const handleOnEventInput = () => {
-        email_input_container.current.classList.remove('on_focus_with_error')
-        setWarning(false)
-    }
-
     return (
         <>
             <EmailFromGroup>
                 <Label htmlFor="email_receipts">Email Receipts</Label>
-                <InputContainer ref={email_input_container}>
+                <InputContainer>
                     <EmailInput
                         id="email_receipts"
-                        ref={email_ref}
                         readOnly={email_is_read_only}
                         sx={email_is_read_only && { pointerEvents: 'none' }}
                         maxLength={35}
-                        onFocus={handleOnEventInput}
                         defaultValue={userEmail || ''}
                         placeholder="Enter your email for receipts..."
                     />
                     <EmailIcon />
                 </InputContainer>
-                {
-                    warning && <Warning>Email is invalid!</Warning>
-                }
                 <Note>
                     <ErrorIcon sx={{ fontSize: '1.2em', color: 'gray' }} />
                     <span>
@@ -120,7 +101,7 @@ const PaymentCardSection = ({ clientSecret, totalToPay, currencyCode, userEmail,
                 </Note>
             </EmailFromGroup>
             <PaymentElement o />
-            <PayNowBtn onClick={confirmPayment}>
+            <PayNowBtn onClick={confirmPayment} sx={paying && { pointerEvents: 'none' }}>
                 {
                     paying ?
                         <CircularProgress
@@ -191,13 +172,6 @@ const Note = styled('div')({
         fontFamily: '"Nunito", "sans-serif"',
         fontSize: '0.7em',
     }
-})
-
-const Warning = styled('div')({
-    fontFamily: '"Gill Sans", sans-serif',
-    fontSize: '0.9em',
-    marginTop: '4px',
-    color: '#E23053',
 })
 
 const PayNowBtn = styled('button')({

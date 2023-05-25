@@ -17,8 +17,8 @@ const Checkout = () => {
     const search_string = useLocation().search
     const query_value_getter = useGetQueryValue()
 
-    // if (!search_string.includes('step=') || !search_string.includes('payment_intent='))
-    //     return (<NotFound404 />)
+    if (!search_string.includes('step=') && !search_string.includes('payment_intent='))
+        return (<NotFound404 />)
 
     const step_index = steps.indexOf(query_value_getter(search_string, 'step'))
 
@@ -26,7 +26,7 @@ const Checkout = () => {
         return (<NotFound404 />)
 
     const paymentId = query_value_getter(search_string, 'payment_intent')
-
+    console.log('>>> paymentId >>>', paymentId)
     return (
         <CheckoutPage id="CheckoutPage">
             <Header activeStep={step_index} />

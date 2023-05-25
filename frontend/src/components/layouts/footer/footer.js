@@ -124,8 +124,7 @@ const Footer = () => {
                             <LogoImg src={foxLogoWhite} />
                             <LogoTextContainer>
                                 <LogoName>VCN Shop</LogoName>
-                                <SmallText>Shopping anywhere</SmallText>
-                                <SmallText>Shopping too easy</SmallText>
+                                <SmallText>Shopping Too Easy</SmallText>
                             </LogoTextContainer>
                         </LogoWrapper>
                         <LogoDescription>

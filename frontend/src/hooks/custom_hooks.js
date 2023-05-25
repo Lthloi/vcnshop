@@ -97,8 +97,8 @@ const useGetQueryValue = () => (query_string, unique_string_name) => {
 
     if (index_of_link_up_letter !== -1)
         official_value = non_official_value.slice(0, index_of_link_up_letter)
-
-    official_value = non_official_value.slice(0, non_official_value.length)
+    else
+        official_value = non_official_value.slice(0, non_official_value.length)
 
     return official_value
 }
