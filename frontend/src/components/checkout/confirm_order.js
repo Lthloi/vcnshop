@@ -4,7 +4,8 @@ import { useSelector } from "react-redux"
 import DoubleArrowIcon from '@mui/icons-material/DoubleArrow'
 import { useFloatNumber, useNumerToWords } from "../../hooks/custom_hooks"
 import ErrorIcon from '@mui/icons-material/Error'
-import { useNavigate } from "react-router-dom"
+import { useNavigate, Navigate } from "react-router-dom"
+import { toast } from "react-toastify"
 
 const shipping_fee_charge = 0.1
 const tax_charge = 0.18
@@ -15,19 +16,16 @@ const ConfirmOrder = () => {
     const get_float_number = useFloatNumber()
     const navigate = useNavigate()
 
-    const summary_calculation = () => { //a function for some bad situations such as when user do something like cleaning then the data in session storage has been lost. IDK but it looks like useful, right ? =))
-        let subtotal = cartItems.reduce(
-            (accumulator, { cost, quantity }) => get_float_number(cost * quantity + accumulator), 0
-        )
-        return { subtotal }
+    if (!sessionStorage.getItem('summary') || !shippingInfo) {
+        toast.warning('Something went wrong')
+        return (<Navigate to={-1} />)
     }
+    const summary = JSON.parse(sessionStorage.getItem('summary'))
 
-    const summary = JSON.parse(sessionStorage.getItem('summary')) || summary_calculation()
+    const tax_fee = get_float_number(summary.subtotal * tax_charge)
 
-    const tax_fee = summary.subtotal * tax_charge
-
-    const is_in_Viet_Nam = shippingInfo.Country !== 'Viet Nam' && shippingInfo.Country !== 'VN'
-    const shipping_fee = get_float_number(is_in_Viet_Nam ? summary.subtotal * shipping_fee_charge : 0)
+    const is_in_Viet_Nam = shippingInfo.Country === 'Viet Nam' && shippingInfo.Country === 'VN'
+    const shipping_fee = is_in_Viet_Nam ? 0 : get_float_number(summary.subtotal * shipping_fee_charge)
 
     const total_to_pay = get_float_number(summary.subtotal + shipping_fee + tax_fee)
 

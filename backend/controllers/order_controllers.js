@@ -3,6 +3,7 @@ import OrderModel from "../models/order_schema.js"
 import BaseError from "../utils/base_error.js"
 import Stripe from "stripe"
 import { sendReceiptViaEmail } from '../utils/send_mail.js'
+import moment from "moment"
 
 const { STRIPE_SECRET_KEY, STRIPE_PUBLIC_KEY } = process.env
 
@@ -23,6 +24,19 @@ const initPayment = catchAsyncError(async (req, res, next) => {
         },
     })
 
+    await OrderModel.create({
+        'shipping_fee': 0,
+        'tax_fee': 0,
+        'total_to_pay': amount,
+        'price_of_items': 0,
+        'order_status': 'uncompleted',
+        'payment_status': 'processing',
+        'user': {
+            id: req.user._id,
+            email: req.user.email,
+        }
+    })
+
     res.status(200).json({
         client_secret: paymentIntent.client_secret,
         stripe_key: STRIPE_PUBLIC_KEY,
@@ -31,6 +45,7 @@ const initPayment = catchAsyncError(async (req, res, next) => {
     })
 })
 
+// complete the order
 const newOrder = catchAsyncError(async (req, res, next) => {
     let {
         shipping_info,
@@ -99,8 +114,10 @@ const getOrder = catchAsyncError(async (req, res, next) => {
     if (paymentId) order_query['payment_info.id'] = paymentId
     else order_query._id = orderId
 
-    let order = await OrderModel.findOne(order_query)
+    let order = await OrderModel.findOne(order_query).lean()
     if (!order) throw new BaseError('Order not found', 404)
+
+    order.createdAt = moment(order.createdAt.toISOString()).format('MMMM Do YYYY, HH:mm')
 
     res.status(200).json({ order })
 })
@@ -108,8 +125,7 @@ const getOrder = catchAsyncError(async (req, res, next) => {
 const getOrders = catchAsyncError(async (req, res, next) => {
     let { page, limit } = req.query
     if (!page || !limit) throw new BaseError('Wrong property', 400)
-    console.log('>>> page >>>', page)
-    console.log('>>> limit >>>', limit)
+
     let user_id = req.user._id
 
     let orders = await OrderModel
@@ -119,7 +135,7 @@ const getOrders = catchAsyncError(async (req, res, next) => {
                 'createdAt': 1,
                 '_id': 1,
                 'order_status': 1,
-                'payment_info.status': 1,
+                'payment_status': 1,
                 'items_of_order': {
                     $slice: [0, 2]
                 },

@@ -70,7 +70,11 @@ const getOrders = (page, limit = LIMIT_GET_ORDERS) => async (dispatch) => {
 
         let { data } = await axios.get(EXPRESS_SERVER + api_to_get_orders, { withCredentials: true })
 
-        dispatch(getOrdersSuccess({ orders: data.orders, countOrder: data.countOrder }))
+        dispatch(getOrdersSuccess({
+            orders: data.orders,
+            countOrder: data.countOrder,
+            current_page: page,
+        }))
     } catch (error) {
         let errorObject = actionsErrorHandler(error, 'Error Warning: fail to create new order.')
 

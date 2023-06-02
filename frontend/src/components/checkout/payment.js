@@ -11,6 +11,7 @@ import { EXPRESS_SERVER } from "../../utils/constants"
 import OrderDetail from "./order_detail"
 import { toast } from "react-toastify"
 import actionsErrorHandler from "../../utils/error_handler"
+import { useFloatNumber } from '../../hooks/custom_hooks'
 
 const payment_appearance = {
     theme: 'flat',
@@ -51,45 +52,48 @@ const currency_code = 'usd'
 const Payment = () => {
     const [orderInit, setOrderInit] = useState({ client_secret: '', stripe_key: '', user_email: '', user_name: '' })
     const dispatch = useDispatch()
+    const get_float_number = useFloatNumber()
 
+    if (!sessionStorage.getItem('orderInfo')) {
+        toast.warning('Something went wrong')
+        window.history.go(-1)
+    }
     const orderInfo = JSON.parse(sessionStorage.getItem('orderInfo'))
 
     const stripe_promise_ref = useRef()
     const client_secret_ref = useRef()
 
     const initPayment = async () => {
-        if (orderInfo && orderInfo.total_to_pay) {
-            let data
+        let data
 
-            try {
-                let response = await axios.post(
-                    EXPRESS_SERVER + '/api/initPayment',
-                    {
-                        amount: orderInfo.total_to_pay * 100,
-                        currency: currency_code,
-                    },
-                    { withCredentials: true }
-                )
-                data = response.data
-            } catch (error) {
-                let errorObject = actionsErrorHandler(error)
-                return toast.error(errorObject.message)
-            }
-
-            stripe_promise_ref.current = loadStripe(data.stripe_key)
-            client_secret_ref.current = data.client_secret
-
-            setOrderInit({
-                client_secret: data.client_secret,
-                stripe_key: data.stripe_key,
-                user_email: data.user_email,
-                user_name: data.user_name,
-            })
+        try {
+            let response = await axios.post(
+                EXPRESS_SERVER + '/api/initPayment',
+                {
+                    amount: get_float_number(orderInfo.total_to_pay * 100),
+                    currency: currency_code,
+                },
+                { withCredentials: true }
+            )
+            data = response.data
+        } catch (error) {
+            let errorObject = actionsErrorHandler(error)
+            return toast.error(errorObject.message)
         }
+
+        stripe_promise_ref.current = loadStripe(data.stripe_key)
+        client_secret_ref.current = data.client_secret
+
+        setOrderInit({
+            client_secret: data.client_secret,
+            stripe_key: data.stripe_key,
+            user_email: data.user_email,
+            user_name: data.user_name,
+        })
     }
 
     useEffect(() => {
-        initPayment()
+        if (orderInfo && orderInfo.total_to_pay) initPayment()
     }, [dispatch])
 
     if (!orderInfo || !orderInfo.total_to_pay)

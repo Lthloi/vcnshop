@@ -3,6 +3,7 @@ import { createSlice } from '@reduxjs/toolkit'
 export const orderSlice = createSlice({
     name: 'order',
     initialState: {
+        currentPage: 1,
         order: {},
         orders: [],
         countOrder: 0,
@@ -44,7 +45,10 @@ export const orderSlice = createSlice({
         getOrdersSuccess: (state, action) => {
             state.loading = false
             state.orders = action.payload.orders
-            state.countOrder = action.payload.countOrder
+            
+            let { current_page, countOrder } = action.payload
+            state.countOrder = countOrder
+            state.currentPage = current_page
         },
         getOrdersFail: (state, action) => {
             state.loading = false

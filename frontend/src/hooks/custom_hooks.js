@@ -103,7 +103,10 @@ const useGetQueryValue = () => (query_string, unique_string_name) => {
     return official_value
 }
 
+const useCurrentRoute = () => useLocation().pathname
+
 export {
     useFloatNumber, useCurrencyKeyboard, useCurrencyCode,
     useNavToRedirectLogin, useNumerToWords, useGetQueryValue,
+    useCurrentRoute,
 }

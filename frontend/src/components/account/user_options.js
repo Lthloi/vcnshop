@@ -36,7 +36,7 @@ const Navigation = () => {
                     <Nav
                         key={label}
                         onClick={() => handleNavigation(href)}
-                        sx={indicator === href && { borderLeftColor: 'black' }}
+                        sx={indicator.includes(href) && { borderLeftColor: 'black' }}
                     >
                         {icon}
                         <Text>{label}</Text>

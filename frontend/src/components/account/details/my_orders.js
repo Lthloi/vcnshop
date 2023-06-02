@@ -10,60 +10,63 @@ import Tooltip from '@mui/material/Tooltip'
 import TipsAndUpdatesIcon from '@mui/icons-material/TipsAndUpdates'
 import OpenInNewIcon from '@mui/icons-material/OpenInNew'
 import { Pagination } from "@mui/material"
+import { useNavigate } from "react-router-dom"
+import { useCurrentRoute } from '../../../hooks/custom_hooks'
 
 const tabs = {
     ALL: '1',
     UNCOMPLETED: '2',
 }
 
-const stripe_payment_status = {
-    SUCCESSED: 'succeeded',
-    CANCELED: 'canceled',
-    PROCESSING: 'processing',
-}
+const setStyleForStatus = (value) => {
+    let statuses = {
+        SUCCESSED: 'succeeded',
+        CANCELED: 'canceled',
+        PROCESSING: 'processing',
+        UNPAID: 'unpaid',
+    }
 
-const RenderType = (label_name, label_value) => {
-    let style_for_status = {
+    let general_style_for_status = {
         padding: '3px 8px',
         width: 'fit-content',
         borderRadius: '10px',
     }
 
-    let set_style = {}
-
-    if (label_value === stripe_payment_status.SUCCESSED)
-        set_style = {
-            ...style_for_status,
+    if (value === statuses.SUCCESSED)
+        return {
+            ...general_style_for_status,
             backgroundColor: '#74ffcd',
         }
-    else if (label_value === stripe_payment_status.PROCESSING)
-        set_style = {
-            ...style_for_status,
+    else if (value === statuses.PROCESSING || value === statuses.UNPAID)
+        return {
+            ...general_style_for_status,
             backgroundColor: '#ffd995',
         }
-    else if (label_value === stripe_payment_status.CANCELED)
-        set_style = {
-            ...style_for_status,
+    else if (value === statuses.CANCELED)
+        return {
+            ...general_style_for_status,
             backgroundColor: '#ff8b8b',
         }
-
-    return (
-        <ItemLabel>
-            <LabelName>{label_name}</LabelName>
-            <LabelValue sx={set_style}>
-                {label_value}
-            </LabelValue>
-        </ItemLabel>
-    )
 }
 
+const RenderType = (label_of_type, value_of_type) => (
+    <ItemLabel>
+        <LabelName>{label_of_type}</LabelName>
+        <LabelValue sx={setStyleForStatus(value_of_type)}>
+            {value_of_type}
+        </LabelValue>
+    </ItemLabel>
+)
+
 const MyOrders = () => {
-    const { orders, countOrder } = useSelector(({ order }) => order)
+    const { orders, countOrder, currentPage } = useSelector(({ order }) => order)
     const dispatch = useDispatch()
     const [tab, setTab] = useState(tabs.ALL)
-    const [ordersPage, setOrdersPage] = useState(1)
+    const [ordersPage, setOrdersPage] = useState(currentPage)
     const orders_container_ref = useRef()
-    console.log('>>> orders >>>', orders, countOrder, ordersPage)
+    const navigate = useNavigate()
+    const current_route = useCurrentRoute()
+
     useEffect(() => {
         if (orders && orders.length === 0) dispatch(getOrders(1))
     }, [dispatch])
@@ -75,11 +78,28 @@ const MyOrders = () => {
     const switchPage = (e, page) => {
         if (page === ordersPage) return
 
-        orders_container_ref.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        orders_container_ref.current.scrollIntoView({ block: 'start' })
 
         setOrdersPage(page)
 
         dispatch(getOrders(page))
+    }
+
+    const viewOrder = (order_id) => navigate(current_route + '/orderDetail/' + order_id)
+
+    const continueToPayment = () => {
+        if (!sessionStorage.getItem('summary'))
+            navigate('/cart')
+        else {
+            let step
+            if (!sessionStorage.getItem('shippingInfo'))
+                step = 'shipping_info'
+            else if (!sessionStorage.getItem('orderInfo'))
+                step = 'confirm_order'
+            else
+                step = 'payment'
+            navigate('/checkout?step=' + step)
+        }
     }
 
     return (
@@ -98,15 +118,15 @@ const MyOrders = () => {
                                 textColor="inherit"
                             >
                                 <Tab label="All" value={tabs.ALL} />
-                                <Tab label="Un Completed" value={tabs.UNCOMPLETED} />
+                                <Tab label="Unpaid" value={tabs.UNCOMPLETED} />
                             </StyledTabs>
                         </MyOrdersContainer>
                         {
-                            orders.map(({ createdAt, order_status, _id, items_of_order, payment_info }) => (
+                            orders.map(({ createdAt, order_status, _id, items_of_order, payment_status }) => (
                                 <ItemContainer key={_id}>
                                     <ItemLabels>
                                         {RenderType('ORDER ID:', _id)}
-                                        {RenderType('PAYMENT STATUS:', payment_info.status)}
+                                        {RenderType('PAYMENT STATUS:', payment_status)}
                                         {RenderType('ORDER STATUS:', order_status)}
                                         {RenderType('DATE:', new Date(createdAt).toDateString())}
                                     </ItemLabels>
@@ -122,10 +142,13 @@ const MyOrders = () => {
                                             }
                                         </Images>
                                         <div style={{ width: '40%' }}>
-                                            <Button>
+                                            <Button onClick={() => viewOrder(_id)}>
                                                 VIEW ORDER
                                             </Button>
-                                            <Button sx={{ marginTop: '10px', display: 'flex' }}>
+                                            <Button
+                                                sx={{ marginTop: '10px', display: 'flex' }}
+                                                onClick={continueToPayment}
+                                            >
                                                 <OpenInNewIcon sx={{ margin: 'auto' }} />
                                             </Button>
                                         </div>

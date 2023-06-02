@@ -8,6 +8,7 @@ import MenuBar from "./menu_bar"
 import SearchDialog from "./search_dialog"
 import { useSelector } from "react-redux"
 import UserNav from "./user_nav"
+import Tooltip from '@mui/material/Tooltip'
 
 const Navigation = () => {
     const numberOfCartItems = useSelector(({ cart }) => cart.cartItems.length)
@@ -60,15 +61,17 @@ const Navigation = () => {
 
                         <UserNav />
 
-                        <a href="/cart">
-                            <StyledBadge
-                                badgeContent={numberOfCartItems}
-                                color="default"
-                                showZero
-                            >
-                                <StyledShoppingCartIcon titleAccess="Cart" />
-                            </StyledBadge>
-                        </a>
+                        <Tooltip title="Cart">
+                            <a href="/cart">
+                                <StyledBadge
+                                    badgeContent={numberOfCartItems}
+                                    color="default"
+                                    showZero
+                                >
+                                    <StyledShoppingCartIcon />
+                                </StyledBadge>
+                            </a>
+                        </Tooltip>
                     </div>
                 </RightSection>
             </NavigationBar>

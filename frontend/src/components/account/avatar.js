@@ -4,6 +4,7 @@ import AddAPhotoIcon from '@mui/icons-material/AddAPhoto'
 import { useDispatch } from "react-redux"
 import { updateUserAvatar } from "../../store/actions/user_actions"
 import { CircularProgress } from "@mui/material"
+import Tooltip from '@mui/material/Tooltip'
 
 const RenderFirstCharacterOfName = (name_of_user) => {
     let display_name = ''
@@ -96,23 +97,26 @@ const Avatar = ({ nameOfUser, userAvatar }) => {
                 onChange={handleChangeAvatar}
             />
 
-            <AvatarWarraper sx={userAvatar && { backgroundImage: `url("${userAvatar}")`, backgroundSize: '100% 100%' }}>
-                {!userAvatar && nameOfUser && RenderFirstCharacterOfName(nameOfUser)}
+            <Tooltip title="Click to change avatar">
+                <AvatarWarraper sx={userAvatar && { backgroundImage: `url("${userAvatar}")`, backgroundSize: '100% 100%' }}>
+                    {!userAvatar && nameOfUser && RenderFirstCharacterOfName(nameOfUser)}
 
-                <ChangeAvatarBtn
-                    title="Click to change avatar"
-                    className="change_avatar_btn"
-                    htmlFor="fake_avatar_input"
-                >
-                    <AddAPhotoIcon sx={{ margin: 'auto', width: '40%', height: '40%', color: 'black' }} />
-                </ChangeAvatarBtn>
-            </AvatarWarraper>
+                    <ChangeAvatarBtn
+                        className="change_avatar_btn"
+                        htmlFor="fake_avatar_input"
+                    >
+                        <AddAPhotoIcon sx={{ margin: 'auto', width: '40%', height: '40%', color: 'black' }} />
+                    </ChangeAvatarBtn>
+                </AvatarWarraper>
+            </Tooltip>
 
             <NameTextContainer>
                 <div>Hello,</div>
-                <div title={nameOfUser}>
-                    {RenderNameOfUserConvertion(nameOfUser)}
-                </div>
+                <Tooltip title={nameOfUser} placement="right">
+                    <div>
+                        {RenderNameOfUserConvertion(nameOfUser)}
+                    </div>
+                </Tooltip>
             </NameTextContainer>
 
         </AvatarSection>

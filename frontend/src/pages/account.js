@@ -10,6 +10,8 @@ import MyOrders from "../components/account/details/my_orders"
 import ChangePassword from "../components/account/details/change_password"
 import { useSelector } from "react-redux"
 import VCNShop_Mascot from '../assets/images/VCNShop_Mascot.png'
+import OrderDetail from "../components/account/details/order_detail/order_detail"
+import HelpChat from '../components/help_chat'
 
 const Greeting = () => (
     <GreetingContainer>
@@ -53,12 +55,14 @@ const Account = () => {
                             />
                             <Route path="/myOrders" element={<MyOrders />} />
                             <Route path="/changePassword" element={<ChangePassword loading={loading} />} />
+                            <Route path="/myOrders/orderDetail/:orderId" element={<OrderDetail />} />
                         </Routes>
                     </DetailsContainer>
                 </NavigationAndDetail>
             }
 
             <ScrollToTopBtn />
+            <HelpChat />
         </AccountPage>
     )
 }

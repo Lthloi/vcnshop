@@ -86,7 +86,7 @@ const Success = ({ paymentId }) => {
                             <SummaryContainer>
                                 <SummaryTitle>ORDER SUMMARY</SummaryTitle>
                                 {RenderBillType(<ListAltIcon />, order.items_of_order.length + ' items', order.total_to_pay + ' USD')}
-                                {RenderBillType(<PaymentIcon />, 'Payment', 'Pay on ' + order.payment_info.method)}
+                                {RenderBillType(<PaymentIcon />, 'Payment', 'Paid on ' + order.payment_info.method)}
                                 {RenderBillType(<AccessTimeIcon />, 'Delivery Date & Time', order.shipping_info.method === SEA_TRANSPORT ? 'Within 5 - 7 days' : '')}
                                 {RenderBillType(<PlaceIcon />, 'Delivery Address', order.shipping_info.country + ', ' + order.shipping_info.city + ', ' + order.shipping_info.address)}
                             </SummaryContainer>

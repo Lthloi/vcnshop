@@ -4,6 +4,7 @@ import { useSelector } from "react-redux"
 import PersonIcon from '@mui/icons-material/Person'
 import { useNavToRedirectLogin } from "../../../hooks/custom_hooks"
 import { CircularProgress } from "@mui/material"
+import Tooltip from '@mui/material/Tooltip'
 
 const UserNav = () => {
     const { user: { isAuthenticated }, error } = useSelector(({ user }) => user)
@@ -11,9 +12,11 @@ const UserNav = () => {
 
     if (isAuthenticated)
         return (
-            <PersonIconWrapper href="/account">
-                <StyledPersonIcon titleAccess="Account" />
-            </PersonIconWrapper>
+            <Tooltip title="Account">
+                <PersonIconWrapper href="/account">
+                    <StyledPersonIcon />
+                </PersonIconWrapper>
+            </Tooltip>
         )
     else if (!isAuthenticated && error)
         return (

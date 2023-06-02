@@ -83,10 +83,10 @@ const OrderSchema = new Schema({
             type: String,
             required: true,
         },
-        status: { // stripe, payment intent: processing || canceled || succeeded 
-            type: String,
-            required: true,
-        },
+    },
+    payment_status: { // stripe, payment intent: processing || canceled || succeeded 
+        type: String,
+        required: true,
     },
     price_of_items: {
         type: Number,

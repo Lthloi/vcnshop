@@ -26,7 +26,7 @@ const Checkout = () => {
         return (<NotFound404 />)
 
     const paymentId = query_value_getter(search_string, 'payment_intent')
-    console.log('>>> paymentId >>>', paymentId)
+
     return (
         <CheckoutPage id="CheckoutPage">
             <Header activeStep={step_index} />
