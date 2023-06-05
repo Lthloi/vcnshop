@@ -11,6 +11,7 @@ import validator from 'validator'
 import { useDispatch } from "react-redux"
 import { updateProfile } from "../../../store/actions/user_actions"
 import { CircularProgress } from "@mui/material"
+import ErrorIcon from '@mui/icons-material/Error'
 
 const radio_style = {
     '&.Mui-checked': {
@@ -57,6 +58,8 @@ const InformationSection = ({ loading, nameOfUser, email, gender, dateOfBirthDef
 
         dispatch(updateProfile(data['Full Name'], data.Email, data.Gender, date_of_birth_ref.current))
     }
+
+    const shipping_info = localStorage.getItem('shippingInfo') ? JSON.parse(localStorage.getItem('shippingInfo')) : null
 
     return (
         <Information id="InformationSection">
@@ -108,6 +111,25 @@ const InformationSection = ({ loading, nameOfUser, email, gender, dateOfBirthDef
                 </FormGroup>
 
                 <DateOfBirth dateOfBirthRef={date_of_birth_ref} required={false} dateOfBirthDefault={dateOfBirthDefault} />
+
+                <FormGroup sx={{ marginTop: '10px' }}>
+                    <Label>Your Default Address</Label>
+                    {
+                        shipping_info ?
+                            <div style={{ color: 'gray', fontFamily: '"Kanit", "sans-serif"' }}>
+                                {shipping_info.Country && `${shipping_info.Country}, `}
+                                {shipping_info.State && `${shipping_info.State}, `}
+                                {shipping_info.City && `${shipping_info.City}, `}
+                                {shipping_info.Address && `${shipping_info.Address}. `}
+                                {shipping_info['Zip Code']&& `Zip Code: ${shipping_info['Zip Code']}`}
+                            </div>
+                            :
+                            <Note>
+                                <ErrorIcon sx={{ fontSize: '1.2em', color: 'gray' }} />
+                                <span>In case the phone number isn't provided then we use your email to contact to you when dilivery</span>
+                            </Note>
+                    }
+                </FormGroup>
 
                 <SaveChangeBtn type="submit" title="Click to save the change">
                     {
@@ -243,5 +265,17 @@ const SaveChangeBtn = styled('button')({
     '&:active': {
         backgroundColor: '#2D2D2D',
         color: 'white',
+    }
+})
+
+const Note = styled('div')({
+    display: 'flex',
+    alignItems: 'center',
+    columnGap: '5px',
+    marginTop: '5px',
+    paddingLeft: '10px',
+    '& span': {
+        fontFamily: '"Nunito", "sans-serif"',
+        fontSize: '0.8em',
     }
 })

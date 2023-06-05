@@ -51,7 +51,9 @@ const OrderDetail = ({ orderInfo }) => {
                     cartItems.map(({ name, color, size, cost, image_link, _id, quantity }) => (
                         <Product key={_id}>
                             <div style={{ display: 'flex', alignItems: 'center', columnGap: '15px' }}>
-                                <ProductImg src={image_link} />
+                                <div style={{ minWidth: '82px' }}>
+                                    <ProductImg src={image_link} />
+                                </div>
                                 <Details>
                                     <Detail sx={{ fontWeight: 'bold' }}>{name}</Detail>
                                     <Detail>{'Color: ' + color}</Detail>
@@ -174,8 +176,11 @@ const Product = styled('div')({
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: '20px',
+    marginTop: '5px',
     columnGap: '20px',
+    border: '1px lightgrey solid',
+    borderRadius: '3px',
+    padding: '15px 25px',
 })
 
 const ProductImg = styled('img')({

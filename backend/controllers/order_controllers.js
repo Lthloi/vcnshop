@@ -9,72 +9,82 @@ const { STRIPE_SECRET_KEY, STRIPE_PUBLIC_KEY } = process.env
 
 const stripe = new Stripe(STRIPE_SECRET_KEY)
 
-const initPayment = catchAsyncError(async (req, res, next) => {
-    let { amount, currency } = req.body
-    if (!amount || !currency) throw new BaseError('Wrong property name', 400)
-
-    let { email: user_email, name: user_name } = req.user
-
-    let paymentIntent = await stripe.paymentIntents.create({
-        receipt_email: user_email,
-        amount,
-        currency,
-        metadata: {
-            'Company': 'VCN Shop - Fox COR',
-        },
-    })
-
-    await OrderModel.create({
-        'shipping_fee': 0,
-        'tax_fee': 0,
-        'total_to_pay': amount,
-        'price_of_items': 0,
-        'order_status': 'uncompleted',
-        'payment_status': 'processing',
-        'user': {
-            id: req.user._id,
-            email: req.user.email,
-        }
-    })
-
-    res.status(200).json({
-        client_secret: paymentIntent.client_secret,
-        stripe_key: STRIPE_PUBLIC_KEY,
-        user_email,
-        user_name,
-    })
-})
-
-// complete the order
-const newOrder = catchAsyncError(async (req, res, next) => {
+const initPlaceOrder = catchAsyncError(async (req, res, next) => {
     let {
+        currency,
         shipping_info,
         items_of_order,
-        payment_info,
         price_of_items,
         tax_fee,
         shipping_fee,
         total_to_pay,
     } = req.body
 
-    if (!shipping_info || !items_of_order || !payment_info || !price_of_items || !total_to_pay)
+    if (!currency || !shipping_info || !items_of_order || !price_of_items || !total_to_pay)
         throw new BaseError('Wrong property name', 400)
     if ((!tax_fee && tax_fee !== 0) || (!shipping_fee && shipping_fee !== 0))
         throw new BaseError('Wrong property name', 400)
 
-    await OrderModel.create({
+    let { email: user_email, name: user_name } = req.user
+
+    let paymentIntent = await stripe.paymentIntents.create({
+        receipt_email: user_email,
+        amount: (total_to_pay * 100).toFixed(2) * 1,
+        currency,
+        metadata: {
+            'Company': 'VCN Shop - Fox COR',
+        },
+    })
+
+    let client_secret = paymentIntent.client_secret
+
+    let order = await OrderModel.create({
         shipping_info,
         items_of_order,
-        payment_info,
         price_of_items,
         tax_fee,
         shipping_fee,
         total_to_pay,
+        order_status: 'uncompleted',
+        payment_status: 'processing',
+        payment_info: {
+            id: client_secret,
+            method: '...',
+        },
         user: {
             id: req.user._id,
             email: req.user.email,
+            name: req.user.name,
         },
     })
+
+    res.status(200).json({
+        client_secret,
+        stripe_key: STRIPE_PUBLIC_KEY,
+        user_email,
+        user_name,
+        orderId: order._id,
+    })
+})
+
+// complete the order
+const completePlaceOrder = catchAsyncError(async (req, res, next) => {
+    let { orderId, paymentId, paymentMethod, paymentStatus } = req.body
+    if (!orderId) throw new BaseError('Wrong property name', 400)
+
+    await OrderModel.updateOne(
+        { _id: orderId },
+        {
+            $set: {
+                'payment_status': paymentStatus,
+                'payment_info': {
+                    'id': paymentId,
+                    'method': paymentMethod,
+                },
+                'order_status': 'processing',
+            }
+        }
+    )
 
     res.status(200).json({
         success: true,
@@ -119,18 +129,19 @@ const getOrder = catchAsyncError(async (req, res, next) => {
 
     order.createdAt = moment(order.createdAt.toISOString()).format('MMMM Do YYYY, HH:mm')
 
-    res.status(200).json({ order })
+    res.status(200).json({ order, stripe_key: STRIPE_PUBLIC_KEY })
 })
 
 const getOrders = catchAsyncError(async (req, res, next) => {
-    let { page, limit } = req.query
+    let { page, limit, paymentStatus } = req.query
     if (!page || !limit) throw new BaseError('Wrong property', 400)
 
-    let user_id = req.user._id
+    let query_object = { 'user.id': req.user._id }
+    if (paymentStatus) query_object.payment_status = paymentStatus
 
     let orders = await OrderModel
         .find(
-            { 'user.id': user_id },
+            query_object,
             {
                 'createdAt': 1,
                 '_id': 1,
@@ -145,7 +156,7 @@ const getOrders = catchAsyncError(async (req, res, next) => {
         .sort({ 'createdAt': -1 })
         .limit(limit * 1)
 
-    let count_product = await OrderModel.countDocuments({ 'user.id': user_id })
+    let count_product = await OrderModel.countDocuments(query_object)
 
     if (!orders) throw new BaseError('Orders not found', 404)
 
@@ -153,6 +164,6 @@ const getOrders = catchAsyncError(async (req, res, next) => {
 })
 
 export {
-    initPayment, newOrder, sendReceipt,
+    initPlaceOrder, completePlaceOrder, sendReceipt,
     getOrder, getOrders,
 }

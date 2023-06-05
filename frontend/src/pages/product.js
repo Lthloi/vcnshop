@@ -3,7 +3,6 @@ import { styled } from '@mui/material/styles'
 import ProductDetail from "../components/product/product_detail/product_detail"
 import ScrollToTopBtn from '../components/scroll_top_top_btn'
 import ProductReview from "../components/product/product_review/product_review"
-import HelpChat from '../components/help_chat'
 import InfoIcon from '@mui/icons-material/Info'
 import Introduction from '../components/product/product_detail/introduction'
 import { useParams } from "react-router-dom"
@@ -70,7 +69,6 @@ const Product = () => {
                         </ReviewsAndDetails>
 
                         <ScrollToTopBtn />
-                        <HelpChat />
                     </>
             }
         </ProductDetailPage>

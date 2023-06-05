@@ -6,7 +6,6 @@ import { getProducts } from '../store/actions/product_actions'
 import { useDispatch, useSelector } from 'react-redux'
 import Skeleton from '@mui/material/Skeleton'
 import Filter from "../components/search_result/filter"
-import HelpChat from '../components/help_chat'
 import ScrollToTopBtn from '../components/scroll_top_top_btn'
 import { Grid } from "@mui/material"
 import HeartBrokenIcon from '@mui/icons-material/HeartBroken'
@@ -90,7 +89,6 @@ const SearchResult = () => {
                 </ProductsArea>
             </ResultArea>
 
-            <HelpChat />
             <ScrollToTopBtn />
         </SearchResultPage>
     )

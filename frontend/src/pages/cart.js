@@ -5,7 +5,6 @@ import ProductCardsSection from "../components/cart/product_cards_section"
 import { useSelector } from "react-redux"
 import ShoppingBagIcon from '@mui/icons-material/ShoppingBag'
 import ScrollToTopBtn from '../components/scroll_top_top_btn'
-import HelpChat from '../components/help_chat'
 
 const Cart = () => {
     const { cartItems } = useSelector(({ cart }) => cart)
@@ -30,7 +29,6 @@ const Cart = () => {
             </CartContainer>
 
             <ScrollToTopBtn />
-            <HelpChat />
         </CartPage>
     )
 }

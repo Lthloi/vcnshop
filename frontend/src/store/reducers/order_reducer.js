@@ -4,6 +4,7 @@ export const orderSlice = createSlice({
     name: 'order',
     initialState: {
         currentPage: 1,
+        currentTab: 'all',
         order: {},
         orders: [],
         countOrder: 0,
@@ -11,14 +12,14 @@ export const orderSlice = createSlice({
         error: null,
     },
     reducers: {
-        createNewOrderRequest: (state, action) => {
+        completeOrderRequest: (state, action) => {
             state.loading = true
             state.error = null
         },
-        createNewOrderSuccess: (state, action) => {
+        completeOrderSuccess: (state, action) => {
             state.loading = true
         },
-        createNewOrderFail: (state, action) => {
+        completeOrderFail: (state, action) => {
             state.loading = false
             state.error = action.payload.error
         },
@@ -45,10 +46,11 @@ export const orderSlice = createSlice({
         getOrdersSuccess: (state, action) => {
             state.loading = false
             state.orders = action.payload.orders
-            
-            let { current_page, countOrder } = action.payload
+
+            let { currentPage, countOrder, currentTab } = action.payload
             state.countOrder = countOrder
-            state.currentPage = current_page
+            state.currentPage = currentPage
+            state.currentTab = currentTab
         },
         getOrdersFail: (state, action) => {
             state.loading = false
@@ -58,7 +60,7 @@ export const orderSlice = createSlice({
 })
 
 export const {
-    createNewOrderRequest, createNewOrderSuccess, createNewOrderFail,
+    completeOrderRequest, completeOrderSuccess, completeOrderFail,
     getOrderRequest, getOrderSuccess, getOrderFail,
     getOrdersRequest, getOrdersSuccess, getOrdersFail,
 } = orderSlice.actions

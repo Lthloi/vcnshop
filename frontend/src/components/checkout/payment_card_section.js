@@ -5,15 +5,16 @@ import { toast } from "react-toastify"
 import EmailIcon from '@mui/icons-material/Email'
 import ErrorIcon from '@mui/icons-material/Error'
 import { CircularProgress } from "@mui/material"
-import { useDispatch, useSelector } from "react-redux"
-import { createNewOrder } from '../../store/actions/order_actions'
+import { useDispatch } from "react-redux"
+import { completePlaceOrder } from '../../store/actions/order_actions'
 
 const email_is_read_only = true
 
 const step_after_complete_payment = 'success'
 
-const PaymentCardSection = ({ clientSecret, totalToPay, currencyCode, userEmail, userName, subtotal, taxFee, shippingFee }) => {
-    const { cartItems, shippingInfo } = useSelector(({ cart }) => cart)
+const payment_method = 'card'
+
+const PaymentCardSection = ({ totalToPay, shippingInfo, clientSecret, orderId, currencyCode, userEmail, userName }) => {
     const stripe = useStripe()
     const elements = useElements()
     const [paying, setPaying] = useState(false)
@@ -51,29 +52,16 @@ const PaymentCardSection = ({ clientSecret, totalToPay, currencyCode, userEmail,
             setPaying(false)
         } else {
             let paymentIntent_info = response.paymentIntent
-            let order_info = {
-                shipping_info: {
-                    city: shippingInfo.City,
-                    country: shippingInfo.Country,
-                    state: shippingInfo.State,
-                    address: shippingInfo.Address,
-                    zip_code: shippingInfo['Zip Code'],
-                    phone_number: shippingInfo['Phone Number'],
-                    method: 'Sea Transport',
-                },
-                items_of_order: cartItems,
-                payment_info: {
-                    id: paymentIntent_info.id,
-                    method: 'card',
-                },
-                payment_status: paymentIntent_info.status,
-                price_of_items: subtotal,
-                tax_fee: taxFee,
-                shipping_fee: shippingFee,
-                total_to_pay: totalToPay,
-            }
 
-            dispatch(createNewOrder(order_info, step_after_complete_payment))
+            dispatch(completePlaceOrder(
+                {
+                    orderId,
+                    paymentMethod: payment_method,
+                    paymentId: paymentIntent_info.id,
+                    paymentStatus: paymentIntent_info.status,
+                },
+                step_after_complete_payment
+            ))
         }
     }
 
@@ -100,7 +88,7 @@ const PaymentCardSection = ({ clientSecret, totalToPay, currencyCode, userEmail,
                     </span>
                 </Note>
             </EmailFromGroup>
-            <PaymentElement o />
+            <PaymentElement />
             <PayNowBtn onClick={confirmPayment} sx={paying && { pointerEvents: 'none' }}>
                 {
                     paying ?

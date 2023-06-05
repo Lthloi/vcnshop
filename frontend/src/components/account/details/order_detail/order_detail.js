@@ -42,7 +42,7 @@ const RenderCustomerDetail = (icon, text) => (
 )
 
 const OrderDetail = () => {
-    const { order } = useSelector(({ order }) => order)
+    const { order, loading, error } = useSelector(({ order }) => order)
     const dispatch = useDispatch()
     const { orderId } = useParams()
     const navigate = useNavigate()
@@ -59,87 +59,91 @@ const OrderDetail = () => {
             <HelperText>Thanks for your order! Check out the details below</HelperText>
             <div style={{ marginTop: '30px' }}></div>
             {
-                order && order._id ?
-                    <div>
-                        <IDTitle>
-                            <span>Order </span>
-                            <span className="hightlight">{'#' + order.payment_info.id}</span>
-                            <CreatedAt>{order.createdAt}</CreatedAt>
-                        </IDTitle>
-                        <div style={{ display: 'flex', columnGap: '20px', marginTop: '25px' }}>
-                            <OrderedItemsContainer>
-                                <OrderedItemTitle>Ordered Items</OrderedItemTitle>
-                                <OrderItems>
-                                    {
-                                        order.items_of_order.map(({ _id, name, cost, quantity, image_link, color, size }) => (
-                                            <Item key={_id}>
-                                                <Details>
-                                                    <Tooltip title="Click for visiting the product">
+                loading ? (
+                    <Skeleton sx={{ transform: 'unset', height: '400px' }} />
+                ) : error ? (
+                    <Error>{error.message}</Error>
+                ) : order && order._id &&
+                <div>
+                    <IDTitle>
+                        <span>Order </span>
+                        <span className="hightlight">{'#' + order.payment_info.id}</span>
+                        <CreatedAt>{order.createdAt}</CreatedAt>
+                    </IDTitle>
+                    <div style={{ display: 'flex', columnGap: '20px', marginTop: '25px' }}>
+                        <OrderedItemsContainer>
+                            <OrderedItemTitle>Ordered Items</OrderedItemTitle>
+                            <OrderItems>
+                                {
+                                    order.items_of_order.map(({ _id, name, cost, quantity, image_link, color, size }) => (
+                                        <Item key={_id}>
+                                            <Details>
+                                                <Tooltip title="Click for visiting the product">
+                                                    <div style={{ minWidth: '101px' }}>
                                                         <Image
                                                             src={image_link}
                                                             onClick={() => viewProduct(_id)}
                                                         />
-                                                    </Tooltip>
-                                                    <div>
-                                                        <Detail style={{ fontWeight: 'bold', color: 'black' }}>{name}</Detail>
-                                                        <Detail>{'Color: ' + color}</Detail>
-                                                        <Detail>{'Size: ' + size}</Detail>
-                                                        <Detail>{'Qty: ' + quantity}</Detail>
                                                     </div>
-                                                </Details>
-                                                <Price>{'$' + cost}</Price>
-                                            </Item>
-                                        ))
-                                    }
-                                </OrderItems>
-                                <PaymentContainer>
-                                    <span></span>
-                                    <div>
-                                        {RenderPayment('Subtotal', order.price_of_items)}
-                                        {RenderPayment('Shipping', order.shipping_fee)}
-                                        {RenderPayment('Tax', order.tax_fee)}
-                                        <Payment sx={{ borderTop: '1px lightgrey solid', paddingTop: '10px' }}>
-                                            <Type>Total</Type>
-                                            <div>{'$' + order.total_to_pay}</div>
-                                        </Payment>
-                                    </div>
-                                </PaymentContainer>
-                            </OrderedItemsContainer>
+                                                </Tooltip>
+                                                <div>
+                                                    <Detail style={{ fontWeight: 'bold', color: 'black' }}>{name}</Detail>
+                                                    <Detail>{'Color: ' + color}</Detail>
+                                                    <Detail>{'Size: ' + size}</Detail>
+                                                    <Detail>{'Qty: ' + quantity}</Detail>
+                                                </div>
+                                            </Details>
+                                            <Price>{'$' + cost}</Price>
+                                        </Item>
+                                    ))
+                                }
+                            </OrderItems>
+                            <PaymentContainer>
+                                <span></span>
+                                <div>
+                                    {RenderPayment('Subtotal', order.price_of_items)}
+                                    {RenderPayment('Shipping', order.shipping_fee)}
+                                    {RenderPayment('Tax', order.tax_fee)}
+                                    <Payment sx={{ borderTop: '1px lightgrey solid', paddingTop: '10px' }}>
+                                        <Type>Total</Type>
+                                        <div>{'$' + order.total_to_pay}</div>
+                                    </Payment>
+                                </div>
+                            </PaymentContainer>
+                        </OrderedItemsContainer>
 
-                            <OrderStatus status={order.order_status} />
-                        </div>
-                        <div style={{ display: 'flex', columnGap: '20px', justifyContent: 'space-between', marginTop: '30px' }}>
-                            <CustomerDetailsContainer>
-                                <DetailsTitle>
-                                    <LocalShippingIcon />
-                                    <span>Shipping Details</span>
-                                </DetailsTitle>
-                                <div>
-                                    {RenderCustomerDetail(<PublicIcon />, order.shipping_info.country)}
-                                    {RenderCustomerDetail(<LocationCityIcon />, order.shipping_info.city)}
-                                    {RenderCustomerDetail(<PlaceIcon />, order.shipping_info.zip_code)}
-                                    {RenderCustomerDetail(<HomeIcon />, order.shipping_info.address)}
-                                </div>
-                            </CustomerDetailsContainer>
-                            <CustomerDetailsContainer>
-                                <DetailsTitle>
-                                    <PersonIcon />
-                                    <span>Customer Details</span>
-                                </DetailsTitle>
-                                <div>
-                                    {
-                                        order.user.name &&
-                                        RenderCustomerDetail(<PersonIcon />, order.user.name)
-                                    }
-                                    {RenderCustomerDetail(<EmailIcon />, order.user.email)}
-                                    {RenderCustomerDetail(<PhoneIcon />, order.shipping_info.phone_number ? '+' + order.shipping_info.phone_number : null)}
-                                    {RenderCustomerDetail(<CreditCardIcon />, 'paid on ' + order.payment_info.method)}
-                                </div>
-                            </CustomerDetailsContainer>
-                        </div>
+                        <OrderStatus status={order.order_status} />
                     </div>
-                    :
-                    <Skeleton sx={{ transform: 'unset', height: '400px' }} />
+                    <div style={{ display: 'flex', columnGap: '20px', justifyContent: 'space-between', marginTop: '30px' }}>
+                        <CustomerDetailsContainer>
+                            <DetailsTitle>
+                                <LocalShippingIcon />
+                                <span>Shipping Details</span>
+                            </DetailsTitle>
+                            <div>
+                                {RenderCustomerDetail(<PublicIcon />, order.shipping_info.country)}
+                                {RenderCustomerDetail(<LocationCityIcon />, order.shipping_info.city)}
+                                {RenderCustomerDetail(<PlaceIcon />, order.shipping_info.zip_code)}
+                                {RenderCustomerDetail(<HomeIcon />, order.shipping_info.address)}
+                            </div>
+                        </CustomerDetailsContainer>
+                        <CustomerDetailsContainer>
+                            <DetailsTitle>
+                                <PersonIcon />
+                                <span>Customer Details</span>
+                            </DetailsTitle>
+                            <div>
+                                {
+                                    order.user.name &&
+                                    RenderCustomerDetail(<PersonIcon />, order.user.name)
+                                }
+                                {RenderCustomerDetail(<EmailIcon />, order.user.email)}
+                                {RenderCustomerDetail(<PhoneIcon />, order.shipping_info.phone_number ? '+' + order.shipping_info.phone_number : null)}
+                                {RenderCustomerDetail(<CreditCardIcon />, 'paid on ' + order.payment_info.method)}
+                            </div>
+                        </CustomerDetailsContainer>
+                    </div>
+                </div>
             }
         </OrderDetailSection>
     )
@@ -291,4 +295,11 @@ const CustomerDetail = styled('div')({
     marginTop: '20px',
     fontFamily: '"Kanit", "sans-serif"',
     paddingLeft: '10px',
+})
+
+const Error = styled('div')({
+    fontFamily: '"Kanit", "sans-serif"',
+    color: 'red',
+    padding: '20px',
+    textAlign: 'center',
 })

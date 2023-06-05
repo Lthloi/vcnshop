@@ -1,6 +1,7 @@
 import React from "react"
 import { styled } from '@mui/material/styles'
 import foxLogoBlack from '../assets/images/logo_app_black.svg'
+import foxLogoWhite from '../assets/images/logo_app_white.svg'
 
 const LoadingApp = ({ isAuthorization }) => {
     return (
@@ -13,7 +14,7 @@ const LoadingApp = ({ isAuthorization }) => {
                 <CircularAnimation sx={isAuthorization && { borderColor: 'black' }} />
 
                 <Image
-                    src={foxLogoBlack}
+                    src={isAuthorization ? foxLogoBlack : foxLogoWhite}
                     sx={isAuthorization && { color: 'black' }}
                 />
 

@@ -9,6 +9,7 @@ import SearchDialog from "./search_dialog"
 import { useSelector } from "react-redux"
 import UserNav from "./user_nav"
 import Tooltip from '@mui/material/Tooltip'
+import { NavLink } from "react-router-dom"
 
 const Navigation = () => {
     const numberOfCartItems = useSelector(({ cart }) => cart.cartItems.length)
@@ -62,7 +63,7 @@ const Navigation = () => {
                         <UserNav />
 
                         <Tooltip title="Cart">
-                            <a href="/cart">
+                            <NavLink to="/cart">
                                 <StyledBadge
                                     badgeContent={numberOfCartItems}
                                     color="default"
@@ -70,7 +71,7 @@ const Navigation = () => {
                                 >
                                     <StyledShoppingCartIcon />
                                 </StyledBadge>
-                            </a>
+                            </NavLink>
                         </Tooltip>
                     </div>
                 </RightSection>

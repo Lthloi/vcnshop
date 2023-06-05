@@ -3,7 +3,6 @@ import {
     addProductToCartRequest, addProductToCartSuccess, addProductToCartFail,
     changeQuantityRequest, changeQuantityFail,
     removeItemFromCartExecute,
-    saveShippingInfoExecute,
 } from '../../store/reducers/cart_reducer'
 import { toast } from 'react-toastify'
 import actionsErrorHandler from '../../utils/error_handler'
@@ -85,14 +84,6 @@ const removeItemFromCart = (product_id) => async (dispatch, getState) => {
     localStorage.setItem('cartItems', JSON.stringify(current_cartItems))
 }
 
-const saveShippingInfo = (shipping_info) => async (dispatch) => {
-    // shipping_info: { Address, City, State, Country, Zip_Code, Phone_Number }
-    dispatch(saveShippingInfoExecute({ shipping_info }))
-
-    localStorage.setItem('shippingInfo', JSON.stringify(shipping_info))
-}
-
 export {
     addProductToCart, removeItemFromCart, changeQuantity,
-    saveShippingInfo,
 }

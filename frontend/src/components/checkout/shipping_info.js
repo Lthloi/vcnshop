@@ -13,12 +13,11 @@ import { EXPRESS_SERVER } from "../../utils/constants"
 import { toast } from "react-toastify"
 import WarningIcon from '@mui/icons-material/Warning'
 import LocalConvenienceStoreIcon from '@mui/icons-material/LocalConvenienceStore'
-import { useDispatch } from 'react-redux'
 import { useNavigate } from "react-router-dom"
-import { saveShippingInfo } from "../../store/actions/cart_actions"
 import Select from '@mui/material/Select'
 import { getCodeList } from 'country-list'
 import { Tooltip } from "@mui/material"
+import BookmarkIcon from '@mui/icons-material/Bookmark'
 
 const defaultInputs = [
     {
@@ -56,7 +55,6 @@ const defaultInputs = [
 const ShippingInfo = () => {
     const { register, handleSubmit, formState: { errors }, setValue, clearErrors, getValues, setError } = useForm()
     const [getLocationLoading, setGetLocationLoading] = useState(false)
-    const dispatch = useDispatch()
     const navigate = useNavigate()
 
     const getUserLocation = async () => {
@@ -67,9 +65,9 @@ const ShippingInfo = () => {
         try {
             let { data } = await axios.get(EXPRESS_SERVER + api_to_get_user_location)
             user_location_detail = {
-                Country: data.country_name,
-                State: data.region_name,
-                City: data.city_name,
+                'Country': data.country_name,
+                'State': data.region_name,
+                'City': data.city_name,
                 'Zip Code': data.zip_code,
             }
         } catch (error) {
@@ -81,7 +79,7 @@ const ShippingInfo = () => {
             return toast.error(user_location_detail.response ? user_location_detail.response.data.message : 'Something went wrong, please try again some minutes later!')
 
         for (let { label } of defaultInputs) {
-            if (user_location_detail[label]) setValue(label, user_location_detail[label])
+            setValue(label, user_location_detail[label] || '')
             if (getValues(label)) clearErrors(label)
         }
 
@@ -98,15 +96,16 @@ const ShippingInfo = () => {
         }
 
         let shipping_info = {
-            Address: data.Address,
-            City: data.City,
-            State: data.State,
+            'Address': data.Address,
+            'City': data.City,
+            'State': data.State,
             'Zip Code': data['Zip Code'],
-            Country: data.Country,
+            'Country': data.Country,
             'Phone Number': data['Phone Number'],
         }
 
-        dispatch(saveShippingInfo(shipping_info))
+        // shipping_info: { Address, City, State, Country, Zip_Code, Phone_Number }
+        localStorage.setItem('shippingInfo', JSON.stringify(shipping_info))
 
         navigate('/checkout?step=confirm_order')
     }
@@ -116,6 +115,14 @@ const ShippingInfo = () => {
     }
 
     const countries = useMemo(() => getCodeList(), [])
+
+    const usingDefaultAddress = () => {
+        let default_address = localStorage.getItem('shippingInfo')
+        if (!default_address) return toast.warning('You don\'t set a default address yet')
+        let default_address_obj = JSON.parse(default_address)
+        for (let { label } of defaultInputs)
+            setValue(label, default_address_obj[label] || '')
+    }
 
     return (
         <ShippingInfoSection
@@ -133,7 +140,17 @@ const ShippingInfo = () => {
                     >
                         <StyledMyLocationIcon sx={getLocationLoading && { animationDuration: '2s', pointerEvents: 'none', cursor: 'not-allowed' }} />
                     </Tooltip>
-                    <UserLocationText>USE MY LOCATION</UserLocationText>
+                    <UserLocationText>GET MY LOCATION</UserLocationText>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <Tooltip
+                        placement="right"
+                        title="Click to use your default address"
+                        onClick={usingDefaultAddress}
+                    >
+                        <StyledBookmarkIcon />
+                    </Tooltip>
+                    <UserLocationText>USE MY DEFAULT ADDRESS</UserLocationText>
                 </div>
             </UserLocationSection>
 
@@ -227,13 +244,15 @@ const SectionTitle = styled('h2')({
 
 const UserLocationSection = styled('div')({
     display: 'flex',
-    alignItems: 'center',
+    flexDirection: 'column',
+    rowGap: '30px',
+    justifyContent: 'center',
     position: 'absolute',
     right: '10%',
     height: '100%',
 })
 
-const StyledMyLocationIcon = styled(MyLocationIcon)({
+const style = {
     margin: 'auto',
     fontSize: '2em',
     padding: '5px',
@@ -241,13 +260,21 @@ const StyledMyLocationIcon = styled(MyLocationIcon)({
     cursor: 'pointer',
     border: '2px white solid',
     animation: 'get_user_location 0s infinite linear',
+    '&:hover': {
+        outline: '2px black solid',
+    },
+}
+
+const StyledMyLocationIcon = styled(MyLocationIcon)({
+    ...style,
     '@keyframes get_user_location': {
         from: { transform: 'rotate(0deg)' },
         to: { transform: 'rotate(360deg)' },
     },
-    '&:hover': {
-        outline: '2px black solid',
-    },
+})
+
+const StyledBookmarkIcon = styled(BookmarkIcon)({
+    ...style,
 })
 
 const UserLocationText = styled('div')({
@@ -256,6 +283,8 @@ const UserLocationText = styled('div')({
     fontSize: '1em',
     paddingBottom: '1px',
     borderBottom: '2px black solid',
+    maxWidth: '200px',
+    textAlign: 'center',
 })
 
 const InputsContainer = styled('div')({

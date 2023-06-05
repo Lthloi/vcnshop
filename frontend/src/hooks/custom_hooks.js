@@ -84,23 +84,15 @@ const useNumerToWords = () => (number, currency_code = 'USD') => {
     return words
 }
 
-const useGetQueryValue = () => (query_string, unique_string_name) => {
-    let non_official_value = query_string.split(
-        unique_string_name.includes('=') ? unique_string_name : unique_string_name + '='
-    )[1]
+const useGetQueryValue = () => (query_string_input, unique_string_name) => {
+    if (query_string_input === 1) {
+        let query_string_to_get = new URLSearchParams(window.location.search)
+        return query_string_to_get.get(unique_string_name)
+    } else {
+        let query_string_to_get = new URLSearchParams(query_string_input)
+        return query_string_to_get.get(unique_string_name)
+    }
 
-    if (!non_official_value) return null
-
-    let index_of_link_up_letter = non_official_value.indexOf('&')
-
-    let official_value
-
-    if (index_of_link_up_letter !== -1)
-        official_value = non_official_value.slice(0, index_of_link_up_letter)
-    else
-        official_value = non_official_value.slice(0, non_official_value.length)
-
-    return official_value
 }
 
 const useCurrentRoute = () => useLocation().pathname

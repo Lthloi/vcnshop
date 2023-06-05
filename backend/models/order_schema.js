@@ -72,6 +72,10 @@ const OrderSchema = new Schema({
         email: {
             type: String,
             required: true,
+        },
+        name: {
+            type: String,
+            required: true,
         }
     },
     payment_info: {
@@ -84,7 +88,7 @@ const OrderSchema = new Schema({
             required: true,
         },
     },
-    payment_status: { // stripe, payment intent: processing || canceled || succeeded 
+    payment_status: { // stripe, statuses of payment intent: processing || canceled || succeeded 
         type: String,
         required: true,
     },
@@ -108,10 +112,9 @@ const OrderSchema = new Schema({
         required: true,
         default: 0,
     },
-    order_status: {
+    order_status: { //order statuses: uncompleted || processing || delivering || delivered
         type: String,
         required: true,
-        default: 'processing',
     },
     deliveredAt: {
         type: Date,

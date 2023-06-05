@@ -1,6 +1,6 @@
 import axios from 'axios'
 import {
-    createNewOrderRequest, createNewOrderSuccess, createNewOrderFail,
+    completeOrderRequest, completeOrderSuccess, completeOrderFail,
     getOrderRequest, getOrderSuccess, getOrderFail,
     getOrdersRequest, getOrdersSuccess, getOrdersFail,
 } from '../reducers/order_reducer.js'
@@ -9,33 +9,30 @@ import { toast } from 'react-toastify'
 import actionsErrorHandler from '../../utils/error_handler.js'
 import { LIMIT_GET_ORDERS } from '../../utils/constants.js'
 
-const createNewOrder = (order_info, step_after_complete_payment) => async (dispatch) => {
+const completePlaceOrder = ({ orderId, paymentMethod, paymentId, paymentStatus }, step_after_complete_payment) => async (dispatch) => {
     try {
-        dispatch(createNewOrderRequest())
+        dispatch(completeOrderRequest())
 
-        let api_to_create_new_order = '/api/newOrder'
+        let api_to_create_new_order = '/api/completePlaceOrder'
 
         await axios.post(
             EXPRESS_SERVER + api_to_create_new_order,
             {
-                shipping_info: order_info.shipping_info,
-                items_of_order: order_info.items_of_order,
-                payment_info: order_info.payment_info,
-                price_of_items: order_info.price_of_items,
-                tax_fee: order_info.tax_fee,
-                shipping_fee: order_info.shipping_fee,
-                total_to_pay: order_info.total_to_pay,
+                orderId,
+                paymentId,
+                paymentMethod,
+                paymentStatus,
             },
             { withCredentials: true },
         )
 
-        dispatch(createNewOrderSuccess())
+        dispatch(completeOrderSuccess())
 
-        window.open('/checkout?step=' + step_after_complete_payment + '&payment_intent=' + order_info.payment_info.id, '_self')
+        window.open('/checkout?step=' + step_after_complete_payment + '&payment_intent=' + paymentId, '_self')
     } catch (error) {
-        let errorObject = actionsErrorHandler(error, 'Error Warning: fail to create new order.')
+        let errorObject = actionsErrorHandler(error, 'Error Warning: fail to complete the order.')
 
-        dispatch(createNewOrderFail({ error: errorObject }))
+        dispatch(completeOrderFail({ error: errorObject }))
 
         toast.error(errorObject.message)
     }
@@ -54,7 +51,7 @@ const getOrder = (paymentId, orderId) => async (dispatch) => {
 
         dispatch(getOrderSuccess({ order: data.order }))
     } catch (error) {
-        let errorObject = actionsErrorHandler(error, 'Error Warning: fail to create new order.')
+        let errorObject = actionsErrorHandler(error, 'Error Warning: fail to get order.')
 
         dispatch(getOrderFail({ error: errorObject }))
 
@@ -62,21 +59,23 @@ const getOrder = (paymentId, orderId) => async (dispatch) => {
     }
 }
 
-const getOrders = (page, limit = LIMIT_GET_ORDERS) => async (dispatch) => {
+const getOrders = (page, limit = LIMIT_GET_ORDERS, payment_status) => async (dispatch) => {
     try {
         dispatch(getOrdersRequest())
 
-        let api_to_get_orders = '/api/getOrders?page=' + page + '&limit=' + limit
+        let api_to_get_orders = '/api/getOrders?page=' + page + '&limit=' + limit +
+            (payment_status ? '&paymentStatus=' + payment_status : '')
 
         let { data } = await axios.get(EXPRESS_SERVER + api_to_get_orders, { withCredentials: true })
 
         dispatch(getOrdersSuccess({
             orders: data.orders,
             countOrder: data.countOrder,
-            current_page: page,
+            currentPage: page,
+            currentTab: payment_status || 'all',
         }))
     } catch (error) {
-        let errorObject = actionsErrorHandler(error, 'Error Warning: fail to create new order.')
+        let errorObject = actionsErrorHandler(error, 'Error Warning: fail to get orders.')
 
         dispatch(getOrdersFail({ error: errorObject }))
 
@@ -85,5 +84,5 @@ const getOrders = (page, limit = LIMIT_GET_ORDERS) => async (dispatch) => {
 }
 
 export {
-    createNewOrder, getOrder, getOrders,
+    completePlaceOrder, getOrder, getOrders,
 }

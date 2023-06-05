@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react"
+import React, { useEffect, useMemo, useRef, useState } from "react"
 import { styled } from '@mui/material/styles'
 import { useDispatch, useSelector } from "react-redux"
 import { getOrders } from "../../../store/actions/order_actions"
@@ -12,19 +12,27 @@ import OpenInNewIcon from '@mui/icons-material/OpenInNew'
 import { Pagination } from "@mui/material"
 import { useNavigate } from "react-router-dom"
 import { useCurrentRoute } from '../../../hooks/custom_hooks'
+import FilterAltIcon from '@mui/icons-material/FilterAlt'
 
-const tabs = {
-    ALL: '1',
-    UNCOMPLETED: '2',
-}
-
-const setStyleForStatus = (value) => {
-    let statuses = {
+const statuses = {
+    stripe_payment: {
         SUCCESSED: 'succeeded',
         CANCELED: 'canceled',
         PROCESSING: 'processing',
-        UNPAID: 'unpaid',
+    },
+    order: {
+        UNCOMPLETED: 'uncompleted',
     }
+}
+
+const tabs = {
+    ALL: 'all',
+    UNPAID: statuses.stripe_payment.PROCESSING,
+    SUCCESSED: statuses.stripe_payment.SUCCESSED,
+}
+
+const RenderType = (label_of_type, value_of_type) => {
+    let set_style
 
     let general_style_for_status = {
         padding: '3px 8px',
@@ -32,140 +40,140 @@ const setStyleForStatus = (value) => {
         borderRadius: '10px',
     }
 
-    if (value === statuses.SUCCESSED)
-        return {
+    if (value_of_type === statuses.stripe_payment.SUCCESSED)
+        set_style = {
             ...general_style_for_status,
             backgroundColor: '#74ffcd',
         }
-    else if (value === statuses.PROCESSING || value === statuses.UNPAID)
-        return {
+    else if (value_of_type === statuses.stripe_payment.PROCESSING || value_of_type === statuses.order.UNCOMPLETED)
+        set_style = {
             ...general_style_for_status,
             backgroundColor: '#ffd995',
         }
-    else if (value === statuses.CANCELED)
-        return {
+    else if (value_of_type === statuses.stripe_payment.CANCELED)
+        set_style = {
             ...general_style_for_status,
             backgroundColor: '#ff8b8b',
         }
+
+    return (
+        <ItemLabel>
+            <LabelName>{label_of_type}</LabelName>
+            <LabelValue sx={set_style}>
+                {value_of_type}
+            </LabelValue>
+        </ItemLabel>
+    )
 }
 
-const RenderType = (label_of_type, value_of_type) => (
-    <ItemLabel>
-        <LabelName>{label_of_type}</LabelName>
-        <LabelValue sx={setStyleForStatus(value_of_type)}>
-            {value_of_type}
-        </LabelValue>
-    </ItemLabel>
-)
-
 const MyOrders = () => {
-    const { orders, countOrder, currentPage } = useSelector(({ order }) => order)
+    const { orders, countOrder, currentPage, currentTab, loading, error } = useSelector(({ order }) => order)
     const dispatch = useDispatch()
-    const [tab, setTab] = useState(tabs.ALL)
-    const [ordersPage, setOrdersPage] = useState(currentPage)
     const orders_container_ref = useRef()
     const navigate = useNavigate()
     const current_route = useCurrentRoute()
+
+    const tab = useMemo(() => currentTab, [currentTab])
+    const page = useMemo(() => currentPage, [currentPage])
 
     useEffect(() => {
         if (orders && orders.length === 0) dispatch(getOrders(1))
     }, [dispatch])
 
-    const switchTab = (e, new_value) => {
-        setTab(new_value)
+    const switchTab = (e, new_tab) => {
+        dispatch(getOrders(1, LIMIT_GET_ORDERS, new_tab !== tabs.ALL ? new_tab : null))
     }
 
-    const switchPage = (e, page) => {
-        if (page === ordersPage) return
+    const switchPage = (e, new_page) => {
+        if (new_page === page) return
 
         orders_container_ref.current.scrollIntoView({ block: 'start' })
 
-        setOrdersPage(page)
-
-        dispatch(getOrders(page))
+        dispatch(getOrders(new_page, LIMIT_GET_ORDERS, tab))
     }
 
     const viewOrder = (order_id) => navigate(current_route + '/orderDetail/' + order_id)
 
-    const continueToPayment = () => {
-        if (!sessionStorage.getItem('summary'))
-            navigate('/cart')
-        else {
-            let step
-            if (!sessionStorage.getItem('shippingInfo'))
-                step = 'shipping_info'
-            else if (!sessionStorage.getItem('orderInfo'))
-                step = 'confirm_order'
-            else
-                step = 'payment'
-            navigate('/checkout?step=' + step)
-        }
+    const continueToPayment = (order_id) => {
+        navigate('/checkout?step=payment&orderId=' + order_id)
     }
 
     return (
         <MyOrdersSection id="MyOrdersSection">
             <TitleSection>My Orders</TitleSection>
-            <HelperText>
-                {'Displaying ' + (countOrder < LIMIT_GET_ORDERS ? countOrder : LIMIT_GET_ORDERS) + ' of ' + countOrder}
-            </HelperText>
+            <HelperText>{'Displaying ' + orders.length + ' of ' + countOrder}</HelperText>
             {
-                orders && orders.length > 0 ?
+                loading ? (
                     <>
-                        <MyOrdersContainer ref={orders_container_ref}>
+                        <Loading sx={{ height: '50px', marginTop: '30px' }} />
+                        <Loading sx={{ height: '300px', marginTop: '5px' }} />
+                    </>
+                ) : error ? (
+                    <Error>{error.message}</Error>
+                ) : orders && orders.length > 0 &&
+                <>
+                    <div ref={orders_container_ref} style={{ marginTop: '30px', padding: '0 10px', backgroundColor: 'white' }}>
+                        <TabsTitle>
+                            <FilterAltIcon sx={{ fontSize: '1.2em' }} />
+                            <span>Filter By Payment Status</span>
+                        </TabsTitle>
+                        {
+                            tab &&
                             <StyledTabs
                                 value={tab}
                                 onChange={switchTab}
                                 textColor="inherit"
                             >
                                 <Tab label="All" value={tabs.ALL} />
-                                <Tab label="Unpaid" value={tabs.UNCOMPLETED} />
+                                <Tab label="UNPAID" value={tabs.UNPAID} />
+                                <Tab label="SUCCESSED" value={tabs.SUCCESSED} />
                             </StyledTabs>
-                        </MyOrdersContainer>
-                        {
-                            orders.map(({ createdAt, order_status, _id, items_of_order, payment_status }) => (
-                                <ItemContainer key={_id}>
-                                    <ItemLabels>
-                                        {RenderType('ORDER ID:', _id)}
-                                        {RenderType('PAYMENT STATUS:', payment_status)}
-                                        {RenderType('ORDER STATUS:', order_status)}
-                                        {RenderType('DATE:', new Date(createdAt).toDateString())}
-                                    </ItemLabels>
-                                    <ItemHr />
-                                    <Container>
-                                        <Images>
-                                            {
-                                                items_of_order.map(({ name, image_link }) => (
-                                                    <Tooltip title={name} key={image_link}>
-                                                        <Image src={image_link} />
-                                                    </Tooltip>
-                                                ))
-                                            }
-                                        </Images>
-                                        <div style={{ width: '40%' }}>
-                                            <Button onClick={() => viewOrder(_id)}>
-                                                VIEW ORDER
-                                            </Button>
-                                            <Button
-                                                sx={{ marginTop: '10px', display: 'flex' }}
-                                                onClick={continueToPayment}
-                                            >
-                                                <OpenInNewIcon sx={{ margin: 'auto' }} />
-                                            </Button>
-                                        </div>
-                                    </Container>
-                                    <OrderHelpterText>
-                                        <TipsAndUpdatesIcon sx={{ color: 'gray', fontSize: '1.2em' }} />
-                                        <span>Moving mouse on images to view name of product</span>
-                                    </OrderHelpterText>
-                                </ItemContainer>
-                            ))
                         }
-                    </>
-                    :
-                    <>
-                        <Loading sx={{ height: '50px', marginTop: '30px' }} />
-                        <Loading sx={{ height: '300px', marginTop: '5px' }} />
-                    </>
+                    </div>
+                    {
+                        orders.map(({ createdAt, order_status, _id, items_of_order, payment_status }) => (
+                            <ItemContainer key={_id}>
+                                <ItemLabels>
+                                    {RenderType('ORDER ID:', _id)}
+                                    {RenderType('PAYMENT STATUS:', payment_status)}
+                                    {RenderType('ORDER STATUS:', order_status)}
+                                    {RenderType('DATE:', new Date(createdAt).toDateString())}
+                                </ItemLabels>
+                                <ItemHr />
+                                <Container>
+                                    <Images>
+                                        {
+                                            items_of_order.map(({ name, image_link }) => (
+                                                <Tooltip title={name} key={image_link}>
+                                                    <Image src={image_link} />
+                                                </Tooltip>
+                                            ))
+                                        }
+                                    </Images>
+                                    <div style={{ width: '40%' }}>
+                                        {
+                                            payment_status === statuses.stripe_payment.PROCESSING || order_status === statuses.order.UNCOMPLETED ?
+                                                <Button
+                                                    sx={{ marginTop: '10px', display: 'flex' }}
+                                                    onClick={() => continueToPayment(_id)}
+                                                >
+                                                    <OpenInNewIcon sx={{ margin: 'auto' }} />
+                                                </Button>
+                                                :
+                                                <Button onClick={() => viewOrder(_id)}>
+                                                    VIEW ORDER
+                                                </Button>
+                                        }
+                                    </div>
+                                </Container>
+                                <OrderHelpterText>
+                                    <TipsAndUpdatesIcon sx={{ color: 'gray', fontSize: '1.2em' }} />
+                                    <span>Moving mouse on images to view name of product</span>
+                                </OrderHelpterText>
+                            </ItemContainer>
+                        ))
+                    }
+                </>
             }
             <div style={{ display: 'flex', justifyContent: 'center' }}>
                 <ReviewPages
@@ -173,7 +181,7 @@ const MyOrders = () => {
                     variant="outlined"
                     shape="rounded"
                     onChange={switchPage}
-                    page={ordersPage}
+                    page={page}
                 />
             </div>
         </MyOrdersSection>
@@ -208,12 +216,24 @@ const HelperText = styled('p')({
     },
 })
 
-const MyOrdersContainer = styled('div')({
-    marginTop: '30px',
+const Error = styled('div')({
+    fontFamily: '"Kanit", "sans-serif"',
+    color: 'red',
+    padding: '20px',
+    textAlign: 'center',
+})
+
+const TabsTitle = styled('h6')({
+    display: 'flex',
+    alignItems: 'center',
+    columnGap: '5px',
+    margin: '0',
+    padding: '10px 15px',
+    fontFamily: '"Kanit", "sans-serif"',
+    borderBottom: '1px lightgrey solid',
 })
 
 const StyledTabs = styled(Tabs)({
-    backgroundColor: 'white',
     '& .MuiTabs-indicator': {
         height: '3px',
         backgroundColor: '#3FACB1',

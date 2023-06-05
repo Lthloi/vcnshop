@@ -57,11 +57,6 @@ export const cartSlice = createSlice({
 
             state.cartItems = current(state).cartItems.filter(({ _id }) => _id !== productId)
         },
-
-
-        saveShippingInfoExecute: (state, action) => {
-            state.shippingInfo = action.payload.shipping_info
-        },
     },
 })
 
@@ -69,7 +64,6 @@ export const {
     addProductToCartRequest, addProductToCartSuccess, addProductToCartFail,
     changeQuantityRequest, changeQuantityFail,
     removeItemFromCartExecute,
-    saveShippingInfoExecute,
     initPaymentRequest, initPaymentSuccess, initPaymentFail,
 } = cartSlice.actions
 

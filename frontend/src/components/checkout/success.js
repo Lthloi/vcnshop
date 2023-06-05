@@ -19,6 +19,7 @@ import { CircularProgress } from "@mui/material"
 import { toast } from "react-toastify"
 import actionsErrorHandler from "../../utils/error_handler"
 import Skeleton from "@mui/material/Skeleton"
+import { useNavigate } from "react-router-dom"
 
 const project_info = {
     email: 'vcnshop@gmail.com',
@@ -40,11 +41,13 @@ const RenderBillType = (icon, small_title, value_of_type) => (
 const Success = ({ paymentId }) => {
     const [sendReceiptLoading, setSendReceiptLoading] = useState(false)
     const { order } = useSelector(({ order }) => order)
+    const navigate = useNavigate()
 
     const dispatch = useDispatch()
 
     useEffect(() => {
-        dispatch(getOrder(paymentId))
+        if (!paymentId) navigate(-1)
+        else dispatch(getOrder(paymentId))
     }, [dispatch])
 
     const sendReceiptViaEmail = async () => {

@@ -1,8 +1,7 @@
 import React, { useEffect, useRef, useState } from "react"
 import { styled } from '@mui/material/styles'
-import ErrorPage from '../../pages/error_page'
 import { Skeleton } from "@mui/material"
-import { useDispatch } from "react-redux"
+import { useSelector } from "react-redux"
 import PaymentCardSection from "./payment_card_section"
 import { Elements } from '@stripe/react-stripe-js'
 import { loadStripe } from "@stripe/stripe-js"
@@ -11,7 +10,8 @@ import { EXPRESS_SERVER } from "../../utils/constants"
 import OrderDetail from "./order_detail"
 import { toast } from "react-toastify"
 import actionsErrorHandler from "../../utils/error_handler"
-import { useFloatNumber } from '../../hooks/custom_hooks'
+import { useGetQueryValue } from '../../hooks/custom_hooks'
+import { useNavigate } from "react-router-dom"
 
 const payment_appearance = {
     theme: 'flat',
@@ -48,30 +48,40 @@ const payment_appearance = {
 }
 
 const currency_code = 'usd'
+const shipping_method = 'Sea Transport'
 
 const Payment = () => {
-    const [orderInit, setOrderInit] = useState({ client_secret: '', stripe_key: '', user_email: '', user_name: '' })
-    const dispatch = useDispatch()
-    const get_float_number = useFloatNumber()
-
-    if (!sessionStorage.getItem('orderInfo')) {
-        toast.warning('Something went wrong')
-        window.history.go(-1)
-    }
-    const orderInfo = JSON.parse(sessionStorage.getItem('orderInfo'))
+    const { cartItems, shippingInfo } = useSelector(({ cart }) => cart)
+    const [orderInitor, setOrderInitor] = useState(null)
+    const [orderInfo, setOrderInfo] = useState(null)
+    const get_value_of_query_string = useGetQueryValue()
+    const navigate = useNavigate()
 
     const stripe_promise_ref = useRef()
     const client_secret_ref = useRef()
 
-    const initPayment = async () => {
+    const initPlaceOrder = async (order_info) => {
         let data
 
         try {
             let response = await axios.post(
-                EXPRESS_SERVER + '/api/initPayment',
+                EXPRESS_SERVER + '/api/initPlaceOrder',
                 {
-                    amount: get_float_number(orderInfo.total_to_pay * 100),
                     currency: currency_code,
+                    shipping_info: {
+                        city: shippingInfo.City,
+                        country: shippingInfo.Country,
+                        state: shippingInfo.State,
+                        address: shippingInfo.Address,
+                        zip_code: shippingInfo['Zip Code'],
+                        phone_number: shippingInfo['Phone Number'],
+                        method: shipping_method,
+                    },
+                    items_of_order: cartItems,
+                    price_of_items: order_info.subtotal,
+                    tax_fee: order_info.tax_fee,
+                    shipping_fee: order_info.shipping_fee,
+                    total_to_pay: order_info.total_to_pay,
                 },
                 { withCredentials: true }
             )
@@ -84,22 +94,49 @@ const Payment = () => {
         stripe_promise_ref.current = loadStripe(data.stripe_key)
         client_secret_ref.current = data.client_secret
 
-        setOrderInit({
+        setOrderInitor({
             client_secret: data.client_secret,
-            stripe_key: data.stripe_key,
+            stripe_key: loadStripe(data.stripe_key),
             user_email: data.user_email,
             user_name: data.user_name,
+            order_id: data.orderId,
+        })
+
+        sessionStorage.removeItem('orderInfo')
+    }
+
+    const getUnpaidOrder = async (order_id) => {
+        let api_to_get_order = '/api/getOrder?orderId=' + order_id
+        let { data } = await axios.get(EXPRESS_SERVER + api_to_get_order, { withCredentials: true })
+        let order_info = data.order
+        setOrderInfo(order_info)
+        setOrderInitor({
+            client_secret: order_info.payment_info.id,
+            stripe_key: loadStripe(data.stripe_key),
+            user_email: order_info.user.email,
+            user_name: order_info.user.name,
+            order_id: order_info._id,
         })
     }
 
     useEffect(() => {
-        if (orderInfo && orderInfo.total_to_pay) initPayment()
-    }, [dispatch])
+        let order_id = get_value_of_query_string(1, 'orderId')
+        if (order_id)
+            getUnpaidOrder(order_id)
+        else {
+            let stored_order = sessionStorage.getItem('orderInfo')
+            if (!stored_order) {
+                toast.warning('Something went wrong')
+                navigate(-1)
+            } else {
+                let stored_order_parsed = JSON.parse(stored_order)
+                setOrderInfo(stored_order_parsed)
+                initPlaceOrder(stored_order_parsed)
+            }
+        }
+    }, [])
 
-    if (!orderInfo || !orderInfo.total_to_pay)
-        return (<ErrorPage />)
-
-    if (!orderInit.client_secret || !orderInit.stripe_key)
+    if (!orderInitor || !orderInfo)
         return (
             <LoadingSection className="loading_section">
                 <div style={{ width: '100%' }}>
@@ -111,31 +148,30 @@ const Payment = () => {
         )
 
     return (
-        <PaymentSection id="PaymentSection">
+        <div id="PaymentSection">
             <Title>Payment</Title>
 
             <Section>
                 <OrderDetail orderInfo={orderInfo} />
 
                 <PaymentCard>
-                    <ElementsProvider
-                        stripe={stripe_promise_ref.current}
-                        options={{ appearance: payment_appearance, clientSecret: client_secret_ref.current }}
+                    <Elements
+                        stripe={orderInitor.stripe_key}
+                        options={{ appearance: payment_appearance, clientSecret: orderInitor.client_secret }}
                     >
                         <PaymentCardSection
-                            clientSecret={orderInit.client_secret}
-                            totalToPay={orderInfo.total_to_pay}
+                            clientSecret={orderInitor.client_secret}
                             currencyCode={currency_code}
-                            userEmail={orderInit.user_email}
-                            userName={orderInit.user_name}
-                            taxFee={orderInfo.tax_fee}
-                            shippingFee={orderInfo.shipping_fee}
-                            subtotal={orderInfo.subtotal}
+                            userEmail={orderInitor.user_email}
+                            userName={orderInitor.user_name}
+                            orderId={orderInitor.order_id}
+                            shippingInfo={shippingInfo}
+                            totalToPay={orderInfo.total_to_pay}
                         />
-                    </ElementsProvider>
+                    </Elements>
                 </PaymentCard>
             </Section>
-        </PaymentSection>
+        </div>
     )
 }
 
@@ -151,9 +187,6 @@ const Loading = styled(Skeleton)({
     width: '100%',
     height: '30vh',
     transform: 'scale(1)',
-})
-
-const PaymentSection = styled('div')({
 })
 
 const Title = styled('h2')({
@@ -182,7 +215,3 @@ const PaymentCard = styled('div')({
     padding: '50px 30px',
     borderRadius: '5px',
 })
-
-const ElementsProvider = styled(Elements)(({ theme }) => ({
-
-}))

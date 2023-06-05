@@ -78,7 +78,9 @@ const ConfirmOrder = () => {
                             cartItems && cartItems.length > 0 &&
                             cartItems.map(({ _id, name, cost, color, size, quantity, image_link }) => (
                                 <ProductCard key={_id}>
-                                    <ProductImg src={image_link} />
+                                    <div style={{ minWidth: '121px' }}>
+                                        <ProductImg src={image_link} />
+                                    </div>
                                     <ProductDetailContainer>
                                         <Detail>
                                             <DetailName>Name:</DetailName>

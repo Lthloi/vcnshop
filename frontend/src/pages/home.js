@@ -6,7 +6,6 @@ import NewsLetter from "../components/home/new_letter"
 import SalesAndCoupons from "../components/home/sales_coupons"
 import ScrollToTopBtn from "../components/scroll_top_top_btn"
 import Introduce from "../components/home/introduce"
-import HelpChat from "../components/help_chat"
 
 const Home = () => {
     const scrollRef = useRef()
@@ -19,7 +18,6 @@ const Home = () => {
             <NewsLetter />
 
             <ScrollToTopBtn />
-            <HelpChat />
         </HomePage>
     )
 }

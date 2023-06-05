@@ -3,7 +3,6 @@ import { styled } from '@mui/material/styles'
 import Header from '../components/checkout/header'
 import ShippingInfo from "../components/checkout/shipping_info"
 import Short from "../components/layouts/footer/short"
-import HelpChat from '../components/help_chat'
 import { useLocation } from "react-router-dom"
 import NotFound404 from './not_found_404'
 import ConfirmOrder from "../components/checkout/confirm_order"
@@ -44,8 +43,6 @@ const Checkout = () => {
             <div style={{ position: 'absolute', bottom: '0', left: '0', width: '100%', borderTop: '2px black solid' }}>
                 <Short />
             </div>
-
-            <HelpChat />
         </CheckoutPage>
     )
 }
