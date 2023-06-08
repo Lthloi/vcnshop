@@ -12,7 +12,7 @@ const addProductToCart = (product_id, options) => async (dispatch, getState) => 
     try {
         dispatch(addProductToCartRequest())
 
-        let api_to_get_product = '/api/getProduct/' + product_id
+        let api_to_get_product = '/api/product/getProduct/' + product_id
 
         let { data: { product: productData } } = await axios.get(EXPRESS_SERVER + api_to_get_product)
 

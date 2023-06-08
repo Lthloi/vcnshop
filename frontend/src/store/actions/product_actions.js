@@ -22,7 +22,7 @@ const getProducts = (
         dispatch(getProductsRequest())
 
         let api_to_getProducts =
-            '/api/getProducts?' + (category ? 'category=' + category : '') +
+            '/api/product/getProducts?' + (category ? 'category=' + category : '') +
             (keyword ? '&keyword=' + keyword : '') + '&pagination=' + pagination +
             '&limit=' + limit + '&rating=' + rating +
             '&price[gte]=' + price[0] + '&price[lte]=' + price[1] +
@@ -45,7 +45,7 @@ const getTopWeek = (limit = 9, pagination = 1) => async (dispatch) => {
         dispatch(getTopWeekRequest())
 
         let api_to_getTopWeek =
-            '/api/getProducts?limit=' + limit + '&pagination=' + pagination +
+            '/api/product/getProducts?limit=' + limit + '&pagination=' + pagination +
             '&sort[name]=sold.in_a_week&sort[type]=' + -1
 
         let { data } = await axios.get(EXPRESS_SERVER + api_to_getTopWeek)
@@ -63,7 +63,7 @@ const getBestSelling = (limit = 20, pagination = 1) => async (dispatch) => {
         dispatch(getBestSellingRequest())
 
         let api_to_getBestSelling =
-            '/api/getProducts?limit=' + limit + '&pagination=' + pagination +
+            '/api/product/getProducts?limit=' + limit + '&pagination=' + pagination +
             '&sort[name]=sold.count&sort[type]=' + -1
 
         let { data } = await axios.get(EXPRESS_SERVER + api_to_getBestSelling)
@@ -80,7 +80,7 @@ const getProductDetail = (product_id) => async (dispatch) => {
     try {
         dispatch(getProductDetailRequest())
 
-        let api_to_getProductDetail = '/api/getProduct/' + product_id
+        let api_to_getProductDetail = '/api/product/getProduct/' + product_id
         let { data } = await axios.get(EXPRESS_SERVER + api_to_getProductDetail)
 
         dispatch(getProductDetailSuccess({ product: data.product }))
@@ -96,7 +96,7 @@ const getReviews = (productId, pagination = 1, limit = LIMIT_GET_COMMENTS) => as
         dispatch(getReviewRequest())
 
         let api_to_get_review =
-            '/api/getReviews?productId=' + productId + '&pagination=' + pagination +
+            '/api/product/getReviews?productId=' + productId + '&pagination=' + pagination +
             '&limit=' + limit
 
         let { data } = await axios.get(EXPRESS_SERVER + api_to_get_review)
@@ -131,7 +131,7 @@ const newReview = (productId, images, rating, title, comment) => async (dispatch
     try {
         dispatch(newReviewRequest())
 
-        let api_to_make_new_review = '/api/newReview?productId=' + productId
+        let api_to_make_new_review = '/api/product/newReview?productId=' + productId
 
         let { data } = await axios.post(
             EXPRESS_SERVER + api_to_make_new_review,
@@ -155,7 +155,28 @@ const newReview = (productId, images, rating, title, comment) => async (dispatch
     }
 }
 
+const getProductsByAdmin = (field_set = {}) => async (dispatch) => {
+    try {
+        dispatch(getProductsRequest())
+
+        let api_to_get_products = '/api/product/getProductsByAdmin'
+
+        if (Object.keys(field_set).length !== 0) {
+            api_to_get_products += '?createdAt=true'
+        }
+
+        let { data } = await axios.get(EXPRESS_SERVER + api_to_get_products, { withCredentials: true })
+
+        dispatch(getProductsSuccess({ products: data.list }))
+    } catch (error) {
+        let errorObject = actionsErrorHandler(error, 'Error Warning: fail to get products.')
+
+        dispatch(getProductsFail({ error: errorObject }))
+    }
+}
+
 export {
     getProducts, getBestSelling, getTopWeek,
     getReviews, getProductDetail, newReview,
+    getProductsByAdmin,
 }

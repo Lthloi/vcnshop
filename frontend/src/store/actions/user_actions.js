@@ -5,6 +5,7 @@ import {
     forgotPasswordRequest, forgotPasswordSuccess, forgotPasswordFail,
     getUserRequest, getUserSuccess, getUserFail,
     logoutSuccess,
+    getUsersByAdminRequest, getUsersByAdminSuccess, getUsersByAdminFail,
 } from '../reducers/user_reducer.js'
 import axios from 'axios'
 import { EXPRESS_SERVER } from '../../utils/constants.js'
@@ -14,7 +15,7 @@ const sendRegisterOTP = (email) => async (dispatch) => {
     try {
         dispatch(registerRequest())
 
-        let api_to_send_OTP = '/api/sendRegisterOTP'
+        let api_to_send_OTP = '/api/user/sendRegisterOTP'
 
         await axios.post(EXPRESS_SERVER + api_to_send_OTP, { email })
 
@@ -34,7 +35,7 @@ const verifyRegisterOTP = (OTP_code, email) => async (dispatch) => {
     try {
         dispatch(registerRequest())
 
-        let api_to_verify_OTP = '/api/verifyOTP'
+        let api_to_verify_OTP = '/api/user/verifyOTP'
 
         await axios.post(EXPRESS_SERVER + api_to_verify_OTP, { OTP_code, email })
 
@@ -57,7 +58,7 @@ const completeRegister = (name, email, password, gender) => async (dispatch) => 
     try {
         dispatch(registerRequest())
 
-        let api_to_complete_register = '/api/completeRegister'
+        let api_to_complete_register = '/api/user/completeRegister'
 
         await axios.post(
             EXPRESS_SERVER + api_to_complete_register,
@@ -84,7 +85,7 @@ const loginUser = (email, password) => async (dispatch) => {
     try {
         dispatch(loginRequest())
 
-        let api_to_login = '/api/loginUser'
+        let api_to_login = '/api/user/loginUser'
 
         await axios.post(
             EXPRESS_SERVER + api_to_login,
@@ -108,7 +109,7 @@ const forgotPassword = (email) => async (dispatch) => {
     try {
         dispatch(forgotPasswordRequest())
 
-        let api_of_forgot_password = '/api/forgotPassword'
+        let api_of_forgot_password = '/api/user/forgotPassword'
 
         await axios.post(EXPRESS_SERVER + api_of_forgot_password, { email })
 
@@ -128,7 +129,7 @@ const verifyOTPOfForgotPassword = (OTP_code, email) => async (dispatch) => {
     try {
         dispatch(forgotPasswordRequest())
 
-        let api_to_verify_OTP = '/api/verifyOTP'
+        let api_to_verify_OTP = '/api/user/verifyOTP'
 
         await axios.post(EXPRESS_SERVER + api_to_verify_OTP, { OTP_code, email })
 
@@ -152,7 +153,7 @@ const resetPassword = (email, new_password) => async (dispatch) => {
     try {
         dispatch(forgotPasswordRequest())
 
-        let api_to_reset_password = '/api/resetPassword'
+        let api_to_reset_password = '/api/user/resetPassword'
 
         await axios.post(
             EXPRESS_SERVER + api_to_reset_password,
@@ -179,7 +180,7 @@ const getUser = () => async (dispatch) => {
     try {
         dispatch(getUserRequest())
 
-        let api_to_get_user = '/api/getUser'
+        let api_to_get_user = '/api/user/getUser'
 
         let { data } = await axios.get(EXPRESS_SERVER + api_to_get_user, { withCredentials: true })
 
@@ -196,7 +197,7 @@ const updateUserAvatar = (avatar) => async (dispatch) => {
         let formData = new FormData()
         formData.set('avatarImage', avatar)
 
-        let api_to_update_avatar = '/api/updateUserAvatar'
+        let api_to_update_avatar = '/api/user/updateUserAvatar'
 
         let { data } = await axios.put(EXPRESS_SERVER + api_to_update_avatar, formData, { withCredentials: true })
 
@@ -219,7 +220,7 @@ const updateProfile = (nameOfUser, email, gender, dateOfBirth) => async (dispatc
     try {
         dispatch(getUserRequest())
 
-        let api_to_update_avatar = '/api/updateProfile'
+        let api_to_update_avatar = '/api/user/updateProfile'
 
         await axios.put(
             EXPRESS_SERVER + api_to_update_avatar,
@@ -246,7 +247,7 @@ const changePassword = (oldPassword, newPassword) => async (dispatch) => {
     try {
         dispatch(getUserRequest())
 
-        let api_to_update_avatar = '/api/changePassword'
+        let api_to_update_avatar = '/api/user/changePassword'
 
         await axios.put(
             EXPRESS_SERVER + api_to_update_avatar,
@@ -271,7 +272,7 @@ const changePassword = (oldPassword, newPassword) => async (dispatch) => {
 
 const logoutUser = () => async (dispatch) => {
     try {
-        let api_to_logout = '/api/logoutUser'
+        let api_to_logout = '/api/user/logoutUser'
 
         await axios.post(EXPRESS_SERVER + api_to_logout, {}, { withCredentials: true })
 
@@ -283,6 +284,29 @@ const logoutUser = () => async (dispatch) => {
     }
 }
 
+const getUsersByAdmin = (field_set = {}) => async (dispatch) => {
+    try {
+        dispatch(getUsersByAdminRequest())
+
+        let api_to_get_users = '/api/user/getUsersByAdmin?createdAt=true'
+
+        if (Object.keys(field_set).length !== 0) {
+            let { active } = field_set
+            api_to_get_users += (active ? '&active=true' : '')
+        }
+
+        let { data } = await axios.get(EXPRESS_SERVER + api_to_get_users, { withCredentials: true })
+
+        dispatch(getUsersByAdminSuccess({ users: data.list }))
+    } catch (error) {
+        let errorObject = actionsErrorHandler(error, 'Error Warning: fail to get orders.')
+
+        dispatch(getUsersByAdminFail({ error: errorObject }))
+
+        toast.error(errorObject.message)
+    }
+}
+
 export {
     sendRegisterOTP, verifyRegisterOTP, completeRegister,
     loginUser,
@@ -290,4 +314,5 @@ export {
     getUser,
     updateUserAvatar, updateProfile, changePassword,
     logoutUser,
+    getUsersByAdmin,
 }

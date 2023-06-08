@@ -13,6 +13,7 @@ export const userSlice = createSlice({
         user: defaultValues,
         loading: false,
         error: null,
+        users: [],
     },
     reducers: {
         getUserRequest: (state, action) => {
@@ -89,6 +90,20 @@ export const userSlice = createSlice({
             state.error = null
             state.user = defaultValues
         },
+
+
+        getUsersByAdminRequest: (state, action) => {
+            state.loading = true
+            state.error = null
+        },
+        getUsersByAdminSuccess: (state, action) => {
+            state.loading = false
+            state.users = action.payload.users
+        },
+        getUsersByAdminFail: (state, action) => {
+            state.loading = false
+            state.error = action.payload.error
+        }
     },
 })
 
@@ -98,6 +113,7 @@ export const {
     forgotPasswordRequest, forgotPasswordSuccess, forgotPasswordFail,
     getUserRequest, getUserSuccess, getUserFail,
     logoutSuccess,
+    getUsersByAdminRequest, getUsersByAdminSuccess, getUsersByAdminFail,
 } = userSlice.actions
 
 export default userSlice.reducer

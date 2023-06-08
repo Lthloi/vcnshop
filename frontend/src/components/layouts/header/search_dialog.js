@@ -2,47 +2,45 @@ import React, { useEffect, useRef, useState } from "react"
 import { styled } from '@mui/material/styles'
 import SearchIcon from '@mui/icons-material/Search'
 import CancelIcon from '@mui/icons-material/Cancel'
-import { useDispatch, useSelector } from 'react-redux'
 import debounce from '../../../utils/debounce'
-import { getSearchSuggestions } from "../../../store/actions/search_actions"
 import { toast } from 'react-toastify'
+import { EXPRESS_SERVER } from '../../../utils/constants'
+import axios from 'axios'
+import Fuse from 'fuse.js'
 
 const SearchDialog = ({ handleOpenSearchDialog }) => {
-    const { suggestions } = useSelector(({ search }) => search)
-    const [searchSuggestions, setSearchSuggestions] = useState([])
+    const [suggestions, setSuggestions] = useState([])
     const search_input_ref = useRef()
-    const dispatch = useDispatch()
+    const data = useRef()
+
+    const getSuggestions = async () => {
+        try {
+            let response = await axios.get(EXPRESS_SERVER + '/api/product/getProductsName')
+            data.current = response.data.list
+        } catch (error) {
+            toast.error(error.message)
+        }
+    }
 
     useEffect(() => {
-        dispatch(getSearchSuggestions())
-    }, [dispatch])
+        getSuggestions()
+    }, [])
 
     const searching = (e) => {
-        let keywrods = e.target.value.toLowerCase()
-        if (keywrods === '') return setSearchSuggestions([])
-        let suggestion_list = suggestions[keywrods[0]]
-        let suggestions_result = []
-        for (let suggestion of suggestion_list) {
-            if (suggestion.toLowerCase().includes(keywrods)) {
-                suggestions_result.push(suggestion)
-            }
-            if (suggestions_result.length > 10) break
-        }
-        setSearchSuggestions(suggestions_result)
+        let keywrods = e.target.value
+        if (keywrods === '') return setSuggestions([])
+        let results = new Fuse(data.current, { shouldSort: true }).search(keywrods)
+        setSuggestions(results.slice(0, 10).map((result) => result.item))
     }
 
-    const catchEnterKeyboard = (e) => {
-        if (e.key === 'Enter') return submitSearch()
-    }
+    const catchEnterKeyboard = (e) => e.key === 'Enter' && submitSearch()
 
     const submitSearch = () => {
         let keyword = search_input_ref.current.value
         if (keyword === '')
-            return toast.warning(
-                'Please enter product name or brand or something you need to search'
-            )
+            return toast.warning('Please enter the product name you want to search')
 
-        window.open('/search/' + keyword, '_self').focus()
+        window.open('/search/' + keyword, '_self')
     }
 
     return (
@@ -57,7 +55,7 @@ const SearchDialog = ({ handleOpenSearchDialog }) => {
                         ref={search_input_ref}
                         id="SearchDialogInput"
                         type="text"
-                        placeholder="Enter brand, product names, product types..."
+                        placeholder="Find Products By Name..."
                         onChange={debounce((e) => searching(e), 300)}
                         onKeyDown={catchEnterKeyboard}
                         maxLength={80}
@@ -69,19 +67,21 @@ const SearchDialog = ({ handleOpenSearchDialog }) => {
                 </SearchDialogContainer>
 
                 {
-                    searchSuggestions && searchSuggestions.length > 0 &&
+                    suggestions && suggestions.length > 0 &&
                     <SuggestionsContainer>
-                        {searchSuggestions.map((suggestion) => (
-                            <Suggestion
-                                href={'/search/' + suggestion}
-                                key={suggestion}
-                            >
-                                <span>{suggestion}</span>
-                                <HoverAnimation>
-                                    <SuggestionIcon className="SuggestionIcon" />
-                                </HoverAnimation>
-                            </Suggestion>
-                        ))}
+                        {
+                            suggestions.map((suggestion) => (
+                                <Suggestion
+                                    href={'/search/' + suggestion}
+                                    key={suggestion}
+                                >
+                                    <span>{suggestion}</span>
+                                    <HoverAnimation>
+                                        <SuggestionIcon className="SuggestionIcon" />
+                                    </HoverAnimation>
+                                </Suggestion>
+                            ))
+                        }
                     </SuggestionsContainer>
                 }
             </SearchDialogArea>

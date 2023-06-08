@@ -3,9 +3,9 @@ import express from "express"
 import bodyParser from 'body-parser'
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
-import initRoutes from './routes/routes.js'
 import ErrorHandler from './middlewares/error_handler.js'
 import fileUpload from 'express-fileupload'
+import initRoutes from './routes/routes.js'
 
 const app = express()
 

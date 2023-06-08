@@ -5,8 +5,9 @@ import {
     getUser,
     updateProfile, changePassword, updateUserAvatar,
     logoutUser, getUserLocation,
+    getUsersByAdmin,
 } from '../controllers/user_controllers.js'
-import { verifyJWTtoken } from '../middlewares/verify_user.js'
+import { roleAuthorization, verifyJWTtoken } from '../middlewares/auth.js'
 
 const router = express.Router()
 
@@ -33,5 +34,7 @@ router.put('/updateUserAvatar', verifyJWTtoken, updateUserAvatar)
 router.post('/logoutUser', logoutUser)
 
 router.get('/getUserLocation', getUserLocation)
+
+router.get('/getUsersByAdmin', verifyJWTtoken, roleAuthorization('Admin'), getUsersByAdmin)
 
 export default router

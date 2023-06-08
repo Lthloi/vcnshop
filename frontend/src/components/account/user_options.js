@@ -5,12 +5,14 @@ import AllInboxIcon from '@mui/icons-material/AllInbox'
 import LogoutIcon from '@mui/icons-material/Logout'
 import { useNavigate, useLocation } from "react-router-dom"
 import PasswordIcon from '@mui/icons-material/Password'
-import { useDispatch } from "react-redux"
+import { useDispatch, useSelector } from "react-redux"
 import { logoutUser } from "../../store/actions/user_actions"
+import { useCheckIsAdminRole } from '../../hooks/custom_hooks'
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings'
 
 const icon_style = { color: 'black' }
 
-const navigation_list = [
+const options = [
     { label: 'Information', icon: <AccountCircleIcon sx={icon_style} />, href: '/information' },
     { label: 'Change Password', icon: <PasswordIcon sx={icon_style} />, href: '/changePassword' },
     { label: 'My Orders', icon: <AllInboxIcon sx={icon_style} />, href: '/myOrders' },
@@ -18,9 +20,11 @@ const navigation_list = [
 ]
 
 const Navigation = () => {
+    const user = useSelector(({ user }) => user.user)
     const navigate = useNavigate()
     const dispatch = useDispatch()
     const indicator = useLocation().pathname.split('/account')[1]
+    const check_is_admin_role = useCheckIsAdminRole()
 
     const handleNavigation = (href) => {
         if (href === -1) {
@@ -30,9 +34,16 @@ const Navigation = () => {
     }
 
     return (
-        <NavigationSection id="NavigationArea">
+        <div id="NavigationArea">
             {
-                navigation_list.map(({ label, icon, href }) => (
+                user && check_is_admin_role(user.role) &&
+                <Nav onClick={() => window.open('/admin', '_self')}>
+                    <AdminPanelSettingsIcon sx={icon_style} />
+                    <Text>Admin</Text>
+                </Nav>
+            }
+            {
+                options.map(({ label, icon, href }) => (
                     <Nav
                         key={label}
                         onClick={() => handleNavigation(href)}
@@ -43,15 +54,11 @@ const Navigation = () => {
                     </Nav>
                 ))
             }
-        </NavigationSection>
+        </div>
     )
 }
 
 export default Navigation
-
-const NavigationSection = styled('div')(({ theme }) => ({
-
-}))
 
 const Nav = styled('div')({
     display: 'flex',

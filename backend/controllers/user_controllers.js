@@ -169,6 +169,7 @@ const getUser = catchAsyncError(async (req, res, next) => {
             'gender': 1,
             'avatar': 1,
             'date_of_birth': 1,
+            'role': 1,
         }
     ).lean()
 
@@ -247,11 +248,27 @@ const getUserLocation = catchAsyncError(async (req, res, next) => {
     })
 })
 
+const getUsersByAdmin = catchAsyncError(async (req, res, next) => {
+    let format = {}
+
+    let query = req.query
+
+    if (query.createdAt)
+        format.createdAt = 1
+    if (query.active)
+        format.active = 1
+
+    let list = await UserModel.find({}, format)
+    if (!list) throw new BaseError('Something went wrong', 500)
+
+    res.status(200).json({ list })
+})
+
 export {
     sendRegisterOTP, verifyOTP, completeRegister,
     loginUser,
     forgotPassword, resetPassword,
     getUser,
     updateProfile, changePassword, updateUserAvatar,
-    logoutUser, getUserLocation,
+    logoutUser, getUserLocation, getUsersByAdmin,
 }

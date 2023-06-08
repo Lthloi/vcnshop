@@ -1,20 +1,24 @@
 import express from 'express'
 import {
     initPlaceOrder, completePlaceOrder, sendReceipt,
-    getOrder, getOrders,
+    getOrder, getOrders, getOrdersByAdmin,
 } from '../controllers/order_controllers.js'
-import { verifyJWTtoken } from '../middlewares/verify_user.js'
+import { roleAuthorization, verifyJWTtoken } from '../middlewares/auth.js'
 
 const router = express.Router()
 
-router.post('/initPlaceOrder', verifyJWTtoken, initPlaceOrder)
+router.use(verifyJWTtoken)
 
-router.post('/completePlaceOrder', verifyJWTtoken, completePlaceOrder)
+router.post('/initPlaceOrder', initPlaceOrder)
 
-router.post('/sendReceiptViaEmail', verifyJWTtoken, sendReceipt)
+router.post('/completePlaceOrder', completePlaceOrder)
 
-router.get('/getOrder', verifyJWTtoken, getOrder)
+router.post('/sendReceiptViaEmail', sendReceipt)
 
-router.get('/getOrders', verifyJWTtoken, getOrders)
+router.get('/getOrder', getOrder)
+
+router.get('/getOrders', getOrders)
+
+router.get('/getOrdersByAdmin', roleAuthorization('Admin'), getOrdersByAdmin)
 
 export default router

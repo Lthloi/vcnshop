@@ -9,6 +9,7 @@ import ConfirmOrder from "../components/checkout/confirm_order"
 import Payment from '../components/checkout/payment'
 import Success from '../components/checkout/success'
 import { useGetQueryValue } from "../hooks/custom_hooks"
+import ProtectedRoute from "../utils/protected_route"
 
 const steps = ['shipping_info', 'confirm_order', 'payment', 'success']
 
@@ -24,6 +25,13 @@ const Checkout = () => {
     if (step_index < 0)
         return (<NotFound404 />)
 
+    if (step_index === 2)
+        return (
+            <ProtectedRoute>
+                <Payment />
+            </ProtectedRoute>
+        )
+
     const paymentId = query_value_getter(search_string, 'payment_intent')
 
     return (
@@ -35,8 +43,6 @@ const Checkout = () => {
                     <ShippingInfo />
                 ) : step_index === 1 ? (
                     <ConfirmOrder />
-                ) : step_index === 2 ? (
-                    <Payment />
                 ) : <Success paymentId={paymentId} />
             }
 

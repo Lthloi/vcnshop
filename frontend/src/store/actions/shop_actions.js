@@ -9,7 +9,7 @@ const getShop = (username_shop) => async (dispatch) => {
     try {
         dispatch(getShopRequest())
 
-        let api_to_get_shop = '/api/getShop/' + username_shop
+        let api_to_get_shop = '/api/shop/getShop/' + username_shop
 
         let { data } = await axios.get(EXPRESS_SERVER + api_to_get_shop)
 

@@ -98,7 +98,7 @@ const ProductSchema = new Schema({
             imageURLs: [{ type: String }],
         }]
     },
-    'type': {
+    type: {
         type: String,
     },
     brand: {

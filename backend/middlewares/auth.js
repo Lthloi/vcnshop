@@ -19,7 +19,7 @@ const verifyJWTtoken = catchAsyncError(async (req, res, next) => {
 
     let user = await UserModel.findOne(
         { _id: decoded_data.userId },
-        { '_id': 1, 'name': 1, 'avatar': 1, 'email': 1 }
+        { '_id': 1, 'name': 1, 'avatar': 1, 'email': 1, 'role': 1 }
     ).lean()
     if (!user) throw new BaseError('User not found', 404)
 
@@ -28,13 +28,17 @@ const verifyJWTtoken = catchAsyncError(async (req, res, next) => {
         name: user.name,
         avatar: user.avatar,
         email: user.email,
+        role: user.role,
     }
 
     next()
 })
 
-const roleAuthorization = () => {
-
+const roleAuthorization = (...valid_role_list) => (req, res, next) => {
+    if (!req.user) throw new BaseError()
+    if (!valid_role_list.includes(req.user.role))
+        throw new BaseError('You don\'t have permission to access this resource', 403)
+    next()
 }
 
 export {

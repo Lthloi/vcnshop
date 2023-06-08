@@ -92,13 +92,14 @@ const useGetQueryValue = () => (query_string_input, unique_string_name) => {
         let query_string_to_get = new URLSearchParams(query_string_input)
         return query_string_to_get.get(unique_string_name)
     }
-
 }
 
 const useCurrentRoute = () => useLocation().pathname
 
+const useCheckIsAdminRole = () => (role) => role === 'admin' || role === 'Admin'
+
 export {
     useFloatNumber, useCurrencyKeyboard, useCurrencyCode,
     useNavToRedirectLogin, useNumerToWords, useGetQueryValue,
-    useCurrentRoute,
+    useCurrentRoute, useCheckIsAdminRole,
 }

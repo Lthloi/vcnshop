@@ -38,7 +38,7 @@ const UserSchema = new Schema({
     },
     role: {
         type: String,
-        default: 'User',
+        default: 'User', //roles: User || Admin
     },
     coupons: {
         count: {

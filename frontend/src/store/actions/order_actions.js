@@ -13,7 +13,7 @@ const completePlaceOrder = ({ orderId, paymentMethod, paymentId, paymentStatus }
     try {
         dispatch(completeOrderRequest())
 
-        let api_to_create_new_order = '/api/completePlaceOrder'
+        let api_to_create_new_order = '/api/order/completePlaceOrder'
 
         await axios.post(
             EXPRESS_SERVER + api_to_create_new_order,
@@ -45,7 +45,7 @@ const getOrder = (paymentId, orderId) => async (dispatch) => {
     try {
         dispatch(getOrderRequest())
 
-        let api_to_get_order = '/api/getOrder' + (paymentId ? '?paymentId=' + paymentId : '') + (orderId ? '?orderId=' + orderId : '')
+        let api_to_get_order = '/api/order/getOrder' + (paymentId ? '?paymentId=' + paymentId : '') + (orderId ? '?orderId=' + orderId : '')
 
         let { data } = await axios.get(EXPRESS_SERVER + api_to_get_order, { withCredentials: true })
 
@@ -63,7 +63,7 @@ const getOrders = (page, limit = LIMIT_GET_ORDERS, payment_status) => async (dis
     try {
         dispatch(getOrdersRequest())
 
-        let api_to_get_orders = '/api/getOrders?page=' + page + '&limit=' + limit +
+        let api_to_get_orders = '/api/order/getOrders?page=' + page + '&limit=' + limit +
             (payment_status ? '&paymentStatus=' + payment_status : '')
 
         let { data } = await axios.get(EXPRESS_SERVER + api_to_get_orders, { withCredentials: true })
@@ -83,6 +83,30 @@ const getOrders = (page, limit = LIMIT_GET_ORDERS, payment_status) => async (dis
     }
 }
 
+const getOrdersByAdmin = (field_set = {}) => async (dispatch) => {
+    try {
+        dispatch(getOrdersRequest())
+
+        let api_to_get_orders = '/api/order/getOrdersByAdmin?createdAt=true'
+
+        if (Object.keys(field_set).length !== 0) {
+            let { payment_status } = field_set
+            api_to_get_orders += (payment_status ? '&payment_status=true' : '')
+        }
+
+        let { data } = await axios.get(EXPRESS_SERVER + api_to_get_orders, { withCredentials: true })
+
+        dispatch(getOrdersSuccess({ orders: data.list }))
+    } catch (error) {
+        let errorObject = actionsErrorHandler(error, 'Error Warning: fail to get orders.')
+
+        dispatch(getOrdersFail({ error: errorObject }))
+
+        toast.error(errorObject.message)
+    }
+}
+
 export {
     completePlaceOrder, getOrder, getOrders,
+    getOrdersByAdmin,
 }

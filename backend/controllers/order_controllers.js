@@ -163,7 +163,23 @@ const getOrders = catchAsyncError(async (req, res, next) => {
     res.status(200).json({ orders, countOrder: count_product })
 })
 
+const getOrdersByAdmin = catchAsyncError(async (req, res, next) => {
+    let format = {}
+
+    let query = req.query
+
+    if (query.createdAt)
+        format.createdAt = 1
+    if (query.payment_status)
+        format.payment_status = 1
+
+    let list = await OrderModel.find({}, format)
+    if (!list) throw new BaseError('Something went wrong', 500)
+
+    res.status(200).json({ list })
+})
+
 export {
     initPlaceOrder, completePlaceOrder, sendReceipt,
-    getOrder, getOrders,
+    getOrder, getOrders, getOrdersByAdmin,
 }

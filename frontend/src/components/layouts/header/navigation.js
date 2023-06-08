@@ -44,7 +44,7 @@ const Navigation = () => {
                         onClick={() => handleOpenSearchDialog(true)}
                     >
                         <SearchIcon />
-                        <SearchText>Enter Brands, Names...</SearchText>
+                        <SearchText>Find Product By Names...</SearchText>
                     </SearchContainer>
                 </LeftSection>
 

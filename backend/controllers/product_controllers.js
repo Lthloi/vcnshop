@@ -156,7 +156,30 @@ const newReview = catchAsyncError(async (req, res, next) => {
     })
 })
 
+const getProductsName = catchAsyncError(async (req, res, next) => {
+    let name_list = await ProductModel.distinct('name')
+    if (!name_list) throw new BaseError('Something went wrong', 500)
+
+    res.status(200).json({
+        list: name_list,
+    })
+})
+
+const getProductsByAdmin = catchAsyncError(async (req, res, next) => {
+    let format = {}
+
+    let query = req.query
+
+    if (query.createdAt)
+        format.createdAt = 1
+
+    let list = await ProductModel.find({}, format)
+    if (!list) throw new BaseError('Something went wrong', 500)
+
+    res.status(200).json({ list })
+})
+
 export {
     getProducts, getProduct, getReviews,
-    newReview,
+    newReview, getProductsName, getProductsByAdmin,
 }
