@@ -17,9 +17,9 @@ const ProductSchema = new Schema({
         type: String,
         required: true,
     },
-    for: {
-        type: String,
-    },
+    for: [{
+        type: String, // Male || Female || Other
+    }],
     price: {
         value: {
             type: Number,
@@ -45,15 +45,11 @@ const ProductSchema = new Schema({
     sold: {
         count: {
             type: Number,
-            required: true,
             default: 0,
             min: [0, 'Number of count must not smaller than or equal 0'],
         },
-        in_a_week: {
-            type: Number,
-            required: true,
-            default: 0,
-            minLength: [0, 'Number of in_a_week must not smaller than or equal 0'],
+        is_sold_last_time: {
+            type: Date,
         }
     },
     stock: {
@@ -89,7 +85,7 @@ const ProductSchema = new Schema({
         },
         reviews: [{
             name: { type: String, required: true, },
-            user_id: { type: mongoose.Types.ObjectId, required: true },
+            user_id: { type: Schema.Types.ObjectId, ref: 'users', required: true },
             avatar: { type: String, required: true, },
             createdAt: { type: Date, default: Date.now },
             rating: { type: Number, required: true, },

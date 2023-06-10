@@ -37,7 +37,7 @@ const Navigation = () => {
         <div id="NavigationArea">
             {
                 user && check_is_admin_role(user.role) &&
-                <Nav onClick={() => window.open('/admin', '_self')}>
+                <Nav onClick={() => window.open('/admin/dashboard', '_self')}>
                     <AdminPanelSettingsIcon sx={icon_style} />
                     <Text>Admin</Text>
                 </Nav>

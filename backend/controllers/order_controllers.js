@@ -69,14 +69,14 @@ const initPlaceOrder = catchAsyncError(async (req, res, next) => {
 
 // complete the order
 const completePlaceOrder = catchAsyncError(async (req, res, next) => {
-    let { orderId, paymentId, paymentMethod, paymentStatus } = req.body
+    let { orderId, paymentId, paymentMethod } = req.body
     if (!orderId) throw new BaseError('Wrong property name', 400)
 
     await OrderModel.updateOne(
         { _id: orderId },
         {
             $set: {
-                'payment_status': paymentStatus,
+                'payment_status': 'succeeded',
                 'payment_info': {
                     'id': paymentId,
                     'method': paymentMethod,
@@ -166,12 +166,10 @@ const getOrders = catchAsyncError(async (req, res, next) => {
 const getOrdersByAdmin = catchAsyncError(async (req, res, next) => {
     let format = {}
 
-    let query = req.query
+    let field_set = req.query
 
-    if (query.createdAt)
-        format.createdAt = 1
-    if (query.payment_status)
-        format.payment_status = 1
+    for (let key of Object.keys(field_set))
+        format[key] = 1
 
     let list = await OrderModel.find({}, format)
     if (!list) throw new BaseError('Something went wrong', 500)

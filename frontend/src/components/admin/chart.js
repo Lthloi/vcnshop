@@ -7,23 +7,24 @@ import {
     BarElement,
     Title,
     Tooltip,
-    Legend
 } from "chart.js"
 import { Bar as BarChartJs2 } from "react-chartjs-2"
 import Select from '@mui/material/Select'
 import moment from "moment"
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip)
 
 const options = {
     responsive: true,
     plugins: {
         legend: {
+            display: true,
             position: "top"
         },
-        title: {
-            display: true,
-            text: "Verified Users And Paid Orders Via Months"
+        datalabels: {
+            font: {
+                size: 0,
+            }
         }
     }
 }
@@ -49,7 +50,7 @@ const check_year = (time_string, year_to_change) => {
     return year_to_change === moment(time_string).get('year')
 }
 
-const BarChart = ({ users, orders }) => {
+const Chart = ({ users, orders }) => {
     const [year, setYear] = useState(moment().get('year'))
 
     const counted_users = useMemo(() => {
@@ -116,7 +117,7 @@ const BarChart = ({ users, orders }) => {
     )
 }
 
-export default BarChart
+export default Chart
 
 const PickYearContainer = styled('div')(({ theme }) => ({
     display: 'flex',

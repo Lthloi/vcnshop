@@ -1,17 +1,18 @@
-import React from "react"
+import React, { useMemo } from "react"
 import { styled } from '@mui/material/styles'
 import PeopleIcon from '@mui/icons-material/People'
 import AllInboxIcon from '@mui/icons-material/AllInbox'
 import InventoryIcon from '@mui/icons-material/Inventory'
 import ErrorIcon from '@mui/icons-material/Error'
-import BarChart from "./bar_chart"
+import Chart from "./chart"
 import AutoIncreaAnimate from "../auto_increa_animate"
+import CommentIcon from '@mui/icons-material/Comment'
 
 const style_for_icons = {
     color: 'white',
 }
 
-const set_sums = (count_orders, count_users, count_produtcs) => [
+const set_sums = (count_orders, count_users, count_produtcs, count_reviews) => [
     {
         label: 'Orders\'s Total',
         icon: <AllInboxIcon sx={style_for_icons} />,
@@ -24,10 +25,21 @@ const set_sums = (count_orders, count_users, count_produtcs) => [
         label: 'Products\'s Total',
         icon: <InventoryIcon sx={style_for_icons} />,
         count: count_produtcs,
+    }, {
+        label: 'Reviews\'s Total',
+        icon: <CommentIcon sx={style_for_icons} />,
+        count: count_reviews,
     },
 ]
 
 const Dashboard = ({ users, orders, products }) => {
+
+    const counted_reviews = useMemo(() => {
+        return products.reduce(
+            (accumulator, { review: { count_review } }) => accumulator + count_review,
+            0
+        )
+    }, [products])
 
     return (
         <DashBoardSection id="DashBoardSection">
@@ -40,10 +52,10 @@ const Dashboard = ({ users, orders, products }) => {
             </div>
             <Sums>
                 {
-                    set_sums(orders.length, users.length, products.length)
+                    set_sums(orders.length, users.length, products.length, counted_reviews)
                         .map(({ label, icon, count }) => (
                             <Sum key={label}>
-                                <SubSum>
+                                <SumContainer>
                                     <IconWrapper>{icon}</IconWrapper>
                                     <div>
                                         <div style={{ marginBottom: '5px', color: 'gray' }}>
@@ -53,7 +65,7 @@ const Dashboard = ({ users, orders, products }) => {
                                             <AutoIncreaAnimate number={count} />
                                         </div>
                                     </div>
-                                </SubSum>
+                                </SumContainer>
                             </Sum>
                         ))
                 }
@@ -67,7 +79,7 @@ const Dashboard = ({ users, orders, products }) => {
                     <ErrorIcon sx={{ fontSize: '1.2em', color: 'gray' }} />
                     <span>Display the users was verified after the register via months and the orders was paid</span>
                 </Note>
-                <BarChart users={users} orders={orders} />
+                <Chart users={users} orders={orders} />
             </div>
         </DashBoardSection>
     )
@@ -87,19 +99,24 @@ const DashBoardSection = styled('div')(({ theme }) => ({
 const Sums = styled('div')({
     display: 'flex',
     columnGap: '20px',
+    rowGap: '20px',
     justifyContent: 'space-evenly',
     width: '100%',
+    flexWrap: 'wrap',
 })
 
 const Sum = styled('div')({
     padding: '20px',
     borderRadius: '10px',
     boxShadow: '0px 0px 3px gray',
+    width: '230px',
+    boxSizing: 'border-box',
 })
 
-const SubSum = styled('div')({
-    paddingBottom: '20px',
+const SumContainer = styled('div')({
     display: 'flex',
+    justifyContent: 'space-between',
+    paddingBottom: '20px',
     columnGap: '30px',
     borderBottom: '1px lightgrey solid',
     borderRadius: '10px',

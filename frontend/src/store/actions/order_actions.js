@@ -9,7 +9,7 @@ import { toast } from 'react-toastify'
 import actionsErrorHandler from '../../utils/error_handler.js'
 import { LIMIT_GET_ORDERS } from '../../utils/constants.js'
 
-const completePlaceOrder = ({ orderId, paymentMethod, paymentId, paymentStatus }, step_after_complete_payment) => async (dispatch) => {
+const completePlaceOrder = ({ orderId, paymentMethod, paymentId }, step_after_complete_payment) => async (dispatch) => {
     try {
         dispatch(completeOrderRequest())
 
@@ -21,7 +21,6 @@ const completePlaceOrder = ({ orderId, paymentMethod, paymentId, paymentStatus }
                 orderId,
                 paymentId,
                 paymentMethod,
-                paymentStatus,
             },
             { withCredentials: true },
         )
@@ -83,16 +82,18 @@ const getOrders = (page, limit = LIMIT_GET_ORDERS, payment_status) => async (dis
     }
 }
 
-const getOrdersByAdmin = (field_set = {}) => async (dispatch) => {
+const getOrdersByAdmin = (...fields) => async (dispatch) => {
     try {
         dispatch(getOrdersRequest())
 
-        let api_to_get_orders = '/api/order/getOrdersByAdmin?createdAt=true'
+        let api_to_get_orders = '/api/order/getOrdersByAdmin'
 
-        if (Object.keys(field_set).length !== 0) {
-            let { payment_status } = field_set
-            api_to_get_orders += (payment_status ? '&payment_status=true' : '')
-        }
+        if (fields.length > 1) {
+            api_to_get_orders += `?${fields[0]}=true`
+            for (let i = 1; i < fields.length; i++)
+                api_to_get_orders += `&${fields[i]}=true`
+        } else
+            api_to_get_orders += `?${fields[0]}=true`
 
         let { data } = await axios.get(EXPRESS_SERVER + api_to_get_orders, { withCredentials: true })
 

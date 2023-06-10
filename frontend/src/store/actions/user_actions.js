@@ -284,16 +284,18 @@ const logoutUser = () => async (dispatch) => {
     }
 }
 
-const getUsersByAdmin = (field_set = {}) => async (dispatch) => {
+const getUsersByAdmin = (...fields) => async (dispatch) => {
     try {
         dispatch(getUsersByAdminRequest())
 
-        let api_to_get_users = '/api/user/getUsersByAdmin?createdAt=true'
+        let api_to_get_users = '/api/user/getUsersByAdmin'
 
-        if (Object.keys(field_set).length !== 0) {
-            let { active } = field_set
-            api_to_get_users += (active ? '&active=true' : '')
-        }
+        if (fields.length > 1) {
+            api_to_get_users += `?${fields[0]}=true`
+            for (let i = 1; i < fields.length; i++)
+                api_to_get_users += `&${fields[i]}=true`
+        } else
+            api_to_get_users += `?${fields[0]}=true`
 
         let { data } = await axios.get(EXPRESS_SERVER + api_to_get_users, { withCredentials: true })
 

@@ -58,7 +58,6 @@ const PaymentCardSection = ({ totalToPay, shippingInfo, clientSecret, orderId, c
                     orderId,
                     paymentMethod: payment_method,
                     paymentId: paymentIntent_info.id,
-                    paymentStatus: paymentIntent_info.status,
                 },
                 step_after_complete_payment
             ))

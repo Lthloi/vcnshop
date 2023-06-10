@@ -45,8 +45,7 @@ const getTopWeek = (limit = 9, pagination = 1) => async (dispatch) => {
         dispatch(getTopWeekRequest())
 
         let api_to_getTopWeek =
-            '/api/product/getProducts?limit=' + limit + '&pagination=' + pagination +
-            '&sort[name]=sold.in_a_week&sort[type]=' + -1
+            '/api/product/getProducts?limit=' + limit + '&pagination=' + pagination
 
         let { data } = await axios.get(EXPRESS_SERVER + api_to_getTopWeek)
 
@@ -155,15 +154,18 @@ const newReview = (productId, images, rating, title, comment) => async (dispatch
     }
 }
 
-const getProductsByAdmin = (field_set = {}) => async (dispatch) => {
+const getProductsByAdmin = (...fields) => async (dispatch) => {
     try {
         dispatch(getProductsRequest())
 
         let api_to_get_products = '/api/product/getProductsByAdmin'
 
-        if (Object.keys(field_set).length !== 0) {
-            api_to_get_products += '?createdAt=true'
-        }
+        if (fields.length > 1) {
+            api_to_get_products += `?${fields[0]}=true`
+            for (let i = 1; i < fields.length; i++)
+                api_to_get_products += `&${fields[i]}=true`
+        } else
+            api_to_get_products += `?${fields[0]}=true`
 
         let { data } = await axios.get(EXPRESS_SERVER + api_to_get_products, { withCredentials: true })
 

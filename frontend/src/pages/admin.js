@@ -9,11 +9,11 @@ import ListItemButton from '@mui/material/ListItemButton'
 import ListItemIcon from '@mui/material/ListItemIcon'
 import ListItemText from '@mui/material/ListItemText'
 import DashboardIcon from '@mui/icons-material/Dashboard'
-import { Routes, Route } from 'react-router-dom'
 import Dashboard from "../components/admin/dashboard"
 import { Skeleton } from "@mui/material"
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings'
 import AllInboxIcon from '@mui/icons-material/AllInbox'
+import Products from "../components/admin/products"
 
 const style_for_icons = {
     is_active: {
@@ -24,13 +24,20 @@ const style_for_icons = {
     }
 }
 
+const tabs = {
+    dashboard: 'Dashboard',
+    products: 'Products',
+}
+
 const nav_options = [
     {
         label: 'Dashboard',
         icon: (is_active) => <DashboardIcon sx={is_active ? style_for_icons.is_active : style_for_icons.non_active} />,
+        href: tabs.dashboard,
     }, {
         label: 'Products',
         icon: (is_active) => <AllInboxIcon sx={is_active ? style_for_icons.is_active : style_for_icons.non_active} />,
+        href: tabs.products,
     },
 ]
 
@@ -42,12 +49,12 @@ const Admin = () => {
     const [button, setButton] = useState(nav_options[0].label)
 
     useEffect(() => {
-        dispatch(getOrdersByAdmin({ createdAt: true, payment_status: true }))
-        dispatch(getUsersByAdmin({ createdAt: true, active: true }))
-        dispatch(getProductsByAdmin({ createdAt: true }))
+        dispatch(getOrdersByAdmin('createdAt', 'payment_status'))
+        dispatch(getUsersByAdmin('createdAt', 'active'))
+        dispatch(getProductsByAdmin('createdAt', 'stock', 'review.count_review', 'for'))
     }, [dispatch])
 
-    const switchButton = (label_of_button) => {
+    const switchButton = (label_of_button, href) => {
         if (label_of_button === button) return
         setButton(label_of_button)
     }
@@ -65,12 +72,12 @@ const Admin = () => {
                             {button}
                         </ListTitle>
                         {
-                            nav_options.map(({ label, icon }) => (
+                            nav_options.map(({ label, icon, href }) => (
                                 <ListItemButtonWrapper
                                     key={label}
                                     sx={button === label ? { backgroundColor: 'white', color: 'black' } : { backgroundColor: 'rgb(53,53,59)' }}
                                 >
-                                    <StyledListItemButton onClick={() => switchButton(label)}>
+                                    <StyledListItemButton onClick={() => switchButton(label, href)}>
                                         <ListItemIcon>
                                             {icon(button === label)}
                                         </ListItemIcon>
@@ -80,18 +87,17 @@ const Admin = () => {
                             ))
                         }
                     </StyledList>
-                    <Routes>
-                        <Route
-                            path="/"
-                            element={
-                                <Dashboard
-                                    users={users}
-                                    orders={orders}
-                                    products={products}
-                                />
-                            }
-                        />
-                    </Routes>
+                    {
+                        button === tabs.dashboard ? (
+                            <Dashboard
+                                users={users}
+                                orders={orders}
+                                products={products}
+                            />
+                        ) : button === tabs.products && (
+                            <Products products={products} />
+                        )
+                    }
                 </AdminSection>
             </AdminPageSection>
             :

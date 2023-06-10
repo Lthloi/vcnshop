@@ -251,12 +251,10 @@ const getUserLocation = catchAsyncError(async (req, res, next) => {
 const getUsersByAdmin = catchAsyncError(async (req, res, next) => {
     let format = {}
 
-    let query = req.query
+    let field_set = req.query
 
-    if (query.createdAt)
-        format.createdAt = 1
-    if (query.active)
-        format.active = 1
+    for (let key of Object.keys(field_set))
+        format[key] = 1
 
     let list = await UserModel.find({}, format)
     if (!list) throw new BaseError('Something went wrong', 500)
