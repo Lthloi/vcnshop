@@ -18,7 +18,7 @@ const ProductSchema = new Schema({
         required: true,
     },
     for: [{
-        type: String, // Male || Female || Other
+        type: String, // Male || Female || Unisex
     }],
     price: {
         value: {

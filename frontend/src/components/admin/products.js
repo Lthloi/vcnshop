@@ -8,6 +8,7 @@ import OutboxIcon from '@mui/icons-material/Outbox'
 import ErrorIcon from '@mui/icons-material/Error'
 import { Tooltip as TooltipMUI } from "@mui/material"
 import ChartDataLabels from 'chartjs-plugin-datalabels'
+import CommentIcon from '@mui/icons-material/Comment'
 
 ChartJS.register(ArcElement, Tooltip, Legend, ChartDataLabels)
 
@@ -38,7 +39,7 @@ const gender_labels = [
         backgroundColor: "rgb(215,236,251)",
         borderColor: "rgba(54, 162, 235, 1)",
     }, {
-        label: 'Other',
+        label: 'Unisex',
         backgroundColor: "rgb(219,242,242)",
         borderColor: "rgb(84,200,200)",
     }
@@ -65,7 +66,7 @@ const style_for_icons = {
     color: 'white',
 }
 
-const set_sums = (count_orders, count_users) => [
+const set_sums = (count_orders, count_users, count_reviews) => [
     {
         label: 'Products\'s Total',
         icon: <AllInboxIcon sx={style_for_icons} />,
@@ -74,17 +75,28 @@ const set_sums = (count_orders, count_users) => [
         label: 'Stock Out',
         icon: <OutboxIcon sx={style_for_icons} />,
         count: count_users,
+    }, {
+        label: 'Reviews\'s Total',
+        icon: <CommentIcon sx={style_for_icons} />,
+        count: count_reviews,
     },
 ]
 
 const Products = ({ products }) => {
 
     const counted_product_groups = useMemo(() => {
-        let gender_obj = { Male: 0, Female: 0, Other: 0 }
+        let gender_obj = { Male: 0, Female: 0, Unisex: 0 }
         for (let { for: valid_genders } of products)
             for (let gender of valid_genders)
                 gender_obj[gender]++
         return gender_obj
+    }, [products])
+
+    const counted_reviews = useMemo(() => {
+        return products.reduce(
+            (accumulator, { review: { count_review } }) => accumulator + count_review,
+            0
+        )
     }, [products])
 
     const count_stock_out_product = useMemo(() => {
@@ -102,7 +114,7 @@ const Products = ({ products }) => {
             </div>
             <Sums>
                 {
-                    set_sums(products.length, count_stock_out_product)
+                    set_sums(products.length, count_stock_out_product, counted_reviews)
                         .map(({ label, icon, count }) => (
                             <Sum key={label}>
                                 <SumContainer>
@@ -124,10 +136,10 @@ const Products = ({ products }) => {
                 id="BarChartSection"
                 style={{ width: '100%', marginTop: '30px' }}
             >
-                <SectionTitle>Group The Products By Gender</SectionTitle>
+                <SectionTitle>The Grouped Products</SectionTitle>
                 <Note>
                     <ErrorIcon sx={{ fontSize: '1.2em', color: 'gray' }} />
-                    <span>Display the groups was grouped to Male and Female and Other</span>
+                    <span>Display the groups was grouped to Male and Female and Unisex</span>
                 </Note>
                 <div style={{ display: 'flex', columnGap: '30px', justifyContent: 'space-evenly' }}>
                     <div>

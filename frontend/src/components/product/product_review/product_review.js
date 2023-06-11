@@ -1,124 +1,111 @@
 import React, { useRef, useState } from "react"
 import { styled } from '@mui/material/styles'
 import ReviewsIcon from '@mui/icons-material/Reviews'
-import Reviews from './reviews'
 import { useDispatch, useSelector } from "react-redux"
 import { newReview } from "../../../store/actions/product_actions"
 import ScoreCard from "./score_card"
 import AddImages from "./add_images"
-import RatingSet from "./rating_set"
 import { toast } from 'react-toastify'
-import CommentIcon from '@mui/icons-material/Comment'
 import LoadingApp from "../../loading_app"
+import RatingSet from "./rating_set"
+import ProtectedResource from "../../protected_resource"
 
 const ProductReview = ({ productId }) => {
-    const { newReviewProcessing } = useSelector(({ product }) => product.productDetail)
-    const [review, setReview] = useState({ rating: 0, images: [] })
+    const { newReviewProcessing, reviews } = useSelector(({ product }) => product.productDetail.reviewsState)
+    const [ratingAndImgs, setReview] = useState({ rating: 0, images: [] })
     const comment_title_ref = useRef()
     const comment_ref = useRef()
-    const switch_review_page_ref = useRef()
     const dispatch = useDispatch()
 
     const submitReviews = () => {
-        if (review.rating === 0 || comment_title_ref.current.value === '' || comment_ref.current.value === '')
+        if (ratingAndImgs.rating === 0 || ratingAndImgs.comment_title === '' || ratingAndImgs.comment === '')
             return toast.warn('Please complete Rating and Title and Comment!')
 
-        dispatch(newReview(
-            productId, review.images, review.rating, comment_title_ref.current.value, comment_ref.current.value
-        ))
+        dispatch(
+            newReview(
+                productId,
+                ratingAndImgs.images,
+                ratingAndImgs.rating,
+                comment_title_ref.current.value,
+                comment_ref.current.value,
+                reviews
+            )
+        )
 
-        //set review state to original
+        //set ratingAndImgs state to original
         setReview({ rating: 0, images: [] })
-        comment_ref.current.value = ''
         comment_title_ref.current.value = ''
+        comment_ref.current.value = ''
     }
 
-    const changeImages = (images) => {
+    const updateReviewImages = (images) => {
         setReview(pre => ({ ...pre, images }))
     }
 
-    const handleSetRating = (rating) => {
+    const updateRatingsValue = (rating) => {
         setReview(pre => ({ ...pre, rating }))
     }
 
     return (
-        <ProductReviewArea id="ProductReviewArea">
+        <div>
             {newReviewProcessing && <LoadingApp />}
 
             <div style={{ display: 'flex', columnGap: '10px', alignItems: 'center' }}>
                 <ReviewsIcon />
-                <ProductReviewTitle>Customer Reviews</ProductReviewTitle>
+                <ProductReviewTitle>Make Review</ProductReviewTitle>
             </div>
 
             <Hr />
-            <ReviewsContainer>
-                <ReviewOverviewTitle>Overview</ReviewOverviewTitle>
 
-                <ScoreCard
-                    commentTitleRef={comment_title_ref}
-                />
+            <ProtectedResource isWithInternalComponent>
+                <ReviewContainer>
+                    <Title>Overview</Title>
 
-                <ReviewWriteComment>Make Review</ReviewWriteComment>
+                    <ScoreCard />
 
-                <AddImages
-                    images={review.images}
-                    changeImages={changeImages}
-                />
+                    <Title>Make Review</Title>
 
-                <RatingSet
-                    ratingValue={review.rating}
-                    handleSetRatingValue={handleSetRating}
-                />
+                    <AddImages
+                        images={ratingAndImgs.images}
+                        updateReviewImages={updateReviewImages}
+                    />
 
-                <CommentTitle
-                    id="WriteCommentTitle"
-                    ref={comment_title_ref}
-                    maxLength={65}
-                    placeholder="Write your title of comment here..."
-                />
+                    <RatingSet
+                        ratingValue={ratingAndImgs.rating}
+                        updateRatingsValue={updateRatingsValue}
+                    />
 
-                <WriteComment //textarea
-                    id="WriteCommentText"
-                    ref={comment_ref}
-                    placeholder="Write your comment here..."
-                    rows={5} maxLength={200}
-                />
+                    <CommentTitle
+                        ref={comment_title_ref}
+                        id="WriteCommentTitle"
+                        maxLength={65}
+                        placeholder="Write your title of comment here..."
+                    />
 
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span></span>
-                    <SubmitCommentBtn onClick={submitReviews}>
-                        Submit Review
-                    </SubmitCommentBtn>
-                </div>
-            </ReviewsContainer>
+                    <WriteComment //textarea
+                        ref={comment_ref}
+                        id="WriteCommentText"
+                        placeholder="Write your comment here..."
+                        rows={5}
+                        maxLength={200}
+                    />
 
-            <ReviewsArea id="Reviews" ref={switch_review_page_ref}>
-                <div style={{ display: 'flex', columnGap: '10px', alignItems: 'center' }}>
-                    <CommentIcon />
-                    <ReviewsTitle>Reviews</ReviewsTitle>
-                </div>
-
-                <Hr />
-
-                <Reviews
-                    productId={productId}
-                    srollReviewRef={switch_review_page_ref}
-                />
-
-            </ReviewsArea>
-        </ProductReviewArea>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <span></span>
+                        <SubmitCommentBtn onClick={submitReviews}>
+                            Submit Review
+                        </SubmitCommentBtn>
+                    </div>
+                </ReviewContainer>
+            </ProtectedResource>
+        </div>
     )
 }
 
 export default ProductReview
 
-const ProductReviewArea = styled('div')({
-    width: '56%',
-})
-
 const ProductReviewTitle = styled('h2')({
     margin: '0',
-    fontFamily: '"Kanit", "sans-serif"',
     fontSize: '1.5em',
     transform: 'scaleY(0.9)',
 })
@@ -128,16 +115,15 @@ const Hr = styled('div')({
     backgroundColor: 'black',
 })
 
-const ReviewsContainer = styled('div')({
+const ReviewContainer = styled('div')({
     display: 'flex',
     flexDirection: 'column',
     rowGap: '5px',
     marginTop: '5px',
 })
 
-const ReviewOverviewTitle = styled('div')({
+const Title = styled('div')({
     margin: '0',
-    fontFamily: '"Kanit", "sans-serif"',
     fontSize: '1.5em',
     transform: 'scaleY(0.9)',
     borderBottom: '2px black solid',
@@ -145,28 +131,24 @@ const ReviewOverviewTitle = styled('div')({
     width: 'fit-content',
 })
 
-const ReviewWriteComment = styled(ReviewOverviewTitle)({
-
-})
-
 const CommentTitle = styled('input')({
     fontSize: '1em',
-    fontFamily: '"Nunito", "sans-serif"',
-    padding: '3px 15px',
-    border: '1.5px black solid',
+    padding: '5px 15px',
+    border: 'none',
+    borderBottom: '1.5px black solid',
     outline: 'unset',
 })
 
-const WriteComment = styled('textarea')({
+const WriteComment = styled('textarea')(({ theme }) => ({
     outline: 'unset',
-    padding: '5px 15px',
-    fontSize: '1.1em',
+    padding: '10px 20px',
+    fontSize: '1em',
     boxSizing: 'border-box',
     border: '1.5px black solid',
     width: '100%',
-    fontFamily: '"Nunito", "sans-serif"',
     resize: 'vertical',
-})
+    fontFamily: theme.fontFamily.nunito,
+}))
 
 const SubmitCommentBtn = styled('button')({
     display: 'flex',
@@ -179,17 +161,4 @@ const SubmitCommentBtn = styled('button')({
     '&:hover': {
         outline: '2px black solid',
     }
-})
-
-const ReviewsArea = styled('div')({
-    display: 'flex',
-    flexDirection: 'column',
-    marginTop: '10px',
-})
-
-const ReviewsTitle = styled('h2')({
-    margin: '0',
-    fontFamily: '"Kanit", "sans-serif"',
-    fontSize: '1.5em',
-    transform: 'scaleY(0.9)',
 })

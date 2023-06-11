@@ -13,7 +13,7 @@ router.get('/getProduct/:productId', getProduct)
 
 router.get('/getReviews', getReviews)
 
-router.post('/newReview', newReview)
+router.post('/newReview', verifyJWTtoken, newReview)
 
 router.get('/getProductsName', getProductsName)
 

@@ -94,36 +94,32 @@ const newReview = catchAsyncError(async (req, res, next) => {
     let { productId } = req.query
     if (!productId) throw new BaseError('Wrong request property', 400)
 
-    let { _id: user_id, avatar, name: user_name } = req.user
+    let { _id: userId, avatar, name: user_name } = req.user
 
-    let { rating, comment, title } = req.body
-    if (!rating || !comment || !title) throw new BaseError('Wrong request property', 400)
+    let { rating, comment, title, currentReviews } = req.body
+    if (!rating || !comment || !title || !currentReviews)
+        throw new BaseError('Wrong request property', 400)
 
-    let image_urls = await uploadImages(req.files, 'products/' + productId + '/reviews/' + user_id)
-    if (upload_error instanceof Error) throw upload_error
+    let image_urls
+    if (req.files)
+        image_urls = await uploadImages(
+            req.files.images,
+            'products/' + productId + '/reviews/' + userId
+        )
 
-    //remove a review existed 
-    let product_after_remove_review = await ProductModel.findOneAndUpdate(
-        { _id: productId },
-        { $pull: { 'review.reviews': { user_id } } },
-        {
-            new: true,
-            projection: {
-                '_id': 0,
-                'review.reviews.rating': 1,
-            },
-        }
-    ).lean()
-    if (!product_after_remove_review) throw new BaseError('Product not found', 404)
+    let user_id_in_string = userId.toString()
 
-    let new_count_review = product_after_remove_review.review.reviews.length + 1
+    //remove a review existed
+    let new_reviews = JSON.parse(currentReviews).filter(({ user_id }) => user_id !== user_id_in_string)
 
-    let sum_of_previous_ratings = product_after_remove_review.review.reviews.reduce((acc, curr) => acc + curr, 0)
+    let new_count_review = new_reviews.length + 1
+
+    let sum_of_previous_ratings = new_reviews.reduce((acc, { rating }) => acc + rating, 0)
     let new_average_rating = sum_of_previous_ratings === 0 ? rating : (sum_of_previous_ratings + rating) / 2
 
     let new_review = {
         name: user_name,
-        user_id,
+        user_id: userId,
         avatar,
         createdAt: new Date(),
         rating,
@@ -132,6 +128,8 @@ const newReview = catchAsyncError(async (req, res, next) => {
         imageURLs: image_urls || [],
     }
 
+    new_reviews.push(new_review)
+
     //update review in database
     await ProductModel.updateOne(
         { _id: productId },
@@ -139,13 +137,8 @@ const newReview = catchAsyncError(async (req, res, next) => {
             $set: {
                 'review.average_rating': new_average_rating,
                 'review.count_review': new_count_review,
+                'review.reviews': new_reviews,
             },
-            $push: {
-                'review.reviews': {
-                    $each: [new_review],
-                    $position: 0,
-                }
-            }
         },
     )
 

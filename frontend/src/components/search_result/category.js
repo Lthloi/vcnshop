@@ -9,7 +9,7 @@ const category_data = {
     clothing: ['Shirt', 'Pants',],
     accessories: ['Necklace', 'Ring',],
     shoes: ['Sneaker',],
-    for: ['Man', 'Woman', 'Unisex',],
+    for: ['Male', 'Female', 'Unisex',],
 }
 
 const Category = ({ submitFilter, RenderFilterTitle, openCategoryCollapse }) => {

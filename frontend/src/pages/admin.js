@@ -31,20 +31,18 @@ const tabs = {
 
 const nav_options = [
     {
-        label: 'Dashboard',
+        label: tabs.dashboard,
         icon: (is_active) => <DashboardIcon sx={is_active ? style_for_icons.is_active : style_for_icons.non_active} />,
-        href: tabs.dashboard,
     }, {
-        label: 'Products',
+        label: tabs.products,
         icon: (is_active) => <AllInboxIcon sx={is_active ? style_for_icons.is_active : style_for_icons.non_active} />,
-        href: tabs.products,
     },
 ]
 
 const Admin = () => {
-    const users = useSelector(({ user }) => user.users)
-    const orders = useSelector(({ order }) => order.orders)
-    const products = useSelector(({ product }) => product.search.products)
+    const { users, error: user_error } = useSelector(({ user }) => user)
+    const { orders, error: order_error } = useSelector(({ order }) => order)
+    const { products, error: product_error } = useSelector(({ product }) => product.search)
     const dispatch = useDispatch()
     const [button, setButton] = useState(nav_options[0].label)
 
@@ -54,40 +52,46 @@ const Admin = () => {
         dispatch(getProductsByAdmin('createdAt', 'stock', 'review.count_review', 'for'))
     }, [dispatch])
 
-    const switchButton = (label_of_button, href) => {
+    const switchButton = (label_of_button) => {
         if (label_of_button === button) return
         setButton(label_of_button)
     }
 
+    if (user_error || order_error || product_error)
+        return (
+            <Error>Something went wrong</Error>
+        )
+
     return (
-        users && users.length > 0 && orders && orders.length > 0 && products && products.length > 0 ?
-            <AdminPageSection id="AdminPageSection">
-                <PageTitleContainer>
-                    <AdminPanelSettingsIcon sx={{ fontSize: '1.8em' }} />
-                    <Title>Admin</Title>
-                </PageTitleContainer>
-                <AdminSection>
-                    <StyledList component="div">
-                        <ListTitle>
-                            {button}
-                        </ListTitle>
-                        {
-                            nav_options.map(({ label, icon, href }) => (
-                                <ListItemButtonWrapper
-                                    key={label}
-                                    sx={button === label ? { backgroundColor: 'white', color: 'black' } : { backgroundColor: 'rgb(53,53,59)' }}
-                                >
-                                    <StyledListItemButton onClick={() => switchButton(label, href)}>
-                                        <ListItemIcon>
-                                            {icon(button === label)}
-                                        </ListItemIcon>
-                                        <ListItemText primary={label} />
-                                    </StyledListItemButton>
-                                </ListItemButtonWrapper>
-                            ))
-                        }
-                    </StyledList>
+
+        <AdminPageSection id="AdminPageSection">
+            <PageTitleContainer>
+                <AdminPanelSettingsIcon sx={{ fontSize: '1.8em' }} />
+                <Title>Admin</Title>
+            </PageTitleContainer>
+            <AdminSection>
+                <StyledList component="div">
+                    <ListTitle>
+                        {button}
+                    </ListTitle>
                     {
+                        nav_options.map(({ label, icon }) => (
+                            <ListItemButtonWrapper
+                                key={label}
+                                sx={button === label ? { backgroundColor: 'white', color: 'black' } : { backgroundColor: 'rgb(53,53,59)' }}
+                            >
+                                <StyledListItemButton onClick={() => switchButton(label)}>
+                                    <ListItemIcon>
+                                        {icon(button === label)}
+                                    </ListItemIcon>
+                                    <ListItemText primary={label} />
+                                </StyledListItemButton>
+                            </ListItemButtonWrapper>
+                        ))
+                    }
+                </StyledList>
+                {
+                    users && users.length > 0 && orders && orders.length > 0 && products && products.length > 0 ?
                         button === tabs.dashboard ? (
                             <Dashboard
                                 users={users}
@@ -97,24 +101,32 @@ const Admin = () => {
                         ) : button === tabs.products && (
                             <Products products={products} />
                         )
-                    }
-                </AdminSection>
-            </AdminPageSection>
-            :
-            <LoadingContainer>
-                <StyledSkeleton sx={{ height: '500px', width: '20%' }} />
-                <div style={{ width: '80%' }}>
-                    <StyledSkeleton sx={{ height: '100px' }} />
-                    <StyledSkeleton sx={{ height: '380px', marginTop: '20px' }} />
-                </div>
-            </LoadingContainer>
+                        :
+                        <LoadingContainer>
+                            <StyledSkeleton sx={{ height: '500px', width: '20%' }} />
+                            <div style={{ width: '80%' }}>
+                                <StyledSkeleton sx={{ height: '100px' }} />
+                                <StyledSkeleton sx={{ height: '380px', marginTop: '20px' }} />
+                            </div>
+                        </LoadingContainer>
+                }
+            </AdminSection>
+        </AdminPageSection>
     )
 }
 
 export default Admin
 
+const Error = styled('div')(({ theme }) => ({
+    fontFamily: theme.fontFamily.nunito,
+    padding: '20px',
+    width: '100%',
+    boxSizing: 'border-box',
+    textAlign: 'center',
+}))
+
 const AdminPageSection = styled('div')(({ theme }) => ({
-    fontFamily: theme.font_family.arial,
+    fontFamily: theme.fontFamily.arial,
     padding: '30px 40px',
 }))
 

@@ -5,7 +5,7 @@ import {
     getBestSellingRequest, getBestSellingSuccess, getBestSellingFail, //best selling
     getProductDetailRequest, getProductDetailSuccess, getProductDetailFail, //product detail
     newReviewRequest, newReviewSuccess, newReviewFail,
-    getReviewRequest, getReviewSuccess, getReviewFail,
+    getReviewsRequest, getReviewsSuccess, getReviewsFail,
 } from '../reducers/product_reducer.js'
 import { toast } from 'react-toastify'
 import actionsErrorHandler from '../../utils/error_handler.js'
@@ -92,7 +92,7 @@ const getProductDetail = (product_id) => async (dispatch) => {
 
 const getReviews = (productId, pagination = 1, limit = LIMIT_GET_COMMENTS) => async (dispatch) => {
     try {
-        dispatch(getReviewRequest())
+        dispatch(getReviewsRequest())
 
         let api_to_get_review =
             '/api/product/getReviews?productId=' + productId + '&pagination=' + pagination +
@@ -100,15 +100,15 @@ const getReviews = (productId, pagination = 1, limit = LIMIT_GET_COMMENTS) => as
 
         let { data } = await axios.get(EXPRESS_SERVER + api_to_get_review)
 
-        dispatch(getReviewSuccess({ reviews: data.reviews }))
+        dispatch(getReviewsSuccess({ reviews: data.reviews }))
     } catch (error) {
         let errorObject = actionsErrorHandler(error, 'Error Warning: fail to get review.')
 
-        dispatch(getReviewFail({ error: errorObject }))
+        dispatch(getReviewsFail({ error: errorObject }))
     }
 }
 
-const newReview = (productId, images, rating, title, comment) => async (dispatch) => {
+const newReview = (productId, images, rating, title, comment, current_reviews) => async (dispatch) => {
     let reviewData = new FormData()
     if (images.length > 0) {
         let file_upload_filter
@@ -126,6 +126,7 @@ const newReview = (productId, images, rating, title, comment) => async (dispatch
     reviewData.set('rating', rating)
     reviewData.set('title', title)
     reviewData.set('comment', comment)
+    reviewData.set('currentReviews', JSON.stringify(current_reviews))
 
     try {
         dispatch(newReviewRequest())
@@ -135,7 +136,10 @@ const newReview = (productId, images, rating, title, comment) => async (dispatch
         let { data } = await axios.post(
             EXPRESS_SERVER + api_to_make_new_review,
             reviewData,
-            { headers: { 'Content-Type': 'multipart/form-data' } },
+            {
+                withCredentials: true,
+                headers: { 'Content-Type': 'multipart/form-data' }
+            },
         )
 
         dispatch(newReviewSuccess({
@@ -150,7 +154,7 @@ const newReview = (productId, images, rating, title, comment) => async (dispatch
 
         toast.error(errorObject.message)
 
-        dispatch(newReviewFail())
+        dispatch(newReviewFail({ error: errorObject }))
     }
 }
 

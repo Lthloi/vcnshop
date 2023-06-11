@@ -6,17 +6,16 @@ import debounce from '../../../utils/debounce'
 import { toast } from 'react-toastify'
 import { EXPRESS_SERVER } from '../../../utils/constants'
 import axios from 'axios'
-import Fuse from 'fuse.js'
 
 const SearchDialog = ({ handleOpenSearchDialog }) => {
-    const [suggestions, setSuggestions] = useState([])
+    const [suggestions, setSuggestions] = useState([].includes('oke'))
     const search_input_ref = useRef()
-    const data = useRef()
+    const data_ref = useRef()
 
     const getSuggestions = async () => {
         try {
             let response = await axios.get(EXPRESS_SERVER + '/api/product/getProductsName')
-            data.current = response.data.list
+            data_ref.current = response.data.list
         } catch (error) {
             toast.error(error.message)
         }
@@ -27,10 +26,21 @@ const SearchDialog = ({ handleOpenSearchDialog }) => {
     }, [])
 
     const searching = (e) => {
-        let keywrods = e.target.value
-        if (keywrods === '') return setSuggestions([])
-        let results = new Fuse(data.current, { shouldSort: true }).search(keywrods)
-        setSuggestions(results.slice(0, 10).map((result) => result.item))
+        let keywrod = e.target.value.toLowerCase()
+        if (keywrod === '') return setSuggestions([])
+        let result_list = []
+        let match = true
+        let lower_case
+        for (let product_name of data_ref.current) {
+            lower_case = product_name.toLowerCase()
+            match = true
+            for (let i = 0; i < keywrod.length; i++)
+                if (keywrod[i] !== lower_case[i] && i < keywrod.length)
+                    match = false
+            if (match) result_list.push(product_name)
+            if (result_list.length === 10) break
+        }
+        setSuggestions(result_list)
     }
 
     const catchEnterKeyboard = (e) => e.key === 'Enter' && submitSearch()

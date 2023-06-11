@@ -6,7 +6,6 @@ import InventoryIcon from '@mui/icons-material/Inventory'
 import ErrorIcon from '@mui/icons-material/Error'
 import Chart from "./chart"
 import AutoIncreaAnimate from "../auto_increa_animate"
-import CommentIcon from '@mui/icons-material/Comment'
 
 const style_for_icons = {
     color: 'white',
@@ -25,21 +24,10 @@ const set_sums = (count_orders, count_users, count_produtcs, count_reviews) => [
         label: 'Products\'s Total',
         icon: <InventoryIcon sx={style_for_icons} />,
         count: count_produtcs,
-    }, {
-        label: 'Reviews\'s Total',
-        icon: <CommentIcon sx={style_for_icons} />,
-        count: count_reviews,
     },
 ]
 
 const Dashboard = ({ users, orders, products }) => {
-
-    const counted_reviews = useMemo(() => {
-        return products.reduce(
-            (accumulator, { review: { count_review } }) => accumulator + count_review,
-            0
-        )
-    }, [products])
 
     return (
         <DashBoardSection id="DashBoardSection">
@@ -52,7 +40,7 @@ const Dashboard = ({ users, orders, products }) => {
             </div>
             <Sums>
                 {
-                    set_sums(orders.length, users.length, products.length, counted_reviews)
+                    set_sums(orders.length, users.length, products.length)
                         .map(({ label, icon, count }) => (
                             <Sum key={label}>
                                 <SumContainer>

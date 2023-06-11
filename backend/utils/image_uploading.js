@@ -10,18 +10,18 @@ const uploadImages = async (images_to_upload, folder_of_uploading) => {
         throw error
     }
 
-    if (!images_to_upload || images_to_upload.images.length === 0) return [[], error_of_uploading]
+    if (!images_to_upload) return []
 
     //check if files is iterable
-    if (typeof images_to_upload.images[Symbol.iterator] !== 'function')
-        images_to_upload.images = [images_to_upload.images]
+    if (!Array.isArray(images_to_upload))
+        images_to_upload = [images_to_upload]
 
     let image_urls = []
 
     try {
         await new Promise((resolve, reject) => {
             let data_uri
-            for (let { data, mimetype } of images_to_upload.images) {
+            for (let { data, mimetype } of images_to_upload) {
                 data_uri = get_data_uri(mimetype, data)
                 cloudinary.v2.uploader.upload(
                     data_uri,
@@ -32,7 +32,7 @@ const uploadImages = async (images_to_upload, folder_of_uploading) => {
                     },
                 ).then((response) => {
                     image_urls.push(response.secure_url)
-                    if (image_urls.length === images_to_upload.images.length)
+                    if (image_urls.length === images_to_upload.length)
                         resolve()
                 }).catch((error) => {
                     reject(error)
@@ -46,10 +46,11 @@ const uploadImages = async (images_to_upload, folder_of_uploading) => {
     return image_urls
 }
 
-const uploadOneImage = async (image_to_upload, folder_of_uploading) => {
+const uploadAvatar = async (image_to_upload, user_id) => {
     let data_uri = get_data_uri(image_to_upload.mimetype, image_to_upload.data)
     let avatar_public_id = 'avatar.' + image_to_upload.mimetype.split('/')[0]
 
+    let folder_of_uploading = 'users/' + user_id + '/profile'
     let response
 
     try {
@@ -71,5 +72,5 @@ const uploadOneImage = async (image_to_upload, folder_of_uploading) => {
 }
 
 export {
-    uploadImages, uploadOneImage,
+    uploadImages, uploadAvatar,
 } 

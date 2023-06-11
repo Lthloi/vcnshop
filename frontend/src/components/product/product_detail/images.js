@@ -1,7 +1,7 @@
 import React, { useState } from "react"
 import { styled } from '@mui/material/styles'
 import Paper from '@mui/material/Paper'
-import FitScreenIcon from '@mui/icons-material/FitScreen'
+import zoom_in_image from '../../../assets/images/zoom_in_mouse_hover.svg'
 import CancelIcon from '@mui/icons-material/Cancel'
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz'
 import Drawer from '@mui/material/Drawer'
@@ -261,7 +261,7 @@ const ProductImageWrapper = styled(Paper)({
     height: '99vh',
     overflow: 'hidden',
     '&:hover': {
-        cursor: `url(${FitScreenIcon}), auto`,
+        cursor: `url(${zoom_in_image}), auto`,
     }
 })
 

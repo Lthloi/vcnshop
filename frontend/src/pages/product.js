@@ -1,4 +1,4 @@
-import React, { useEffect } from "react"
+import React, { useEffect, useRef } from "react"
 import { styled } from '@mui/material/styles'
 import ProductDetail from "../components/product/product_detail/product_detail"
 import ScrollToTopBtn from '../components/scroll_top_top_btn'
@@ -9,6 +9,8 @@ import { useParams } from "react-router-dom"
 import { useDispatch, useSelector } from "react-redux"
 import { getProductDetail } from '../store/actions/product_actions'
 import Skeleton from '@mui/material/Skeleton'
+import CommentIcon from '@mui/icons-material/Comment'
+import Reviews from "../components/product/product_review/reviews"
 
 const loading_widths = ['82%', '75%', '60%', '45%', '50%']
 
@@ -16,6 +18,7 @@ const Product = () => {
     const { product, loading, error } = useSelector(({ product }) => product.productDetail)
     const dispatch = useDispatch()
     const { productId } = useParams()
+    const switch_review_page_ref = useRef()
 
     useEffect(() => {
         dispatch(getProductDetail(productId))
@@ -55,22 +58,37 @@ const Product = () => {
                     <>
                         {product && product._id && <ProductDetail product={product} />}
 
-                        <ReviewsAndDetails>
+                        <ReviewsAndIntroduction>
                             {
                                 product && product._id &&
                                 <>
-                                    <ProductReview productId={product._id} productReview={product.review} />
+                                    <ProductReviewSection>
+                                        <ProductReview productId={product._id} productReview={product.review} />
+                                        <ReviewsSection id="Reviews" ref={switch_review_page_ref}>
+                                            <div style={{ display: 'flex', columnGap: '10px', alignItems: 'center' }}>
+                                                <CommentIcon />
+                                                <ReviewsTitle>Reviews</ReviewsTitle>
+                                            </div>
+
+                                            <Hr />
+
+                                            <Reviews
+                                                productId={productId}
+                                                srollReviewRef={switch_review_page_ref}
+                                            />
+                                        </ReviewsSection>
+                                    </ProductReviewSection>
                                     <Introduction
                                         productDescription={product.description}
                                         shopUsername={product.shop.username}
                                     />
                                 </>
                             }
-                        </ReviewsAndDetails>
-
-                        <ScrollToTopBtn />
+                        </ReviewsAndIntroduction>
                     </>
             }
+
+            <ScrollToTopBtn />
         </ProductDetailPage>
     )
 }
@@ -97,7 +115,7 @@ const Text = styled('h2')({
 })
 
 const Hr = styled('div')({
-    height: '5px',
+    height: '2px',
     backgroundColor: 'black',
 })
 
@@ -140,9 +158,26 @@ const Error = styled('div')({
     height: '25vh',
 })
 
-const ReviewsAndDetails = styled('div')({
+const ReviewsAndIntroduction = styled('div')(({ theme }) => ({
     display: 'flex',
     justifyContent: 'space-between',
     columnGap: '20px',
     marginTop: '35px',
+    fontFamily: theme.fontFamily.nunito,
+}))
+
+const ProductReviewSection = styled('div')(({ theme }) => ({
+    width: '56%',
+}))
+
+const ReviewsSection = styled('div')({
+    display: 'flex',
+    flexDirection: 'column',
+    marginTop: '10px',
+})
+
+const ReviewsTitle = styled('h2')({
+    margin: '0',
+    fontSize: '1.5em',
+    transform: 'scaleY(0.9)',
 })

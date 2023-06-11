@@ -1,7 +1,7 @@
 import { createTheme } from '@mui/material/styles'
 
 const global_theme = createTheme({
-    font_family: {
+    fontFamily: {
         kanit: '"Kanit", "sans-serif"',
         nunito: '"Nunito", "sans-serif"',
         arial: '"Arial", "Helvetica", "sans-serif"',

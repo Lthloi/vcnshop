@@ -92,6 +92,7 @@ const ProductCard = ({ product }) => {
 export default ProductCard
 
 const ProductSearchCard = styled('div')(({ theme }) => ({
+    fontFamily: theme.fontFamily.nunito,
     boxSizing: 'border-box',
     padding: '3px',
     paddingBottom: '6px',
@@ -155,7 +156,6 @@ const Name = styled('a')({
     color: 'black',
     width: 'fit-content',
     maxWidth: '100%',
-    fontFamily: '"Nunito", "sans-serif"',
     fontSize: '1rem',
     fontWeight: 'bold',
     marginTop: '10px',
@@ -174,12 +174,10 @@ const RatingContainer = styled('div')({
 })
 
 const RatingNumber = styled('div')({
-    fontFamily: '"Nunito", "sans-serif"',
     fontSize: '0.9rem',
 })
 
 const RatingCount = styled('div')({
-    fontFamily: '"Nunito", "sans-serif"',
     fontSize: '0.9rem',
 })
 
@@ -190,20 +188,18 @@ const SoldCount = styled('div')({
     fontWeight: 'bold',
 })
 
-const Price = styled('div')({
-    fontFamily: '"Nunito", "sans-serif"',
+const Price = styled('div')(({ theme }) => ({
     fontSize: '0.9rem',
     marginTop: '5px',
     paddingLeft: '5px',
     backgroundColor: 'white',
     borderRadius: '5px',
-})
+}))
 
 const ShopName = styled('div')({
     width: 'fit-content',
     maxWidth: '100%',
     fontWeight: 'bold',
-    fontFamily: '"Nunito", "sans-serif"',
     fontSize: '0.9rem',
     marginTop: '5px',
     paddingLeft: '5px',

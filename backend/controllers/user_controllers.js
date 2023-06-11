@@ -5,7 +5,7 @@ import catchAsyncError from '../middlewares/catch_async_error.js'
 import moment from 'moment'
 import { removeJWTToken, sendJWTToken } from '../utils/JWT_token.js'
 import crypto from 'crypto'
-import { uploadOneImage } from '../utils/image_uploading.js'
+import { uploadAvatar } from '../utils/image_uploading.js'
 import { IP2_ERROR } from '../utils/constants.js'
 
 const sendRegisterOTP = catchAsyncError(async (req, res, next) => {
@@ -216,7 +216,7 @@ const changePassword = catchAsyncError(async (req, res, next) => {
 const updateUserAvatar = catchAsyncError(async (req, res, next) => {
     let { avatarImage } = req.files
     let user_id = req.user._id
-    let avatar_url = await uploadOneImage(avatarImage, 'users/' + user_id + '/profile')
+    let avatar_url = await uploadAvatar(avatarImage, 'users/' + user_id + '/profile')
     if (!avatar_url) throw new BaseError('Can\'t upload image', 500)
 
     await UserModel.updateOne({ _id: user_id }, { $set: { 'avatar': avatar_url } })

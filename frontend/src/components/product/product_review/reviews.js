@@ -5,7 +5,6 @@ import { Rating } from "@mui/material"
 import ThumbUpIcon from '@mui/icons-material/ThumbUp'
 import ThumbDownIcon from '@mui/icons-material/ThumbDown'
 import Pagination from '@mui/material/Pagination'
-import ReviewImages from "./review_images"
 import { getReviews } from "../../../store/actions/product_actions"
 import { Skeleton } from "@mui/material"
 import CommentIcon from '@mui/icons-material/Comment'
@@ -46,8 +45,8 @@ const Reviews = ({ productId, srollReviewRef }) => {
                     </>
                 ) : error ? (
                     <ReviewError>{error.message}</ReviewError>
-                ) : reviews && reviews.length > 0 ? reviews.map(({ _id, name, comment, rating, title, createdAt, avatar, imageURLs }) =>
-                    <ReviewContainer key={_id}>
+                ) : reviews && reviews.length > 0 ? reviews.map(({ user_id, name, comment, rating, title, createdAt, avatar, imageURLs }) =>
+                    <ReviewContainer key={user_id}>
                         <Date>
                             <span>Written On </span>
                             <span>{convertDate(new window.Date(createdAt).toLocaleDateString())}</span>
@@ -61,7 +60,15 @@ const Reviews = ({ productId, srollReviewRef }) => {
                         <Rating value={rating * 1} readOnly size="small" precision={0.5} />
                         <CommentTitle>{title}</CommentTitle>
                         <Comment>{comment}</Comment>
-                        <ReviewImages imageURLs={imageURLs} />
+                        <ReviewImagesContainer>
+                            {
+                                imageURLs && imageURLs.length > 0 && imageURLs.map((imageURL) => (
+                                    <div key={imageURL} style={{ maxWidth: '15%' }}>
+                                        <ReviewImage src={imageURL} />
+                                    </div>
+                                ))
+                            }
+                        </ReviewImagesContainer>
                         <IsHelpful>
                             <span className="title">Was This Review Helpful ?</span>
                             <div title="Helpful"
@@ -160,6 +167,20 @@ const CommentTitle = styled('h2')({
 const Comment = styled('div')({
     fontFamily: '"Nunito", "sans-serif"',
     paddingLeft: '5px',
+})
+
+const ReviewImagesContainer = styled('div')({
+    display: 'flex',
+    columnGap: '10px',
+})
+
+const ReviewImage = styled('img')({
+    height: '80px',
+    width: '100%',
+    cursor: 'pointer',
+    '&:hover': {
+        outline: '2px black solid',
+    }
 })
 
 const IsHelpful = styled('div')({

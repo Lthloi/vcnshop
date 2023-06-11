@@ -25,10 +25,10 @@ export const productsSlice = createSlice({
                 loading: false,
                 error: null,
                 reviews: [],
+                newReviewProcessing: false,
             },
             loading: false,
             error: null,
-            newReviewProcessing: false,
         },
     },
     reducers: {
@@ -60,7 +60,7 @@ export const productsSlice = createSlice({
             state.topWeek.loading = false
         },
 
-        
+
         getBestSellingRequest: (state, action) => {
             state.bestSelling.error = null
             state.bestSelling.loading = true
@@ -77,7 +77,7 @@ export const productsSlice = createSlice({
 
         getProductDetailRequest: (state, action) => {
             state.productDetail.error = null
-            state.productDetail.newReviewProcessing = false
+            state.productDetail.reviewsState.newReviewProcessing = false
             state.productDetail.loading = true
         },
         getProductDetailSuccess: (state, action) => {
@@ -90,37 +90,39 @@ export const productsSlice = createSlice({
         },
 
 
-        getReviewRequest: (state, action) => {
+        getReviewsRequest: (state, action) => {
             state.productDetail.reviewsState.error = null
             state.productDetail.reviewsState.loading = true
         },
-        getReviewSuccess: (state, action) => {
+        getReviewsSuccess: (state, action) => {
             state.productDetail.reviewsState.reviews = action.payload.reviews
             state.productDetail.reviewsState.loading = false
         },
-        getReviewFail: (state, action) => {
+        getReviewsFail: (state, action) => {
             state.productDetail.reviewsState.error = action.payload.error
             state.productDetail.reviewsState.loading = false
         },
 
 
         newReviewRequest: (state, action) => {
-            state.productDetail.newReviewProcessing = true
+            state.productDetail.reviewsState.newReviewProcessing = true
+            state.productDetail.reviewsState.error = null
         },
         newReviewSuccess: (state, action) => {
             let { newReview, newAverageRating, newCountReview } = action.payload
+            let update_reviews = current(state).productDetail.reviewsState.reviews
+                .filter(({ user_id }) => user_id !== newReview.user_id)
 
-            let current_reviews = current(state).reviewsState.reviews.filter(({ email }) => email !== newReview.email)
+            state.productDetail.reviewsState.newReviewProcessing = false
 
-            state.productDetail.reviewsState.reviews = [newReview, ...current_reviews]
+            state.productDetail.reviewsState.reviews = [newReview, ...update_reviews]
 
             state.productDetail.product.review.average_rating = newAverageRating
             state.productDetail.product.review.count_review = newCountReview
-
-            state.productDetail.newReviewProcessing = false
         },
         newReviewFail: (state, action) => {
-            state.productDetail.newReviewProcessing = false
+            state.productDetail.reviewsState.newReviewProcessing = false
+            state.productDetail.reviewsState.error = action.payload.error
         },
     }
 })
@@ -131,7 +133,7 @@ export const {
     getBestSellingRequest, getBestSellingSuccess, getBestSellingFail,
     getProductDetailRequest, getProductDetailSuccess, getProductDetailFail,
     newReviewRequest, newReviewSuccess, newReviewFail,
-    getReviewRequest, getReviewSuccess, getReviewFail,
+    getReviewsRequest, getReviewsSuccess, getReviewsFail,
 } = productsSlice.actions
 
 export default productsSlice.reducer

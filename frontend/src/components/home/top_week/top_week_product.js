@@ -4,6 +4,7 @@ import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart'
 import Paper from '@mui/material/Paper'
 import { addProductToCart } from '../../../store/actions/cart_actions'
 import { useDispatch } from "react-redux"
+import { NavLink } from "react-router-dom"
 
 const TopWeekProduct = ({ product }) => {
     const { _id, image_link, name, price, stock } = product
@@ -20,10 +21,10 @@ const TopWeekProduct = ({ product }) => {
         >
             <ModalBaseSlide className="ModalBaseSlide">
                 <ModalBaseSlideContent className="ModalBaseSlideContent">
-                    <NameProduct >
+                    <ProductName >
                         {name}
-                    </NameProduct>
-                    <ShowMore href={`/productDetail/${_id}`}>
+                    </ProductName>
+                    <ShowMore to={`/productDetail/${_id}`}>
                         Show More...
                     </ShowMore>
                     <AddToCartContainer onClick={addToCart}>
@@ -48,7 +49,8 @@ export default TopWeekProduct
 
 const modal_base_slide = '#00000078'
 
-const Product = styled(Paper)({
+const Product = styled(Paper)(({ theme }) => ({
+    fontFamily: theme.fontFamily.kanit,
     position: 'relative',
     height: '98%',
     width: '30%',
@@ -60,7 +62,7 @@ const Product = styled(Paper)({
     '&:hover .ModalBaseSlideContent': {
         opacity: '1',
     }
-})
+}))
 
 const ModalBaseSlide = styled('div')({
     display: 'flex',
@@ -84,19 +86,19 @@ const ModalBaseSlideContent = styled('div')({
     alignItems: 'center',
 })
 
-const NameProduct = styled('div')({
+const ProductName = styled('div')({
+    padding: '0 20px',
     maxWidth: '100%',
     textAlign: 'center',
     marginBottom: '20px',
     color: 'white',
-    fontFamily: '"Satisfy", "cursive"',
     fontSize: '2em',
     '&:hover': {
         cursor: 'text',
     }
 })
 
-const ShowMore = styled('a')({
+const ShowMore = styled(NavLink)({
     padding: '10px',
     border: '2px white solid',
     fontFamily: 'sans-serif',
@@ -125,7 +127,6 @@ const AddToCartText = styled('div')({
     display: 'flex',
     alignItems: 'center',
     marginLeft: '10px',
-    fontFamily: '"Oswald", "sans-serif"',
     fontSize: '1.5em',
     color: 'black',
     textAlign: 'center',

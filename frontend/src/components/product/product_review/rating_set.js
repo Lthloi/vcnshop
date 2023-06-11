@@ -10,24 +10,35 @@ const rating_emotion_style = {
     height: '1em',
 }
 
-const RatingSet = ({ ratingValue, handleSetRatingValue }) => {
-    const [rating, setRating] = useState({ color: 'red', emotion: 'Bad' })
+const init_rating = {
+    good: {
+        emotion: 'Good',
+        color: 'green'
+    },
+    not_bad: {
+        emotion: 'Not Bad',
+        color: '#c3a700'
+    },
+    bad: {
+        emotion: 'Bad',
+        color: 'red'
+    }
+}
+
+const RatingSet = ({ ratingValue, updateRatingsValue }) => {
+    const [rating, setRating] = useState(init_rating.bad)
 
     useEffect(() => {
-        if (ratingValue === 0) setRating({ color: 'red', emotion: 'Bad' })
+        if (ratingValue === 0) setRating(init_rating.bad)
     }, [ratingValue])
-
-    const pickRatingStar = (e, newValue) => {
-        handleSetRatingValue(newValue || 0)
-    }
 
     const hoverRatingStar = (e, newValue) => {
         if (newValue > 3 || (newValue < 0 && ratingValue > 3))
-            return setRating({ emotion: 'Good', color: 'green' })
+            return setRating(init_rating.good)
         if (newValue > 2 || (newValue < 0 && ratingValue > 2))
-            return setRating({ emotion: 'Not Bad', color: '#c3a700' })
+            return setRating(init_rating.not_bad)
         if (newValue > 0 || (newValue < 0 && ratingValue >= 0))
-            return setRating({ emotion: 'Bad', color: 'red' })
+            return setRating(init_rating.bad)
     }
 
     return (
@@ -38,7 +49,7 @@ const RatingSet = ({ ratingValue, handleSetRatingValue }) => {
                 precision={1}
                 size="medium"
                 sx={{ '& span.MuiRating-icon': { color: rating.color } }}
-                onChange={(e, newValue) => pickRatingStar(e, newValue)}
+                onChange={(e, newValue) => updateRatingsValue(newValue)}
                 onChangeActive={(e, newValue) => hoverRatingStar(e, newValue)}
             />
             {
@@ -51,7 +62,7 @@ const RatingSet = ({ ratingValue, handleSetRatingValue }) => {
                 ) : rating.emotion === 'Not Bad' ? (
                     <SentimentNeutralIcon
                         titleAccess="Not Bad"
-                        sx={{ ...rating_emotion_style, color: '#c3a700' }}
+                        sx={{ ...rating_emotion_style, color: init_rating.not_bad.color }}
                     />
                 ) : (
                     <SentimentVeryDissatisfiedIcon
@@ -72,4 +83,5 @@ const RatingContainer = styled('div')({
     justifyContent: 'center',
     alignItems: 'center',
     columnGap: '5px',
+    margin: '10px 0',
 })

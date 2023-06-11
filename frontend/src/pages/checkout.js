@@ -9,7 +9,7 @@ import ConfirmOrder from "../components/checkout/confirm_order"
 import Payment from '../components/checkout/payment'
 import Success from '../components/checkout/success'
 import { useGetQueryValue } from "../hooks/custom_hooks"
-import ProtectedRoute from "../utils/protected_route"
+import ProtectedResource from "../components/protected_resource"
 
 const steps = ['shipping_info', 'confirm_order', 'payment', 'success']
 
@@ -27,9 +27,9 @@ const Checkout = () => {
 
     if (step_index === 2)
         return (
-            <ProtectedRoute>
+            <ProtectedResource>
                 <Payment />
-            </ProtectedRoute>
+            </ProtectedResource>
         )
 
     const paymentId = query_value_getter(search_string, 'payment_intent')

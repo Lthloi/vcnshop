@@ -3,13 +3,13 @@ import { styled } from '@mui/material/styles'
 import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate'
 import HighlightOffIcon from '@mui/icons-material/HighlightOff'
 import { toast } from 'react-toastify'
+import { MAX_UPLOAD_IMAGE_REVIEW } from "../../../utils/constants"
 
-const AddImages = ({ images, changeImages }) => {
+const AddImages = ({ images, updateReviewImages }) => {
     const [imageObjects, setImageObjects] = useState([])
 
     useEffect(() => {
-        let images = imageObjects.map(({ file }) => file) //get "file" from object list
-        changeImages(images) //set review in parent component
+        updateReviewImages(imageObjects.map(({ file }) => file)) //set review in parent component
     }, [imageObjects])
 
     useEffect(() => {
@@ -22,17 +22,14 @@ const AddImages = ({ images, changeImages }) => {
     const uploadImg = (e) => {
         let { files } = e.target
 
-        if (files.length + imageObjects.length > 6)
-            return toast.warn('Up to six imageObjects allowed')
+        if (files.length + imageObjects.length > MAX_UPLOAD_IMAGE_REVIEW)
+            return toast.warn('Up to six images allowed')
 
         //create a image list for remove images were duplicate
-        let current_images = imageObjects.map(({ file }) => file.name)
+        let name_of_current_images = imageObjects.map(({ file }) => file.name)
+        files = Array.from(files).filter(({ name }) => !name_of_current_images.includes(name))
 
-        //remove elements are in false
-        files = Array.from(files)
-        files = files.filter(({ name }) => !current_images.includes(name))
-
-        //init file object list and remove images were duplicate
+        //init list of file objects
         files = files.map((file) => ({ file, preview: URL.createObjectURL(file) }))
 
         setImageObjects(pre => [...pre, ...files])
@@ -46,7 +43,7 @@ const AddImages = ({ images, changeImages }) => {
     }
 
     return (
-        <AddImagesArea id="AddImagesArea">
+        <AddImagesSection id="AddImagesSection">
 
             <input //fake input
                 style={{ display: 'none' }}
@@ -58,7 +55,7 @@ const AddImages = ({ images, changeImages }) => {
 
             {
                 imageObjects.length > 0 &&
-                <ImagePreviewsContainer>
+                <PreviewOfImages>
                     {imageObjects.map(({ preview }) => (
                         <PreviewWrapper key={preview}>
                             <Preview src={preview} alt="Preview" />
@@ -70,12 +67,12 @@ const AddImages = ({ images, changeImages }) => {
                             </RemoveImageButton>
                         </PreviewWrapper>
                     ))}
-                </ImagePreviewsContainer>
+                </PreviewOfImages>
             }
 
             {
-                imageObjects.length < 6 &&
-                <AddPhotosContainer
+                imageObjects.length < MAX_UPLOAD_IMAGE_REVIEW &&
+                <AddPhotos
                     title="Add a photo (optional)"
                     htmlFor="upload_review_image"
                 >
@@ -85,18 +82,18 @@ const AddImages = ({ images, changeImages }) => {
                             imageObjects.length === 0 ?
                                 'ADD PHOTOS (OPTIONAL)'
                                 :
-                                imageObjects.length + '/6'
+                                imageObjects.length + `/${MAX_UPLOAD_IMAGE_REVIEW}`
                         }
                     </HelperText>
-                </AddPhotosContainer>
+                </AddPhotos>
             }
-        </AddImagesArea>
+        </AddImagesSection>
     )
 }
 
 export default AddImages
 
-const AddImagesArea = styled('div')(({ theme }) => ({
+const AddImagesSection = styled('div')(({ theme }) => ({
     display: 'flex',
     flexDirection: 'column',
     rowGap: '10px',
@@ -104,13 +101,14 @@ const AddImagesArea = styled('div')(({ theme }) => ({
     boxSizing: 'border-box',
 }))
 
-const ImagePreviewsContainer = styled('div')({
+const PreviewOfImages = styled('div')({
     display: 'flex',
     columnGap: '15px',
     rowGap: '15px',
     flexWrap: 'wrap',
     width: '100%',
     justifyContent: 'center',
+    margin: '20px 0',
 })
 
 const PreviewWrapper = styled('div')({
@@ -144,7 +142,7 @@ const RemoveImageButton = styled('div')({
     }
 })
 
-const AddPhotosContainer = styled('label')({
+const AddPhotos = styled('label')({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',

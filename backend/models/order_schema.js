@@ -128,7 +128,7 @@ const OrderSchema = new Schema({
 OrderSchema.pre('updateOne', async function (next) {
     let update_obj = this.getUpdate()
     if (update_obj.$set && update_obj.$set.payment_status === 'succeeded') {
-        let order = await OrderModel.findOne({ _id: this.getQuery()._id })
+        let order = await OrderModel.findOne({ _id: this.getQuery()._id }, { '_id': 0, 'items_of_order._id': 1 })
         let id_list = order.items_of_order.map(({ _id }) => _id)
         await ProductModel.updateMany(
             { '_id': { $in: id_list } },

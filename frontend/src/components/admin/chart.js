@@ -123,7 +123,7 @@ const PickYearContainer = styled('div')(({ theme }) => ({
     display: 'flex',
     alignItems: 'center',
     columnGap: '10px',
-    fontFamily: theme.font_family.nunito,
+    fontFamily: theme.fontFamily.nunito,
     fontWeight: 'bold',
     color: 'gray',
 }))

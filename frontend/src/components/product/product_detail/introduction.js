@@ -2,8 +2,6 @@ import React, { useEffect } from "react"
 import { styled } from '@mui/material/styles'
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome'
 import { useDispatch, useSelector } from "react-redux"
-import AddIcon from '@mui/icons-material/Add'
-import DoubleArrowIcon from '@mui/icons-material/DoubleArrow'
 import { Skeleton } from "@mui/material"
 import { getShop } from "../../../store/actions/shop_actions"
 
@@ -41,26 +39,10 @@ const Introduction = ({ productDescription, shopUsername }) => {
                     </DetailsContainer>
 
                     <ShopContainer>
-                        <ShopInfoArea sx={{ backgroundImage: `url(${shop.background})` }}>
-                            <ShopInfoContainer>
-                                <Avatar src={shop.avatar} />
-                                <NameAndUsername>
-                                    <ShopName>{shop.name}</ShopName>
-                                    <ShopUsername>{'@' + shop.username}</ShopUsername>
-                                </NameAndUsername>
-                            </ShopInfoContainer>
-                            <FollowButtonWrapper>
-                                <StyledAddIcon />
-                                <span>Follow</span>
-                            </FollowButtonWrapper>
-                        </ShopInfoArea>
+                        <Avatar src={shop.avatar} />
+                        <ShopName>{shop.name}</ShopName>
 
                         {shop.greeting && <ShopGreeting>{shop.greeting}</ShopGreeting>}
-
-                        <VisitShopButton>
-                            <span>Visit Shop</span>
-                            <DoubleArrowIcon />
-                        </VisitShopButton>
                     </ShopContainer>
                 </>
             }
@@ -72,6 +54,7 @@ export default Introduction
 
 const DetailsArea = styled('div')(({ theme }) => ({
     width: '39%',
+    fontFamily: theme.fontFamily.nunito,
 }))
 
 const DetailsContainer = styled('div')({
@@ -83,7 +66,6 @@ const DetailsContainer = styled('div')({
 
 const DetailsTitle = styled('h2')({
     margin: '0',
-    fontFamily: '"Kanit", "sans-serif"',
     fontSize: '1.5em',
     transform: 'scaleY(0.9)',
 })
@@ -103,113 +85,42 @@ const Loading = styled(Skeleton)({
 const Error = styled('div')({
     color: 'red',
     fontSize: '1.1em',
-    fontFamily: '"Nunito", "sans-serif"',
     textAlign: 'center',
 })
 
 const Description = styled('p')({
     margin: '0',
-    fontFamily: '"Nunito", "sans-serif"',
     fontSize: '0.9em',
 })
 
 const ShopContainer = styled('div')({
-    display: 'flex',
-    flexDirection: 'column',
-    rowGap: '10px',
-    marginTop: '20px',
-    backgroundColor: 'cornsilk',
-})
-
-const ShopInfoArea = styled('div')({
-    display: 'flex',
-    justifyContent: 'space-between',
-    padding: '12px 8px',
-    alignItems: 'center',
-})
-
-const ShopInfoContainer = styled('div')({
-    display: 'flex',
-    columnGap: '10px',
-    alignItems: 'center',
+    marginTop: '30px',
 })
 
 const Avatar = styled('img')({
     width: '100px',
     height: '100px',
-    border: '1px white solid',
+    border: '2px lightgrey solid',
     boxSizing: 'border-box',
+    borderRadius: '50%',
+    marginTop: '20px',
 })
 
-const NameAndUsername = styled('div')({
-
-})
-
-const ShopName = styled('h2')({
-    fontFamily: '"Work Sans", sans-serif',
+const ShopName = styled('h2')(({ theme }) => ({
     margin: '0',
     fontSize: '1.2em',
     backgroundColor: 'white',
     padding: '2px 8px',
     borderRadius: '5px',
-})
-
-const ShopUsername = styled('div')({
-    fontFamily: '"Nunito", "sans-serif"',
-    fontSize: '0.8em',
-    backgroundColor: 'white',
-    padding: '2px 8px',
-    borderRadius: '5px',
-    width: 'fit-content',
-})
-
-const FollowButtonWrapper = styled('button')({
-    display: 'flex',
-    alignItems: 'center',
-    padding: '4px 15px 3px',
-    columnGap: '5px',
-    cursor: 'pointer',
-    backgroundColor: '#e3ffbf',
-    border: '1px black solid',
-    borderRadius: '3px',
-    fontWeight: 'bold',
-    '&:hover': {
-        backgroundColor: '#edffd6',
-    },
-    '&:active': {
-        backgroundColor: '#d6fea3',
-    }
-})
-
-const StyledAddIcon = styled(AddIcon)({
-    fontSize: '1.2em',
-})
+    marginTop: '5px',
+    fontFamily: theme.fontFamily.kanit,
+}))
 
 const ShopGreeting = styled('p')({
     margin: '0',
-    fontFamily: '"Nunito", "sans-serif"',
     fontSize: '0.9em',
-    textAlign: 'center',
     whiteSpace: 'pre-line',
-    padding: '0 15px',
-})
-
-const VisitShopButton = styled('button')({
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    columnGap: '3px',
-    backgroundColor: 'blanchedalmond',
-    borderRadius: '5px',
-    border: '1px black solid',
-    padding: '8px',
-    width: '100%',
-    boxSizing: 'border-box',
-    cursor: 'pointer',
-    fontWeight: 'bold',
-    boxShadow: '0px 2px 0px grey',
-    '&:active': {
-        boxShadow: '0px 0px 0px grey',
-        transform: 'translateY(2px)',
-    }
+    padding: '5px 15px',
+    marginTop: '10px',
+    borderLeft: '1px black solid',
 })

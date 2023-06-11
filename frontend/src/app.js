@@ -9,7 +9,7 @@ import SearchResult from './pages/search_result'
 import Auth from './pages/auth'
 import Account from './pages/account'
 import { BrowserRouter } from "react-router-dom"
-import ProtectedRoute from './utils/protected_route'
+import ProtectedResource from './components/protected_resource'
 import { useEffect } from 'react'
 import { useDispatch } from 'react-redux'
 import { getUser } from './store/actions/user_actions'
@@ -37,8 +37,8 @@ function App() {
               <Route path='/cart' element={<Cart />} />
               <Route path='/productDetail/:productId' element={<Product />} />
               <Route path='/search/:keyword' element={<SearchResult />} />
-              <Route path='/account/*' element={<ProtectedRoute><Account /></ProtectedRoute>} />
-              <Route path='/admin/*' element={<ProtectedRoute><Admin /></ProtectedRoute>} />
+              <Route path='/account/*' element={<ProtectedResource><Account /></ProtectedResource>} />
+              <Route path='/admin/*' element={<ProtectedResource><Admin /></ProtectedResource>} />
             </Route>
 
             {/*Put other routes with no layout*/}
