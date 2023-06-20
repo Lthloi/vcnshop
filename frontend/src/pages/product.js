@@ -80,7 +80,7 @@ const Product = () => {
                                     </ProductReviewSection>
                                     <Introduction
                                         productDescription={product.description}
-                                        shopUsername={product.shop.username}
+                                        shopId={product.shop.id}
                                     />
                                 </>
                             }

@@ -6,9 +6,9 @@ import { newReview } from "../../../store/actions/product_actions"
 import ScoreCard from "./score_card"
 import AddImages from "./add_images"
 import { toast } from 'react-toastify'
-import LoadingApp from "../../loading_app"
 import RatingSet from "./rating_set"
 import ProtectedResource from "../../protected_resource"
+import { CircularProgress } from "@mui/material"
 
 const ProductReview = ({ productId }) => {
     const { newReviewProcessing, reviews } = useSelector(({ product }) => product.productDetail.reviewsState)
@@ -48,8 +48,6 @@ const ProductReview = ({ productId }) => {
 
     return (
         <div>
-            {newReviewProcessing && <LoadingApp />}
-
             <div style={{ display: 'flex', columnGap: '10px', alignItems: 'center' }}>
                 <ReviewsIcon />
                 <ProductReviewTitle>Make Review</ProductReviewTitle>
@@ -64,38 +62,50 @@ const ProductReview = ({ productId }) => {
                     <ScoreCard />
 
                     <Title>Make Review</Title>
+                    {
+                        newReviewProcessing ?
+                            <LoadingContainer>
+                                <CircularProgress
+                                    sx={{ color: 'black' }}
+                                    thickness={5}
+                                    size={50}
+                                />
+                            </LoadingContainer>
+                            :
+                            <>
+                                <AddImages
+                                    images={ratingAndImgs.images}
+                                    updateReviewImages={updateReviewImages}
+                                />
 
-                    <AddImages
-                        images={ratingAndImgs.images}
-                        updateReviewImages={updateReviewImages}
-                    />
+                                <RatingSet
+                                    ratingValue={ratingAndImgs.rating}
+                                    updateRatingsValue={updateRatingsValue}
+                                />
 
-                    <RatingSet
-                        ratingValue={ratingAndImgs.rating}
-                        updateRatingsValue={updateRatingsValue}
-                    />
+                                <CommentTitle
+                                    ref={comment_title_ref}
+                                    id="WriteCommentTitle"
+                                    maxLength={65}
+                                    placeholder="Write your title of comment here..."
+                                />
 
-                    <CommentTitle
-                        ref={comment_title_ref}
-                        id="WriteCommentTitle"
-                        maxLength={65}
-                        placeholder="Write your title of comment here..."
-                    />
+                                <WriteComment //textarea
+                                    ref={comment_ref}
+                                    id="WriteCommentText"
+                                    placeholder="Write your comment here..."
+                                    rows={5}
+                                    maxLength={200}
+                                />
 
-                    <WriteComment //textarea
-                        ref={comment_ref}
-                        id="WriteCommentText"
-                        placeholder="Write your comment here..."
-                        rows={5}
-                        maxLength={200}
-                    />
-
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <span></span>
-                        <SubmitCommentBtn onClick={submitReviews}>
-                            Submit Review
-                        </SubmitCommentBtn>
-                    </div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                    <span></span>
+                                    <SubmitCommentBtn onClick={submitReviews}>
+                                        Submit Review
+                                    </SubmitCommentBtn>
+                                </div>
+                            </>
+                    }
                 </ReviewContainer>
             </ProtectedResource>
         </div>
@@ -129,6 +139,14 @@ const Title = styled('div')({
     borderBottom: '2px black solid',
     fontWeight: 'bold',
     width: 'fit-content',
+})
+
+const LoadingContainer = styled('div')({
+    display: 'flex',
+    justifyContent: 'center',
+    padding: '30px',
+    width: '100%',
+    boxSizing: 'border-box',
 })
 
 const CommentTitle = styled('input')({

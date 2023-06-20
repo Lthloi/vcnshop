@@ -14,6 +14,7 @@ import { Skeleton } from "@mui/material"
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings'
 import AllInboxIcon from '@mui/icons-material/AllInbox'
 import Products from "../components/admin/products"
+import { getShopsByAdmin } from "../store/actions/shop_actions"
 
 const style_for_icons = {
     is_active: {
@@ -43,6 +44,7 @@ const Admin = () => {
     const { users, error: user_error } = useSelector(({ user }) => user)
     const { orders, error: order_error } = useSelector(({ order }) => order)
     const { products, error: product_error } = useSelector(({ product }) => product.search)
+    const { shops, error: shop_error } = useSelector(({ shop }) => shop)
     const dispatch = useDispatch()
     const [button, setButton] = useState(nav_options[0].label)
 
@@ -50,6 +52,7 @@ const Admin = () => {
         dispatch(getOrdersByAdmin('createdAt', 'payment_status'))
         dispatch(getUsersByAdmin('createdAt', 'active'))
         dispatch(getProductsByAdmin('createdAt', 'stock', 'review.count_review', 'for'))
+        dispatch(getShopsByAdmin('createdAt'))
     }, [dispatch])
 
     const switchButton = (label_of_button) => {
@@ -57,9 +60,17 @@ const Admin = () => {
         setButton(label_of_button)
     }
 
-    if (user_error || order_error || product_error)
+    if (user_error || order_error || product_error || shop_error)
         return (
-            <Error>Something went wrong</Error>
+            <Error>
+                <div style={{ marginBottom: '10px 0' }}>
+                    {user_error && user_error.message}
+                    {order_error && order_error.message}
+                    {product_error && product_error.message}
+                    {shop_error && shop_error.message}
+                </div>
+                <div>Something went wrong</div>
+            </Error>
         )
 
     return (
@@ -97,6 +108,7 @@ const Admin = () => {
                                 users={users}
                                 orders={orders}
                                 products={products}
+                                shops={shops}
                             />
                         ) : button === tabs.products && (
                             <Products products={products} />
@@ -123,6 +135,7 @@ const Error = styled('div')(({ theme }) => ({
     width: '100%',
     boxSizing: 'border-box',
     textAlign: 'center',
+    color: 'red',
 }))
 
 const AdminPageSection = styled('div')(({ theme }) => ({

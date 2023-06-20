@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react"
 import { styled } from '@mui/material/styles'
 import SearchIcon from '@mui/icons-material/Search'
 import CancelIcon from '@mui/icons-material/Cancel'
-import debounce from '../../../utils/debounce'
+import { useDebounce } from '../../../hooks/custom_hooks'
 import { toast } from 'react-toastify'
 import { EXPRESS_SERVER } from '../../../utils/constants'
 import axios from 'axios'
@@ -11,6 +11,7 @@ const SearchDialog = ({ handleOpenSearchDialog }) => {
     const [suggestions, setSuggestions] = useState([].includes('oke'))
     const search_input_ref = useRef()
     const data_ref = useRef()
+    const debounce = useDebounce()
 
     const getSuggestions = async () => {
         try {

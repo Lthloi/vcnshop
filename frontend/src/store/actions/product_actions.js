@@ -1,11 +1,12 @@
 import axios from 'axios'
 import {
-    getProductsRequest, getProductsSuccess, getProductsFail, //products search
-    getTopWeekRequest, getTopWeekSuccess, getTopWeekFail, //top week
-    getBestSellingRequest, getBestSellingSuccess, getBestSellingFail, //best selling
+    getProductsRequest, getProductsSuccess, getProductsFail, //search of products
+    getTopWeekRequest, getTopWeekSuccess, getTopWeekFail,
+    getBestSellingRequest, getBestSellingSuccess, getBestSellingFail,
     getProductDetailRequest, getProductDetailSuccess, getProductDetailFail, //product detail
     newReviewRequest, newReviewSuccess, newReviewFail,
     getReviewsRequest, getReviewsSuccess, getReviewsFail,
+    createNewProductRequest, createNewProductSuccess, createNewProductFail,
 } from '../reducers/product_reducer.js'
 import { toast } from 'react-toastify'
 import actionsErrorHandler from '../../utils/error_handler.js'
@@ -14,9 +15,53 @@ import {
 } from '../../utils/constants.js'
 import FileUploadFilter from '../../utils/file_upload_filter.js'
 
+const createNewProduct = (
+    productName,
+    category,
+    targetGender,
+    price,
+    options,
+    stock,
+    shop,
+    description,
+    brand,
+    productType
+) => async (dispatch) => {
+    try {
+        dispatch(createNewProductRequest())
+
+        let api_to_create_new_product = '/api/product/createProduct'
+
+        await axios.post(
+            EXPRESS_SERVER + api_to_create_new_product,
+            {
+                productName,
+                category,
+                targetGender,
+                price,
+                options,
+                stock,
+                shop,
+                description,
+                brand,
+                productType
+            },
+            { withCredentials: true }
+        )
+
+        dispatch(createNewProductSuccess())
+    } catch (error) {
+        let errorObject = actionsErrorHandler(error)
+
+        toast.error(errorObject.message)
+
+        dispatch(createNewProductFail({ error: errorObject }))
+    }
+}
+
 const getProducts = (
     limit = LIMIT_GET_PRODUCTS_DEFAULT, category, keyword, rating = 0,
-    price = [0, MAX_PRICE_PORDUCT], pagination = 1, forWho, type,
+    price = [0, MAX_PRICE_PORDUCT], pagination = 1, targetGender, type,
 ) => async (dispatch) => {
     try {
         dispatch(getProductsRequest())
@@ -26,7 +71,7 @@ const getProducts = (
             (keyword ? '&keyword=' + keyword : '') + '&pagination=' + pagination +
             '&limit=' + limit + '&rating=' + rating +
             '&price[gte]=' + price[0] + '&price[lte]=' + price[1] +
-            (forWho ? '&for=' + forWho : '') + (type ? '&type=' + type : '')
+            (targetGender ? '&targetGender=' + targetGender : '') + (type ? '&type=' + type : '')
 
         let { data } = await axios.get(EXPRESS_SERVER + api_to_getProducts)
 
@@ -175,7 +220,7 @@ const getProductsByAdmin = (...fields) => async (dispatch) => {
 
         dispatch(getProductsSuccess({ products: data.list }))
     } catch (error) {
-        let errorObject = actionsErrorHandler(error, 'Error Warning: fail to get products.')
+        let errorObject = actionsErrorHandler(error)
 
         dispatch(getProductsFail({ error: errorObject }))
     }
@@ -184,5 +229,5 @@ const getProductsByAdmin = (...fields) => async (dispatch) => {
 export {
     getProducts, getBestSelling, getTopWeek,
     getReviews, getProductDetail, newReview,
-    getProductsByAdmin,
+    getProductsByAdmin, createNewProduct,
 }

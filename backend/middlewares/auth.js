@@ -19,7 +19,13 @@ const verifyJWTtoken = catchAsyncError(async (req, res, next) => {
 
     let user = await UserModel.findOne(
         { _id: decoded_data.userId },
-        { '_id': 1, 'name': 1, 'avatar': 1, 'email': 1, 'role': 1 }
+        {
+            '_id': 1,
+            'name': 1,
+            'avatar': 1,
+            'email': 1,
+            'role': 1,
+        }
     ).lean()
     if (!user) throw new BaseError('User not found', 404)
 

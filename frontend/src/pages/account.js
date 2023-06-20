@@ -4,23 +4,24 @@ import PersonIcon from '@mui/icons-material/Person'
 import Navigation from "../components/account/user_options"
 import Avatar from "../components/account/avatar"
 import ScrollToTopBtn from "../components/scroll_top_top_btn"
-import { Route, Routes } from "react-router-dom"
+import { Route, Routes, NavLink } from "react-router-dom"
 import InformationSection from "../components/account/details/information_section"
 import MyOrders from "../components/account/details/my_orders"
 import ChangePassword from "../components/account/details/change_password"
 import { useSelector } from "react-redux"
 import VCNShop_Mascot from '../assets/images/VCNShop_Mascot.png'
-import OrderDetail from "../components/account/details/order_detail/order_detail"
+import OrderDetail from "../components/account/details/order_detail"
+import StoreIcon from '@mui/icons-material/Store'
 
 const Greeting = () => (
     <GreetingContainer>
         <GreetingText>Welcome to VCN Shop</GreetingText>
-        <Mascot src={VCNShop_Mascot} alt="VCN Shop Mascot" />
+        <img src={VCNShop_Mascot} alt="VCN Shop Mascot" style={{ height: '220px' }} />
     </GreetingContainer>
 )
 
 const Account = () => {
-    const { user, loading } = useSelector(({ user }) => user)
+    const { user, loading, error } = useSelector(({ user }) => user)
 
     return (
         <AccountPage id="AccountPage">
@@ -29,35 +30,45 @@ const Account = () => {
                 <Title>Account</Title>
             </PageTitleContainer>
 
-            {
-                user && user.name &&
-                <NavigationAndDetail>
-                    <AvatarAndNavigation>
-                        <Avatar nameOfUser={user.name} userAvatar={user.avatar} loading={loading} />
-                        <Navigation />
-                    </AvatarAndNavigation>
+            <MyStoreSection>
+                <span></span>
+                <NavToMyStore to="/myStore">
+                    <StoreIcon />
+                    <span>My Store</span>
+                </NavToMyStore>
+            </MyStoreSection>
 
-                    <DetailsContainer>
-                        <Routes>
-                            <Route path="/" element={<Greeting />} />
-                            <Route
-                                path="/information"
-                                element={
-                                    <InformationSection
-                                        loading={loading}
-                                        nameOfUser={user.name}
-                                        email={user.email}
-                                        gender={user.gender}
-                                        dateOfBirthDefault={user.date_of_birth}
-                                    />
-                                }
-                            />
-                            <Route path="/myOrders" element={<MyOrders />} />
-                            <Route path="/changePassword" element={<ChangePassword loading={loading} />} />
-                            <Route path="/myOrders/orderDetail/:orderId" element={<OrderDetail />} />
-                        </Routes>
-                    </DetailsContainer>
-                </NavigationAndDetail>
+            {
+                error ?
+                    <Error>{error.message}</Error>
+                    : user && user.name &&
+                    <NavigationAndDetail>
+                        <div style={{ width: '30%' }}>
+                            <Avatar nameOfUser={user.name} userAvatar={user.avatar} loading={loading} />
+                            <Navigation />
+                        </div>
+
+                        <div style={{ width: '100%' }}>
+                            <Routes>
+                                <Route path="/" element={<Greeting />} />
+                                <Route
+                                    path="/information"
+                                    element={
+                                        <InformationSection
+                                            loading={loading}
+                                            nameOfUser={user.name}
+                                            email={user.email}
+                                            gender={user.gender}
+                                            dateOfBirthDefault={user.date_of_birth}
+                                        />
+                                    }
+                                />
+                                <Route path="/myOrders" element={<MyOrders />} />
+                                <Route path="/changePassword" element={<ChangePassword loading={loading} />} />
+                                <Route path="/myOrders/orderDetail/:orderId" element={<OrderDetail />} />
+                            </Routes>
+                        </div>
+                    </NavigationAndDetail>
             }
 
             <ScrollToTopBtn />
@@ -72,6 +83,7 @@ const AccountPage = styled('div')(({ theme }) => ({
     width: '100%',
     padding: '0 50px',
     boxSizing: 'border-box',
+    fontFamily: theme.fontFamily.kanit,
 }))
 
 const PageTitleContainer = styled('div')({
@@ -83,8 +95,43 @@ const PageTitleContainer = styled('div')({
 
 const Title = styled('h2')({
     margin: '0',
-    fontFamily: 'Kanit, "sans-serif"',
     fontSize: '1.8em',
+})
+
+const MyStoreSection = styled('div')({
+    display: 'flex',
+    justifyContent: 'space-between',
+    width: '100%',
+    margin: '20px 0',
+})
+
+const NavToMyStore = styled(NavLink)({
+    display: 'flex',
+    alignItems: 'center',
+    columnGap: '5px',
+    backgroundColor: 'black',
+    color: 'white',
+    borderRadius: '5px',
+    padding: '10px 25px',
+    fontWeight: 'bold',
+    fontSize: '1.1em',
+    cursor: 'pointer',
+    border: '2px black solid',
+    textDecoration: 'unset',
+    '&:hover': {
+        backgroundColor: 'white',
+        color: 'black',
+    }
+})
+
+const Error = styled('div')({
+    fontWeight: 'bold',
+    color: 'red',
+    padding: '30px 20px',
+    width: '100%',
+    boxSizing: 'border-box',
+    textAlign: 'center',
+    fontSize: '1.1em',
 })
 
 const NavigationAndDetail = styled('div')({
@@ -92,14 +139,6 @@ const NavigationAndDetail = styled('div')({
     justifyContent: 'space-between',
     columnGap: '20px',
     marginTop: '10px',
-    width: '100%',
-})
-
-const AvatarAndNavigation = styled('div')({
-    width: '30%',
-})
-
-const DetailsContainer = styled('div')({
     width: '100%',
 })
 
@@ -117,11 +156,6 @@ const GreetingContainer = styled('div')({
 })
 
 const GreetingText = styled('div')({
-    fontFamily: 'Kanit, "sans-serif"',
     fontSize: '3em',
     fontWeight: 'bold',
-})
-
-const Mascot = styled('img')({
-    height: '220px',
 })

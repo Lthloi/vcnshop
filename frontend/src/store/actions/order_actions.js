@@ -99,7 +99,7 @@ const getOrdersByAdmin = (...fields) => async (dispatch) => {
 
         dispatch(getOrdersSuccess({ orders: data.list }))
     } catch (error) {
-        let errorObject = actionsErrorHandler(error, 'Error Warning: fail to get orders.')
+        let errorObject = actionsErrorHandler(error)
 
         dispatch(getOrdersFail({ error: errorObject }))
 

@@ -32,6 +32,19 @@ export const productsSlice = createSlice({
         },
     },
     reducers: {
+        createNewProductRequest: (state, action) => {
+            state.productDetail.loading = true
+            state.productDetail.error = null
+        },
+        createNewProductSuccess: (state, action) => {
+            state.productDetail.loading = false
+        },
+        createNewProductFail: (state, action) => {
+            state.productDetail.loading = false
+            state.productDetail.error = action.payload.error
+        },
+
+
         getProductsRequest: (state, action) => {
             state.search.error = null
             state.search.loading = true
@@ -134,6 +147,7 @@ export const {
     getProductDetailRequest, getProductDetailSuccess, getProductDetailFail,
     newReviewRequest, newReviewSuccess, newReviewFail,
     getReviewsRequest, getReviewsSuccess, getReviewsFail,
+    createNewProductRequest, createNewProductSuccess, createNewProductFail,
 } = productsSlice.actions
 
 export default productsSlice.reducer

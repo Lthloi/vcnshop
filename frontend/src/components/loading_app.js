@@ -1,22 +1,15 @@
 import React from "react"
 import { styled } from '@mui/material/styles'
 import foxLogoBlack from '../assets/images/logo_app_black.svg'
-import foxLogoWhite from '../assets/images/logo_app_white.svg'
 
-const LoadingApp = ({ isAuthorization }) => {
+const LoadingApp = () => {
     return (
-        <LoadingAppModalBase
-            id="LoadingApp"
-            sx={isAuthorization && { backgroundColor: 'white' }}
-        >
+        <LoadingAppModalBase id="LoadingApp" >
             <ImageAnimationContainer>
 
-                <CircularAnimation sx={isAuthorization && { borderColor: 'black' }} />
+                <CircularAnimation />
 
-                <Image
-                    src={isAuthorization ? foxLogoBlack : foxLogoWhite}
-                    sx={isAuthorization && { color: 'black' }}
-                />
+                <Image src={foxLogoBlack} />
 
             </ImageAnimationContainer>
         </LoadingAppModalBase>
@@ -35,7 +28,7 @@ const LoadingAppModalBase = styled('div')(({ theme }) => ({
     right: '0',
     left: '0',
     zIndex: '100',
-    backgroundColor: 'rgba(0,0,0,0.7)',
+    backgroundColor: 'white',
 }))
 
 const ImageAnimationContainer = styled('div')({
@@ -53,7 +46,7 @@ const CircularAnimation = styled('div')({
     left: '0',
     width: '100%',
     height: '100%',
-    borderTop: '5px white solid',
+    borderTop: '5px black solid',
     boxSizing: 'border-box',
     borderRadius: '50%',
     animation: 'circular-animation 2s infinite',
@@ -79,4 +72,5 @@ const CircularAnimation = styled('div')({
 const Image = styled('img')({
     width: '100%',
     height: '100%',
+    color: 'black',
 })

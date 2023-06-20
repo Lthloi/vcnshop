@@ -68,9 +68,7 @@ const changeQuantity = (product_id, option) => async (dispatch, getState) => {
 
         localStorage.setItem('cartItems', JSON.stringify(getState().cart.cartItems))
     } catch (error) {
-        let errorObject = actionsErrorHandler(
-            error, 'Error Warning: fail to change quantity from cart.'
-        )
+        let errorObject = actionsErrorHandler(error)
 
         dispatch(changeQuantityFail({ error: errorObject }))
     }

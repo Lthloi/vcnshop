@@ -1,8 +1,69 @@
 import ProductModel from '../models/product_schema.js'
 import BaseError from "../utils/base_error.js"
 import mongoose from "mongoose"
-import { uploadImages } from '../utils/image_uploading.js'
+import { uploadReviewImages, uploadProductImages } from '../utils/image_uploading.js'
 import catchAsyncError from "../middlewares/catch_async_error.js"
+
+const createProduct = catchAsyncError(async (req, res, next) => {
+    if (!req.files) throw new BaseError('Wrong property name', 400)
+    let { images } = req.files
+    let {
+        productName,
+        category,
+        targetGender,
+        price,
+        options,
+        stock,
+        shop,
+        description,
+        brand,
+        productType
+    } = req.body
+    if (
+        !images || !productName || !category || !shop ||
+        !targetGender || !price || !options || !stock ||
+        !description || !brand || !productType
+    ) throw new BaseError('Wrong property name', 400)
+
+    let product = await ProductModel.create({
+        'image_link': '',
+        'name': productName,
+        'category': category,
+        'for': targetGender,
+        'price': price,
+        'options': {
+            'size': options.size,
+            'color': options.color,
+        },
+        'stock': stock,
+        'shop': {
+            id: shop.id,
+            name: shop.name,
+        },
+        'description': description,
+        'images': [],
+        'brand': brand,
+        'type': productType,
+    })
+
+    let image_urls = await uploadProductImages(
+        images,
+        product._id,
+        req.user._id
+    )
+
+    await ProductModel.updateOne(
+        { _id: product._id },
+        {
+            $set: {
+                'image_link': image_urls[0],
+                'images': image_urls,
+            }
+        }
+    )
+
+    res.status(200).json({ success: true })
+})
 
 //get a product by _id
 const getProduct = catchAsyncError(async (req, res, next) => {
@@ -25,7 +86,7 @@ const getProduct = catchAsyncError(async (req, res, next) => {
 const getProducts = catchAsyncError(async (req, res, next) => {
     let queryObject = {}
 
-    let { keyword, category, price, rating, limit, pagination, for: forWho, type } = req.query
+    let { keyword, category, price, rating, limit, pagination, targetGender, type } = req.query
     if (!limit) throw new BaseError('Wrong request property', 400)
 
     if (keyword)
@@ -36,8 +97,8 @@ const getProducts = catchAsyncError(async (req, res, next) => {
         queryObject['price.value'] = { $gte: price.gte * 1, $lte: price.lte * 1 }
     if (rating)
         queryObject['review.average_rating'] = { $gte: rating * 1 }
-    if (forWho)
-        queryObject.for = { $in: [forWho] }
+    if (targetGender)
+        queryObject.for = { $in: [targetGender] }
     if (type)
         queryObject.type = { $in: [...type] }
 
@@ -102,9 +163,10 @@ const newReview = catchAsyncError(async (req, res, next) => {
 
     let image_urls
     if (req.files)
-        image_urls = await uploadImages(
+        image_urls = await uploadReviewImages(
             req.files.images,
-            'products/' + productId + '/reviews/' + userId
+            productId,
+            userId
         )
 
     let user_id_in_string = userId.toString()
@@ -175,4 +237,5 @@ const getProductsByAdmin = catchAsyncError(async (req, res, next) => {
 export {
     getProducts, getProduct, getReviews,
     newReview, getProductsName, getProductsByAdmin,
+    createProduct,
 }

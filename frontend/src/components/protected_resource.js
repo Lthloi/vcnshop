@@ -3,7 +3,7 @@ import { styled } from '@mui/material'
 import { useSelector } from 'react-redux'
 import LoadingApp from './loading_app'
 import { toast } from 'react-toastify'
-import { useCheckIsAdminRole, useCurrentRoute, useNavToRedirectLogin } from '../hooks/custom_hooks'
+import { useCheckIsAdminRole, useNavToRedirectLogin } from '../hooks/custom_hooks'
 import CircularProgress from '@mui/material/CircularProgress'
 
 const status = {
@@ -11,16 +11,15 @@ const status = {
     fail: 'fail',
 }
 
-const ProtectedRoute = ({ children, isWithInternalComponent }) => {
+const ProtectedRoute = ({ children, isWithInternalComponent, isAdminRoute }) => {
     const [statusOfVerify, setstatusOfVerify] = useState(null)
     const { user: { isAuthenticated, role }, error } = useSelector(({ user }) => user)
     const navigate_to_login = useNavToRedirectLogin()
-    const current_route = useCurrentRoute()
     const check_is_admin_role = useCheckIsAdminRole()
 
     useEffect(() => {
         if (isAuthenticated) {
-            if (current_route.includes('admin') && !check_is_admin_role(role)) {
+            if (isAdminRoute && !check_is_admin_role(role)) {
                 toast.warning('You don\'t have permission to access this resource')
                 navigate_to_login()
             }
@@ -59,7 +58,7 @@ const ProtectedRoute = ({ children, isWithInternalComponent }) => {
         )
 
     return (
-        <LoadingApp isAuthorization={true} />
+        <LoadingApp />
     )
 }
 

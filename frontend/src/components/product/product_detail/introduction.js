@@ -5,12 +5,12 @@ import { useDispatch, useSelector } from "react-redux"
 import { Skeleton } from "@mui/material"
 import { getShop } from "../../../store/actions/shop_actions"
 
-const Introduction = ({ productDescription, shopUsername }) => {
+const Introduction = ({ productDescription, shopId }) => {
     const { shop, loading, error } = useSelector(({ shop }) => shop)
     const dispatch = useDispatch()
 
     useEffect(() => {
-        dispatch(getShop(shopUsername))
+        dispatch(getShop(shopId))
     }, [dispatch])
 
     return (
@@ -42,7 +42,7 @@ const Introduction = ({ productDescription, shopUsername }) => {
                         <Avatar src={shop.avatar} />
                         <ShopName>{shop.name}</ShopName>
 
-                        {shop.greeting && <ShopGreeting>{shop.greeting}</ShopGreeting>}
+                        <ShopGreeting>{shop.greeting}</ShopGreeting>
                     </ShopContainer>
                 </>
             }

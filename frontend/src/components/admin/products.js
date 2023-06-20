@@ -149,20 +149,17 @@ const Products = ({ products }) => {
                         />
                     </div>
                     <Annotation>
-                        <SectionTitle>Annotation</SectionTitle>
-                        <div>
-                            {
-                                gender_labels.map(({ label, backgroundColor, borderColor }) => (
-                                    <GenderColorContainer key={label}>
-                                        <GenderColor sx={{ backgroundColor, border: `1.5px ${borderColor} solid` }} />
-                                        <span>{label}</span>
-                                        <TooltipMUI title={`Number of the products for ${label}`}>
-                                            <ErrorIcon sx={{ fontSize: '1.3em', color: 'gray' }} />
-                                        </TooltipMUI>
-                                    </GenderColorContainer>
-                                ))
-                            }
-                        </div>
+                        {
+                            gender_labels.map(({ label, backgroundColor, borderColor }) => (
+                                <GenderColorContainer key={label}>
+                                    <GenderColor sx={{ backgroundColor, border: `1.5px ${borderColor} solid` }} />
+                                    <span>{label}</span>
+                                    <TooltipMUI title={`Number of the products for ${label}`}>
+                                        <ErrorIcon sx={{ fontSize: '1.3em', color: 'gray' }} />
+                                    </TooltipMUI>
+                                </GenderColorContainer>
+                            ))
+                        }
                     </Annotation>
                 </div>
             </div>
@@ -249,6 +246,7 @@ const GenderColorContainer = styled('div')({
     alignItems: 'center',
     columnGap: '15px',
     marginTop: '10px',
+    width: '100%',
 })
 
 const GenderColor = styled('div')({

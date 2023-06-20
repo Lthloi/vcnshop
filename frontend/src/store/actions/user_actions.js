@@ -301,7 +301,7 @@ const getUsersByAdmin = (...fields) => async (dispatch) => {
 
         dispatch(getUsersByAdminSuccess({ users: data.list }))
     } catch (error) {
-        let errorObject = actionsErrorHandler(error, 'Error Warning: fail to get orders.')
+        let errorObject = actionsErrorHandler(error)
 
         dispatch(getUsersByAdminFail({ error: errorObject }))
 

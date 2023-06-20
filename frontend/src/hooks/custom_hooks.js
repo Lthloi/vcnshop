@@ -98,8 +98,16 @@ const useCurrentRoute = () => useLocation().pathname
 
 const useCheckIsAdminRole = () => (role) => role === 'admin' || role === 'Admin'
 
+const useDebounce = () => (fnc, delay) => {
+    let timer
+    return (...args) => {
+        clearTimeout(timer)
+        timer = setTimeout(() => fnc(...args), delay)
+    }
+}
+
 export {
     useFloatNumber, useCurrencyKeyboard, useCurrencyCode,
     useNavToRedirectLogin, useNumerToWords, useGetQueryValue,
-    useCurrentRoute, useCheckIsAdminRole,
+    useCurrentRoute, useCheckIsAdminRole, useDebounce,
 }

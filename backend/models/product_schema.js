@@ -13,12 +13,13 @@ const ProductSchema = new Schema({
         type: String,
         required: true,
     },
-    category: {
+    category: { // Clothing ||
         type: String,
         required: true,
     },
     for: [{
         type: String, // Male || Female || Unisex
+        default: 'Unisex',
     }],
     price: {
         value: {
@@ -33,14 +34,15 @@ const ProductSchema = new Schema({
         }
     },
     shop: {
+        id: {
+            type: Schema.Types.ObjectId,
+            ref: 'shops',
+            required: true,
+        },
         name: {
             type: String,
             required: true,
         },
-        username: {
-            type: String,
-            required: true,
-        }
     },
     sold: {
         count: {
@@ -56,12 +58,6 @@ const ProductSchema = new Schema({
         type: Number,
         required: true,
         min: [0, 'Number of stock must not smaller than or equal 0'],
-    },
-    sku: {
-        type: String,
-        required: true,
-        index: true,
-        unique: true,
     },
     options: {
         size: [{ type: String, }],

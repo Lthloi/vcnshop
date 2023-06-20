@@ -216,7 +216,7 @@ const changePassword = catchAsyncError(async (req, res, next) => {
 const updateUserAvatar = catchAsyncError(async (req, res, next) => {
     let { avatarImage } = req.files
     let user_id = req.user._id
-    let avatar_url = await uploadAvatar(avatarImage, 'users/' + user_id + '/profile')
+    let avatar_url = await uploadAvatar(avatarImage, user_id)
     if (!avatar_url) throw new BaseError('Can\'t upload image', 500)
 
     await UserModel.updateOne({ _id: user_id }, { $set: { 'avatar': avatar_url } })

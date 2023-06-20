@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from "react"
 import { styled } from '@mui/material/styles'
-import Header from "../components/search_result/header"
 import { useParams } from "react-router-dom"
 import { getProducts } from '../store/actions/product_actions'
 import { useDispatch, useSelector } from 'react-redux'
@@ -37,7 +36,15 @@ const SearchResult = () => {
 
     return (
         <SearchResultPage id="SearchResultPage">
-            <Header keyword={keyword} resultCount={countProduct} />
+            <HeaderArea id="HeaderArea">
+                <Container>
+                    <Title>Your Search Results For:</Title>
+                    <KeywordResult>{keyword}</KeywordResult>
+                </Container>
+                <ResultCount>
+                    {countProduct + (countProduct > 1 ? ' Results Found' : ' Result Found')}
+                </ResultCount>
+            </HeaderArea>
 
             <ResultArea ref={productsArea_ref}>
                 <Filter
@@ -46,7 +53,7 @@ const SearchResult = () => {
                 />
 
                 <ProductsArea>
-                    <ProductsContainer
+                    <Grid
                         container
                         columns={{ xs: 12 }}
                         columnSpacing={{ xs: 1.5 }}
@@ -63,13 +70,13 @@ const SearchResult = () => {
                                 <Error>{error.message}</Error>
                             ) : products && products.length > 0 ?
                                 products.map((product) => (
-                                    <ProductCardWrapper
+                                    <Grid
                                         key={product._id}
                                         item
                                         xs={3}
                                     >
                                         <ProductCard product={product} />
-                                    </ProductCardWrapper>
+                                    </Grid>
                                 ))
                                 :
                                 <EmptyProductsContainer>
@@ -79,7 +86,7 @@ const SearchResult = () => {
                                     </EmptyProductsText>
                                 </EmptyProductsContainer>
                         }
-                    </ProductsContainer>
+                    </Grid>
 
                     <Pagination
                         countProduct={countProduct}
@@ -100,6 +107,41 @@ const SearchResultPage = styled('div')(({ theme }) => ({
     margin: '0',
 }))
 
+const HeaderArea = styled('div')({
+    rowGap: '5px',
+    marginTop: '20px',
+})
+
+const Container = styled('div')({
+    display: 'flex',
+    alignItems: 'center',
+    flexDirection: 'column',
+    backgroundColor: '#ededed',
+    width: '100%',
+    padding: '15px',
+    boxSizing: 'border-box',
+})
+
+const Title = styled('div')({
+    fontFamily: '"Roboto", "sans-serif"',
+    color: '#858585',
+})
+
+const KeywordResult = styled('h2')({
+    margin: '0',
+    fontFamily: '"Nunito", "sans-serif"',
+})
+
+const ResultCount = styled('div')({
+    fontFamily: '"Lato", "sans-serif"',
+    fontSize: '0.9em',
+    marginTop: '10px',
+    color: 'gray',
+    backgroundColor: '#ededed',
+    padding: '5px',
+    textAlign: 'center',
+})
+
 const ResultArea = styled('div')({
     display: 'flex',
     columnGap: '20px',
@@ -110,10 +152,6 @@ const ResultArea = styled('div')({
 const ProductsArea = styled('div')({
     width: '100%',
     paddingRight: '15px',
-})
-
-const ProductsContainer = styled(Grid)({
-
 })
 
 const ProductLoading = styled(Skeleton)({
@@ -128,10 +166,6 @@ const Error = styled('div')({
     color: 'red',
     width: '100%',
     textAlign: 'center',
-})
-
-const ProductCardWrapper = styled(Grid)({
-
 })
 
 const EmptyProductsContainer = styled('div')({

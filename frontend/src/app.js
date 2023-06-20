@@ -17,6 +17,7 @@ import Checkout from './pages/checkout'
 import { ThemeProvider } from '@mui/material/styles'
 import global_theme from './styles/theme'
 import Admin from './pages/admin'
+import MyStore from './pages/my_store'
 
 function App() {
   const dispatch = useDispatch()
@@ -38,12 +39,13 @@ function App() {
               <Route path='/productDetail/:productId' element={<Product />} />
               <Route path='/search/:keyword' element={<SearchResult />} />
               <Route path='/account/*' element={<ProtectedResource><Account /></ProtectedResource>} />
-              <Route path='/admin/*' element={<ProtectedResource><Admin /></ProtectedResource>} />
+              <Route path='/admin/*' element={<ProtectedResource isAdminRoute><Admin /></ProtectedResource>} />
             </Route>
 
             {/*Put other routes with no layout*/}
             <Route path='/checkout' element={<Checkout />} />
             <Route path='/auth/*' element={<Auth />} />
+            <Route path='/myStore/*' element={<ProtectedResource><MyStore /></ProtectedResource>} />
 
             <Route path='/*' element={<NotFound404 />} />
 

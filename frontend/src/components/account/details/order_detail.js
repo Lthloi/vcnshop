@@ -2,7 +2,7 @@ import React, { useEffect } from "react"
 import { styled } from '@mui/material/styles'
 import { useNavigate, useParams } from "react-router-dom"
 import { useDispatch, useSelector } from "react-redux"
-import { getOrder } from "../../../../store/actions/order_actions"
+import { getOrder } from "../../../store/actions/order_actions"
 import { Skeleton } from "@mui/material"
 import Tooltip from '@mui/material/Tooltip'
 import OrderStatus from "./order_status"

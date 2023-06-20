@@ -68,12 +68,12 @@ const ProductCard = ({ product }) => {
                         precision={0.2} readOnly value={review.average_rating}
                         size="small" sx={{ color: '#ff2222', }}
                     />
-                    <RatingNumber>
+                    <Count>
                         {review.average_rating > 0.2 ? review.average_rating : 0}
-                    </RatingNumber>
-                    <RatingCount>
+                    </Count>
+                    <Count>
                         ({review.count_review.toLocaleString('en', { useGrouping: true })})
-                    </RatingCount>
+                    </Count>
                 </RatingContainer>
                 <SoldCount>
                     {'Sold: ' + sold.count}
@@ -173,11 +173,7 @@ const RatingContainer = styled('div')({
     columnGap: '5px',
 })
 
-const RatingNumber = styled('div')({
-    fontSize: '0.9rem',
-})
-
-const RatingCount = styled('div')({
+const Count = styled('div')({
     fontSize: '0.9rem',
 })
 
