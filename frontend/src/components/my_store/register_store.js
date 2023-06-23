@@ -77,10 +77,7 @@ const RegisterStore = () => {
         )
     }
     return (
-        <RegisterSection
-            onSubmit={handleSubmit(checkAndSubmit)}
-            action=""
-        >
+        <RegisterSection>
             <Note>
                 <ErrorIcon sx={{ fontSize: '1.2em', color: 'gray' }} />
                 <span>
@@ -120,7 +117,7 @@ const RegisterStore = () => {
                         <NavBtn type="button" sx={{ pointerEvents: 'none' }}>
                             <CircularProgress
                                 sx={{ color: 'white' }}
-                                size={20}
+                                size={18}
                                 thickness={6}
                             />
                         </NavBtn>
@@ -129,7 +126,7 @@ const RegisterStore = () => {
                             <NavBtn type="button" onClick={() => navigate(-1)}>
                                 Cancel
                             </NavBtn>
-                            <NavBtn type="submit">
+                            <NavBtn onClick={handleSubmit(checkAndSubmit)}>
                                 <CheckCircleOutlineIcon />
                                 <span>Submit</span>
                             </NavBtn>
@@ -142,7 +139,7 @@ const RegisterStore = () => {
 
 export default memo(RegisterStore)
 
-const RegisterSection = styled('form')({
+const RegisterSection = styled('div')({
     padding: '20px',
 })
 

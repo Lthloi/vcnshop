@@ -4,7 +4,7 @@ import {
     newReview, getProductsName, getProductsByAdmin,
     createProduct,
 } from '../controllers/product_controllers.js'
-import { roleAuthorization, verifyJWTtoken } from '../middlewares/auth.js'
+import { roleAuthorization, verifyJWTtoken, verifyShop } from '../middlewares/auth.js'
 
 const router = express.Router()
 
@@ -20,6 +20,6 @@ router.get('/getProductsName', getProductsName)
 
 router.get('/getProductsByAdmin', verifyJWTtoken, roleAuthorization('Admin'), getProductsByAdmin)
 
-router.post('/createProduct', verifyJWTtoken, createProduct)
+router.post('/createProduct', verifyJWTtoken, verifyShop, createProduct)
 
 export default router

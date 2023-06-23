@@ -1,5 +1,6 @@
 class FileUploadFilter {
     invalidMessage = 'Something went wrong with the file';
+    file = null;
     #fileTypes = [
         'image',
     ];
@@ -10,9 +11,7 @@ class FileUploadFilter {
     ];
     #limitFileSize = [100, 1000 * 1000 * 10]; //in byte
 
-    constructor(file) {
-        this.file = file
-    }
+    setFile(file) { this.file = file }
 
     mimetypeIsValid() {
         let mimetype = this.file.type

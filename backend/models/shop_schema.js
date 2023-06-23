@@ -45,7 +45,12 @@ const ShopSchema = new Schema({
     avatar: {
         type: String,
     },
-    followers: [],
+    followers: [{
+        _id: false,
+        name: { type: String, required: true },
+        id: { type: mongoose.Types.ObjectId, required: true },
+        avatar: { type: String, required: true }
+    }],
 })
 
 const ShopModel = mongoose.model('shops', ShopSchema)

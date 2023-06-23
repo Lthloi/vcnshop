@@ -32,7 +32,7 @@ const createShop = catchAsyncError(async (req, res, next) => {
 
     let user_id = req.user._id
 
-    let shop = new ShopModel({
+    let shop = await ShopModel.create({
         'name': storeName,
         'greeting': greeting,
         'user': {
@@ -42,8 +42,6 @@ const createShop = catchAsyncError(async (req, res, next) => {
             phone: phone_number,
         },
     })
-
-    await shop.save({ validateBeforeSave: true })
 
     res.status(200).json({ shop })
 })

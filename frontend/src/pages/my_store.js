@@ -1,15 +1,71 @@
-import React, { useEffect } from "react"
+import React, { useEffect, useState } from "react"
 import { styled } from '@mui/material/styles'
 import { useDispatch, useSelector } from "react-redux"
 import { getShop } from "../store/actions/shop_actions"
 import RegisterShop from "../components/my_store/register_store"
 import { Skeleton } from "@mui/material"
-import Store from "../components/my_store/store"
 import { Routes, Route } from "react-router-dom"
 import PageLayout from '../components/layouts/page_layout'
+import Avatar from '@mui/material/Avatar'
+import PhoneIcon from '@mui/icons-material/Phone'
+import Tabs from '@mui/material/Tabs'
+import Tab from '@mui/material/Tab'
+import StoreIcon from '@mui/icons-material/Store'
+import Products from "../components/my_store/products"
+
+const tabs = {
+    Products: 'Products',
+    Greeting: 'Greeting',
+}
+
+const Store = ({ shop }) => {
+    const [tab, setTab] = useState(tabs.Products)
+
+    const switchTab = (e, new_tab) => {
+        setTab(new_tab)
+    }
+
+    return (
+        <InfoContainer id="StoreSection">
+            <PageTitleContainer>
+                <StoreIcon sx={{ width: '1.4em', height: '1.4em' }} />
+                <Title>Store</Title>
+            </PageTitleContainer>
+            <AvatarContainer>
+                <StyledAvatar>{shop.name[0]}</StyledAvatar>
+                <div style={{ margin: '15px auto', fontSize: '1.2em' }}>
+                    {shop.name}
+                </div>
+            </AvatarContainer>
+            <ContactInfo>
+                <PhoneIcon sx={{ fontSize: '1.2em' }} />
+                <span>{shop.contact_info.phone}</span>
+            </ContactInfo>
+            <TabsWrapper>
+                <Tabs
+                    value={tab}
+                    onChange={switchTab}
+                    textColor="inherit"
+                >
+                    <Tab label={tabs.Products} value={tabs.Products} />
+                    <Tab label={tabs.Greeting} value={tabs.Greeting} />
+                </Tabs>
+            </TabsWrapper>
+            <Content>
+                {
+                    tab === tabs.Products ? (
+                        <Products />
+                    ) : tab === tabs.Greeting && (
+                        <Greeting>{shop.greeting}</Greeting>
+                    )
+                }
+            </Content>
+        </InfoContainer>
+    )
+}
 
 const MyStore = () => {
-    const { shop, loading, checkShopIsExist } = useSelector(({ shop }) => shop)
+    const { shop, loading, error, checkShopIsExist } = useSelector(({ shop }) => shop)
     const dispatch = useDispatch()
 
     useEffect(() => {
@@ -26,18 +82,18 @@ const MyStore = () => {
                         <Loading sx={{ height: '300px' }} />
                         <Loading sx={{ height: '50px' }} />
                     </div>
-                ) : checkShopIsExist ? (
+                ) : error && error.statusCode !== 404 ? (
+                    <Error>
+                        {error.message}
+                    </Error>
+                ) : !checkShopIsExist ? (
                     <RegisterShop />
-                ) : shop && shop.name ? (
+                ) : shop && shop.name && (
                     <Routes>
                         <Route path="/" element={<PageLayout />}>
                             <Route index element={<Store shop={shop} />} />
                         </Route>
                     </Routes>
-                ) : (
-                    <div>
-
-                    </div>
                 )
             }
         </MyStoreSection>
@@ -53,4 +109,86 @@ const MyStoreSection = styled('div')(({ theme }) => ({
 const Loading = styled(Skeleton)({
     marginTop: '20px',
     transform: 'none',
+})
+
+const InfoContainer = styled('div')({
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'column',
+    width: '100%',
+    boxSizing: 'border-box',
+    padding: '30px 50px',
+})
+
+const PageTitleContainer = styled('div')({
+    display: 'flex',
+    alignItems: 'center',
+    columnGap: '10px',
+    boxSizing: 'border-box',
+    width: '100%',
+    borderBottom: '2px black solid',
+})
+
+const Title = styled('h2')({
+    margin: '0',
+    fontSize: '1.8em',
+})
+
+const AvatarContainer = styled('div')({
+    display: 'flex',
+    flexDirection: 'column',
+    marginTop: '30px',
+})
+
+const StyledAvatar = styled(Avatar)({
+    width: '100px',
+    height: '100px',
+    backgroundColor: 'black',
+    color: 'white',
+    border: '2px white solid',
+})
+
+const ContactInfo = styled('div')({
+    display: 'flex',
+    columnGap: '5px',
+    alignItems: 'center',
+    fontSize: '0.8em',
+    color: 'gray',
+})
+
+const TabsWrapper = styled('div')({
+    color: 'white',
+    backgroundColor: 'black',
+    marginTop: '30px',
+    width: '100%',
+    boxSizing: 'border-box',
+    '& .MuiTabs-indicator': {
+        height: '4px',
+        backgroundColor: '#3FACB1',
+    }
+})
+
+const Content = styled('div')(({ theme }) => ({
+    fontFamily: theme.fontFamily.nunito,
+    padding: '30px 50px 0',
+    width: '100%',
+    boxSizing: 'border-box',
+}))
+
+const Greeting = styled('div')({
+    padding: '10px 30px',
+    borderLeft: '1px lightgrey solid',
+    whiteSpace: 'pre',
+    width: '100%',
+    boxSizing: 'border-box',
+})
+
+const Error = styled('div')({
+    color: 'red',
+    fontWeight: 'bold',
+    fontSize: '1.3em',
+    width: '100%',
+    textAlign: 'center',
+    marginTop: '30px',
 })

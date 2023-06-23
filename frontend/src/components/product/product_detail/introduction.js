@@ -33,12 +33,14 @@ const Introduction = ({ productDescription, shopId }) => {
                 ) : shop && shop.name &&
                 <>
                     <DetailsContainer>
+                        <Title>Description</Title>
                         <Description>
                             {productDescription || ''}
                         </Description>
                     </DetailsContainer>
 
                     <ShopContainer>
+                        <Title>Store</Title>
                         <Avatar src={shop.avatar} />
                         <ShopName>{shop.name}</ShopName>
 
@@ -62,6 +64,15 @@ const DetailsContainer = styled('div')({
     flexDirection: 'column',
     rowGap: '10px',
     marginTop: '10px',
+})
+
+const Title = styled('div')({
+    margin: '0',
+    fontSize: '1.2em',
+    transform: 'scaleY(0.9)',
+    borderBottom: '2px black solid',
+    fontWeight: 'bold',
+    width: 'fit-content',
 })
 
 const DetailsTitle = styled('h2')({

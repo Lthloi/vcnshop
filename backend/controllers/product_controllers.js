@@ -12,55 +12,52 @@ const createProduct = catchAsyncError(async (req, res, next) => {
         category,
         targetGender,
         price,
-        options,
+        sizes,
+        colors,
         stock,
-        shop,
         description,
         brand,
         productType
     } = req.body
     if (
-        !images || !productName || !category || !shop ||
-        !targetGender || !price || !options || !stock ||
-        !description || !brand || !productType
+        !images || !productName || !category ||
+        !targetGender || !price || !sizes || !colors || !stock ||
+        !description || !productType
     ) throw new BaseError('Wrong property name', 400)
 
-    let product = await ProductModel.create({
-        'image_link': '',
-        'name': productName,
-        'category': category,
-        'for': targetGender,
-        'price': price,
-        'options': {
-            'size': options.size,
-            'color': options.color,
-        },
-        'stock': stock,
-        'shop': {
-            id: shop.id,
-            name: shop.name,
-        },
-        'description': description,
-        'images': [],
-        'brand': brand,
-        'type': productType,
-    })
+    let shop = req.shop
+
+    let product_id = new mongoose.Types.ObjectId()
 
     let image_urls = await uploadProductImages(
         images,
-        product._id,
+        product_id,
         req.user._id
     )
 
-    await ProductModel.updateOne(
-        { _id: product._id },
-        {
-            $set: {
-                'image_link': image_urls[0],
-                'images': image_urls,
-            }
-        }
-    )
+    await ProductModel.create({
+        '_id': product_id,
+        'image_link': image_urls[0],
+        'images': image_urls,
+        'name': productName,
+        'category': category,
+        'for': targetGender,
+        'price': {
+            value: price * 1,
+        },
+        'options': {
+            'sizes': JSON.parse(sizes),
+            'colors': JSON.parse(colors),
+        },
+        'stock': stock * 1,
+        'shop': {
+            id: shop._id,
+            name: shop.name,
+        },
+        'description': description,
+        'brand': brand || 'No Brand',
+        'type': productType,
+    })
 
     res.status(200).json({ success: true })
 })

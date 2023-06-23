@@ -20,36 +20,52 @@ const createNewProduct = (
     category,
     targetGender,
     price,
-    options,
+    { colors, sizes },
     stock,
-    shop,
     description,
     brand,
-    productType
+    productType,
+    images
 ) => async (dispatch) => {
     try {
         dispatch(createNewProductRequest())
 
         let api_to_create_new_product = '/api/product/createProduct'
 
+        let product_data = new FormData()
+        product_data.set('productName', productName)
+        product_data.set('category', category)
+        product_data.set('targetGender', targetGender)
+        product_data.set('price', price)
+        product_data.set('colors', JSON.stringify(colors))
+        product_data.set('sizes', JSON.stringify(sizes))
+        product_data.set('stock', stock)
+        product_data.set('description', description)
+        product_data.set('brand', brand)
+        product_data.set('productType', productType)
+
+        if (images.length > 0) {
+            let file_upload_filter = new FileUploadFilter()
+            for (let file of images) {
+                file_upload_filter.setFile(file)
+                if (!file_upload_filter.mimetypeIsValid())
+                    return toast.error(file_upload_filter.invalidMessage)
+                if (!file_upload_filter.sizeIsValid())
+                    return toast.error(file_upload_filter.invalidMessage)
+
+                product_data.append('images', file)
+            }
+        }
+
         await axios.post(
             EXPRESS_SERVER + api_to_create_new_product,
-            {
-                productName,
-                category,
-                targetGender,
-                price,
-                options,
-                stock,
-                shop,
-                description,
-                brand,
-                productType
-            },
+            product_data,
             { withCredentials: true }
         )
 
         dispatch(createNewProductSuccess())
+
+        toast.success('Add Product Successfully!')
     } catch (error) {
         let errorObject = actionsErrorHandler(error)
 
@@ -156,9 +172,9 @@ const getReviews = (productId, pagination = 1, limit = LIMIT_GET_COMMENTS) => as
 const newReview = (productId, images, rating, title, comment, current_reviews) => async (dispatch) => {
     let reviewData = new FormData()
     if (images.length > 0) {
-        let file_upload_filter
+        let file_upload_filter = new FileUploadFilter()
         for (let file of images) {
-            file_upload_filter = new FileUploadFilter(file)
+            file_upload_filter.setFile(file)
             if (!file_upload_filter.mimetypeIsValid())
                 return toast.error(file_upload_filter.invalidMessage)
             if (!file_upload_filter.sizeIsValid())

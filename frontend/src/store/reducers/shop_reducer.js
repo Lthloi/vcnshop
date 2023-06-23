@@ -18,11 +18,10 @@ export const shopSlice = createSlice({
         getShopSuccess: (state, action) => {
             state.shop = action.payload.shop
             state.loading = false
+            state.checkShopIsExist = true
         },
         getShopFail: (state, action) => {
-            let error = action.payload.error
-            if (error.statusCode === 404) state.checkShopIsExist = true
-            state.error = error
+            state.error = action.payload.error
             state.loading = false
         },
 
@@ -34,6 +33,7 @@ export const shopSlice = createSlice({
         createShopSuccess: (state, action) => {
             state.createShopProccessing = false
             state.shop = action.payload.shop
+            state.checkShopIsExist = true
         },
         createShopFail: (state, action) => {
             state.createShopProccessing = false

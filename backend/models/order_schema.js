@@ -91,9 +91,10 @@ const OrderSchema = new Schema({
             required: true,
         },
     },
-    payment_status: { // stripe, statuses of payment intent: processing || canceled || succeeded 
+    payment_status: {
         type: String,
         required: true,
+        enum: ['processing', 'canceled', 'succeeded'], // stripe, statuses of payment intent
     },
     price_of_items: {
         type: Number,
@@ -111,9 +112,10 @@ const OrderSchema = new Schema({
         type: Number,
         required: true,
     },
-    order_status: { //order statuses: uncompleted || processing || delivering || delivered
+    order_status: {
         type: String,
         required: true,
+        enum: ['uncompleted', 'processing', 'delivering', 'delivered'],
     },
     deliveredAt: {
         type: Date,

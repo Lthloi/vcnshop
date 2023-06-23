@@ -12,14 +12,17 @@ const ProductSchema = new Schema({
     name: {
         type: String,
         required: true,
+        maxLength: [50, 'The length of the name of the product don\'t have to exceed 50 letters']
     },
-    category: { // Clothing ||
+    category: {
         type: String,
         required: true,
+        enum: ['Shirt', 'Pant'],
     },
     for: [{
-        type: String, // Male || Female || Unisex
+        type: String,
         default: 'Unisex',
+        enum: ['Male', 'Female', 'Unisex'],
     }],
     price: {
         value: {
@@ -28,8 +31,7 @@ const ProductSchema = new Schema({
             min: [0, 'Number of value must not smaller than or equal 0'],
         },
         currency: {
-            type: Number,
-            required: true,
+            type: String,
             default: 'USD',
         }
     },
@@ -60,13 +62,14 @@ const ProductSchema = new Schema({
         min: [0, 'Number of stock must not smaller than or equal 0'],
     },
     options: {
-        size: [{ type: String, }],
-        color: [{ type: String, }],
+        sizes: [{ type: String, }],
+        colors: [{ type: String, }],
     },
     images: [{ type: String }],
     description: {
         type: String,
         required: true,
+        maxLength: [500, 'The length of the description of the product don\'t have to exceed 150 letters']
     },
     review: {
         average_rating: {
@@ -92,10 +95,12 @@ const ProductSchema = new Schema({
     },
     type: {
         type: String,
+        maxLength: [30, 'The length of the type of the product don\'t have to exceed 30 letters']
     },
     brand: {
         type: String,
         default: 'No Brand',
+        maxLength: [50, 'The length of the brand of the product don\'t have to exceed 50 letters']
     },
     createdAt: {
         type: Date,

@@ -19,7 +19,7 @@ const AddImages = ({ images, updateReviewImages }) => {
         }
     }, [images])
 
-    const uploadImg = (e) => {
+    const addImages = (e) => {
         let { files } = e.target
 
         if (files.length + imageObjects.length > MAX_UPLOAD_IMAGE_REVIEW)
@@ -49,7 +49,7 @@ const AddImages = ({ images, updateReviewImages }) => {
                 style={{ display: 'none' }}
                 type="file"
                 id="upload_review_image"
-                onChange={uploadImg}
+                onChange={addImages}
                 multiple
             />
 

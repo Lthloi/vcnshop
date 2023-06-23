@@ -65,8 +65,8 @@ const ProductDetail = ({ product }) => {
                 </Shop>
 
                 <Options //options
-                    colors={product.options.color}
-                    sizes={product.options.size}
+                    colors={product.options.colors}
+                    sizes={product.options.sizes}
                     choicesSetting={choicesSetting}
                 />
 
