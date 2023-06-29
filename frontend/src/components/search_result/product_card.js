@@ -18,7 +18,7 @@ const icon_option_bar_style = {
 }
 
 const ProductCard = ({ product }) => {
-    const { _id, image_link, name, review, sold, shop, price } = product
+    const { _id, image_link, name, review, sold, price } = product
     const dispatch = useDispatch()
 
     const iconAction = (type) => {
@@ -81,9 +81,6 @@ const ProductCard = ({ product }) => {
                 <Price>
                     {'$' + price.value}
                 </Price>
-                <ShopName>
-                    {shop.name}
-                </ShopName>
             </ProductInfo>
         </ProductSearchCard>
     )
@@ -191,19 +188,3 @@ const Price = styled('div')(({ theme }) => ({
     backgroundColor: 'white',
     borderRadius: '5px',
 }))
-
-const ShopName = styled('div')({
-    width: 'fit-content',
-    maxWidth: '100%',
-    fontWeight: 'bold',
-    fontSize: '0.9rem',
-    marginTop: '5px',
-    paddingLeft: '5px',
-    cursor: 'pointer',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap',
-    '&:hover': {
-        textDecoration: 'underline',
-    }
-})

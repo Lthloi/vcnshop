@@ -43,7 +43,7 @@ const nav_options = [
 const Admin = () => {
     const { users, error: user_error } = useSelector(({ user }) => user)
     const { orders, error: order_error } = useSelector(({ order }) => order)
-    const { products, error: product_error } = useSelector(({ product }) => product.search)
+    const { products, error: product_error } = useSelector(({ product }) => product)
     const { shops, error: shop_error } = useSelector(({ shop }) => shop)
     const dispatch = useDispatch()
     const [button, setButton] = useState(nav_options[0].label)
@@ -63,13 +63,10 @@ const Admin = () => {
     if (user_error || order_error || product_error || shop_error)
         return (
             <Error>
-                <div style={{ marginBottom: '10px 0' }}>
-                    {user_error && user_error.message}
-                    {order_error && order_error.message}
-                    {product_error && product_error.message}
-                    {shop_error && shop_error.message}
-                </div>
-                <div>Something went wrong</div>
+                {user_error && <div>{user_error.message}</div>}
+                {order_error && <div>{order_error.message}</div>}
+                {product_error && <div>{product_error.message}</div>}
+                {shop_error && <div>{shop_error.message}</div>}
             </Error>
         )
 

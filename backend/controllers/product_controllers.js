@@ -3,9 +3,11 @@ import BaseError from "../utils/base_error.js"
 import mongoose from "mongoose"
 import { uploadReviewImages, uploadProductImages } from '../utils/image_uploading.js'
 import catchAsyncError from "../middlewares/catch_async_error.js"
+import ShopModel from '../models/shop_schema.js'
 
 const createProduct = catchAsyncError(async (req, res, next) => {
-    if (!req.files) throw new BaseError('Wrong property name', 400)
+    if (!req.files) throw new BaseError('Wrong OOOOOOO property name', 400)
+
     let { images } = req.files
     let {
         productName,
@@ -16,13 +18,11 @@ const createProduct = catchAsyncError(async (req, res, next) => {
         colors,
         stock,
         description,
-        brand,
-        productType
     } = req.body
     if (
         !images || !productName || !category ||
         !targetGender || !price || !sizes || !colors || !stock ||
-        !description || !productType
+        !description
     ) throw new BaseError('Wrong property name', 400)
 
     let shop = req.shop
@@ -55,9 +55,80 @@ const createProduct = catchAsyncError(async (req, res, next) => {
             name: shop.name,
         },
         'description': description,
-        'brand': brand || 'No Brand',
-        'type': productType,
     })
+
+    await ShopModel.updateOne(
+        { '_id': shop._id },
+        {
+            $push: {
+                'products.ids': {
+                    $each: [product_id],
+                    $position: 0,
+                }
+            }
+        }
+    )
+
+    res.status(200).json({ success: true })
+})
+
+const updateProduct = catchAsyncError(async (req, res, next) => {
+    if (!req.files) throw new BaseError('Wrong property name', 400)
+    let { images } = req.files
+    let {
+        sizes,
+        colors,
+        stock,
+        description,
+        productId
+    } = req.body
+    if (
+        !images && !sizes && !colors && !stock &&
+        !description && !productId
+    ) throw new BaseError('Wrong property name', 400)
+
+    let update_format = {}
+
+    if (images) {
+        let image_urls = await uploadProductImages(
+            images,
+            productId,
+            req.user._id
+        )
+        update_format = {
+            'image_link': image_urls[0],
+            'images': image_urls,
+        }
+    }
+    if (sizes) {
+        update_format = {
+            ...update_format,
+            'options.sizes': JSON.parse(sizes),
+        }
+    }
+    if (colors) {
+        update_format = {
+            ...update_format,
+            'options.colors': JSON.parse(colors),
+        }
+    }
+    if (stock) {
+        update_format = {
+            ...update_format,
+            'stock': stock,
+        }
+    }
+    if (description) {
+        update_format = {
+            ...update_format,
+            'description': description,
+        }
+    }
+
+    await ProductModel.updateOne(
+        { '_id': productId },
+        { $set: update_format }
+    )
 
     res.status(200).json({ success: true })
 })
@@ -81,13 +152,16 @@ const getProduct = catchAsyncError(async (req, res, next) => {
 
 //get some products by query
 const getProducts = catchAsyncError(async (req, res, next) => {
+    let { keyword, category, price, rating, limit, pagination, targetGender, shopId } = req.query
+    if (!limit)
+        throw new BaseError('Wrong request property', 400)
+    if (!keyword && !category && !price && !rating && !pagination && !targetGender && !shopId)
+        throw new BaseError('Wrong property name', 400)
+
     let queryObject = {}
 
-    let { keyword, category, price, rating, limit, pagination, targetGender, type } = req.query
-    if (!limit) throw new BaseError('Wrong request property', 400)
-
     if (keyword)
-        queryObject.name = { $regex: new RegExp(keyword) }
+        queryObject.name = { $regex: new RegExp(keyword, 'i') }
     if (category)
         queryObject.category = category
     if (price)
@@ -95,9 +169,9 @@ const getProducts = catchAsyncError(async (req, res, next) => {
     if (rating)
         queryObject['review.average_rating'] = { $gte: rating * 1 }
     if (targetGender)
-        queryObject.for = { $in: [targetGender] }
-    if (type)
-        queryObject.type = { $in: [...type] }
+        queryObject.for = targetGender
+    if (shopId)
+        queryObject['shop.id'] = shopId
 
     let sort = req.query.sort || { name: 'name', type: 1 }
 
@@ -114,7 +188,7 @@ const getProducts = catchAsyncError(async (req, res, next) => {
 
     res.status(200).json({
         products,
-        countProduct: count_product,
+        countProducts: count_product,
     })
 })
 
@@ -234,5 +308,5 @@ const getProductsByAdmin = catchAsyncError(async (req, res, next) => {
 export {
     getProducts, getProduct, getReviews,
     newReview, getProductsName, getProductsByAdmin,
-    createProduct,
+    createProduct, updateProduct,
 }

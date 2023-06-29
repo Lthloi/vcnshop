@@ -7,13 +7,13 @@ import {
 import { getProducts } from '../../store/actions/product_actions'
 import { LIMIT_GET_PRODUCTS_DEFAULT } from "../../utils/constants"
 
-const Pagination = ({ productsAreaRef, filterDataRef, countProduct }) => {
+const Pagination = ({ productsAreaRef, filterDataRef, countProducts }) => {
     const [productsPage, setProductsPage] = useState(1)
     const dispatch = useDispatch()
 
     useEffect(() => {
         setProductsPage(1)
-    }, [countProduct])
+    }, [countProducts])
 
     const switchProductsPage = (e, page) => {
         if (page === productsPage) return
@@ -37,7 +37,7 @@ const Pagination = ({ productsAreaRef, filterDataRef, countProduct }) => {
     return (
         <PaginationArea id="PaginationArea">
             <ReviewPages
-                count={Math.ceil(countProduct / LIMIT_GET_PRODUCTS_DEFAULT)}
+                count={Math.ceil(countProducts / LIMIT_GET_PRODUCTS_DEFAULT)}
                 variant="outlined"
                 shape="rounded"
                 onChange={switchProductsPage}

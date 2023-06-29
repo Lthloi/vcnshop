@@ -4,13 +4,13 @@ import ProductDetail from "../components/product/product_detail/product_detail"
 import ScrollToTopBtn from '../components/scroll_top_top_btn'
 import ProductReview from "../components/product/product_review/product_review"
 import InfoIcon from '@mui/icons-material/Info'
-import Introduction from '../components/product/product_detail/introduction'
 import { useParams } from "react-router-dom"
 import { useDispatch, useSelector } from "react-redux"
 import { getProductDetail } from '../store/actions/product_actions'
 import Skeleton from '@mui/material/Skeleton'
 import CommentIcon from '@mui/icons-material/Comment'
 import Reviews from "../components/product/product_review/reviews"
+import StorefrontIcon from '@mui/icons-material/Storefront'
 
 const loading_widths = ['82%', '75%', '60%', '45%', '50%']
 
@@ -62,7 +62,7 @@ const Product = () => {
                             {
                                 product && product._id &&
                                 <>
-                                    <ProductReviewSection>
+                                    <div style={{ width: '56%' }}>
                                         <ProductReview productId={product._id} productReview={product.review} />
                                         <ReviewsSection id="Reviews" ref={switch_review_page_ref}>
                                             <div style={{ display: 'flex', columnGap: '10px', alignItems: 'center' }}>
@@ -77,11 +77,19 @@ const Product = () => {
                                                 srollReviewRef={switch_review_page_ref}
                                             />
                                         </ReviewsSection>
-                                    </ProductReviewSection>
-                                    <Introduction
-                                        productDescription={product.description}
-                                        shopId={product.shop.id}
-                                    />
+                                    </div>
+
+                                    <DetailsContainer>
+                                        <Title>Description</Title>
+                                        <Description>
+                                            {product.description}
+                                        </Description>
+                                    </DetailsContainer>
+
+                                    <VistShopButton>
+                                        <StorefrontIcon />
+                                        <span>Vist Shop</span>
+                                    </VistShopButton>
                                 </>
                             }
                         </ReviewsAndIntroduction>
@@ -166,10 +174,6 @@ const ReviewsAndIntroduction = styled('div')(({ theme }) => ({
     fontFamily: theme.fontFamily.nunito,
 }))
 
-const ProductReviewSection = styled('div')(({ theme }) => ({
-    width: '56%',
-}))
-
 const ReviewsSection = styled('div')({
     display: 'flex',
     flexDirection: 'column',
@@ -180,4 +184,42 @@ const ReviewsTitle = styled('h2')({
     margin: '0',
     fontSize: '1.5em',
     transform: 'scaleY(0.9)',
+})
+
+const Title = styled('div')({
+    margin: '0',
+    fontSize: '1.2em',
+    transform: 'scaleY(0.9)',
+    borderBottom: '2px black solid',
+    fontWeight: 'bold',
+    width: 'fit-content',
+})
+
+const Description = styled('p')({
+    margin: '0',
+    fontSize: '0.9em',
+})
+
+const DetailsContainer = styled('div')({
+    display: 'flex',
+    flexDirection: 'column',
+    rowGap: '10px',
+    marginTop: '10px',
+})
+
+const VistShopButton = styled('button')({
+    display: 'flex',
+    alignItems: 'center',
+    columnGap: '5px',
+    padding: '10px 30px',
+    backgroundColor: 'black',
+    color: 'white',
+    border: '2px black solid',
+    borderRadius: '5px',
+    marginTop: '30px',
+    cursor: 'pointer',
+    '&:hover': {
+        backgroundColor: 'white',
+        color: 'black',
+    }
 })

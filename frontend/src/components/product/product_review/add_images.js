@@ -51,6 +51,7 @@ const AddImages = ({ images, updateReviewImages }) => {
                 id="upload_review_image"
                 onChange={addImages}
                 multiple
+                accept="image/*"
             />
 
             {

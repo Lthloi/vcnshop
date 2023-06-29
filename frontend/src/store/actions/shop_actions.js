@@ -8,21 +8,15 @@ import {
 import { EXPRESS_SERVER } from '../../utils/constants.js'
 import { toast } from 'react-toastify'
 
-const getShop = (shop_id) => async (dispatch) => {
+const getShop = () => async (dispatch) => {
     try {
         dispatch(getShopRequest())
 
-        let api_to_get_shop
-        let option = {}
-        if (shop_id) api_to_get_shop = `/api/shop/getShop/${shop_id}`
-        else {
-            api_to_get_shop = '/api/shop/getShopForUser'
-            option.withCredentials = true
-        }
+        let api_to_get_shop = `/api/shop/getShop`
 
         let { data } = await axios.get(
             EXPRESS_SERVER + api_to_get_shop,
-            option
+            { withCredentials: true }
         )
 
         dispatch(getShopSuccess({ shop: data.shop }))

@@ -3,11 +3,21 @@ import { createSlice, current } from '@reduxjs/toolkit'
 export const productsSlice = createSlice({
     name: 'product',
     initialState: {
-        countProduct: 0,
-        search: {
+        countProducts: 0,
+        loading: false,
+        error: null,
+        products: [],
+
+        reviewsState: {
             loading: false,
             error: null,
-            products: [],
+            reviews: [],
+            newReviewProcessing: false,
+        },
+        productDetail: {
+            product: {},
+            loading: false,
+            error: null,
         },
         topWeek: {
             loading: false,
@@ -19,17 +29,6 @@ export const productsSlice = createSlice({
             error: null,
             products: [],
         },
-        productDetail: {
-            product: {},
-            reviewsState: {
-                loading: false,
-                error: null,
-                reviews: [],
-                newReviewProcessing: false,
-            },
-            loading: false,
-            error: null,
-        },
     },
     reducers: {
         createNewProductRequest: (state, action) => {
@@ -38,6 +37,10 @@ export const productsSlice = createSlice({
         },
         createNewProductSuccess: (state, action) => {
             state.productDetail.loading = false
+
+            // let product = action.payload.product
+            // let current_products = current(state).products
+            // state.products = [product, ...current_products]
         },
         createNewProductFail: (state, action) => {
             state.productDetail.loading = false
@@ -45,18 +48,39 @@ export const productsSlice = createSlice({
         },
 
 
+        updateProductRequest: (state, action) => {
+            state.productDetail.loading = true
+            state.productDetail.error = null
+        },
+        updateProductSuccess: (state, action) => {
+            state.productDetail.loading = false
+
+            // let products = current(state).products
+            // let updated_product = action.payload.product
+            // for (let product of products)
+            //     if (product._id === updated_product._id)
+            //         product = { ...product, ...updated_product }
+
+            // state.products = products
+        },
+        updateProductFail: (state, action) => {
+            state.productDetail.loading = false
+            state.productDetail.error = action.payload.error
+        },
+
+
         getProductsRequest: (state, action) => {
-            state.search.error = null
-            state.search.loading = true
+            state.error = null
+            state.loading = true
         },
         getProductsSuccess: (state, action) => {
-            state.search.products = action.payload.products
-            state.countProduct = action.payload.countProduct
-            state.search.loading = false
+            state.products = action.payload.products
+            state.countProducts = action.payload.countProducts
+            state.loading = false
         },
         getProductsFail: (state, action) => {
-            state.search.error = action.payload.error
-            state.search.loading = false
+            state.error = action.payload.error
+            state.loading = false
         },
 
 
@@ -88,54 +112,54 @@ export const productsSlice = createSlice({
         },
 
 
-        getProductDetailRequest: (state, action) => {
+        getProductRequest: (state, action) => {
             state.productDetail.error = null
-            state.productDetail.reviewsState.newReviewProcessing = false
+            state.reviewsState.newReviewProcessing = false
             state.productDetail.loading = true
         },
-        getProductDetailSuccess: (state, action) => {
+        getProductSuccess: (state, action) => {
             state.productDetail.product = action.payload.product
             state.productDetail.loading = false
         },
-        getProductDetailFail: (state, action) => {
+        getProductFail: (state, action) => {
             state.productDetail.error = action.payload.error
             state.productDetail.loading = false
         },
 
 
         getReviewsRequest: (state, action) => {
-            state.productDetail.reviewsState.error = null
-            state.productDetail.reviewsState.loading = true
+            state.reviewsState.error = null
+            state.reviewsState.loading = true
         },
         getReviewsSuccess: (state, action) => {
-            state.productDetail.reviewsState.reviews = action.payload.reviews
-            state.productDetail.reviewsState.loading = false
+            state.reviewsState.reviews = action.payload.reviews
+            state.reviewsState.loading = false
         },
         getReviewsFail: (state, action) => {
-            state.productDetail.reviewsState.error = action.payload.error
-            state.productDetail.reviewsState.loading = false
+            state.reviewsState.error = action.payload.error
+            state.reviewsState.loading = false
         },
 
 
         newReviewRequest: (state, action) => {
-            state.productDetail.reviewsState.newReviewProcessing = true
-            state.productDetail.reviewsState.error = null
+            state.reviewsState.newReviewProcessing = true
+            state.reviewsState.error = null
         },
         newReviewSuccess: (state, action) => {
             let { newReview, newAverageRating, newCountReview } = action.payload
-            let update_reviews = current(state).productDetail.reviewsState.reviews
+            let update_reviews = current(state).reviewsState.reviews
                 .filter(({ user_id }) => user_id !== newReview.user_id)
 
-            state.productDetail.reviewsState.newReviewProcessing = false
+            state.reviewsState.newReviewProcessing = false
 
-            state.productDetail.reviewsState.reviews = [newReview, ...update_reviews]
+            state.reviewsState.reviews = [newReview, ...update_reviews]
 
             state.productDetail.product.review.average_rating = newAverageRating
             state.productDetail.product.review.count_review = newCountReview
         },
         newReviewFail: (state, action) => {
-            state.productDetail.reviewsState.newReviewProcessing = false
-            state.productDetail.reviewsState.error = action.payload.error
+            state.reviewsState.newReviewProcessing = false
+            state.reviewsState.error = action.payload.error
         },
     }
 })
@@ -144,10 +168,11 @@ export const {
     getProductsRequest, getProductsSuccess, getProductsFail,
     getTopWeekRequest, getTopWeekSuccess, getTopWeekFail,
     getBestSellingRequest, getBestSellingSuccess, getBestSellingFail,
-    getProductDetailRequest, getProductDetailSuccess, getProductDetailFail,
+    getProductRequest, getProductSuccess, getProductFail,
     newReviewRequest, newReviewSuccess, newReviewFail,
     getReviewsRequest, getReviewsSuccess, getReviewsFail,
     createNewProductRequest, createNewProductSuccess, createNewProductFail,
+    updateProductRequest, updateProductSuccess, updateProductFail,
 } = productsSlice.actions
 
 export default productsSlice.reducer

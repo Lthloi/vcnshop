@@ -3,10 +3,11 @@ import {
     getProductsRequest, getProductsSuccess, getProductsFail, //search of products
     getTopWeekRequest, getTopWeekSuccess, getTopWeekFail,
     getBestSellingRequest, getBestSellingSuccess, getBestSellingFail,
-    getProductDetailRequest, getProductDetailSuccess, getProductDetailFail, //product detail
+    getProductRequest, getProductSuccess, getProductFail, //product detail
     newReviewRequest, newReviewSuccess, newReviewFail,
     getReviewsRequest, getReviewsSuccess, getReviewsFail,
     createNewProductRequest, createNewProductSuccess, createNewProductFail,
+    updateProductRequest, updateProductSuccess, updateProductFail,
 } from '../reducers/product_reducer.js'
 import { toast } from 'react-toastify'
 import actionsErrorHandler from '../../utils/error_handler.js'
@@ -23,39 +24,36 @@ const createNewProduct = (
     { colors, sizes },
     stock,
     description,
-    brand,
-    productType,
     images
 ) => async (dispatch) => {
+
+    let product_data = new FormData()
+    product_data.set('productName', productName)
+    product_data.set('category', category)
+    product_data.set('targetGender', targetGender)
+    product_data.set('price', price)
+    product_data.set('colors', JSON.stringify(colors))
+    product_data.set('sizes', JSON.stringify(sizes))
+    product_data.set('stock', stock)
+    product_data.set('description', description)
+
+    if (images.length > 0) {
+        let file_upload_filter = new FileUploadFilter()
+        for (let file of images) {
+            file_upload_filter.setFile(file)
+            if (!file_upload_filter.mimetypeIsValid())
+                return toast.error(file_upload_filter.invalidMessage)
+            if (!file_upload_filter.sizeIsValid())
+                return toast.error(file_upload_filter.invalidMessage)
+
+            product_data.append('images', file)
+        }
+    }
+
     try {
         dispatch(createNewProductRequest())
 
         let api_to_create_new_product = '/api/product/createProduct'
-
-        let product_data = new FormData()
-        product_data.set('productName', productName)
-        product_data.set('category', category)
-        product_data.set('targetGender', targetGender)
-        product_data.set('price', price)
-        product_data.set('colors', JSON.stringify(colors))
-        product_data.set('sizes', JSON.stringify(sizes))
-        product_data.set('stock', stock)
-        product_data.set('description', description)
-        product_data.set('brand', brand)
-        product_data.set('productType', productType)
-
-        if (images.length > 0) {
-            let file_upload_filter = new FileUploadFilter()
-            for (let file of images) {
-                file_upload_filter.setFile(file)
-                if (!file_upload_filter.mimetypeIsValid())
-                    return toast.error(file_upload_filter.invalidMessage)
-                if (!file_upload_filter.sizeIsValid())
-                    return toast.error(file_upload_filter.invalidMessage)
-
-                product_data.append('images', file)
-            }
-        }
 
         await axios.post(
             EXPRESS_SERVER + api_to_create_new_product,
@@ -75,24 +73,76 @@ const createNewProduct = (
     }
 }
 
+const updateProduct = (
+    sizes,
+    colors,
+    stock,
+    description,
+    productId,
+    images
+) => async (dispatch) => {
+
+    let product_data = new FormData()
+    product_data.set('colors', JSON.stringify(colors))
+    product_data.set('sizes', JSON.stringify(sizes))
+    product_data.set('stock', stock)
+    product_data.set('description', description)
+    product_data.set('productId', productId)
+
+    if (images.length > 0) {
+        let file_upload_filter = new FileUploadFilter()
+        for (let file of images) {
+            file_upload_filter.setFile(file)
+            if (!file_upload_filter.mimetypeIsValid())
+                return toast.error(file_upload_filter.invalidMessage)
+            if (!file_upload_filter.sizeIsValid())
+                return toast.error(file_upload_filter.invalidMessage)
+
+            product_data.append('images', file)
+        }
+    }
+
+    try {
+        dispatch(updateProductRequest())
+
+        let api_to_update_product = '/api/product/updateProduct'
+
+        await axios.post(
+            EXPRESS_SERVER + api_to_update_product,
+            product_data,
+            { withCredentials: true }
+        )
+
+        dispatch(updateProductSuccess())
+
+        toast.success('Update Product Successfully!')
+    } catch (error) {
+        let errorObject = actionsErrorHandler(error)
+
+        toast.error(errorObject.message)
+
+        dispatch(updateProductFail({ error: errorObject }))
+    }
+}
+
 const getProducts = (
     limit = LIMIT_GET_PRODUCTS_DEFAULT, category, keyword, rating = 0,
-    price = [0, MAX_PRICE_PORDUCT], pagination = 1, targetGender, type,
+    price = [0, MAX_PRICE_PORDUCT], pagination = 1, targetGender, shopId,
 ) => async (dispatch) => {
     try {
         dispatch(getProductsRequest())
 
         let api_to_getProducts =
-            '/api/product/getProducts?' + (category ? 'category=' + category : '') +
+            '/api/product/getProducts?limit=' + limit + '&rating=' + rating +
             (keyword ? '&keyword=' + keyword : '') + '&pagination=' + pagination +
-            '&limit=' + limit + '&rating=' + rating +
+            (category ? 'category=' + category : '') + (shopId ? '&shopId=' + shopId : '') +
             '&price[gte]=' + price[0] + '&price[lte]=' + price[1] +
-            (targetGender ? '&targetGender=' + targetGender : '') + (type ? '&type=' + type : '')
+            (targetGender ? '&targetGender=' + targetGender : '')
 
         let { data } = await axios.get(EXPRESS_SERVER + api_to_getProducts)
 
         dispatch(getProductsSuccess(
-            { products: data.products, countProduct: data.countProduct }
+            { products: data.products, countProducts: data.countProducts }
         ))
     } catch (error) {
         let errorObject = actionsErrorHandler(error, 'Error Warning: fail to get products.')
@@ -138,16 +188,16 @@ const getBestSelling = (limit = 20, pagination = 1) => async (dispatch) => {
 
 const getProductDetail = (product_id) => async (dispatch) => {
     try {
-        dispatch(getProductDetailRequest())
+        dispatch(getProductRequest())
 
-        let api_to_getProductDetail = '/api/product/getProduct/' + product_id
-        let { data } = await axios.get(EXPRESS_SERVER + api_to_getProductDetail)
+        let api_to_getProduct = '/api/product/getProduct/' + product_id
+        let { data } = await axios.get(EXPRESS_SERVER + api_to_getProduct)
 
-        dispatch(getProductDetailSuccess({ product: data.product }))
+        dispatch(getProductSuccess({ product: data.product }))
     } catch (error) {
         let errorObject = actionsErrorHandler(error, 'Error Warning: fail to get product detail.')
 
-        dispatch(getProductDetailFail({ error: errorObject }))
+        dispatch(getProductFail({ error: errorObject }))
     }
 }
 
@@ -246,4 +296,5 @@ export {
     getProducts, getBestSelling, getTopWeek,
     getReviews, getProductDetail, newReview,
     getProductsByAdmin, createNewProduct,
+    updateProduct,
 }

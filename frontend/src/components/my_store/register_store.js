@@ -15,12 +15,6 @@ const max_fields_length = {
     Phone: 15,
 }
 
-const field_labels = {
-    StoreName: 'Store Name',
-    Greeting: 'Greeting',
-    Phone: 'Phone Number',
-}
-
 const min_field_length = 3
 
 const RegisterStore = () => {
@@ -32,13 +26,13 @@ const RegisterStore = () => {
     const checkAndSubmit = (data, e) => {
         e.preventDefault()
 
-        if (data[field_labels.Phone] && data[field_labels.Phone][0] !== '+')
-            return setError(field_labels.Phone, 'pattern')
+        if (data['Phone Number'] && data['Phone Number'][0] !== '+')
+            return setError('Phone Number', 'pattern')
 
         dispatch(createShop(
-            data[field_labels.StoreName],
-            data[field_labels.Greeting],
-            data[field_labels.Phone],
+            data['Store Name'],
+            data['Greeting'],
+            data['Phone Number'],
         ))
     }
 
@@ -77,7 +71,7 @@ const RegisterStore = () => {
         )
     }
     return (
-        <RegisterSection>
+        <div style={{ padding: '20px' }}>
             <Note>
                 <ErrorIcon sx={{ fontSize: '1.2em', color: 'gray' }} />
                 <span>
@@ -87,25 +81,25 @@ const RegisterStore = () => {
             <RegisterTitle>Register</RegisterTitle>
             <div style={{ padding: '0 30px' }}>
                 {RenderField(
-                    field_labels.StoreName,
+                    'Store Name',
                     false,
-                    errors[field_labels.StoreName],
+                    errors['Store Name'],
                     min_field_length,
                     max_fields_length.StoreName,
                     "Please enter your store name"
                 )}
                 {RenderField(
-                    field_labels.Greeting,
+                    'Greeting',
                     true,
-                    errors[field_labels.Greeting],
+                    errors['Greeting'],
                     min_field_length,
                     max_fields_length.Greeting,
                     "Please enter your greeting, greet your customer when they visit your store"
                 )}
                 {RenderField(
-                    field_labels.Phone,
+                    'Phone Number',
                     false,
-                    errors[field_labels.Phone],
+                    errors['Phone Number'],
                     min_field_length,
                     max_fields_length.Phone,
                     "Add the phone number of you store, the customers'll use this one to contact to the vender. Example: +84123456789"
@@ -133,15 +127,11 @@ const RegisterStore = () => {
                         </>
                 }
             </SubmitBtnContainer>
-        </RegisterSection>
+        </div>
     )
 }
 
 export default memo(RegisterStore)
-
-const RegisterSection = styled('div')({
-    padding: '20px',
-})
 
 const RegisterTitle = styled('h2')({
     color: 'white',

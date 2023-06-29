@@ -86,9 +86,8 @@ const Products = ({ products }) => {
 
     const counted_product_groups = useMemo(() => {
         let gender_obj = { Male: 0, Female: 0, Unisex: 0 }
-        for (let { for: valid_genders } of products)
-            for (let gender of valid_genders)
-                gender_obj[gender]++
+        for (let { for: target_gender } of products)
+            gender_obj[target_gender]++
         return gender_obj
     }, [products])
 

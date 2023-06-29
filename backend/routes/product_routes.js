@@ -2,7 +2,7 @@ import express from 'express'
 import {
     getProducts, getProduct, getReviews,
     newReview, getProductsName, getProductsByAdmin,
-    createProduct,
+    createProduct, updateProduct,
 } from '../controllers/product_controllers.js'
 import { roleAuthorization, verifyJWTtoken, verifyShop } from '../middlewares/auth.js'
 
@@ -21,5 +21,7 @@ router.get('/getProductsName', getProductsName)
 router.get('/getProductsByAdmin', verifyJWTtoken, roleAuthorization('Admin'), getProductsByAdmin)
 
 router.post('/createProduct', verifyJWTtoken, verifyShop, createProduct)
+
+router.post('/updateProduct', verifyJWTtoken, verifyShop, updateProduct)
 
 export default router

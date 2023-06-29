@@ -1,14 +1,21 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { styled } from '@mui/material/styles'
 import { useDispatch, useSelector } from "react-redux"
+import { getReviews } from "../../store/actions/product_actions"
 import { Rating } from "@mui/material"
-import Pagination from '@mui/material/Pagination'
-import { getReviews } from "../../../store/actions/product_actions"
 import { Skeleton } from "@mui/material"
 import CommentIcon from '@mui/icons-material/Comment'
-import { LIMIT_GET_COMMENTS } from "../../../utils/constants"
+import { LIMIT_GET_COMMENTS } from "../../utils/constants"
+import { Pagination } from "@mui/material"
+import Collapse from '@mui/material/Collapse'
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
+import Dialog from '@mui/material/Dialog'
+import Slide from '@mui/material/Slide'
+import { IconButton } from "@mui/material"
+import CloseIcon from '@mui/icons-material/Close'
+import { Tooltip } from "@mui/material"
 
-const Reviews = ({ productId, srollReviewRef }) => {
+const ReviewsSection = ({ productId, scrollReviewsRef }) => {
     const { reviews, loading, error } = useSelector(({ product }) => product.reviewsState)
     const [reviewPage, setReviewPage] = useState(1)
     const dispatch = useDispatch()
@@ -19,7 +26,7 @@ const Reviews = ({ productId, srollReviewRef }) => {
 
     const switchCommentPage = (e, page) => {
         if (page === reviewPage) return
-        srollReviewRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        scrollReviewsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
         setReviewPage(page)
         dispatch(getReviews(productId, page))
     }
@@ -36,15 +43,11 @@ const Reviews = ({ productId, srollReviewRef }) => {
         <>
             {
                 loading ? (
-                    <>
-                        <ReviewLoading />
-                        <ReviewLoading />
-                        <ReviewLoading />
-                    </>
+                    <Skeleton sx={{ height: '300px', marginTop: '20px', transform: 'scale(1)' }} />
                 ) : error ? (
-                    <ReviewError>{error.message}</ReviewError>
+                    <Error>{error.message}</Error>
                 ) : reviews && reviews.length > 0 ?
-                    reviews.map(({ user_id, name, comment, rating, title, createdAt, avatar, imageURLs }) =>
+                    reviews.map(({ user_id, name, comment, rating, title, createdAt, avatar, imageURLs }) => (
                         <ReviewContainer key={user_id}>
                             <Date>
                                 <span>Written On </span>
@@ -75,7 +78,7 @@ const Reviews = ({ productId, srollReviewRef }) => {
                                 }
                             </ReviewImagesContainer>
                         </ReviewContainer>
-                    )
+                    ))
                     :
                     <EmptyReviews>
                         <CommentIcon sx={{ height: '2em', width: '2em' }} />
@@ -85,10 +88,11 @@ const Reviews = ({ productId, srollReviewRef }) => {
                     </EmptyReviews>
             }
 
-            <div style={{ display: 'flex', justifyContent: 'center', }}>
+            <div style={{ display: 'flex', justifyContent: 'center' }}>
                 <ReviewPages
                     count={Math.ceil(reviews.length / LIMIT_GET_COMMENTS)}
-                    variant="outlined" shape="rounded"
+                    variant="outlined"
+                    shape="rounded"
                     onChange={switchCommentPage}
                     page={reviewPage}
                 />
@@ -97,15 +101,114 @@ const Reviews = ({ productId, srollReviewRef }) => {
     )
 }
 
+const Transition = React.forwardRef(function Transition(props, ref) {
+    return <Slide direction="up" ref={ref} {...props} unmountOnExit />
+})
+
+const Reviews = ({ productId, description }) => {
+    const [openReviews, setOpenReviews] = useState(false)
+    const [openDescription, setOpenDescription] = useState(false)
+    const scroll_reviews_ref = useRef()
+
+    return (
+        <>
+            <ViewBtn onClick={() => setOpenDescription(pre => !pre)}>
+                <span>View Description</span>
+                <KeyboardArrowDownIcon />
+            </ViewBtn>
+            <Collapse
+                in={openDescription}
+                unmountOnExit
+                timeout="auto"
+                sx={{ marginTop: '10px' }}
+            >
+                <span>{description}</span>
+            </Collapse>
+            <ViewBtn onClick={() => setOpenReviews(pre => !pre)}>
+                <span>View Reviews</span>
+                <KeyboardArrowDownIcon />
+            </ViewBtn>
+            <Dialog
+                ref={scroll_reviews_ref}
+                fullScreen
+                open={openReviews}
+                onClose={() => setOpenDescription(false)}
+                TransitionComponent={Transition}
+            >
+                <div>
+                    <CloseContainer>
+                        <Tooltip title="Close">
+                            <IconButton onClick={() => setOpenReviews(false)}>
+                                <CloseIcon />
+                            </IconButton>
+                        </Tooltip>
+                        <span>Cancel</span>
+                        <h2 className="close_title">Reviews</h2>
+                    </CloseContainer>
+                    <ReviewsSection productId={productId} scrollReviewsRef={scroll_reviews_ref} />
+                </div>
+            </Dialog>
+        </>
+    )
+}
+
 export default Reviews
+
+const ViewBtn = styled('div')({
+    display: 'flex',
+    columnGap: '10px',
+    alignItems: 'center',
+    fontSize: '1.1em',
+    width: '100%',
+    border: 'none',
+    padding: '10px',
+    marginTop: '30px',
+    borderBottom: '1px lightgrey solid',
+    cursor: 'pointer',
+    '&:hover': {
+        textDecoration: 'underline',
+    }
+})
+
+const CloseContainer = styled('div')(({ theme }) => ({
+    display: 'flex',
+    columnGap: '5px',
+    alignItems: 'center',
+    fontWeight: 'bold',
+    width: '100%',
+    boxSizing: 'border-box',
+    padding: '10px',
+    paddingLeft: '20px',
+    backgroundColor: 'rgba(0,0,0,0.1)',
+    fontFamily: theme.fontFamily.nunito,
+    position: 'relative',
+    '& .close_title': {
+        margin: '0',
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%,-50%)',
+    }
+}))
+
+const Error = styled('div')({
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    columnGap: '5px',
+    fontSize: '1.1em',
+    fontWeight: 'bold',
+    color: 'red',
+    width: '100%',
+    marginTop: '30px',
+})
 
 const ReviewContainer = styled('div')({
     display: 'flex',
     flexDirection: 'column',
     rowGap: '5px',
-    padding: '10px',
+    padding: '20px 30px',
     backgroundColor: '#e0f9ff',
-    borderBottom: '2px gray solid',
     position: 'relative',
     marginTop: '10px',
 })
@@ -114,8 +217,8 @@ const Date = styled('div')({
     fontFamily: '"Work Sans", sans-serif',
     fontSize: '0.9em',
     position: 'absolute',
-    top: '10px',
-    right: '10px',
+    top: '20px',
+    right: '20px',
 })
 
 const UserInfoContainer = styled('div')({
@@ -158,7 +261,7 @@ const CommentTitle = styled('h2')({
 const Comment = styled('div')({
     fontFamily: '"Nunito", "sans-serif"',
     paddingLeft: '5px',
-    marginTop: '10px',
+    marginTop: '5px',
 })
 
 const ReviewImagesContainer = styled('div')({
@@ -212,20 +315,4 @@ const EmptyReviewsText = styled('div')({
     fontFamily: '"Nunito", "sans-serif"',
     fontWeight: 'bold',
     fontSize: '1.2em',
-})
-
-const ReviewLoading = styled(Skeleton)({
-    marginTop: '20px',
-    width: '100%',
-    height: '150px',
-    transform: 'unset',
-})
-
-const ReviewError = styled('div')({
-    textAlign: 'center',
-    width: '100%',
-    padding: '10px',
-    fontFamily: '"Nunito", "sans-serif"',
-    color: 'red',
-    fontWeight: 'bold',
 })

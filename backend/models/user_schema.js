@@ -57,6 +57,12 @@ const UserSchema = new Schema({
         type: Date,
         default: Date.now,
     },
+    shop: {
+        id: {
+            type: mongoose.Types.ObjectId,
+            required: true,
+        }
+    },
 
 
     OTP_code: {

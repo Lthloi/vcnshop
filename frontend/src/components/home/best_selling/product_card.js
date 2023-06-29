@@ -4,7 +4,7 @@ import Rating from '@mui/material/Rating'
 import { Link } from 'react-router-dom'
 
 const ProductCard = ({ product }) => {
-    const { _id, name, image_link, price, shop, sold, review } = product
+    const { _id, name, image_link, price, sold, review } = product
 
     return (
         <ProductCardsContainer>
@@ -37,9 +37,6 @@ const ProductCard = ({ product }) => {
                 <Price>
                     {'$' + price.value}
                 </Price>
-                <ShopName>
-                    {shop.name}
-                </ShopName>
             </ProductInfo>
         </ProductCardsContainer>
     )
@@ -130,21 +127,4 @@ const Price = styled('div')({
     paddingLeft: '5px',
     backgroundColor: 'white',
     borderRadius: '5px',
-})
-
-const ShopName = styled('div')({
-    width: 'fit-content',
-    maxWidth: '100%',
-    fontWeight: 'bold',
-    fontFamily: '"Nunito", "sans-serif"',
-    fontSize: '0.9rem',
-    marginTop: '5px',
-    paddingLeft: '5px',
-    cursor: 'pointer',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap',
-    '&:hover': {
-        textDecoration: 'underline',
-    }
 })

@@ -39,18 +39,19 @@ const ShopSchema = new Schema({
         type: Date,
         default: Date.now,
     },
-    background: {
-        type: String,
-    },
     avatar: {
         type: String,
     },
-    followers: [{
-        _id: false,
-        name: { type: String, required: true },
-        id: { type: mongoose.Types.ObjectId, required: true },
-        avatar: { type: String, required: true }
-    }],
+})
+
+ShopSchema.pre('updateOne', function (next) {
+    let update_set = this.getUpdate()
+    if (update_set.$push && update_set.$push['products.ids']) {
+        this.setUpdate({ ...update_set, $inc: { 'products.count': 1 } })
+    } else if (update_set.$pull && update_set.$pull['products.ids']) {
+        this.setUpdate({ ...update_set, $inc: { 'products.count': -1 } })
+    }
+    next()
 })
 
 const ShopModel = mongoose.model('shops', ShopSchema)

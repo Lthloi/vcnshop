@@ -4,7 +4,7 @@ import PeopleIcon from '@mui/icons-material/People'
 import AllInboxIcon from '@mui/icons-material/AllInbox'
 import InventoryIcon from '@mui/icons-material/Inventory'
 import ErrorIcon from '@mui/icons-material/Error'
-import Chart from "./chart"
+import DashboardChart from "./dashboard_chart"
 import AutoIncreaAnimate from "../auto_increa_animate"
 import StoreIcon from '@mui/icons-material/Store'
 
@@ -72,7 +72,11 @@ const Dashboard = ({ users, orders, products, shops }) => {
                     <ErrorIcon sx={{ fontSize: '1.2em', color: 'gray' }} />
                     <span>Display the users was verified and the orders was paid and the stores was registered via months</span>
                 </Note>
-                <Chart users={users} orders={orders} shops={shops} />
+                <DashboardChart
+                    users={users}
+                    orders={orders}
+                    shops={shops}
+                />
             </div>
         </DashBoardSection>
     )

@@ -13,8 +13,8 @@ import ProductCard from "../components/search_result/product_card"
 import { LIMIT_GET_PRODUCTS_DEFAULT } from "../utils/constants"
 
 const SearchResult = () => {
-    const { products, loading, error } = useSelector(({ product }) => product.search)
-    const { countProduct } = useSelector(({ product }) => product)
+    const { products, loading, error } = useSelector(({ product }) => product)
+    const { countProducts } = useSelector(({ product }) => product)
     const { keyword } = useParams()
     const dispatch = useDispatch()
     const productsArea_ref = useRef()
@@ -42,7 +42,7 @@ const SearchResult = () => {
                     <KeywordResult>{keyword}</KeywordResult>
                 </Container>
                 <ResultCount>
-                    {countProduct + (countProduct > 1 ? ' Results Found' : ' Result Found')}
+                    {countProducts + (countProducts > 1 ? ' Results Found' : ' Result Found')}
                 </ResultCount>
             </HeaderArea>
 
@@ -89,7 +89,7 @@ const SearchResult = () => {
                     </Grid>
 
                     <Pagination
-                        countProduct={countProduct}
+                        countProducts={countProducts}
                         productsAreaRef={productsArea_ref}
                         filterDataRef={filterData_ref}
                     />

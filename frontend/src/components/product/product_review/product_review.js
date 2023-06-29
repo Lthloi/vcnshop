@@ -11,7 +11,7 @@ import ProtectedResource from "../../protected_resource"
 import { CircularProgress } from "@mui/material"
 
 const ProductReview = ({ productId }) => {
-    const { newReviewProcessing, reviews } = useSelector(({ product }) => product.productDetail.reviewsState)
+    const { newReviewProcessing, reviews } = useSelector(({ product }) => product.reviewsState)
     const [ratingAndImgs, setReview] = useState({ rating: 0, images: [] })
     const comment_title_ref = useRef()
     const comment_ref = useRef()

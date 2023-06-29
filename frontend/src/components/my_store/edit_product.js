@@ -1,33 +1,28 @@
-import React, { useCallback, useRef, useState, useTransition } from "react"
+import React, { useState, useCallback, useTransition, useRef } from "react"
 import { styled } from '@mui/material/styles'
-import Dialog from '@mui/material/Dialog'
-import AddIcon from '@mui/icons-material/Add'
-import Slide from '@mui/material/Slide'
-import CloseIcon from '@mui/icons-material/Close'
-import { CircularProgress, Tooltip } from "@mui/material"
+import { useDispatch, useSelector } from "react-redux"
+import { useForm } from "react-hook-form"
+import { toast } from 'react-toastify'
 import { IconButton } from "@mui/material"
+import Dialog from '@mui/material/Dialog'
+import CloseIcon from '@mui/icons-material/Close'
+import Slide from '@mui/material/Slide'
 import Grid from '@mui/material/Grid'
 import CancelIcon from '@mui/icons-material/Cancel'
 import PermMediaIcon from '@mui/icons-material/PermMedia'
 import InfoIcon from '@mui/icons-material/Info'
-import { useForm, Controller } from 'react-hook-form'
 import TextField from '@mui/material/TextField'
-import Radio from '@mui/material/Radio'
-import RadioGroup from '@mui/material/RadioGroup'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import FormControl from '@mui/material/FormControl'
 import FormLabel from '@mui/material/FormLabel'
-import { Avatar } from "@mui/material"
-import { Stack } from "@mui/material"
-import Cash from '../../assets/images/payment_methods/cash.png'
-import Mastercard from '../../assets/images/payment_methods/mastercard.png'
-import Visa from '../../assets/images/payment_methods/visa.png'
 import FormGroup from '@mui/material/FormGroup'
 import Checkbox from '@mui/material/Checkbox'
 import FormHelperText from '@mui/material/FormHelperText'
-import { toast } from "react-toastify"
-import { useDispatch, useSelector } from "react-redux"
-import { createNewProduct } from '../../store/actions/product_actions'
+import { updateProduct } from '../../store/actions/product_actions'
+import { CircularProgress, Tooltip } from "@mui/material"
+import EditIcon from '@mui/icons-material/Edit'
+import AddIcon from '@mui/icons-material/Add'
+import ErrorIcon from '@mui/icons-material/Error'
 
 const options = {
     colors: [
@@ -42,16 +37,9 @@ const options = {
     sizes: ['S', 'M', 'L'],
 }
 
-const RenderPaymentMethod = (title, src, size) => (
-    <Tooltip title={title}>
-        <Avatar alt={title} src={src} variant="square" sx={{ height: size, width: size }} />
-    </Tooltip>
-)
-
-const RenderRadio = () => (<Radio color="default" sx={{ color: "#2e7d32" }} />)
 const RenderCheckBox = () => (<Checkbox color="default" sx={{ color: "#2e7d32" }} />)
 
-const Detail = React.memo(({ register, formStateErrors, control, setValue }) => {
+const Detail = React.memo(({ register, formStateErrors, setValue }) => {
     const colors_string = useRef('')
     const sizes_string = useRef('')
 
@@ -83,16 +71,6 @@ const Detail = React.memo(({ register, formStateErrors, control, setValue }) => 
         <DetailSection id="DetailSection">
             <TextField
                 variant="outlined"
-                label='Product Name'
-                fullWidth
-                helperText={formStateErrors['Product Name'] ? formStateErrors['Product Name'].message : 'Enter product name. This product will be searched by the name by the customers.'}
-                InputProps={{ ...register('Product Name') }}
-                error={!!formStateErrors['Product Name']}
-                color="success"
-                inputProps={{ maxLength: 50 }}
-            />
-            <TextField
-                variant="outlined"
                 label='Description'
                 fullWidth
                 multiline
@@ -103,83 +81,6 @@ const Detail = React.memo(({ register, formStateErrors, control, setValue }) => 
                 error={!!formStateErrors['Description']}
                 color="success"
             />
-            <FormControl color="success">
-                <FormLabel>Category</FormLabel>
-                <Controller
-                    control={control}
-                    name='Category'
-                    render={({ field: { onChange } }) => (
-                        <RadioGroup
-                            row
-                            onChange={onChange}
-                        >
-                            <FormControlLabel
-                                value='Shirt'
-                                control={RenderRadio()}
-                                label='Shirt'
-                            />
-                            <FormControlLabel
-                                value='Pant'
-                                control={RenderRadio()}
-                                label='Pant'
-                            />
-                        </RadioGroup>
-                    )}
-                />
-                <FormHelperText error={!!formStateErrors['Category']}>
-                    Pick a category for your products
-                </FormHelperText>
-            </FormControl>
-            <FormControl color="success">
-                <FormLabel>Target Gender</FormLabel>
-                <Controller
-                    control={control}
-                    name='Target Gender'
-                    render={({ field: { onChange } }) => (
-                        <RadioGroup
-                            row
-                            onChange={onChange}
-                        >
-                            <FormControlLabel
-                                value='Male'
-                                control={RenderRadio()}
-                                label='Male'
-                            />
-                            <FormControlLabel
-                                value='Female'
-                                control={RenderRadio()}
-                                label='Female'
-                            />
-                            <FormControlLabel
-                                value='Unisex'
-                                control={RenderRadio()}
-                                label='Unisex'
-                            />
-                        </RadioGroup>
-                    )}
-                />
-                <FormHelperText error={!!formStateErrors['Target Gender']}>
-                    Pick a kind of gender will be suitable with your products
-                </FormHelperText>
-            </FormControl>
-            <div>
-                <TextField
-                    variant="outlined"
-                    label='Price'
-                    fullWidth
-                    type="number"
-                    color="success"
-                    helperText={formStateErrors['Price'] ? formStateErrors['Price'].message : 'Enter the price of your product in USD currency. The following are payment methods accepted for the customers. For example: 52.21 means 52 dollars and 21 cents'}
-                    InputProps={{ ...register('Price') }}
-                    error={!!formStateErrors['Price']}
-                    inputProps={{ min: 0, max: 9999999 }}
-                />
-                <Stack direction="row" spacing={2} marginTop="3px">
-                    {RenderPaymentMethod('Cash', Cash, '35px')}
-                    {RenderPaymentMethod('Mastercard', Mastercard, '40px')}
-                    {RenderPaymentMethod('Visa', Visa, '40px')}
-                </Stack>
-            </div>
             <input
                 {...register('Colors')}
                 style={{ display: 'none' }}
@@ -251,10 +152,6 @@ const DetailSection = styled('div')(({ theme }) => ({
     rowGap: '30px',
     fontFamily: theme.fontFamily.nunito,
 }))
-
-const Transition = React.forwardRef(function Transition(props, ref) {
-    return <Slide direction="up" ref={ref} {...props} unmountOnExit />
-})
 
 const AddImagesSection = React.memo(({ onCancelPickImg, onPickImages, imageList }) => {
 
@@ -334,70 +231,51 @@ const AddImagesSection = React.memo(({ onCancelPickImg, onPickImages, imageList 
     )
 })
 
+const Transition = React.forwardRef(function Transition(props, ref) {
+    return <Slide direction="up" ref={ref} {...props} unmountOnExit />
+})
+
 const max_add_images = 5
 
-const AddProduct = () => {
+const EditProduct = ({ productId }) => {
     const { loading } = useSelector(({ product }) => product.productDetail)
     const [openAddProduct, setOpenAddProduct] = useState(false)
     const [imageList, setImageList] = useState([null, null, null, null, null])
-    const { handleSubmit, setError, register, formState: { errors }, control, setValue } = useForm()
+    const { handleSubmit, setError, register, formState: { errors }, setValue } = useForm()
     const [isPending, startTransition] = useTransition()
     const dispatch = useDispatch()
 
-    const checkAndSubmitAddProduct = (data, e) => {
+    const checkAndSubmitEditProduct = (data, e) => {
         e.preventDefault()
 
-        let product_name = data['Product Name']
         let description = data['Description']
-        let price = data['Price'] * 1
         let stock = data['Stock'] * 1
         let colors = data['Colors']
-        let category = data['Category']
-        let target_gender = data['Target Gender']
         let sizes = data['Sizes']
+        let images = imageList.filter((image_object) => image_object)
 
-        let warning = (message) => toast.warning(message || 'Can\'t not submit, please check your form')
+        if (!description && !stock && !colors && !sizes && images.length === 0)
+            return toast.warning('Please fill in at least one field that you want to chnage')
 
-        if (
-            !product_name || !description || !price || !stock ||
-            !category || !target_gender || !colors || !sizes
-        ) return warning('Please don\'t empty any fields even images field')
-
-        if (product_name.length > 150) {
-            warning()
-            return setError('Product Name', { message: 'The product name can not longer than 50 characters' })
-        }
         if (description.length > 500) {
-            warning()
-            return setError('Description', { message: 'The product description can not be longer than 150 characters' })
-        }
-        if (price > 9999999 || price < 0) {
-            warning()
-            return setError('Price', { message: 'The price can not be greater than 9,999,999 and lower than 0' })
+            toast.warning('The Description field can not be longer than 500 characters')
+            return setError('Description', { message: 'The product description can not longer than 500 characters' })
         }
         if (stock < 0 || stock > 1000) {
-            warning()
+            toast.warning('The stock field can not be greater than 1000 and lower than 0')
             return setError('Stock', { message: 'The stock can not be greater than 1000 and lower than 0' })
-        }
-
-        let images = imageList.filter((image_object) => image_object)
-        if (images.length === 0) {
-            warning('Please don\'t empty any fields even images field')
-            return setError('Images')
         }
 
         images = images.map(({ file }) => file)
         let colors_array = colors.slice(1).split(',')
         let sizes_array = sizes.slice(1).split(',')
 
-        dispatch(createNewProduct(
-            product_name,
-            category,
-            target_gender,
-            price,
-            { colors: colors_array, sizes: sizes_array },
+        dispatch(updateProduct(
+            sizes_array,
+            colors_array,
             stock,
             description,
+            productId,
             images
         ))
     }
@@ -453,9 +331,17 @@ const AddProduct = () => {
                         </IconButton>
                     </Tooltip>
                     <span>Cancel</span>
-                    <h2 className="close_title">Add Product</h2>
+                    <h2 className="close_title">Edit Product</h2>
                 </CloseContainer>
                 <DialogContent>
+                    <Note>
+                        <ErrorIcon sx={{ fontSize: '1.2em', color: 'gray' }} />
+                        <span>
+                            Note that all of the old data will be changed to the data that you filled in
+                            the fields below. And the data of fields isn't filled will be stay unchanged.
+                            Now feel free to edit.
+                        </span>
+                    </Note>
                     <AddImagesSection
                         onCancelPickImg={handleCancelPickImg}
                         onPickImages={handlePickImgs}
@@ -473,13 +359,12 @@ const AddProduct = () => {
                     <Detail
                         register={register}
                         formStateErrors={errors}
-                        control={control}
                         setValue={setValue}
                     />
 
                     <SubmitBtn
                         onClick={handleSubmit(
-                            (data, e) => startTransition(() => { checkAndSubmitAddProduct(data, e) })
+                            (data, e) => startTransition(() => { checkAndSubmitEditProduct(data, e) })
                         )}
                     >
                         {
@@ -495,7 +380,7 @@ const AddProduct = () => {
                     </SubmitBtn>
                 </DialogContent>
             </Dialog >
-            <AnimationBtn
+            <EditBtn
                 onClick={() => {
                     startTransition(() => { setOpenAddProduct(true) })
                 }}
@@ -503,27 +388,59 @@ const AddProduct = () => {
                 {
                     isPending ?
                         <CircularProgress
-                            size={13}
+                            size={15}
                             thickness={6}
-                            sx={{ color: 'black' }}
+                            sx={{ color: 'white' }}
                         />
                         :
-                        <div className="content">
-                            <AddIcon sx={{ fontSize: '1.2em' }} />
-                            <span>New Product</span>
-                        </div>
+                        <>
+                            <span>Edit</span>
+                            <EditIcon />
+                        </>
                 }
-            </AnimationBtn>
+            </EditBtn>
         </>
     )
 }
 
-export default React.memo(AddProduct)
+export default React.memo(EditProduct)
+
+const EditBtn = styled('button')({
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    border: '2px black solid',
+    columnGap: '10px',
+    padding: '10px',
+    width: '100%',
+    boxSizing: 'border-box',
+    marginTop: '30px',
+    backgroundColor: 'black',
+    color: 'white',
+    fontSize: '1.2em',
+    fontWeight: 'bold',
+    cursor: 'pointer',
+    '&:hover': {
+        backgroundColor: 'white',
+        color: 'black',
+    }
+})
 
 const DialogContent = styled('div')(({ theme }) => ({
     padding: '0 40px 20px',
     fontFamily: theme.fontFamily.nunito,
 }))
+
+const Note = styled('div')({
+    display: 'flex',
+    alignItems: 'center',
+    columnGap: '5px',
+    marginTop: '10px',
+    '& span': {
+        fontFamily: '"Nunito", "sans-serif"',
+        fontSize: '0.8em',
+    }
+})
 
 const CloseContainer = styled('div')(({ theme }) => ({
     display: 'flex',
@@ -624,41 +541,4 @@ const SubmitBtn = styled('button')({
             color: 'black',
         }
     },
-})
-
-const AnimationBtn = styled('button')({
-    fontSize: '0.9em',
-    cursor: 'pointer',
-    backgroundColor: 'white',
-    border: '1px black solid',
-    position: 'relative',
-    overflowX: 'hidden',
-    padding: '15px 20px',
-    '& .content': {
-        display: 'flex',
-        columnGap: '10px',
-        alignItems: 'center',
-        fontSize: '1em',
-        zIndex: '2',
-        position: 'relative',
-        transition: 'color 0.5s',
-    },
-    '&::after': {
-        content: '""',
-        position: 'absolute',
-        backgroundColor: 'black',
-        left: '0',
-        top: '0',
-        height: '100%',
-        width: '130%',
-        transition: 'transform 0.5s',
-        transform: 'skew(30deg) translateX(-130%)',
-        zIndex: '1',
-    },
-    '&:hover::after': {
-        transform: 'skew(30deg) translateX(-10%)',
-    },
-    '&:hover .content': {
-        color: 'white',
-    }
 })

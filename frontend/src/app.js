@@ -40,12 +40,12 @@ function App() {
               <Route path='/search/:keyword' element={<SearchResult />} />
               <Route path='/account/*' element={<ProtectedResource><Account /></ProtectedResource>} />
               <Route path='/admin/*' element={<ProtectedResource isAdminRoute><Admin /></ProtectedResource>} />
+              <Route path='/myStore/*' element={<ProtectedResource><MyStore /></ProtectedResource>} />
             </Route>
 
             {/*Put other routes with no layout*/}
             <Route path='/checkout' element={<Checkout />} />
             <Route path='/auth/*' element={<Auth />} />
-            <Route path='/myStore/*' element={<ProtectedResource><MyStore /></ProtectedResource>} />
 
             <Route path='/*' element={<NotFound404 />} />
 

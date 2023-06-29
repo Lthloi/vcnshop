@@ -1,20 +1,13 @@
 import ShopModel from '../models/shop_schema.js'
 import BaseError from '../utils/base_error.js'
 import catchAsyncError from '../middlewares/catch_async_error.js'
+import UserModel from '../models/user_schema.js'
 
 const getShop = catchAsyncError(async (req, res, next) => {
-    let query = {}
-    if (req.params && req.params.shopId) query.shopId = req.params.shopId
-    else if (req.user && req.user._id) query.user = { id: req.user._id }
-
-    if (!query.shopId && !query.user)
-        throw new BaseError('Wrong request property', 400)
-
     let shop = await ShopModel.findOne(
-        query,
+        { '_id': req.user.shop.id },
         {
             'products': 0,
-            'followers': 0,
         }
     ).lean()
 
@@ -42,6 +35,8 @@ const createShop = catchAsyncError(async (req, res, next) => {
             phone: phone_number,
         },
     })
+
+    await UserModel.updateOne({ '_id': user_id }, { $set: { 'shop.id': shop._id } })
 
     res.status(200).json({ shop })
 })

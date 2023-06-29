@@ -19,11 +19,11 @@ const ProductSchema = new Schema({
         required: true,
         enum: ['Shirt', 'Pant'],
     },
-    for: [{
+    for: {
         type: String,
         default: 'Unisex',
         enum: ['Male', 'Female', 'Unisex'],
-    }],
+    },
     price: {
         value: {
             type: Number,
@@ -39,10 +39,6 @@ const ProductSchema = new Schema({
         id: {
             type: Schema.Types.ObjectId,
             ref: 'shops',
-            required: true,
-        },
-        name: {
-            type: String,
             required: true,
         },
     },
@@ -92,15 +88,6 @@ const ProductSchema = new Schema({
             comment: { type: String, required: true, },
             imageURLs: [{ type: String }],
         }]
-    },
-    type: {
-        type: String,
-        maxLength: [30, 'The length of the type of the product don\'t have to exceed 30 letters']
-    },
-    brand: {
-        type: String,
-        default: 'No Brand',
-        maxLength: [50, 'The length of the brand of the product don\'t have to exceed 50 letters']
     },
     createdAt: {
         type: Date,

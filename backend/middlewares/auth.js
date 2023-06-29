@@ -2,7 +2,6 @@ import BaseError from "../utils/base_error.js"
 import catchAsyncError from "./catch_async_error.js"
 import jwt from "jsonwebtoken"
 import UserModel from "../models/user_schema.js"
-import ShopModel from "../models/shop_schema.js"
 
 const { JWT_SECRET_KEY } = process.env
 
@@ -26,6 +25,7 @@ const verifyJWTtoken = catchAsyncError(async (req, res, next) => {
             'avatar': 1,
             'email': 1,
             'role': 1,
+            'shop': 1,
         }
     ).lean()
     if (!user) throw new BaseError('User not found', 404)
@@ -36,32 +36,25 @@ const verifyJWTtoken = catchAsyncError(async (req, res, next) => {
         avatar: user.avatar,
         email: user.email,
         role: user.role,
+        shop: user.shop,
     }
 
     next()
 })
 
-const roleAuthorization = (...valid_role_list) => catchAsyncError((req, res, next) => {
-    if (!req.user) throw new BaseError()
-    if (!valid_role_list.includes(req.user.role))
+const roleAuthorization = (...valid_role_list) => catchAsyncError(async (req, res, next) => {
+    let user = req.user
+    if (!user) throw new BaseError()
+    if (!valid_role_list.includes(user.role))
         throw new BaseError('You don\'t have permission to access this resource', 403)
     next()
 })
 
 const verifyShop = catchAsyncError(async (req, res, next) => {
-    let shop = await ShopModel.findOne(
-        { 'user.id': req.user._id },
-        {
-            '_id': 1,
-            'name': 1,
-        }
-    ).lean()
-    if (!shop) throw new BaseError('User not found', 404)
-
-    req.shop = {
-        _id: shop._id,
-        name: shop.name,
-    }
+    let user = req.user
+    if (!user) throw new BaseError()
+    let shop = user.shop
+    if (!shop || !shop.id) throw new BaseError('Shop not found', 404)
 
     next()
 })
