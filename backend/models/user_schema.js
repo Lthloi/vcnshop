@@ -61,6 +61,8 @@ const UserSchema = new Schema({
         id: {
             type: mongoose.Types.ObjectId,
             required: true,
+            unique: true,
+            index: true,
         }
     },
 

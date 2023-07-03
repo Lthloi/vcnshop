@@ -16,6 +16,7 @@ import LocationCityIcon from '@mui/icons-material/LocationCity'
 import PlaceIcon from '@mui/icons-material/Place'
 import HomeIcon from '@mui/icons-material/Home'
 import ErrorIcon from '@mui/icons-material/Error'
+import moment from "moment"
 
 const RenderPayment = (type_name, type_cost) => (
     <Payment>
@@ -40,6 +41,10 @@ const RenderCustomerDetail = (icon, text) => (
         }
     </CustomerDetail>
 )
+
+const format_date = (time_string) => {
+    return moment(time_string.toISOString()).format('MMMM Do YYYY, HH:mm')
+}
 
 const OrderDetail = () => {
     const { order, loading, error } = useSelector(({ order }) => order)
@@ -68,7 +73,7 @@ const OrderDetail = () => {
                     <IDTitle>
                         <span>Order </span>
                         <span className="hightlight">{'#' + order.payment_info.id}</span>
-                        <CreatedAt>{order.createdAt}</CreatedAt>
+                        <CreatedAt>{format_date(order.createdAt)}</CreatedAt>
                     </IDTitle>
                     <div style={{ display: 'flex', columnGap: '20px', marginTop: '25px' }}>
                         <OrderedItemsContainer>

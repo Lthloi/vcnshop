@@ -61,6 +61,11 @@ const OrderSchema = new Schema({
             },
             size: {
                 type: String,
+            },
+            shop_id: {
+                type: mongoose.Types.ObjectId,
+                required: true,
+                ref: 'shops',
             }
         }
     ],
@@ -75,6 +80,10 @@ const OrderSchema = new Schema({
             required: true,
         },
         name: {
+            type: String,
+            required: true,
+        },
+        avatar: {
             type: String,
             required: true,
         }

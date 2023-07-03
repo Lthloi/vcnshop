@@ -4,6 +4,7 @@ export const productsSlice = createSlice({
     name: 'product',
     initialState: {
         countProducts: 0,
+        currentPage: 1,
         loading: false,
         error: null,
         products: [],
@@ -76,6 +77,7 @@ export const productsSlice = createSlice({
         getProductsSuccess: (state, action) => {
             state.products = action.payload.products
             state.countProducts = action.payload.countProducts
+            state.currentPage = action.payload.currentPage
             state.loading = false
         },
         getProductsFail: (state, action) => {

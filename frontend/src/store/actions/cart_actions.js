@@ -14,7 +14,9 @@ const addProductToCart = (product_id, options) => async (dispatch, getState) => 
 
         let api_to_get_product = '/api/product/getProduct/' + product_id
 
-        let { data: { product: productData } } = await axios.get(EXPRESS_SERVER + api_to_get_product)
+        let { data } = await axios.get(EXPRESS_SERVER + api_to_get_product)
+
+        let productData = data.product
 
         if (productData.stock === 0) {
             dispatch(addProductToCartFail({}))
@@ -28,16 +30,14 @@ const addProductToCart = (product_id, options) => async (dispatch, getState) => 
             return toast.warning('The quantity of product in your cart is greater than in stock now')
         }
 
-        let add_product = {
+        let product_to_add = {
             _id: product_id,
-            sku: productData.sku,
             image_link: productData.image_link,
             name: productData.name,
             size: options ? options.size : productData.options.size[0],
             color: options ? options.color : productData.options.color[0],
             shop: {
-                name: productData.shop.name,
-                username: productData.shop.username
+                id: productData.shop.id,
             },
             cost: productData.price.value,
             quantity: 1,
@@ -45,7 +45,7 @@ const addProductToCart = (product_id, options) => async (dispatch, getState) => 
         }
 
         dispatch(addProductToCartSuccess({
-            addProduct: add_product,
+            addProduct: product_to_add,
             productStock: productData.stock,
             currentQuantity: existedProduct ? existedProduct.quantity : null,
         }))

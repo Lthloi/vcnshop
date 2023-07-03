@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect } from "react"
 import { styled } from '@mui/material/styles'
 import { useDispatch, useSelector } from "react-redux"
 import { getShop } from "../store/actions/shop_actions"
@@ -6,30 +6,40 @@ import RegisterShop from "../components/my_store/register_store"
 import { Skeleton } from "@mui/material"
 import Avatar from '@mui/material/Avatar'
 import PhoneIcon from '@mui/icons-material/Phone'
-import Tabs from '@mui/material/Tabs'
-import Tab from '@mui/material/Tab'
 import StoreIcon from '@mui/icons-material/Store'
 import Products from "../components/my_store/products"
 import ScrollToTopBtn from "../components/scroll_top_top_btn"
-
-const tabs = {
-    Products: 'Products',
-    Greeting: 'Greeting',
-}
+import Orders from '../components/my_store/orders'
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
+import { useNavigate, Route, Routes } from "react-router-dom"
+import { useCurrentRoute } from "../hooks/custom_hooks"
+import ErrorIcon from '@mui/icons-material/Error'
 
 const MyStore = () => {
     const { shop, loading, error, checkShopIsExist } = useSelector(({ shop }) => shop)
     const dispatch = useDispatch()
-    const [tab, setTab] = useState(tabs.Products)
+    const navigate = useNavigate()
+    const current_route = useCurrentRoute()
 
-    const switchTab = (e, new_tab) => {
-        setTab(new_tab)
+    const switchNav = (href) => {
+        navigate('/myStore' + `/${href}`)
     }
 
     useEffect(() => {
         if (!checkShopIsExist)
             dispatch(getShop())
     }, [dispatch])
+
+    const NavButton = ({ navText, href }) => {
+        return (
+            <NavBtn
+                onClick={() => switchNav(href)}
+                sx={current_route.includes(href) ? { backgroundColor: 'black', color: 'white' } : {}}
+            >
+                {navText}
+            </NavBtn>
+        )
+    }
 
     return (
         <MyStoreSection id="MyStoreSection">
@@ -67,24 +77,22 @@ const MyStore = () => {
                             <PhoneIcon sx={{ fontSize: '1.2em' }} />
                             <span>{shop.contact_info.phone}</span>
                         </ContactInfo>
-                        <TabsWrapper>
-                            <Tabs
-                                value={tab}
-                                onChange={switchTab}
-                                textColor="inherit"
-                            >
-                                <Tab label={tabs.Products} value={tabs.Products} />
-                                <Tab label={tabs.Greeting} value={tabs.Greeting} />
-                            </Tabs>
-                        </TabsWrapper>
+                        <Navigation>
+                            <ArrowForwardIosIcon />
+                            <NavButton navText={'Products'} href={'Products'} />
+                            <NavButton navText={'Greeting'} href={'Greeting'} />
+                            <NavButton navText={'Orders'} href={'Orders'} />
+                        </Navigation>
+                        <Note>
+                            <ErrorIcon sx={{ fontSize: '1.2em', color: 'gray' }} />
+                            <span>Now select one tab above to view</span>
+                        </Note>
                         <Content>
-                            {
-                                tab === tabs.Products ? (
-                                    <Products shopId={shop._id} />
-                                ) : tab === tabs.Greeting && (
-                                    <Greeting>{shop.greeting}</Greeting>
-                                )
-                            }
+                            <Routes>
+                                <Route path="/Products/*" element={<Products shopId={shop._id} />} />
+                                <Route path="/Greeting" element={<Greeting>{shop.greeting}</Greeting>} />
+                                <Route path="/Orders/*" element={<Orders />} />
+                            </Routes>
                         </Content>
                     </InfoContainer>
                 )
@@ -149,15 +157,40 @@ const ContactInfo = styled('div')({
     color: 'gray',
 })
 
-const TabsWrapper = styled('div')({
-    color: 'white',
-    backgroundColor: 'black',
+const Navigation = styled('div')({
+    display: 'flex',
+    alignItems: 'center',
     marginTop: '30px',
     width: '100%',
+})
+
+const NavBtn = styled('button')({
+    fontWeight: 'bold',
+    border: '2px black solid',
+    backgroundColor: 'white',
+    padding: '10px 30px',
+    cursor: 'pointer',
+    marginLeft: '20px',
+    '&:nth-of-type(1)': {
+        marginLeft: '10px',
+    },
+    '&:hover': {
+        backgroundColor: 'black',
+        color: 'white',
+    }
+})
+
+const Note = styled('div')({
+    display: 'flex',
+    alignItems: 'center',
+    columnGap: '5px',
+    marginTop: '10px',
+    paddingLeft: '30px',
+    width: '100%',
     boxSizing: 'border-box',
-    '& .MuiTabs-indicator': {
-        height: '4px',
-        backgroundColor: '#3FACB1',
+    '& span': {
+        fontFamily: '"Nunito", "sans-serif"',
+        fontSize: '0.8em',
     }
 })
 
@@ -171,6 +204,7 @@ const Content = styled('div')(({ theme }) => ({
 const Greeting = styled('div')({
     padding: '10px 30px',
     borderLeft: '1px lightgrey solid',
+    borderRight: '1px lightgrey solid',
     whiteSpace: 'pre-line',
     width: '100%',
     boxSizing: 'border-box',

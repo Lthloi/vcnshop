@@ -14,52 +14,51 @@ import { useNavigate } from "react-router-dom"
 import { useCurrentRoute } from '../../../hooks/custom_hooks'
 import FilterAltIcon from '@mui/icons-material/FilterAlt'
 
-const statuses = {
-    stripe_payment: {
-        SUCCESSED: 'succeeded',
-        CANCELED: 'canceled',
-        PROCESSING: 'processing',
-    },
-    order: {
-        UNCOMPLETED: 'uncompleted',
-    }
+const stripe_payment_status = {
+    SUCCESSED: 'succeeded',
+    CANCELED: 'canceled',
+    PROCESSING: 'processing',
+}
+
+const order_status = {
+    UNCOMPLETED: 'uncompleted',
 }
 
 const tabs = {
-    ALL: 'all',
-    UNPAID: statuses.stripe_payment.PROCESSING,
-    SUCCESSED: statuses.stripe_payment.SUCCESSED,
+    ALL: 'ALL',
+    UNPAID: stripe_payment_status.PROCESSING,
+    SUCCESSED: stripe_payment_status.SUCCESSED,
 }
 
 const RenderType = (label_of_type, value_of_type) => {
-    let set_style
+    let style = {}
 
-    let general_style_for_status = {
+    let set_style = {
         padding: '3px 8px',
         width: 'fit-content',
         borderRadius: '10px',
     }
 
-    if (value_of_type === statuses.stripe_payment.SUCCESSED)
-        set_style = {
-            ...general_style_for_status,
+    if (value_of_type === stripe_payment_status.SUCCESSED)
+        style = {
+            ...set_style,
             backgroundColor: '#74ffcd',
         }
-    else if (value_of_type === statuses.stripe_payment.PROCESSING || value_of_type === statuses.order.UNCOMPLETED)
-        set_style = {
-            ...general_style_for_status,
+    else if (value_of_type === stripe_payment_status.PROCESSING || value_of_type === order_status.UNCOMPLETED)
+        style = {
+            ...set_style,
             backgroundColor: '#ffd995',
         }
-    else if (value_of_type === statuses.stripe_payment.CANCELED)
-        set_style = {
-            ...general_style_for_status,
+    else if (value_of_type === stripe_payment_status.CANCELED)
+        style = {
+            ...set_style,
             backgroundColor: '#ff8b8b',
         }
 
     return (
         <ItemLabel>
             <LabelName>{label_of_type}</LabelName>
-            <LabelValue sx={set_style}>
+            <LabelValue sx={style}>
                 {value_of_type}
             </LabelValue>
         </ItemLabel>
@@ -73,8 +72,7 @@ const MyOrders = () => {
     const navigate = useNavigate()
     const current_route = useCurrentRoute()
 
-    const tab = useMemo(() => currentTab, [currentTab])
-    const page = useMemo(() => currentPage, [currentPage])
+    const tab = useMemo(() => currentTab === null ? tabs.ALL : currentTab, [currentTab])
 
     useEffect(() => {
         if (orders && orders.length === 0) dispatch(getOrders(1))
@@ -85,11 +83,11 @@ const MyOrders = () => {
     }
 
     const switchPage = (e, new_page) => {
-        if (new_page === page) return
+        if (new_page === currentPage) return
 
         orders_container_ref.current.scrollIntoView({ block: 'start' })
 
-        dispatch(getOrders(new_page, LIMIT_GET_ORDERS, tab))
+        dispatch(getOrders(new_page, LIMIT_GET_ORDERS, tab !== tabs.ALL ? tab : null))
     }
 
     const viewOrder = (order_id) => navigate(current_route + '/orderDetail/' + order_id)
@@ -132,14 +130,14 @@ const MyOrders = () => {
                     </div>
                     {
                         orders.map(({ createdAt, order_status, _id, items_of_order, payment_status }) => (
-                            <ItemContainer key={_id}>
-                                <ItemLabels>
+                            <Order key={_id}>
+                                <OrderLabels>
                                     {RenderType('ORDER ID:', _id)}
                                     {RenderType('PAYMENT STATUS:', payment_status)}
                                     {RenderType('ORDER STATUS:', order_status)}
                                     {RenderType('DATE:', new Date(createdAt).toDateString())}
-                                </ItemLabels>
-                                <ItemHr />
+                                </OrderLabels>
+                                <OrderHr />
                                 <Container>
                                     <Images>
                                         {
@@ -152,7 +150,7 @@ const MyOrders = () => {
                                     </Images>
                                     <div style={{ width: '40%' }}>
                                         {
-                                            payment_status === statuses.stripe_payment.PROCESSING || order_status === statuses.order.UNCOMPLETED ?
+                                            payment_status === stripe_payment_status.PROCESSING || order_status === order_status.UNCOMPLETED ?
                                                 <Button
                                                     sx={{ marginTop: '10px', display: 'flex' }}
                                                     onClick={() => continueToPayment(_id)}
@@ -170,7 +168,7 @@ const MyOrders = () => {
                                     <TipsAndUpdatesIcon sx={{ color: 'gray', fontSize: '1.2em' }} />
                                     <span>Moving mouse on images to view name of product</span>
                                 </OrderHelpterText>
-                            </ItemContainer>
+                            </Order>
                         ))
                     }
                 </>
@@ -181,7 +179,7 @@ const MyOrders = () => {
                     variant="outlined"
                     shape="rounded"
                     onChange={switchPage}
-                    page={page}
+                    page={currentPage}
                 />
             </div>
         </MyOrdersSection>
@@ -245,7 +243,7 @@ const Loading = styled(Skeleton)({
     transform: 'scale(1)',
 })
 
-const ItemContainer = styled('div')({
+const Order = styled('div')({
     padding: '20px',
     backgroundColor: 'white',
     marginTop: '5px',
@@ -253,7 +251,7 @@ const ItemContainer = styled('div')({
     boxSizing: 'border-box',
 })
 
-const ItemLabels = styled('div')({
+const OrderLabels = styled('div')({
     display: 'flex',
     columnGap: '30px',
     justifyContent: 'space-between',
@@ -278,7 +276,7 @@ const LabelValue = styled('div')({
     fontSize: '0.9em',
 })
 
-const ItemHr = styled('div')({
+const OrderHr = styled('div')({
     height: '1px',
     backgroundColor: 'lightgrey',
     marginTop: '15px',

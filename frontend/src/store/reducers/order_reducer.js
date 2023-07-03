@@ -4,7 +4,7 @@ export const orderSlice = createSlice({
     name: 'order',
     initialState: {
         currentPage: 1,
-        currentTab: 'all',
+        currentTab: null,
         order: {},
         orders: [],
         countOrder: 0,

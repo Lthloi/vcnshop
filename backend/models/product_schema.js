@@ -6,13 +6,12 @@ const ProductSchema = new Schema({
     image_link: {
         type: String,
         required: true,
-        index: true,
         unique: true,
     },
     name: {
         type: String,
         required: true,
-        maxLength: [50, 'The length of the name of the product don\'t have to exceed 50 letters']
+        maxLength: [50, 'The length of the name of the product don\'t have to exceed 50 letters'],
     },
     category: {
         type: String,
@@ -56,6 +55,7 @@ const ProductSchema = new Schema({
         type: Number,
         required: true,
         min: [0, 'Number of stock must not smaller than or equal 0'],
+        index: true,
     },
     options: {
         sizes: [{ type: String, }],

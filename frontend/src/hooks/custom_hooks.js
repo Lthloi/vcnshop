@@ -94,6 +94,7 @@ const useGetQueryValue = () => (query_string_input, unique_string_name) => {
     }
 }
 
+// per rerender then this hook will have a new route
 const useCurrentRoute = () => useLocation().pathname
 
 const useCheckIsAdminRole = () => (role) => role === 'admin' || role === 'Admin'

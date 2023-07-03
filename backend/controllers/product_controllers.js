@@ -152,11 +152,9 @@ const getProduct = catchAsyncError(async (req, res, next) => {
 
 //get some products by query
 const getProducts = catchAsyncError(async (req, res, next) => {
-    let { keyword, category, price, rating, limit, pagination, targetGender, shopId } = req.query
-    if (!limit)
+    let { keyword, category, price, rating, limit, page, targetGender, shopId, stock } = req.query
+    if (!limit || !page)
         throw new BaseError('Wrong request property', 400)
-    if (!keyword && !category && !price && !rating && !pagination && !targetGender && !shopId)
-        throw new BaseError('Wrong property name', 400)
 
     let queryObject = {}
 
@@ -171,7 +169,9 @@ const getProducts = catchAsyncError(async (req, res, next) => {
     if (targetGender)
         queryObject.for = targetGender
     if (shopId)
-        queryObject['shop.id'] = shopId
+        queryObject['shop.id'] = mongoose.Types.ObjectId(shopId)
+    if (stock)
+        queryObject.stock = { $gte: stock.gte, $lte: stock.lte }
 
     let sort = req.query.sort || { name: 'name', type: 1 }
 
@@ -179,7 +179,7 @@ const getProducts = catchAsyncError(async (req, res, next) => {
 
     let products = await ProductModel
         .find(queryObject, { 'review.reviews': 0 })
-        .skip((pagination - 1) * (limit * 1))
+        .skip((page * 1 - 1) * (limit * 1)) // multiple with 1 for casting string to number
         .sort({ [sort.name]: sort.type })
         .limit(limit * 1)
         .lean()
@@ -193,13 +193,13 @@ const getProducts = catchAsyncError(async (req, res, next) => {
 })
 
 const getReviews = catchAsyncError(async (req, res, next) => {
-    let { productId, pagination, limit } = req.query
-    if (!productId || !pagination || !limit)
+    let { productId, page, limit } = req.query
+    if (!productId || !page || !limit)
         throw new BaseError('Wrong request property', 400)
 
     //format for query
-    pagination *= 1
-    pagination -= 1
+    page *= 1
+    page -= 1
     limit *= 1
 
     let review = await ProductModel.aggregate([
@@ -208,7 +208,7 @@ const getReviews = catchAsyncError(async (req, res, next) => {
             $project: {
                 '_id': 0,
                 reviews: {
-                    $slice: ['$review.reviews', pagination * limit, limit],
+                    $slice: ['$review.reviews', page * limit, limit],
                 }
             }
         }

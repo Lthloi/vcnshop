@@ -4,6 +4,7 @@ import BaseError from "../utils/base_error.js"
 import Stripe from "stripe"
 import { sendReceiptViaEmail } from '../utils/send_mail.js'
 import moment from "moment"
+import mongoose from "mongoose"
 
 const { STRIPE_SECRET_KEY, STRIPE_PUBLIC_KEY } = process.env
 
@@ -49,12 +50,13 @@ const initPlaceOrder = catchAsyncError(async (req, res, next) => {
         payment_status: 'processing',
         payment_info: {
             id: client_secret,
-            method: '...',
+            method: 'none',
         },
         user: {
             id: req.user._id,
             email: req.user.email,
             name: req.user.name,
+            avatar: req.user.avatar,
         },
     })
 
@@ -127,17 +129,58 @@ const getOrder = catchAsyncError(async (req, res, next) => {
     let order = await OrderModel.findOne(order_query).lean()
     if (!order) throw new BaseError('Order not found', 404)
 
-    order.createdAt = moment(order.createdAt.toISOString()).format('MMMM Do YYYY, HH:mm')
-
     res.status(200).json({ order, stripe_key: STRIPE_PUBLIC_KEY })
+})
+
+const getOrderForShop = catchAsyncError(async (req, res, next) => {
+    let { paymentId, orderId } = req.query
+    if (!paymentId && !orderId) throw new BaseError('Wrong property', 400)
+
+    let order_query = {}
+    if (paymentId) order_query['payment_info.id'] = mongoose.Types.ObjectId(paymentId)
+    else order_query._id = mongoose.Types.ObjectId(orderId)
+
+    let shop_id = req.user.shop.id
+
+    let orders = await OrderModel.aggregate([
+        { $match: order_query },
+        {
+            $addFields: {
+                'items': {
+                    $filter: {
+                        input: "$items_of_order",
+                        as: "item",
+                        cond: { $eq: ["$$item.shop_id", shop_id] }
+                    }
+                },
+            }
+        },
+        {
+            $project: {
+                'items_of_order': 0,
+                'price_of_items': 0,
+                'total_to_pay': 0,
+                'tax_fee': 0,
+                'shipping_fee': 0,
+            }
+        },
+    ])
+
+    if (!orders) throw new BaseError('Order not found', 404)
+
+    let order = orders[0]
+
+    res.status(200).json({ order })
 })
 
 const getOrders = catchAsyncError(async (req, res, next) => {
     let { page, limit, paymentStatus } = req.query
     if (!page || !limit) throw new BaseError('Wrong property', 400)
 
-    let query_object = { 'user.id': req.user._id }
+    let query_object = { 'user.id': mongoose.Types.ObjectId(req.user._id) }
     if (paymentStatus) query_object.payment_status = paymentStatus
+
+    let sort = req.query.sort || { name: 'createdAt', type: -1 }
 
     let orders = await OrderModel
         .find(
@@ -148,19 +191,63 @@ const getOrders = catchAsyncError(async (req, res, next) => {
                 'order_status': 1,
                 'payment_status': 1,
                 'items_of_order': {
-                    $slice: [0, 2]
+                    $slice: ['$items_of_order', 0, 2]
                 },
             }
         )
-        .skip((page - 1) * (limit * 1))
-        .sort({ 'createdAt': -1 })
+        .skip((page * 1 - 1) * (limit * 1))
+        .sort({ [sort.name]: sort.type })
         .limit(limit * 1)
+        .lean()
 
     let count_product = await OrderModel.countDocuments(query_object)
 
     if (!orders) throw new BaseError('Orders not found', 404)
 
     res.status(200).json({ orders, countOrder: count_product })
+})
+
+const getOrdersForShop = catchAsyncError(async (req, res, next) => {
+    let { page, limit, orderStatus } = req.query
+
+    if (!page || !limit)
+        throw new BaseError('Wrong property name', 400)
+    
+    let shop_id = req.user.shop.id
+
+    let query_object = { 'items_of_order.shop_id': shop_id }
+    if (orderStatus) query_object.order_status = orderStatus
+
+    let orders = await OrderModel.aggregate([
+        { $match: query_object },
+        {
+            $addFields: {
+                'items': {
+                    $filter: {
+                        input: "$items_of_order",
+                        as: "item",
+                        cond: { $eq: ["$$item.shop_id", shop_id] }
+                    }
+                },
+            }
+        },
+        {
+            $project: {
+                'items_of_order': 0,
+                'price_of_items': 0,
+                'total_to_pay': 0,
+                'tax_fee': 0,
+                'shipping_fee': 0,
+            }
+        },
+    ])
+
+    if (!orders) throw new BaseError('Orders not found', 404)
+
+    let slice_begin = (page * 1 - 1) * (limit * 1)
+    orders = orders.slice(slice_begin, slice_begin + limit)
+
+    res.status(200).json({ orders })
 })
 
 const getOrdersByAdmin = catchAsyncError(async (req, res, next) => {
@@ -180,4 +267,5 @@ const getOrdersByAdmin = catchAsyncError(async (req, res, next) => {
 export {
     initPlaceOrder, completePlaceOrder, sendReceipt,
     getOrder, getOrders, getOrdersByAdmin,
+    getOrdersForShop, getOrderForShop,
 }

@@ -12,7 +12,8 @@ import {
 import { toast } from 'react-toastify'
 import actionsErrorHandler from '../../utils/error_handler.js'
 import {
-    EXPRESS_SERVER, LIMIT_GET_COMMENTS, MAX_PRICE_PORDUCT, LIMIT_GET_PRODUCTS_DEFAULT,
+    EXPRESS_SERVER, LIMIT_GET_COMMENTS, MAX_PRICE_PORDUCT,
+    LIMIT_GET_PRODUCTS_DEFAULT, MAX_STOCK,
 } from '../../utils/constants.js'
 import FileUploadFilter from '../../utils/file_upload_filter.js'
 
@@ -127,23 +128,27 @@ const updateProduct = (
 
 const getProducts = (
     limit = LIMIT_GET_PRODUCTS_DEFAULT, category, keyword, rating = 0,
-    price = [0, MAX_PRICE_PORDUCT], pagination = 1, targetGender, shopId,
+    price = [0, MAX_PRICE_PORDUCT], page = 1, targetGender, shopId,
+    stock = [0, MAX_STOCK],
 ) => async (dispatch) => {
     try {
         dispatch(getProductsRequest())
 
         let api_to_getProducts =
             '/api/product/getProducts?limit=' + limit + '&rating=' + rating +
-            (keyword ? '&keyword=' + keyword : '') + '&pagination=' + pagination +
+            (keyword ? '&keyword=' + keyword : '') + '&page=' + page +
             (category ? 'category=' + category : '') + (shopId ? '&shopId=' + shopId : '') +
             '&price[gte]=' + price[0] + '&price[lte]=' + price[1] +
-            (targetGender ? '&targetGender=' + targetGender : '')
+            (targetGender ? '&targetGender=' + targetGender : '') +
+            '&stock[gte]=' + stock[0] + '&stock[lte]=' + stock[1]
 
         let { data } = await axios.get(EXPRESS_SERVER + api_to_getProducts)
 
-        dispatch(getProductsSuccess(
-            { products: data.products, countProducts: data.countProducts }
-        ))
+        dispatch(getProductsSuccess({
+            products: data.products,
+            countProducts: data.countProducts,
+            currentPage: page || 1,
+        }))
     } catch (error) {
         let errorObject = actionsErrorHandler(error, 'Error Warning: fail to get products.')
 
@@ -151,12 +156,12 @@ const getProducts = (
     }
 }
 
-const getTopWeek = (limit = 9, pagination = 1) => async (dispatch) => {
+const getTopWeek = (limit = 9, page = 1) => async (dispatch) => {
     try {
         dispatch(getTopWeekRequest())
 
         let api_to_getTopWeek =
-            '/api/product/getProducts?limit=' + limit + '&pagination=' + pagination
+            '/api/product/getProducts?limit=' + limit + '&page=' + page
 
         let { data } = await axios.get(EXPRESS_SERVER + api_to_getTopWeek)
 
@@ -168,12 +173,12 @@ const getTopWeek = (limit = 9, pagination = 1) => async (dispatch) => {
     }
 }
 
-const getBestSelling = (limit = 20, pagination = 1) => async (dispatch) => {
+const getBestSelling = (limit = 20, page = 1) => async (dispatch) => {
     try {
         dispatch(getBestSellingRequest())
 
         let api_to_getBestSelling =
-            '/api/product/getProducts?limit=' + limit + '&pagination=' + pagination +
+            '/api/product/getProducts?limit=' + limit + '&page=' + page +
             '&sort[name]=sold.count&sort[type]=' + -1
 
         let { data } = await axios.get(EXPRESS_SERVER + api_to_getBestSelling)
@@ -201,12 +206,12 @@ const getProductDetail = (product_id) => async (dispatch) => {
     }
 }
 
-const getReviews = (productId, pagination = 1, limit = LIMIT_GET_COMMENTS) => async (dispatch) => {
+const getReviews = (productId, page = 1, limit = LIMIT_GET_COMMENTS) => async (dispatch) => {
     try {
         dispatch(getReviewsRequest())
 
         let api_to_get_review =
-            '/api/product/getReviews?productId=' + productId + '&pagination=' + pagination +
+            '/api/product/getReviews?productId=' + productId + '&page=' + page +
             '&limit=' + limit
 
         let { data } = await axios.get(EXPRESS_SERVER + api_to_get_review)
