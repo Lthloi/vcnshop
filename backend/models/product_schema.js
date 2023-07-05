@@ -55,6 +55,7 @@ const ProductSchema = new Schema({
         type: Number,
         required: true,
         min: [0, 'Number of stock must not smaller than or equal 0'],
+        max: [100, 'Number of stock must not greater than 100'],
         index: true,
     },
     options: {
@@ -65,7 +66,7 @@ const ProductSchema = new Schema({
     description: {
         type: String,
         required: true,
-        maxLength: [500, 'The length of the description of the product don\'t have to exceed 150 letters']
+        maxLength: [500, 'The length of the description of the product don\'t have to exceed 500 letters']
     },
     review: {
         average_rating: {

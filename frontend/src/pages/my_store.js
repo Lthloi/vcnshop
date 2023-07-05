@@ -142,8 +142,8 @@ const AvatarContainer = styled('div')({
 })
 
 const StyledAvatar = styled(Avatar)({
-    width: '100px',
-    height: '100px',
+    width: '150px',
+    height: '150px',
     backgroundColor: 'black',
     color: 'white',
     border: '2px white solid',

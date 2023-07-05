@@ -23,6 +23,7 @@ const uploadOneImage = async (public_id, folder_of_uploading) => {
 
 const uploadImages = async (images_to_upload, folder_of_uploading) => {
     //delete the old images before upload
+
     await cloudinary.v2.api.delete_resources_by_prefix(folder_of_uploading)
 
     if (!images_to_upload) throw new BaseError()
@@ -31,33 +32,27 @@ const uploadImages = async (images_to_upload, folder_of_uploading) => {
     if (!Array.isArray(images_to_upload))
         images_to_upload = [images_to_upload]
 
-    let image_urls = []
-
-    await new Promise((resolve, reject) => {
-        let data_uri
-        for (let { data, mimetype } of images_to_upload) {
+    let data_uri
+    let image_urls = await Promise.all(
+        images_to_upload.map(({ data, mimetype }) => {
             data_uri = get_data_uri(mimetype, data)
-            cloudinary.v2.uploader.upload(
+            return cloudinary.v2.uploader.upload(
                 data_uri,
                 {
                     use_filename: true,
                     unique_filename: true,
                     folder: folder_of_uploading,
                 },
-            ).then((response) => {
-                image_urls.push(response.secure_url)
-                if (image_urls.length === images_to_upload.length)
-                    resolve()
-            }).catch((error) => {
-                reject(error)
-            })
-        }
-    })
+            )
+        })
+    )
+
+    image_urls = image_urls.map(({ secure_url }) => secure_url)
 
     return image_urls
 }
 
-const uploadAvatar = async (image_to_upload, user_id) => {
+const uploadUserAvatar = async (image_to_upload, user_id) => {
     let avatar_public_id = 'avatar.' + image_to_upload.mimetype.split('/')[0]
     let folder_of_uploading = 'users/' + user_id + '/profile'
 
@@ -70,12 +65,12 @@ const uploadReviewImages = async (images_to_upload, product_id, user_id) => {
     return await uploadImages(images_to_upload, folder_of_uploading)
 }
 
-const uploadProductImages = async (images_to_upload, product_id, user_id) => {
-    let folder_of_uploading = 'shops/' + user_id + '/product_images/' + product_id
+const uploadProductImages = async (images_to_upload, product_id) => {
+    let folder_of_uploading = 'products/' + product_id + '/product_images'
 
     return await uploadImages(images_to_upload, folder_of_uploading)
 }
 
 export {
-    uploadReviewImages, uploadAvatar, uploadProductImages,
+    uploadReviewImages, uploadUserAvatar, uploadProductImages,
 } 

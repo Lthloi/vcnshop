@@ -8,6 +8,7 @@ import {
     getReviewsRequest, getReviewsSuccess, getReviewsFail,
     createNewProductRequest, createNewProductSuccess, createNewProductFail,
     updateProductRequest, updateProductSuccess, updateProductFail,
+    deleteProductRequest, deleteProductSuccess, deleteProductFail,
 } from '../reducers/product_reducer.js'
 import { toast } from 'react-toastify'
 import actionsErrorHandler from '../../utils/error_handler.js'
@@ -16,6 +17,7 @@ import {
     LIMIT_GET_PRODUCTS_DEFAULT, MAX_STOCK,
 } from '../../utils/constants.js'
 import FileUploadFilter from '../../utils/file_upload_filter.js'
+import { reloadPageAfterSeconds } from '../../utils/methods.js'
 
 const createNewProduct = (
     productName,
@@ -65,6 +67,8 @@ const createNewProduct = (
         dispatch(createNewProductSuccess())
 
         toast.success('Add Product Successfully!')
+
+        reloadPageAfterSeconds(1000)
     } catch (error) {
         let errorObject = actionsErrorHandler(error)
 
@@ -84,11 +88,10 @@ const updateProduct = (
 ) => async (dispatch) => {
 
     let product_data = new FormData()
-    product_data.set('colors', JSON.stringify(colors))
-    product_data.set('sizes', JSON.stringify(sizes))
-    product_data.set('stock', stock)
-    product_data.set('description', description)
-    product_data.set('productId', productId)
+    if (colors.length > 0) product_data.set('colors', JSON.stringify(colors))
+    if (sizes.length > 0) product_data.set('sizes', JSON.stringify(sizes))
+    if (stock) product_data.set('stock', stock)
+    if (description) product_data.set('description', JSON.stringify(description)) // using JSON.stringify for consistent length of description between frontend and backend
 
     if (images.length > 0) {
         let file_upload_filter = new FileUploadFilter()
@@ -106,7 +109,7 @@ const updateProduct = (
     try {
         dispatch(updateProductRequest())
 
-        let api_to_update_product = '/api/product/updateProduct'
+        let api_to_update_product = '/api/product/updateProduct?productId=' + productId
 
         await axios.post(
             EXPRESS_SERVER + api_to_update_product,
@@ -117,12 +120,58 @@ const updateProduct = (
         dispatch(updateProductSuccess())
 
         toast.success('Update Product Successfully!')
+
+        // reloadPageAfterSeconds(1000)
     } catch (error) {
         let errorObject = actionsErrorHandler(error)
 
         toast.error(errorObject.message)
 
         dispatch(updateProductFail({ error: errorObject }))
+    }
+}
+
+const deleteProduct = (product_id) => async (dispatch) => {
+    try {
+        dispatch(deleteProductRequest())
+
+        let api_to_get_order = '/api/order/getOrderForShop?productId=' + product_id
+
+        let { data } = await axios.get(EXPRESS_SERVER + api_to_get_order, { withCredentials: true })
+
+        if (data.order) {
+            dispatch(deleteProductFail())
+
+            toast.error("Can't delete the product now has an order")
+
+            return 
+        }
+    } catch (error) {
+        let errorObject = actionsErrorHandler(error)
+
+        if (errorObject.statusCode !== 404) {
+            toast.error(errorObject.message)
+
+            dispatch(deleteProductFail({ error: errorObject }))
+
+            return
+        }
+    }
+
+    try {
+        let api_to_delete_product = '/api/product/deleteProduct/' + product_id
+
+        await axios.delete(EXPRESS_SERVER + api_to_delete_product, { withCredentials: true })
+
+        dispatch(deleteProductSuccess())
+
+        toast.success('Delete the product successfully')
+    } catch (error) {
+        let errorObject = actionsErrorHandler(error)
+
+        toast.error(errorObject.message)
+
+        dispatch(deleteProductFail({ error: errorObject }))
     }
 }
 
@@ -301,5 +350,5 @@ export {
     getProducts, getBestSelling, getTopWeek,
     getReviews, getProductDetail, newReview,
     getProductsByAdmin, createNewProduct,
-    updateProduct,
+    updateProduct, deleteProduct,
 }

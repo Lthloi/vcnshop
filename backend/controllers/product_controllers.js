@@ -6,7 +6,7 @@ import catchAsyncError from "../middlewares/catch_async_error.js"
 import ShopModel from '../models/shop_schema.js'
 
 const createProduct = catchAsyncError(async (req, res, next) => {
-    if (!req.files) throw new BaseError('Wrong OOOOOOO property name', 400)
+    if (!req.files) throw new BaseError('Wrong property name', 400)
 
     let { images } = req.files
     let {
@@ -25,14 +25,13 @@ const createProduct = catchAsyncError(async (req, res, next) => {
         !description
     ) throw new BaseError('Wrong property name', 400)
 
-    let shop = req.shop
+    let shop = req.user.shop
 
     let product_id = new mongoose.Types.ObjectId()
 
     let image_urls = await uploadProductImages(
         images,
         product_id,
-        req.user._id
     )
 
     await ProductModel.create({
@@ -51,14 +50,14 @@ const createProduct = catchAsyncError(async (req, res, next) => {
         },
         'stock': stock * 1,
         'shop': {
-            id: shop._id,
+            id: shop.id,
             name: shop.name,
         },
-        'description': description,
+        'description': description.slice(0, 500),
     })
 
     await ShopModel.updateOne(
-        { '_id': shop._id },
+        { '_id': shop.id },
         {
             $push: {
                 'products.ids': {
@@ -73,18 +72,21 @@ const createProduct = catchAsyncError(async (req, res, next) => {
 })
 
 const updateProduct = catchAsyncError(async (req, res, next) => {
-    if (!req.files) throw new BaseError('Wrong property name', 400)
-    let { images } = req.files
+    let { productId } = req.query
+    if (!productId) throw new BaseError('Wrong property name', 400)
+
+    let images
+    if (req.files) images = req.files.images
+
     let {
         sizes,
         colors,
         stock,
         description,
-        productId
     } = req.body
     if (
         !images && !sizes && !colors && !stock &&
-        !description && !productId
+        !description
     ) throw new BaseError('Wrong property name', 400)
 
     let update_format = {}
@@ -93,20 +95,19 @@ const updateProduct = catchAsyncError(async (req, res, next) => {
         let image_urls = await uploadProductImages(
             images,
             productId,
-            req.user._id
         )
         update_format = {
             'image_link': image_urls[0],
             'images': image_urls,
         }
     }
-    if (sizes) {
+    if (sizes && sizes.length > 0) {
         update_format = {
             ...update_format,
             'options.sizes': JSON.parse(sizes),
         }
     }
-    if (colors) {
+    if (colors && colors.length > 0) {
         update_format = {
             ...update_format,
             'options.colors': JSON.parse(colors),
@@ -121,7 +122,7 @@ const updateProduct = catchAsyncError(async (req, res, next) => {
     if (description) {
         update_format = {
             ...update_format,
-            'description': description,
+            'description': JSON.parse(description),
         }
     }
 
@@ -129,6 +130,14 @@ const updateProduct = catchAsyncError(async (req, res, next) => {
         { '_id': productId },
         { $set: update_format }
     )
+
+    res.status(200).json({ success: true })
+})
+
+const deleteProduct = catchAsyncError(async (req, res, next) => {
+    let { productId } = req.params
+
+    await ProductModel.deleteOne({ '_id': productId })
 
     res.status(200).json({ success: true })
 })
@@ -202,7 +211,7 @@ const getReviews = catchAsyncError(async (req, res, next) => {
     page -= 1
     limit *= 1
 
-    let review = await ProductModel.aggregate([
+    let product = await ProductModel.aggregate([
         { $match: { _id: mongoose.Types.ObjectId(productId) } },
         {
             $project: {
@@ -214,10 +223,10 @@ const getReviews = catchAsyncError(async (req, res, next) => {
         }
     ])
 
-    if (!review || !review[0].reviews) throw new BaseError('Reviews Not Found', 404)
+    if (product.length === 0) throw new BaseError('Reviews Not Found', 404)
 
     res.status(200).json({
-        reviews: review[0].reviews,
+        reviews: product[0].reviews,
     })
 })
 
@@ -308,5 +317,5 @@ const getProductsByAdmin = catchAsyncError(async (req, res, next) => {
 export {
     getProducts, getProduct, getReviews,
     newReview, getProductsName, getProductsByAdmin,
-    createProduct, updateProduct,
+    createProduct, updateProduct, deleteProduct,
 }

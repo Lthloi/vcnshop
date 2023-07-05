@@ -3,7 +3,6 @@ import OrderModel from "../models/order_schema.js"
 import BaseError from "../utils/base_error.js"
 import Stripe from "stripe"
 import { sendReceiptViaEmail } from '../utils/send_mail.js'
-import moment from "moment"
 import mongoose from "mongoose"
 
 const { STRIPE_SECRET_KEY, STRIPE_PUBLIC_KEY } = process.env
@@ -133,12 +132,13 @@ const getOrder = catchAsyncError(async (req, res, next) => {
 })
 
 const getOrderForShop = catchAsyncError(async (req, res, next) => {
-    let { paymentId, orderId } = req.query
-    if (!paymentId && !orderId) throw new BaseError('Wrong property', 400)
-
+    let { paymentId, orderId, productId } = req.query
+    if (!paymentId && !orderId && !productId) throw new BaseError('Wrong property name', 400)
+    console.log('>>> req.query >>>', req.query)
     let order_query = {}
     if (paymentId) order_query['payment_info.id'] = mongoose.Types.ObjectId(paymentId)
-    else order_query._id = mongoose.Types.ObjectId(orderId)
+    else if (orderId) order_query._id = mongoose.Types.ObjectId(orderId)
+    else order_query['items_of_order._id'] = mongoose.Types.ObjectId(productId)
 
     let shop_id = req.user.shop.id
 
@@ -166,18 +166,16 @@ const getOrderForShop = catchAsyncError(async (req, res, next) => {
         },
     ])
 
-    if (!orders) throw new BaseError('Order not found', 404)
+    if (orders.length === 0) throw new BaseError('Order not found', 404)
 
-    let order = orders[0]
-
-    res.status(200).json({ order })
+    res.status(200).json({ order: orders[0] })
 })
 
 const getOrders = catchAsyncError(async (req, res, next) => {
     let { page, limit, paymentStatus } = req.query
-    if (!page || !limit) throw new BaseError('Wrong property', 400)
+    if (!page || !limit) throw new BaseError('Wrong property name', 400)
 
-    let query_object = { 'user.id': mongoose.Types.ObjectId(req.user._id) }
+    let query_object = { 'user.id': req.user._id }
     if (paymentStatus) query_object.payment_status = paymentStatus
 
     let sort = req.query.sort || { name: 'createdAt', type: -1 }
@@ -212,10 +210,10 @@ const getOrdersForShop = catchAsyncError(async (req, res, next) => {
 
     if (!page || !limit)
         throw new BaseError('Wrong property name', 400)
-    
+
     let shop_id = req.user.shop.id
 
-    let query_object = { 'items_of_order.shop_id': shop_id }
+    let query_object = { 'items_of_order.shop_id': mongoose.Types.ObjectId(shop_id) }
     if (orderStatus) query_object.order_status = orderStatus
 
     let orders = await OrderModel.aggregate([
@@ -242,7 +240,7 @@ const getOrdersForShop = catchAsyncError(async (req, res, next) => {
         },
     ])
 
-    if (!orders) throw new BaseError('Orders not found', 404)
+    if (orders.length === 0) throw new BaseError('Orders not found', 404)
 
     let slice_begin = (page * 1 - 1) * (limit * 1)
     orders = orders.slice(slice_begin, slice_begin + limit)

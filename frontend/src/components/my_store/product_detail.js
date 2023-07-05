@@ -10,6 +10,7 @@ import { Divider } from "@mui/material"
 import EditProduct from "./edit_product"
 import { useNavigate, useParams } from "react-router-dom"
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore'
+import DeleteProduct from "./delete_product"
 
 const Images = React.memo(({ images, image_link }) => {
     const [mainImage, setMainImage] = useState('')
@@ -59,7 +60,7 @@ const ProductDetail = () => {
                 <span>Product Detail</span>
             </SectionTitle>
             {
-                loading ? (
+                loading && (!product || !product.name) ? (
                     <Skeleton sx={{ height: '400px', transform: 'scale(1)', marginTop: '20px' }} />
                 ) : error ? (
                     <Error>{error.message}</Error>
@@ -120,6 +121,9 @@ const ProductDetail = () => {
 
                             </InfoContainer>
                         </ProductStack>
+
+                        <DeleteProduct productId={productId} />
+
                         <ReviewsAndDescription
                             productId={productId}
                             description={product.description}
@@ -190,7 +194,7 @@ const ImagesSection = styled('div')({
 })
 
 const DescImage = styled('img')({
-    height: '70px',
+    width: '70px',
     marginBottom: '10px',
     borderRadius: '3px',
     border: '2px white solid',

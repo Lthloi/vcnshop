@@ -206,18 +206,19 @@ const ProductsSection = ({ option }) => {
     const [order, setOrder] = useState({ by: '', type: 'asc' })
     const dispatch = useDispatch()
     const navigate = useNavigate()
-    const decounce = useDebounce()
     const table_head_ref = useRef()
     const context = useContext(ThemeContext)
 
-    const handleViewProduct = useCallback((product_id) => {
-        navigate('/myStore/Products/product/' + product_id)
-    }, [])
+    const decounce = useDebounce()
 
     const doingSearch = (e) => {
         let keyword = e.target.value
         setKeyword(keyword)
     }
+
+    const handleViewProduct = useCallback((product_id) => {
+        navigate('/myStore/Products/product/' + product_id)
+    }, [])
 
     const handleCreateSort = useCallback((label) => {
         setOrder(pre => ({ by: label, type: pre.type === 'asc' ? 'desc' : 'asc' }))
@@ -268,7 +269,8 @@ const ProductsSection = ({ option }) => {
                         color="success"
                         startAdornment={<SearchIcon sx={{ paddingRight: '10px' }} />}
                         label="Search By Name"
-                        onChange={decounce(doingSearch, 400)}
+                        onChange={decounce(doingSearch, 300)}
+                        defaultValue={keyword}
                         placeholder="Enter the product name here..."
                     />
                 </FormControl>

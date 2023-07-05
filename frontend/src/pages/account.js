@@ -32,7 +32,7 @@ const Account = () => {
 
             <MyStoreSection>
                 <span></span>
-                <NavToMyStore to="/myStore">
+                <NavToMyStore to="/myStore/Products">
                     <StoreIcon />
                     <span>My Store</span>
                 </NavToMyStore>

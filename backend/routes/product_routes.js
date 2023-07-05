@@ -2,7 +2,7 @@ import express from 'express'
 import {
     getProducts, getProduct, getReviews,
     newReview, getProductsName, getProductsByAdmin,
-    createProduct, updateProduct,
+    createProduct, updateProduct, deleteProduct,
 } from '../controllers/product_controllers.js'
 import { roleAuthorization, verifyJWTtoken, verifyShop } from '../middlewares/auth.js'
 
@@ -23,5 +23,7 @@ router.get('/getProductsByAdmin', verifyJWTtoken, roleAuthorization('Admin'), ge
 router.post('/createProduct', verifyJWTtoken, verifyShop, createProduct)
 
 router.post('/updateProduct', verifyJWTtoken, verifyShop, updateProduct)
+
+router.delete('/deleteProduct/:productId', verifyJWTtoken, verifyShop, deleteProduct)
 
 export default router

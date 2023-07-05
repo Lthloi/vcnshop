@@ -1,4 +1,4 @@
-const actionsErrorHandler = (error, client_message) => {
+const actionsErrorHandler = (error, client_message = 'Something went wrong, please try again minutes later') => {
     let errorObject = {
         originalError: error,
         statusCode: 500,
