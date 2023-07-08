@@ -1,7 +1,37 @@
 import React, { useMemo } from "react"
 import { styled } from '@mui/material/styles'
-import PaymentType from "./payment_type"
 import { useFloatNumber, useNumerToWords } from "../../hooks/custom_hooks"
+import { toast } from "react-toastify"
+
+const PaymentType = ({ title, in_number, in_words }) => {
+    return (
+        <div id="PaymentTypeContainer">
+            <PaymentTypeContainer>
+                <PaymentTypeTitle>
+                    {title + ' '}{title === 'OFF' ? <span>(Coupons)</span> : ''}
+                </PaymentTypeTitle>
+                <PaymentTypeCost>
+                    {'$' + in_number}
+                </PaymentTypeCost>
+            </PaymentTypeContainer>
+            <InWords>
+                {
+                    title === 'OFF' ?
+                        <>
+                            <span>You get </span>
+                            <b>{in_words}</b>
+                            <span> with promo code</span>
+                        </>
+                        :
+                        <>
+                            <span>In Words: </span>
+                            <b>{in_words}</b>
+                        </>
+                }
+            </InWords>
+        </div>
+    )
+}
 
 const SummarySection = ({ cartItems }) => {
     const get_float_number = useFloatNumber()
@@ -10,7 +40,7 @@ const SummarySection = ({ cartItems }) => {
     const subtotal = useMemo(() => {
         if (cartItems.length > 0)
             return cartItems.reduce(
-                (accumulator, { cost, quantity }) => get_float_number(cost * quantity + accumulator), 0
+                (accumulator, { price, quantity }) => get_float_number(price * quantity + accumulator), 0
             )
         return 0
     }, [cartItems])
@@ -18,6 +48,8 @@ const SummarySection = ({ cartItems }) => {
     const subTotalInWords = useMemo(() => number_to_words_convertor(subtotal), [subtotal])
 
     const handleCheckOut = () => {
+        if (cartItems.length === 0) return toast.warning('You have no product in the cart!')
+
         let summary_object = {
             subtotal,
         }
@@ -43,6 +75,30 @@ const SummarySection = ({ cartItems }) => {
 }
 
 export default SummarySection
+
+const PaymentTypeContainer = styled('div')({
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+})
+
+const PaymentTypeTitle = styled('h2')({
+    fontFamily: '"Kanit", "sans-serif"',
+    transform: 'scaleY(0.8)',
+    margin: '0',
+})
+
+const PaymentTypeCost = styled('div')({
+    fontFamily: '"Nunito", "sans-serif"',
+    fontWeight: 'bold',
+    fontSize: '1em',
+})
+
+const InWords = styled('div')({
+    display: 'block',
+    fontFamily: '"Nunito", "sans-serif"',
+    fontSize: '0.9em',
+})
 
 const PaymenSectionArea = styled('div')({
     padding: '10px 20px',

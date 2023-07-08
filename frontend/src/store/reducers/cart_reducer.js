@@ -10,7 +10,7 @@ export const cartSlice = createSlice({
         shippingInfo: localStorage.getItem('shippingInfo') ?
             JSON.parse(localStorage.getItem('shippingInfo'))
             :
-            {},
+            null,
         loading: false,
         error: null,
     },
@@ -20,16 +20,17 @@ export const cartSlice = createSlice({
             state.error = null
         },
         addProductToCartSuccess: (state, action) => {
-            let { addProduct, productStock, currentQuantity } = action.payload
+            let { product_to_add } = action.payload
             let current_cartItems = current(state).cartItems
 
-            if (currentQuantity) {
-                addProduct.quantity = currentQuantity + 1 > productStock ? productStock : currentQuantity + 1
+            let existing_product = current_cartItems.find(({ _id }) => product_to_add._id === _id)
+            if (existing_product) {
+                product_to_add.quantity++
 
-                current_cartItems = current_cartItems.filter(({ _id }) => _id !== addProduct._id)
+                current_cartItems = current_cartItems.filter(({ _id }) => _id !== product_to_add._id)
             }
 
-            state.cartItems = [addProduct, ...current_cartItems]
+            state.cartItems = [product_to_add, ...current_cartItems]
             state.loading = false
         },
         addProductToCartFail: (state, action) => {
@@ -52,7 +53,7 @@ export const cartSlice = createSlice({
         },
 
 
-        removeItemFromCartExecute: (state, action) => {
+        removeItem: (state, action) => {
             let { productId } = action.payload
 
             state.cartItems = current(state).cartItems.filter(({ _id }) => _id !== productId)
@@ -63,7 +64,7 @@ export const cartSlice = createSlice({
 export const {
     addProductToCartRequest, addProductToCartSuccess, addProductToCartFail,
     changeQuantityRequest, changeQuantityFail,
-    removeItemFromCartExecute,
+    removeItem,
     initPaymentRequest, initPaymentSuccess, initPaymentFail,
 } = cartSlice.actions
 

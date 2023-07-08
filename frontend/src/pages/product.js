@@ -62,7 +62,7 @@ const Product = () => {
                             {
                                 product && product._id &&
                                 <>
-                                    <div style={{ width: '56%' }}>
+                                    <div style={{ width: '100%' }}>
                                         <ProductReview productId={product._id} productReview={product.review} />
                                         <ReviewsSection id="Reviews" ref={switch_review_page_ref}>
                                             <div style={{ display: 'flex', columnGap: '10px', alignItems: 'center' }}>
@@ -84,12 +84,12 @@ const Product = () => {
                                         <Description>
                                             {product.description}
                                         </Description>
-                                    </DetailsContainer>
 
-                                    <VistShopButton>
-                                        <StorefrontIcon />
-                                        <span>Vist Shop</span>
-                                    </VistShopButton>
+                                        <VistShopButton>
+                                            <StorefrontIcon />
+                                            <span>Vist Shop</span>
+                                        </VistShopButton>
+                                    </DetailsContainer>
                                 </>
                             }
                         </ReviewsAndIntroduction>
@@ -106,6 +106,7 @@ export default Product
 const ProductDetailPage = styled('div')(({ theme }) => ({
     padding: '0 30px',
     marginTop: '20px',
+    fontFamily: theme.fontFamily.kanit,
 }))
 
 const PageTitle = styled('div')({
@@ -117,8 +118,7 @@ const PageTitle = styled('div')({
 })
 
 const Text = styled('h2')({
-    fontSize: '2em',
-    fontFamily: '"Kanit", "sans-serif"',
+    fontSize: '1.8em',
     margin: '0',
 })
 
@@ -158,7 +158,6 @@ const Error = styled('div')({
     alignItems: 'center',
     justifyContent: 'center',
     fontWeight: 'bold',
-    fontFamily: '"Nunito", "sans-serif"',
     fontSize: '1.2em',
     color: 'red',
     margin: 'auto',
@@ -169,8 +168,8 @@ const Error = styled('div')({
 const ReviewsAndIntroduction = styled('div')(({ theme }) => ({
     display: 'flex',
     justifyContent: 'space-between',
-    columnGap: '20px',
-    marginTop: '35px',
+    columnGap: '30px',
+    marginTop: '50px',
     fontFamily: theme.fontFamily.nunito,
 }))
 
@@ -205,18 +204,20 @@ const DetailsContainer = styled('div')({
     flexDirection: 'column',
     rowGap: '10px',
     marginTop: '10px',
+    width: '70%',
 })
 
 const VistShopButton = styled('button')({
     display: 'flex',
     alignItems: 'center',
-    columnGap: '5px',
+    columnGap: '10px',
     padding: '10px 30px',
     backgroundColor: 'black',
     color: 'white',
     border: '2px black solid',
     borderRadius: '5px',
     marginTop: '30px',
+    width: 'fit-content',
     cursor: 'pointer',
     '&:hover': {
         backgroundColor: 'white',

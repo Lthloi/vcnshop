@@ -61,7 +61,10 @@ const createNewProduct = (
         await axios.post(
             EXPRESS_SERVER + api_to_create_new_product,
             product_data,
-            { withCredentials: true }
+            {
+                withCredentials: true,
+                headers: { 'Content-Type': 'multipart/form-data' }
+            }
         )
 
         dispatch(createNewProductSuccess())
@@ -114,14 +117,17 @@ const updateProduct = (
         await axios.post(
             EXPRESS_SERVER + api_to_update_product,
             product_data,
-            { withCredentials: true }
+            {
+                withCredentials: true,
+                headers: { 'Content-Type': 'multipart/form-data' }
+            }
         )
 
         dispatch(updateProductSuccess())
 
         toast.success('Update Product Successfully!')
 
-        // reloadPageAfterSeconds(1000)
+        reloadPageAfterSeconds(1000)
     } catch (error) {
         let errorObject = actionsErrorHandler(error)
 
@@ -144,7 +150,7 @@ const deleteProduct = (product_id) => async (dispatch) => {
 
             toast.error("Can't delete the product now has an order")
 
-            return 
+            return
         }
     } catch (error) {
         let errorObject = actionsErrorHandler(error)
@@ -290,7 +296,7 @@ const newReview = (productId, images, rating, title, comment, current_reviews) =
 
     reviewData.set('rating', rating)
     reviewData.set('title', title)
-    reviewData.set('comment', comment)
+    reviewData.set('comment', JSON.stringify(comment))
     reviewData.set('currentReviews', JSON.stringify(current_reviews))
 
     try {
@@ -313,9 +319,9 @@ const newReview = (productId, images, rating, title, comment, current_reviews) =
             newCountReview: data.newCountReview,
         }))
 
-        toast.success('Success to submit the new review')
+        toast.success('Write a review successfully')
     } catch (error) {
-        let errorObject = actionsErrorHandler(error, 'Error Warning: fail to make new review.')
+        let errorObject = actionsErrorHandler(error)
 
         toast.error(errorObject.message)
 

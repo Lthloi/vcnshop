@@ -134,7 +134,7 @@ const getOrder = catchAsyncError(async (req, res, next) => {
 const getOrderForShop = catchAsyncError(async (req, res, next) => {
     let { paymentId, orderId, productId } = req.query
     if (!paymentId && !orderId && !productId) throw new BaseError('Wrong property name', 400)
-    console.log('>>> req.query >>>', req.query)
+
     let order_query = {}
     if (paymentId) order_query['payment_info.id'] = mongoose.Types.ObjectId(paymentId)
     else if (orderId) order_query._id = mongoose.Types.ObjectId(orderId)

@@ -5,7 +5,6 @@ import DoubleArrowIcon from '@mui/icons-material/DoubleArrow'
 import { useFloatNumber, useNumerToWords } from "../../hooks/custom_hooks"
 import ErrorIcon from '@mui/icons-material/Error'
 import { useNavigate, Navigate } from "react-router-dom"
-import { toast } from "react-toastify"
 
 const shipping_fee_charge = 0.1
 const tax_charge = 0.18
@@ -17,7 +16,6 @@ const ConfirmOrder = () => {
     const navigate = useNavigate()
 
     if (!sessionStorage.getItem('summary') || !shippingInfo) {
-        toast.warning('Something went wrong')
         return (<Navigate to={-1} />)
     }
     const summary = JSON.parse(sessionStorage.getItem('summary'))
@@ -76,7 +74,7 @@ const ConfirmOrder = () => {
                         <Title>ITEMS</Title>
                         {
                             cartItems && cartItems.length > 0 &&
-                            cartItems.map(({ _id, name, cost, color, size, quantity, image_link }) => (
+                            cartItems.map(({ _id, name, price, color, size, quantity, image_link }) => (
                                 <ProductCard key={_id}>
                                     <div style={{ minWidth: '121px' }}>
                                         <ProductImg src={image_link} />
@@ -87,8 +85,8 @@ const ConfirmOrder = () => {
                                             <DetailValue>{name}</DetailValue>
                                         </Detail>
                                         <Detail>
-                                            <DetailName>Cost:</DetailName>
-                                            <DetailValue>{'$' + cost}</DetailValue>
+                                            <DetailName>Price:</DetailName>
+                                            <DetailValue>{'$' + price}</DetailValue>
                                         </Detail>
                                         <Detail>
                                             <DetailName>Color:</DetailName>

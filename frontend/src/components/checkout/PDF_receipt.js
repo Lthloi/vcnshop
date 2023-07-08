@@ -123,7 +123,7 @@ const PDFReceipt = ({ items, website, systemEmail, deliveryInfo, receiverInfo, p
                         </PDFView>
                     </PDFView>
                     {
-                        items.map(({ name, quantity, cost, _id }) => (
+                        items.map(({ name, quantity, price, _id }) => (
                             <PDFView style={pdf_styles.tableRow} key={_id}>
                                 <PDFView style={[pdf_styles.tableCol, { width: '65%' }]}>
                                     <PDFText style={pdf_styles.tableCell}>
@@ -137,7 +137,7 @@ const PDFReceipt = ({ items, website, systemEmail, deliveryInfo, receiverInfo, p
                                 </PDFView>
                                 <PDFView style={[pdf_styles.tableCol, { width: '20%' }]}>
                                     <PDFText style={pdf_styles.tableCell}>
-                                        {cost}
+                                        {price}
                                     </PDFText>
                                 </PDFView>
                             </PDFView>

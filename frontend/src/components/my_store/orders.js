@@ -214,12 +214,12 @@ const RowComponent = ({ orderStatus, paymentStatus, createdAt, rowId, items, onV
                                 Products
                             </Typography>
                             {
-                                items.map(({ _id, name, image_link, cost, quantity }) => (
+                                items.map(({ _id, name, image_link, price, quantity }) => (
                                     <Product key={_id}>
                                         <ProductImage src={image_link} />
                                         <ProductName>{name}</ProductName>
                                         <ProductQty>{'Qty: ' + quantity}</ProductQty>
-                                        <ProductCost>{'$' + cost}</ProductCost>
+                                        <ProductCost>{'$' + price}</ProductCost>
                                     </Product>
                                 ))
                             }
@@ -319,7 +319,7 @@ const get_number_of_pages = (count_products, maximum_number_of_orders) => {
 }
 
 const calculate_total_price = (items) => {
-    return items.reduce((accumulator, { cost, quantity }) => accumulator + (cost * quantity).toFixed(2) * 1, 0)
+    return items.reduce((accumulator, { price, quantity }) => accumulator + (price * quantity).toFixed(2) * 1, 0)
 }
 
 const set_total_price_for_each_order = (orders) => {

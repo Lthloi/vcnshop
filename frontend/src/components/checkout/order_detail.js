@@ -48,7 +48,7 @@ const OrderDetail = ({ orderInfo }) => {
             <Products>
                 <Count>{cartItems.length > 1 ? cartItems.length + ' products' : '1 product'}</Count>
                 {
-                    cartItems.map(({ name, color, size, cost, image_link, _id, quantity }) => (
+                    cartItems.map(({ name, color, size, price, image_link, _id, quantity }) => (
                         <Product key={_id}>
                             <div style={{ display: 'flex', alignItems: 'center', columnGap: '15px' }}>
                                 <div style={{ minWidth: '82px' }}>
@@ -61,7 +61,7 @@ const OrderDetail = ({ orderInfo }) => {
                                     <Detail>{'Qty: ' + quantity}</Detail>
                                 </Details>
                             </div>
-                            <Cost>{'$' + cost}</Cost>
+                            <Price>{'$' + price}</Price>
                         </Product>
                     ))
                 }
@@ -197,7 +197,7 @@ const Detail = styled('div')({
     marginTop: '2px',
 })
 
-const Cost = styled(Detail)({
+const Price = styled(Detail)({
     fontWeight: 'bold',
 })
 

@@ -85,7 +85,7 @@ const MenuBar = () => {
                         onMouseOut={() => dropdown_list && setcategoryDropdown(null)}
                     >
                         <IconOption>{icon}</IconOption>
-                        <Title>{title}</Title>
+                        <span>{title}</span>
                         {
                             dropdown_list &&
                             <ArrowForwardIosSharpIconWrapper>
@@ -147,31 +147,26 @@ const MenuBarArea = styled('div')({
     width: '100%',
 })
 
-const Option = styled(NavLink)({
+const Option = styled(NavLink)(({ theme }) => ({
     display: 'flex',
     alignItems: 'center',
     columnGap: '5px',
+    fontFamily: theme.fontFamily.arial,
     height: '100%',
-    padding: '10px 5px',
+    padding: '10px 20px',
     boxSizing: 'border-box',
     cursor: 'pointer',
-    position: 'relative',
     textDecoration: 'unset',
-    color: 'black',
-    '&::after': {
-        content: '""',
-        height: '4px',
-        backgroundColor: '#51fff6',
-        width: '0',
-        position: 'absolute',
-        bottom: '0',
-        left: '0',
-        transition: 'width 0.2s',
-    },
-    '&:hover::after': {
-        width: '100%',
+    fontSize: '1.2rem',
+    color: 'white',
+    '&:hover': {
+        backgroundColor: '#33c1ba',
+        color: 'black',
+        '& svg': {
+            color: 'black',
+        }
     }
-})
+}))
 
 const IconOption = styled('div')({
     display: 'flex',
@@ -181,12 +176,6 @@ const IconOption = styled('div')({
     '& svg': {
         fontSize: '1.3rem',
     }
-})
-
-const Title = styled('div')({
-    fontFamily: '"Roboto", "sans-serif"',
-    fontSize: '1.2rem',
-    color: 'white',
 })
 
 const ArrowForwardIosSharpIconWrapper = styled('div')({

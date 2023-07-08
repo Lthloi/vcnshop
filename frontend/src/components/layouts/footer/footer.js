@@ -4,7 +4,6 @@ import FacebookIcon from '@mui/icons-material/Facebook'
 import YouTubeIcon from '@mui/icons-material/YouTube'
 import InstagramIcon from '@mui/icons-material/Instagram'
 import TwitterIcon from '@mui/icons-material/Twitter'
-import LinkedInIcon from '@mui/icons-material/LinkedIn'
 import footer_background_image from '../../../assets/images/footer_background_image.jpg'
 import foxLogoWhite from '../../../assets/images/logo_app_white.svg'
 import LocationOnIcon from '@mui/icons-material/LocationOn'
@@ -16,6 +15,7 @@ import cash from '../../../assets/images/payment_methods/cash.png'
 import visa from '../../../assets/images/payment_methods/visa.png'
 import mastercard from '../../../assets/images/payment_methods/mastercard.png'
 import Short from "./short"
+import { Tooltip } from "@mui/material"
 
 const social_icon_style = {
     color: 'white',
@@ -109,11 +109,18 @@ const Footer = () => {
             <SocialsContainer>
                 <SocialText>Contact us on social networks!</SocialText>
                 <Socials>
-                    <FacebookIcon sx={social_icon_style} titleAccess="Facebook" />
-                    <YouTubeIcon sx={social_icon_style} titleAccess="Youtube" />
-                    <InstagramIcon sx={social_icon_style} titleAccess="Instagram" />
-                    <TwitterIcon sx={social_icon_style} titleAccess="Twitter" />
-                    <LinkedInIcon sx={social_icon_style} titleAccess="LinkedIn" />
+                    <Tooltip title="Facebook">
+                        <FacebookIcon sx={social_icon_style} />
+                    </Tooltip>
+                    <Tooltip title="YouTube">
+                        <YouTubeIcon sx={social_icon_style} />
+                    </Tooltip>
+                    <Tooltip title="Instagram">
+                        <InstagramIcon sx={social_icon_style} />
+                    </Tooltip>
+                    <Tooltip title="Twitter">
+                        <TwitterIcon sx={social_icon_style} />
+                    </Tooltip>
                 </Socials>
             </SocialsContainer>
             <InformationsArea>
@@ -166,9 +173,12 @@ const Footer = () => {
                         <Methods>
                             {
                                 payment_methods.map(({ name, img }) => (
-                                    <Method src={img} key={name}
+                                    <Tooltip
+                                        key={name}
                                         title={name}
-                                    />
+                                    >
+                                        <Method src={img} />
+                                    </Tooltip>
                                 ))
                             }
                         </Methods>

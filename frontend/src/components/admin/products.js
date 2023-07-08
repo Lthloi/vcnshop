@@ -93,7 +93,7 @@ const Products = ({ products }) => {
 
     const counted_reviews = useMemo(() => {
         return products.reduce(
-            (accumulator, { review: { count_review } }) => accumulator + count_review,
+            (accumulator, { review: { count_reviews } }) => accumulator + count_reviews,
             0
         )
     }, [products])

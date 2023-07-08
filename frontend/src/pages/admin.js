@@ -51,7 +51,7 @@ const Admin = () => {
     useEffect(() => {
         dispatch(getOrdersByAdmin('createdAt', 'payment_status'))
         dispatch(getUsersByAdmin('createdAt', 'active'))
-        dispatch(getProductsByAdmin('createdAt', 'stock', 'review.count_review', 'for'))
+        dispatch(getProductsByAdmin('createdAt', 'stock', 'review.count_reviews', 'for'))
         dispatch(getShopsByAdmin('createdAt'))
     }, [dispatch])
 

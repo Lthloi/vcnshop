@@ -80,7 +80,7 @@ const OrderDetail = () => {
                             <OrderedItemTitle>Ordered Items</OrderedItemTitle>
                             <OrderItems>
                                 {
-                                    order.items_of_order.map(({ _id, name, cost, quantity, image_link, color, size }) => (
+                                    order.items_of_order.map(({ _id, name, price, quantity, image_link, color, size }) => (
                                         <Item key={_id}>
                                             <Details>
                                                 <Tooltip title="Click for visiting the product">
@@ -98,7 +98,7 @@ const OrderDetail = () => {
                                                     <Detail>{'Qty: ' + quantity}</Detail>
                                                 </div>
                                             </Details>
-                                            <Price>{'$' + cost}</Price>
+                                            <Price>{'$' + price}</Price>
                                         </Item>
                                     ))
                                 }

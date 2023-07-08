@@ -2,7 +2,7 @@ import axios from 'axios'
 import {
     addProductToCartRequest, addProductToCartSuccess, addProductToCartFail,
     changeQuantityRequest, changeQuantityFail,
-    removeItemFromCartExecute,
+    removeItem,
 } from '../../store/reducers/cart_reducer'
 import { toast } from 'react-toastify'
 import actionsErrorHandler from '../../utils/error_handler'
@@ -20,14 +20,17 @@ const addProductToCart = (product_id, options) => async (dispatch, getState) => 
 
         if (productData.stock === 0) {
             dispatch(addProductToCartFail({}))
-            return toast.warning('The product has run out')
+            return toast.warning('The product now is out of stock')
         }
 
-        let existedProduct = getState().cart.cartItems.find(({ _id }) => product_id === _id)
+        let product_in_cart = getState().cart.cartItems.find(({ _id }) => product_id === _id)
 
-        if (existedProduct && existedProduct.quantity >= productData.stock) {
-            dispatch(addProductToCartFail({}))
-            return toast.warning('The quantity of product in your cart is greater than in stock now')
+        if (product_in_cart) {
+            let current_qty = product_in_cart.quantity
+            if (current_qty + 1 >= productData.stock || current_qty === productData.stock) {
+                dispatch(addProductToCartFail({}))
+                return toast.warning('The quantity of product in your cart now is greater than in stock')
+            }
         }
 
         let product_to_add = {
@@ -39,26 +42,28 @@ const addProductToCart = (product_id, options) => async (dispatch, getState) => 
             shop: {
                 id: productData.shop.id,
             },
-            cost: productData.price.value,
+            price: productData.price.value,
             quantity: 1,
             stock: productData.stock,
         }
 
-        dispatch(addProductToCartSuccess({
-            addProduct: product_to_add,
-            productStock: productData.stock,
-            currentQuantity: existedProduct ? existedProduct.quantity : null,
-        }))
+        dispatch(addProductToCartSuccess({ product_to_add: product_to_add }))
 
         localStorage.setItem('cartItems', JSON.stringify(getState().cart.cartItems))
 
         toast.success('Add the product to cart successfully')
     } catch (error) {
-        let errorObject = actionsErrorHandler(error, 'Error Warning: fail to add product to cart.')
+        let errorObject = actionsErrorHandler(error)
 
-        dispatch(addProductToCartFail({ error: errorObject }))
+        if (errorObject.statusCode !== 404) {
+            dispatch(addProductToCartFail({ error: errorObject }))
 
-        toast.error(errorObject.message)
+            toast.error(errorObject.message)
+        } else {
+            dispatch(addProductToCartFail({}))
+
+            toast.error('The product now is not available')
+        }
     }
 }
 
@@ -75,11 +80,9 @@ const changeQuantity = (product_id, option) => async (dispatch, getState) => {
 }
 
 const removeItemFromCart = (product_id) => async (dispatch, getState) => {
-    dispatch(removeItemFromCartExecute({ productId: product_id }))
+    dispatch(removeItem({ productId: product_id }))
 
-    let current_cartItems = getState().cart.cartItems
-
-    localStorage.setItem('cartItems', JSON.stringify(current_cartItems))
+    localStorage.setItem('cartItems', JSON.stringify(getState().cart.cartItems))
 }
 
 export {

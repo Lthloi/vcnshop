@@ -126,7 +126,6 @@ const Payment = () => {
         else {
             let stored_order = sessionStorage.getItem('orderInfo')
             if (!stored_order) {
-                toast.warning('Something went wrong')
                 navigate(-1)
             } else {
                 let stored_order_parsed = JSON.parse(stored_order)

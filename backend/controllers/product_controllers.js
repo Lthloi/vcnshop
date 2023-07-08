@@ -184,7 +184,7 @@ const getProducts = catchAsyncError(async (req, res, next) => {
 
     let sort = req.query.sort || { name: 'name', type: 1 }
 
-    let count_product = await ProductModel.countDocuments(queryObject)
+    let count_products = await ProductModel.countDocuments(queryObject)
 
     let products = await ProductModel
         .find(queryObject, { 'review.reviews': 0 })
@@ -197,7 +197,7 @@ const getProducts = catchAsyncError(async (req, res, next) => {
 
     res.status(200).json({
         products,
-        countProducts: count_product,
+        countProducts: count_products,
     })
 })
 
@@ -237,8 +237,8 @@ const newReview = catchAsyncError(async (req, res, next) => {
 
     let { _id: userId, avatar, name: user_name } = req.user
 
-    let { rating, comment, title, currentReviews } = req.body
-    if (!rating || !comment || !title || !currentReviews)
+    let { rating, comment, title } = req.body
+    if (!rating || !comment || !title)
         throw new BaseError('Wrong request property', 400)
 
     let image_urls
@@ -249,15 +249,23 @@ const newReview = catchAsyncError(async (req, res, next) => {
             userId
         )
 
-    let user_id_in_string = userId.toString()
-
-    //remove a review existed
-    let new_reviews = JSON.parse(currentReviews).filter(({ user_id }) => user_id !== user_id_in_string)
-
-    let new_count_review = new_reviews.length + 1
-
-    let sum_of_previous_ratings = new_reviews.reduce((acc, { rating }) => acc + rating, 0)
-    let new_average_rating = sum_of_previous_ratings === 0 ? rating : (sum_of_previous_ratings + rating) / 2
+    let products = await ProductModel.aggregate([
+        { $match: { '_id': mongoose.Types.ObjectId(productId) } },
+        {
+            $project: {
+                'review.average_rating': 1,
+                'review.count_reviews': 1,
+                'review.reviews': {
+                    $filter: {
+                        input: "$review.reviews",
+                        as: "review",
+                        cond: { $ne: ["$$review.user_id", userId] }
+                    }
+                },
+            }
+        }
+    ])
+    if (products.length === 0) throw new BaseError('Product not found', 404)
 
     let new_review = {
         name: user_name,
@@ -266,28 +274,33 @@ const newReview = catchAsyncError(async (req, res, next) => {
         createdAt: new Date(),
         rating,
         title,
-        comment,
+        comment: JSON.parse(comment),
         imageURLs: image_urls || [],
     }
 
-    new_reviews.push(new_review)
+    let new_reviews = [new_review, ...products[0].review.reviews]
 
-    //update review in database
+    let new_count_reviews = new_reviews.length
+
+    let sum_of_previous_ratings = new_reviews.reduce((accumulator, { rating }) => accumulator + rating, 0)
+    let new_average_rating = sum_of_previous_ratings === 0 ? rating : (sum_of_previous_ratings / new_count_reviews)
+
     await ProductModel.updateOne(
         { _id: productId },
         {
             $set: {
                 'review.average_rating': new_average_rating,
-                'review.count_review': new_count_review,
+                'review.count_reviews': new_count_reviews,
                 'review.reviews': new_reviews,
-            },
+            }
         },
     )
 
     res.status(200).json({
+        success: true,
         newReview: new_review,
         newAverageRating: new_average_rating,
-        newCountReview: new_count_review,
+        newCountReview: new_count_reviews,
     })
 })
 

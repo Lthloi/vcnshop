@@ -15,6 +15,14 @@ import { useNavigate, Route, Routes } from "react-router-dom"
 import { useCurrentRoute } from "../hooks/custom_hooks"
 import ErrorIcon from '@mui/icons-material/Error'
 
+const GreetingSection = ({ greeting }) => {
+    return (
+        <Greeting>
+            {greeting}
+        </Greeting>
+    )
+}
+
 const MyStore = () => {
     const { shop, loading, error, checkShopIsExist } = useSelector(({ shop }) => shop)
     const dispatch = useDispatch()
@@ -22,7 +30,7 @@ const MyStore = () => {
     const current_route = useCurrentRoute()
 
     const switchNav = (href) => {
-        navigate('/myStore' + `/${href}`)
+        navigate('/myStore/' + href)
     }
 
     useEffect(() => {
@@ -90,7 +98,7 @@ const MyStore = () => {
                         <Content>
                             <Routes>
                                 <Route path="/Products/*" element={<Products shopId={shop._id} />} />
-                                <Route path="/Greeting" element={<Greeting>{shop.greeting}</Greeting>} />
+                                <Route path="/Greeting" element={<GreetingSection greeting={shop.greeting} />} />
                                 <Route path="/Orders/*" element={<Orders />} />
                             </Routes>
                         </Content>

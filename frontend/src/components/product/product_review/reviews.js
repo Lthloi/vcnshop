@@ -8,6 +8,15 @@ import { Skeleton } from "@mui/material"
 import CommentIcon from '@mui/icons-material/Comment'
 import { LIMIT_GET_COMMENTS } from "../../../utils/constants"
 
+const convertDate = (time_string) => {
+    let date_in_string = new window.Date(time_string).toLocaleDateString()
+    let date_splitting = date_in_string.split('/')
+    let temp = date_splitting[0]
+    date_splitting[0] = date_splitting[1]
+    date_splitting[1] = temp
+    return date_splitting.join('/')
+}
+
 const Reviews = ({ productId, srollReviewRef }) => {
     const { reviews, loading, error } = useSelector(({ product }) => product.reviewsState)
     const [reviewPage, setReviewPage] = useState(1)
@@ -24,14 +33,6 @@ const Reviews = ({ productId, srollReviewRef }) => {
         dispatch(getReviews(productId, page))
     }
 
-    const convertDate = (date_in_string) => {
-        let date_splitting = date_in_string.split('/')
-        let temp = date_splitting[0]
-        date_splitting[0] = date_splitting[1]
-        date_splitting[1] = temp
-        return date_splitting.join('/')
-    }
-
     return (
         <>
             {
@@ -45,10 +46,10 @@ const Reviews = ({ productId, srollReviewRef }) => {
                     <ReviewError>{error.message}</ReviewError>
                 ) : reviews && reviews.length > 0 ?
                     reviews.map(({ user_id, name, comment, rating, title, createdAt, avatar, imageURLs }) =>
-                        <ReviewContainer key={user_id}>
+                        <Review key={user_id}>
                             <Date>
                                 <span>Written On </span>
-                                <span>{convertDate(new window.Date(createdAt).toLocaleDateString())}</span>
+                                <span>{convertDate(createdAt)}</span>
                             </Date>
                             <UserInfoContainer>
                                 <AvatarWrapper>
@@ -74,7 +75,7 @@ const Reviews = ({ productId, srollReviewRef }) => {
                                     ))
                                 }
                             </ReviewImagesContainer>
-                        </ReviewContainer>
+                        </Review>
                     )
                     :
                     <EmptyReviews>
@@ -99,7 +100,7 @@ const Reviews = ({ productId, srollReviewRef }) => {
 
 export default Reviews
 
-const ReviewContainer = styled('div')({
+const Review = styled('div')(({ theme }) => ({
     display: 'flex',
     flexDirection: 'column',
     rowGap: '5px',
@@ -108,10 +109,10 @@ const ReviewContainer = styled('div')({
     borderBottom: '2px gray solid',
     position: 'relative',
     marginTop: '10px',
-})
+    fontFamily: theme.fontFamily.nunito,
+}))
 
 const Date = styled('div')({
-    fontFamily: '"Work Sans", sans-serif',
     fontSize: '0.9em',
     position: 'absolute',
     top: '10px',
@@ -142,13 +143,11 @@ const Avatar = styled('img')({
 })
 
 const Name = styled('h2')({
-    fontFamily: '"Work Sans", sans-serif',
     margin: '0',
     fontSize: '1em',
 })
 
 const CommentTitle = styled('h2')({
-    fontFamily: '"Work Sans", sans-serif',
     margin: '0',
     marginLeft: '5px',
     fontSize: '1.1em',
@@ -156,9 +155,9 @@ const CommentTitle = styled('h2')({
 })
 
 const Comment = styled('div')({
-    fontFamily: '"Nunito", "sans-serif"',
     paddingLeft: '5px',
     marginTop: '10px',
+    whiteSpace: 'pre-line',
 })
 
 const ReviewImagesContainer = styled('div')({
@@ -209,7 +208,6 @@ const EmptyReviews = styled('div')({
 })
 
 const EmptyReviewsText = styled('div')({
-    fontFamily: '"Nunito", "sans-serif"',
     fontWeight: 'bold',
     fontSize: '1.2em',
 })
@@ -225,7 +223,6 @@ const ReviewError = styled('div')({
     textAlign: 'center',
     width: '100%',
     padding: '10px',
-    fontFamily: '"Nunito", "sans-serif"',
     color: 'red',
     fontWeight: 'bold',
 })

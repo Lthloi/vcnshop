@@ -72,7 +72,7 @@ const ProductCard = ({ product }) => {
                         {review.average_rating > 0.2 ? review.average_rating : 0}
                     </Count>
                     <Count>
-                        ({review.count_review.toLocaleString('en', { useGrouping: true })})
+                        ({review.count_reviews.toLocaleString('en', { useGrouping: true })})
                     </Count>
                 </RatingContainer>
                 <SoldCount>

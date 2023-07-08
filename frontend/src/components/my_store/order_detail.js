@@ -101,7 +101,7 @@ const OrderStatus = ({ orderStatus }) => (
 
 const TotalPriceSection = ({ items }) => {
 
-    const get_total_price = () => items.reduce((accumulator, { cost, quantity }) => accumulator + (cost * quantity).toFixed(2) * 1, 0)
+    const get_total_price = () => items.reduce((accumulator, { price, quantity }) => accumulator + (price * quantity).toFixed(2) * 1, 0)
 
     return (
         <Payment>
@@ -118,7 +118,7 @@ const ItemsSection = ({ items }) => (
     <ContainerComponent title="Items" width="60%">
         <Items>
             {
-                items.map(({ _id, name, cost, quantity, image_link, color, size }) => (
+                items.map(({ _id, name, price, quantity, image_link, color, size }) => (
                     <Item key={_id}>
                         <Details>
                             <div style={{ minWidth: '101px' }}>
@@ -131,7 +131,7 @@ const ItemsSection = ({ items }) => (
                                 <Detail>{'Qty: ' + quantity}</Detail>
                             </div>
                         </Details>
-                        <Price>{'$' + cost}</Price>
+                        <Price>{'$' + price}</Price>
                     </Item>
                 ))
             }
@@ -193,7 +193,7 @@ const OrderDetail = () => {
 
     useEffect(() => {
         dispatch(getOrderForShop(undefined, orderId))
-    }, [])
+    }, [dispatch])
 
     return (
         <OrderDetailSection id="OrderDetailSection">

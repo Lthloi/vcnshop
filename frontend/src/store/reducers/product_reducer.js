@@ -152,15 +152,18 @@ export const productsSlice = createSlice({
         },
         newReviewSuccess: (state, action) => {
             let { newReview, newAverageRating, newCountReview } = action.payload
-            let update_reviews = current(state).reviewsState.reviews
-                .filter(({ user_id }) => user_id !== newReview.user_id)
+            let update_reviews = current(state).reviewsState.reviews.filter(({ user_id }) => user_id !== newReview.user_id)
 
             state.reviewsState.newReviewProcessing = false
 
             state.reviewsState.reviews = [newReview, ...update_reviews]
 
-            state.productDetail.product.review.average_rating = newAverageRating
-            state.productDetail.product.review.count_review = newCountReview
+            let current_review = current(state).productDetail.product.review
+            state.productDetail.product.review = {
+                ...current_review,
+                average_rating: newAverageRating,
+                count_reviews: newCountReview,
+            }
         },
         newReviewFail: (state, action) => {
             state.reviewsState.newReviewProcessing = false

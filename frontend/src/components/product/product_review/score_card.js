@@ -4,7 +4,7 @@ import Rating from '@mui/material/Rating'
 import { useSelector } from "react-redux"
 
 const ScoreCard = () => {
-    const { average_rating, count_review } = useSelector(({ product }) => product.productDetail.product.review)
+    const { average_rating, count_reviews } = useSelector(({ product }) => product.productDetail.product.review)
     const { reviews } = useSelector(({ product }) => product.reviewsState)
 
     const countStar = useMemo(() => {
@@ -34,8 +34,8 @@ const ScoreCard = () => {
                     />
                 </div>
                 <BaseOn>
-                    <span>{'Based On ' + count_review}</span>
-                    <span>{count_review > 1 ? ' Reviews' : ' Review'}</span>
+                    <span>{'Based On ' + count_reviews}</span>
+                    <span>{count_reviews > 1 ? ' Reviews' : ' Review'}</span>
                 </BaseOn>
             </div>
             <div style={{ display: 'flex', columnGap: '8px', width: '100%', alignItems: 'center' }}>
@@ -51,7 +51,7 @@ const ScoreCard = () => {
                         countStar.map(({ star, count }) => (
                             <RatingBars key={star}>
                                 <RatingBar
-                                    sx={{ width: (count / count_review) * 100 + '%' }}
+                                    sx={{ width: (count / count_reviews) * 100 + '%' }}
                                 >
                                     <div className="rating_bar"></div>
                                 </RatingBar>

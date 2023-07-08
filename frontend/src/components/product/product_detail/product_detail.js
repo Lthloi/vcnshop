@@ -1,29 +1,141 @@
-import React, { useState } from "react"
+import React, { createContext, useContext, useRef, useState } from "react"
 import { styled } from '@mui/material/styles'
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart'
 import { addProductToCart } from "../../../store/actions/cart_actions"
-import Options from "./options"
 import Images from "./images"
-import { useDispatch } from "react-redux"
+import { useDispatch, useSelector } from "react-redux"
 import { toast } from 'react-toastify'
 import ConfirmationNumberIcon from '@mui/icons-material/ConfirmationNumber'
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder'
-import StorefrontIcon from '@mui/icons-material/Storefront'
 import Rating from '@mui/material/Rating'
+import { CircularProgress, Stack, Tooltip } from "@mui/material"
+import StraightenIcon from '@mui/icons-material/Straighten'
 
-const ProductDetail = ({ product }) => {
-    const dispatch = useDispatch()
-    const [choices, setChoices] = useState({ color: undefined, size: undefined })
+const OptionsContext = createContext()
 
-    const addToCart = () => {
-        if (!choices.color || !choices.size)
-            return toast.warn('Please choose both color and size!')
+const ColorsComponent = ({ onPickColor }) => {
+    const [colorPicked, setColorPicked] = useState()
+    const colors = useContext(OptionsContext).colors
 
-        dispatch(addProductToCart(product._id, choices))
+    const pickColor = (color) => {
+        setColorPicked(color)
+        onPickColor('color', color)
     }
 
-    const choicesSetting = (choice_name, choice_value) => {
-        setChoices(pre => ({ ...pre, [choice_name]: choice_value }))
+    return (
+        <div>
+            <SectionTitle>Color:</SectionTitle>
+            <Colors>
+                {
+                    colors.length > 5 ?
+                        <SelectOptions onClick={pickColor}>
+                            <option value="none">
+                                Please select one!
+                            </option>
+                            {
+                                colors.map((color) => (
+                                    <option
+                                        value={color}
+                                        key={color}
+                                    >
+                                        {color}
+                                    </option>
+                                ))
+                            }
+                        </SelectOptions>
+                        :
+                        colors.map((color) => (
+                            <Tooltip
+                                key={color}
+                                title={color}
+                            >
+                                <ColorIndicator theme={{ picked: colorPicked === color, color }}>
+                                    <Color
+                                        theme={{ color }}
+                                        onClick={() => pickColor(color)}
+                                    />
+                                </ColorIndicator>
+                            </Tooltip>
+                        ))
+                }
+            </Colors>
+        </div>
+    )
+}
+
+const SizesComponent = ({ onPickSize }) => {
+    const sizes = useContext(OptionsContext).sizes
+
+    const handlePickSize = (e) => {
+        let size_name = e.target.value
+        if (size_name === 'none') {
+            e.target.value = ''
+            onPickSize('size', null)
+        } else {
+            e.target.value = size_name
+            onPickSize('size', size_name)
+        }
+    }
+
+    return (
+        <div style={{ marginTop: '15px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <SectionTitle>Size:</SectionTitle>
+                <FindYourSizeContainer>
+                    <StraightenIcon />
+                    <FindYourSize>
+                        Find your size exactly.
+                    </FindYourSize>
+                </FindYourSizeContainer>
+            </div>
+            <SelectOptions onClick={handlePickSize}>
+                <option value="none">
+                    Please choose one!
+                </option>
+                {
+                    sizes.map((size) => (
+                        <option
+                            value={size}
+                            key={size}
+                        >
+                            {size}
+                        </option>
+                    ))
+                }
+            </SelectOptions>
+        </div>
+    )
+}
+
+const Options = ({ onSetOptions }) => {
+
+    const handleSetOptions = (option_name, option_value) => {
+        onSetOptions(option_name, option_value)
+    }
+
+    return (
+        <OptionsArea id="Options">
+            <ColorsComponent onPickColor={handleSetOptions} />
+            <SizesComponent onPickSize={handleSetOptions} />
+        </OptionsArea>
+    )
+}
+
+const ProductDetail = ({ product }) => {
+    const { loading } = useSelector(({ cart }) => cart)
+    const dispatch = useDispatch()
+    const options = useRef({ color: null, size: null })
+
+    const addToCart = () => {
+        let selections = options.current
+        if (!selections.color || !selections.size)
+            return toast.warn('Please select one color and one size')
+
+        dispatch(addProductToCart(product._id, selections))
+    }
+
+    const handleSetOptions = (option_name, option_value) => {
+        options.current = { ...options.current, [option_name]: option_value }
     }
 
     return (
@@ -33,60 +145,68 @@ const ProductDetail = ({ product }) => {
             <DetailContainer>
                 <ProductName>{product.name}</ProductName>
 
-                <Reviews>
+                <Stack columnGap={'10px'} flexDirection={'row'} alignItems={'center'}>
                     <Rating
                         name="half-review-read" readOnly
                         defaultValue={0} precision={0.5}
                         value={product.review.average_rating * 1}
                     />
-                    <ReviewCount title="View reviews">
-                        <span>{(product.review.count_review)}</span>
-                        <span>{(product.review.count_review) > 1 ? ' reviews' : ' review'}</span>
-                    </ReviewCount>
-                    <AddToFavourite title="Add this product to Favourite List">
-                        <FavoriteBorderIcon sx={{ width: '0.9em', height: '0.9em', fontSize: '1.1em' }} />
-                        <AddToFavouriteText>
-                            Add To Wishlist
-                        </AddToFavouriteText>
-                    </AddToFavourite>
-                </Reviews>
+                    <div>
+                        <span>({product.review.count_reviews}</span>
+                        <span>{(product.review.count_reviews) > 1 ? ' reviews' : ' review'})</span>
+                    </div>
+                    <Tooltip title="Add this product to wishlist">
+                        <AddToWishList>
+                            <FavoriteBorderIcon sx={{ width: '0.9em', height: '0.9em', fontSize: '1.1em' }} />
+                            <AddToFavouriteText>
+                                Add To Wishlist
+                            </AddToFavouriteText>
+                        </AddToWishList>
+                    </Tooltip>
+                </Stack>
 
-                <Shop>
-                    <StorefrontIcon />
-                    <ShopName className="ShopName" title="Visit this shop">
-                        {'Shop: ' + product.shop.name}
-                    </ShopName>
-                    <InStock
-                        title={product.stock > 0 ? `Left ${product.stock} products` : 'Out of stock'}
-                        sx={{ backgroundColor: product.stock > 0 ? '#6ce26c' : '#ff6161' }}
-                    >
-                        {product.stock > 0 ? 'In Stock [' + product.stock + ']' : 'Out of stock'}
-                    </InStock>
-                </Shop>
-
-                <Options //options
-                    colors={product.options.colors}
-                    sizes={product.options.sizes}
-                    choicesSetting={choicesSetting}
-                />
-
-                <Price title={`Cost ${product.price.value}`}>
-                    <span>$</span>
-                    <span>
-                        {product.price.value.toLocaleString('en', { useGrouping: true })}
-                    </span>
-                </Price>
-
-                <AddProductToCartContainer
-                    title="Add this product to cart"
-                    onClick={addToCart}
+                <InStock
+                    title={product.stock > 0 ? `Left ${product.stock} products` : 'Out of stock'}
+                    sx={{ backgroundColor: product.stock > 0 ? '#6ce26c' : '#ff6161' }}
                 >
-                    <AddShoppingCartIcon
-                        className="AddToCartIcon"
-                        sx={{ color: 'white' }}
-                    />
-                    <span>Add to cart</span>
-                </AddProductToCartContainer>
+                    {product.stock > 0 ? 'In Stock: ' + product.stock : 'Out of stock'}
+                </InStock>
+
+                <OptionsContext.Provider
+                    value={{
+                        colors: product.options.colors,
+                        sizes: product.options.sizes,
+                    }}
+                >
+                    <Options onSetOptions={handleSetOptions} />
+                </OptionsContext.Provider>
+
+                <Tooltip title={`Price: ${product.price.value}USD`} placement="right">
+                    <Price>
+                        <span>$</span>
+                        <span>
+                            {product.price.value.toLocaleString('en', { useGrouping: true })}
+                        </span>
+                    </Price>
+                </Tooltip>
+
+                <Tooltip title="Add this product to your cart" placement="top">
+                    <AddProductToCartContainer onClick={addToCart}>
+                        {
+                            loading ||false?
+                                <CircularProgress
+                                    thickness={6}
+                                    size={20}
+                                    sx={{ color: 'white', fontSize: '1.2em' }}
+                                />
+                                :
+                                <>
+                                    <AddShoppingCartIcon sx={{ color: 'white', fontSize: '1.2em' }} />
+                                    <span>Add to cart</span>
+                                </>
+                        }
+                    </AddProductToCartContainer>
+                </Tooltip>
 
                 <AddCoupons>
                     <ConfirmationNumberIcon />
@@ -121,6 +241,8 @@ const Price = styled('div')({
     columnGap: '3px',
     fontSize: '1.8em',
     fontWeight: 'bold',
+    margin: '10px 0',
+    width: 'fit-content',
 })
 
 const AddProductToCartContainer = styled('button')({
@@ -129,18 +251,16 @@ const AddProductToCartContainer = styled('button')({
     justifyContent: 'center',
     columnGap: '10px',
     cursor: 'pointer',
-    padding: '5px 20px',
+    padding: '10px 20px',
     transition: 'background-color 0.2s',
     borderRadius: '20px',
+    fontSize: '1em',
     backgroundColor: 'black',
-    '& span': {
-        fontSize: '1.1em',
-        fontWeight: 'bold',
-        color: 'white',
-    },
+    fontWeight: 'bold',
+    color: 'white',
     '&:hover': {
         backgroundColor: 'pink',
-        '& span , .AddToCartIcon': {
+        '& span , svg': {
             color: 'black',
         }
     }
@@ -167,25 +287,11 @@ const AddCoupons = styled('button')({
 })
 
 const ProductName = styled('div')({
-    fontFamily: '"Work Sans", sans-serif',
     fontWeight: 'bold',
     fontSize: '1.5em',
 })
 
-const Reviews = styled('div')({
-    display: 'flex',
-    alignItems: 'center',
-    columnGap: '5px',
-})
-
-const ReviewCount = styled('div')({
-    cursor: 'pointer',
-    '&:hover': {
-        textDecoration: 'underline',
-    }
-})
-
-const AddToFavourite = styled('div')({
+const AddToWishList = styled('div')({
     display: 'flex',
     alignItems: 'center',
     borderRadius: '5px',
@@ -204,28 +310,67 @@ const AddToFavouriteText = styled('div')({
     fontSize: '0.9em',
 })
 
-const Shop = styled('div')({
+const InStock = styled('div')({
+    fontSize: '0.9em',
+    fontWeight: 'bold',
+    borderRadius: '10px',
+    padding: '5px 15px',
+    width: 'fit-content',
+})
+
+const OptionsArea = styled('div')({
+    display: 'flex',
+    flexDirection: 'column',
+    rowGap: '12px',
+})
+
+const SectionTitle = styled('h2')({
+    fontSize: '1.1em',
+    margin: '0',
+    fontWeight: 'bold',
+})
+
+const Colors = styled('div')({
+    display: 'flex',
+    columnGap: '15px',
+    marginTop: '8px',
+})
+
+const ColorIndicator = styled('div')(({ theme }) => ({
+    borderRadius: '50%',
+    padding: '2px',
+    ...(theme.picked ? { outline: `2px ${theme.color.toLowerCase() !== 'white' ? theme.color : 'gray'} solid` } : {}),
+}))
+
+const Color = styled('div')(({ theme }) => ({
+    backgroundColor: theme.color,
+    width: '22px',
+    height: '22px',
+    borderRadius: '50%',
+    boxShadow: '0px 0px 3px gray',
+    cursor: 'pointer',
+}))
+
+const SelectOptions = styled('select')({
+    marginTop: '5px',
+    padding: '5px',
+    fontSize: '1em',
+    border: '2px gray solid',
+    width: '100%',
+})
+
+const FindYourSizeContainer = styled('div')({
     display: 'flex',
     alignItems: 'center',
     columnGap: '5px',
     width: 'fit-content',
 })
 
-const ShopName = styled('div')({
-    fontFamily: '"Finlandica","sans-serif"',
-    fontSize: '1em',
-    fontWeight: 'bold',
+const FindYourSize = styled('div')({
+    fontSize: '0.9em',
+    color: 'red',
     cursor: 'pointer',
     '&:hover': {
         textDecoration: 'underline',
-    },
-})
-
-const InStock = styled('div')({
-    fontFamily: '"Finlandica","sans-serif"',
-    fontSize: '0.9em',
-    fontWeight: 'bold',
-    borderRadius: '10px',
-    padding: '3px 10px',
-    marginLeft: '10px',
+    }
 })

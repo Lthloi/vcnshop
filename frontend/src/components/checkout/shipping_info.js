@@ -13,11 +13,12 @@ import { EXPRESS_SERVER } from "../../utils/constants"
 import { toast } from "react-toastify"
 import WarningIcon from '@mui/icons-material/Warning'
 import LocalConvenienceStoreIcon from '@mui/icons-material/LocalConvenienceStore'
-import { useNavigate } from "react-router-dom"
+import { useNavigate, Navigate } from "react-router-dom"
 import Select from '@mui/material/Select'
 import { getCodeList } from 'country-list'
 import { Tooltip } from "@mui/material"
 import BookmarkIcon from '@mui/icons-material/Bookmark'
+import { useSelector } from "react-redux"
 
 const defaultInputs = [
     {
@@ -53,9 +54,16 @@ const defaultInputs = [
 ]
 
 const ShippingInfo = () => {
+    const number_of_items_in_cart = useSelector(({ cart }) => cart.cartItems.length)
     const { register, handleSubmit, formState: { errors }, setValue, clearErrors, getValues, setError } = useForm()
     const [getLocationLoading, setGetLocationLoading] = useState(false)
     const navigate = useNavigate()
+
+    const countries = useMemo(() => getCodeList(), [])
+
+    if (number_of_items_in_cart === 0) {
+        return (<Navigate to={-1} />)
+    }
 
     const getUserLocation = async () => {
         let api_to_get_user_location = '/api/getUserLocation'
@@ -113,8 +121,6 @@ const ShippingInfo = () => {
     const changePickCountry = (e, label) => {
         setValue(label, e.target.value)
     }
-
-    const countries = useMemo(() => getCodeList(), [])
 
     const usingDefaultAddress = () => {
         let default_address = localStorage.getItem('shippingInfo')
