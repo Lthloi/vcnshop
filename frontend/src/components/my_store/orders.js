@@ -319,7 +319,9 @@ const get_number_of_pages = (count_products, maximum_number_of_orders) => {
 }
 
 const calculate_total_price = (items) => {
-    return items.reduce((accumulator, { price, quantity }) => accumulator + (price * quantity).toFixed(2) * 1, 0)
+    return items.reduce((accumulator, { price, quantity }) => {
+        return (accumulator + (price * quantity)).toFixed(2) * 1
+    }, 0)
 }
 
 const set_total_price_for_each_order = (orders) => {
@@ -327,7 +329,7 @@ const set_total_price_for_each_order = (orders) => {
 }
 
 const OrdersSection = ({ option }) => {
-    const { orders, loading, error, countOrder, currentPage } = useSelector(({ order }) => order)
+    const { orders, loading, error, countOrders, currentPage } = useSelector(({ order }) => order)
     const [sort, setSort] = useState({ by: '', type: 'asc' })
     const table_head_ref = useRef()
     const navigate = useNavigate()
@@ -381,7 +383,7 @@ const OrdersSection = ({ option }) => {
                     option === 'All Orders' &&
                     <div style={{ display: 'flex', justifyContent: 'center' }}>
                         <Pages
-                            count={get_number_of_pages(countOrder, maximum_number_of_orders)}
+                            count={get_number_of_pages(countOrders, maximum_number_of_orders)}
                             variant="outlined"
                             shape="rounded"
                             onChange={switchPage}

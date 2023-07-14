@@ -15,7 +15,7 @@ import { useDispatch } from 'react-redux'
 import { getUser } from './store/actions/user_actions'
 import Checkout from './pages/checkout'
 import { ThemeProvider } from '@mui/material/styles'
-import global_theme from './styles/theme'
+import global_theme from './styles/themes'
 import Admin from './pages/admin'
 import MyStore from './pages/my_store'
 
@@ -44,7 +44,7 @@ function App() {
             </Route>
 
             {/*Put other routes with no layout*/}
-            <Route path='/checkout' element={<Checkout />} />
+            <Route path='/checkout/*' element={<ProtectedResource><Checkout /></ProtectedResource>} />
             <Route path='/auth/*' element={<Auth />} />
 
             <Route path='/*' element={<NotFound404 />} />

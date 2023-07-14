@@ -9,18 +9,18 @@ import actionsErrorHandler from '../../utils/error_handler.js'
 import {
     LIMIT_GET_ORDERS, EXPRESS_SERVER,
 } from '../../utils/constants.js'
+import { redirectAfterSeconds } from '../../utils/action_features.js'
 
-const completePlaceOrder = ({ orderId, paymentMethod, paymentId }, step_after_complete_payment) => async (dispatch) => {
+const completePlaceOrder = ({ orderId, paymentMethod, paymentId }) => async (dispatch) => {
     try {
         dispatch(completeOrderRequest())
 
         let api_to_create_new_order = '/api/order/completePlaceOrder'
 
-        await axios.post(
+        await axios.put(
             EXPRESS_SERVER + api_to_create_new_order,
             {
                 orderId,
-                paymentId,
                 paymentMethod,
             },
             { withCredentials: true },
@@ -28,7 +28,9 @@ const completePlaceOrder = ({ orderId, paymentMethod, paymentId }, step_after_co
 
         dispatch(completeOrderSuccess())
 
-        window.open('/checkout?step=' + step_after_complete_payment + '&payment_intent=' + paymentId, '_self')
+        toast.success('Order Successfully Placed!')
+
+        redirectAfterSeconds(1000, { href: '/checkout/success?payment_intent=' + paymentId })
     } catch (error) {
         let errorObject = actionsErrorHandler(error, 'Error Warning: fail to complete the order.')
 
@@ -70,7 +72,7 @@ const getOrders = (page = 1, limit = LIMIT_GET_ORDERS, payment_status = null) =>
 
         dispatch(getOrdersSuccess({
             orders: data.orders,
-            countOrder: data.countOrder,
+            countOrders: data.countOrders,
             currentPage: page || 1,
             currentTab: payment_status,
         }))
@@ -94,7 +96,7 @@ const getOrdersForShop = (limit = LIMIT_GET_ORDERS, page = 1, order_status) => a
 
         dispatch(getOrdersSuccess({
             orders: data.orders,
-            countOrder: data.orders.length,
+            countOrders: data.orders.length,
             currentPage: page,
             currentTab: null,
         }))
@@ -107,16 +109,21 @@ const getOrdersForShop = (limit = LIMIT_GET_ORDERS, page = 1, order_status) => a
     }
 }
 
-const getOrderForShop = (paymentId, orderId) => async (dispatch) => {
-
-    if (paymentId && orderId) return
-
+const getOrderDetailForShop = (orderId) => async (dispatch) => {
     try {
         dispatch(getOrderRequest())
 
-        let api_to_get_order = '/api/order/getOrderForShop' + (paymentId ? '?paymentId=' + paymentId : '') + (orderId ? '?orderId=' + orderId : '')
+        let api_to_get_order = '/api/order/getOneOrderForShop'
 
-        let { data } = await axios.get(EXPRESS_SERVER + api_to_get_order, { withCredentials: true })
+        let { data } = await axios.get(
+            EXPRESS_SERVER + api_to_get_order,
+            {
+                withCredentials: true,
+                params: {
+                    orderId
+                },
+            }
+        )
 
         dispatch(getOrderSuccess({ order: data.order }))
     } catch (error) {
@@ -155,5 +162,5 @@ const getOrdersByAdmin = (...fields) => async (dispatch) => {
 
 export {
     completePlaceOrder, getOrder, getOrders,
-    getOrdersByAdmin, getOrdersForShop, getOrderForShop,
+    getOrdersByAdmin, getOrdersForShop, getOrderDetailForShop,
 }

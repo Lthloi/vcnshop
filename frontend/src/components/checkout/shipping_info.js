@@ -5,7 +5,7 @@ import LocationCityIcon from '@mui/icons-material/LocationCity'
 import PlaceIcon from '@mui/icons-material/Place'
 import PhoneIcon from '@mui/icons-material/Phone'
 import PublicIcon from '@mui/icons-material/Public'
-import { useForm } from 'react-hook-form'
+import { useForm, FormProvider, useFormContext, Controller } from 'react-hook-form'
 import DoubleArrowIcon from '@mui/icons-material/DoubleArrow'
 import MyLocationIcon from '@mui/icons-material/MyLocation'
 import axios from 'axios'
@@ -16,9 +16,12 @@ import LocalConvenienceStoreIcon from '@mui/icons-material/LocalConvenienceStore
 import { useNavigate, Navigate } from "react-router-dom"
 import Select from '@mui/material/Select'
 import { getCodeList } from 'country-list'
-import { Tooltip } from "@mui/material"
+import { Divider, FormControlLabel, Radio, Stack, Tooltip, Typography, Paper, RadioGroup } from "@mui/material"
 import BookmarkIcon from '@mui/icons-material/Bookmark'
-import { useSelector } from "react-redux"
+import { useDispatch, useSelector } from "react-redux"
+import { saveShippingInfo } from "../../store/actions/cart_actions"
+import ErrorIcon from '@mui/icons-material/Error'
+import { useTheme } from "@emotion/react"
 
 const defaultInputs = [
     {
@@ -53,23 +56,145 @@ const defaultInputs = [
     },
 ]
 
-const ShippingInfo = () => {
-    const number_of_items_in_cart = useSelector(({ cart }) => cart.cartItems.length)
-    const { register, handleSubmit, formState: { errors }, setValue, clearErrors, getValues, setError } = useForm()
-    const [getLocationLoading, setGetLocationLoading] = useState(false)
-    const navigate = useNavigate()
+const ConnectForm = ({ children }) => {
+    const useForm_methods = useFormContext()
+    return children({ ...useForm_methods })
+}
+
+const Country = ({ onSetValueInput, label, required, register }) => {
 
     const countries = useMemo(() => getCodeList(), [])
 
-    if (number_of_items_in_cart === 0) {
-        return (<Navigate to={-1} />)
+    const changePickCountry = (e, label) => {
+        onSetValueInput(label, e.target.value)
     }
 
+    return (
+        <Stack width="100%">
+            <StyledSelect
+                native
+                onChange={(e) => changePickCountry(e, label)}
+                fullWidth
+                inputProps={{ ...register(label, { required }) }}
+            >
+                <option value=""></option>
+                {
+                    Object.keys(countries).map((key) => (
+                        <option
+                            key={key}
+                            value={countries[key]}
+                        >
+                            {countries[key]}
+                        </option>
+                    ))
+                }
+            </StyledSelect>
+        </Stack>
+    )
+}
+
+const InputWarning = ({ label, error }) => {
+    return (
+        error &&
+        <InputWarningSection>
+            <WarningIcon sx={{ color: 'red', fontSize: '1.2em' }} />
+            <span>
+                {
+                    label === 'Phone Number' ?
+                        'Please type a correct phone number format that starts with calling code. Example: +1...'
+                        :
+                        'Please don\'t empty this field'
+                }
+            </span>
+        </InputWarningSection>
+    )
+}
+
+const ShippingMethod = ({ method, label, helper_text, cost }) => {
+    const theme = useTheme()
+
+    return (
+        <Stack
+            justifyContent="space-between"
+            alignItems="center"
+            flexDirection="row"
+            padding="10px 20px"
+        >
+            <div>
+                <FormControlLabel
+                    value={method}
+                    control={<StyledRadio color="default" />}
+                    label={label}
+                />
+                <HelperText>{helper_text}</HelperText>
+            </div>
+            <Typography fontFamily={theme.fontFamily.kanit}>
+                {cost}
+            </Typography>
+        </Stack>
+    )
+}
+
+const shipping_methods = [
+    {
+        method: 'Sea',
+        label: 'Sea Transport',
+        period: '5 - 7 bussiness days',
+        cost: 'Free',
+    }, {
+        method: 'Airport',
+        label: 'Airport',
+        period: '1 - 3 bussiness days',
+        cost: '$3',
+    },
+]
+
+const ShippingMethods = () => {
+    return (
+        <Stack width="50%" paddingLeft="20px" boxSizing="border-box">
+            <Note sx={{ marginBottom: '20px' }}>
+                <ErrorIcon sx={{ fontSize: '1.2em', color: 'gray' }} />
+                <span>Select a shipping method you want for your order</span>
+            </Note>
+
+            <ConnectForm>
+                {({ control }) => (
+                    <Controller
+                        control={control}
+                        name="Shipping Method"
+                        render={({ field: { onChange } }) => (
+                            <RadioGroup onChange={onChange}>
+                                <Stack rowGap="20px">
+                                    {
+                                        shipping_methods.map(({ method, label, period, cost }) => (
+                                            <Paper elevation={2} key={label}>
+                                                <ShippingMethod
+                                                    method={method}
+                                                    label={label}
+                                                    helper_text={period}
+                                                    cost={cost}
+                                                />
+                                            </Paper>
+                                        ))
+                                    }
+                                </Stack>
+                            </RadioGroup>
+                        )}
+                    />
+                )}
+            </ConnectForm>
+        </Stack>
+    )
+}
+
+const UserLocation = ({ onSetInputValue, onGetInputValues, onClearsError }) => {
+    const [loading, setLoading] = useState(false)
+
     const getUserLocation = async () => {
-        let api_to_get_user_location = '/api/getUserLocation'
+        let api_to_get_user_location = '/api/user/getUserLocation'
         let user_location_detail
 
-        setGetLocationLoading(true)
+        setLoading(true)
         try {
             let { data } = await axios.get(EXPRESS_SERVER + api_to_get_user_location)
             user_location_detail = {
@@ -81,165 +206,213 @@ const ShippingInfo = () => {
         } catch (error) {
             user_location_detail = error
         }
-        setGetLocationLoading(false)
+        setLoading(false)
 
         if (user_location_detail instanceof Error)
             return toast.error(user_location_detail.response ? user_location_detail.response.data.message : 'Something went wrong, please try again some minutes later!')
 
         for (let { label } of defaultInputs) {
-            setValue(label, user_location_detail[label] || '')
-            if (getValues(label)) clearErrors(label)
+            onSetInputValue(label, user_location_detail[label] || '')
+            if (onGetInputValues(label)) onClearsError(label)
         }
 
         toast.success('Apply your location successfully!')
     }
 
-    const shippingSubmit = (data, e) => {
-        e.preventDefault()
+    return (
+        <Tooltip
+            title="Click to use your location"
+            onClick={getUserLocation}
+        >
+            <StyledMyLocationIcon
+                sx={loading && { animationDuration: '2s', pointerEvents: 'none', cursor: 'not-allowed' }}
+            />
+        </Tooltip>
+    )
+}
 
-        if (data['Phone Number']) {
-            let phone_number = data['Phone Number'].trim()
-            if (phone_number[0] !== '+' || /[a-zA-Z]/.test(phone_number) || phone_number.length < 6)
-                return setError('Phone Number')
-        }
-
-        let shipping_info = {
-            'Address': data.Address,
-            'City': data.City,
-            'State': data.State,
-            'Zip Code': data['Zip Code'],
-            'Country': data.Country,
-            'Phone Number': data['Phone Number'],
-        }
-
-        // shipping_info: { Address, City, State, Country, Zip_Code, Phone_Number }
-        localStorage.setItem('shippingInfo', JSON.stringify(shipping_info))
-
-        navigate('/checkout?step=confirm_order')
-    }
-
-    const changePickCountry = (e, label) => {
-        setValue(label, e.target.value)
-    }
+const DefaultAddress = ({ onSetInputValue, onGetInputValues, onClearsError }) => {
 
     const usingDefaultAddress = () => {
         let default_address = localStorage.getItem('shippingInfo')
-        if (!default_address) return toast.warning('You don\'t set a default address yet')
-        let default_address_obj = JSON.parse(default_address)
-        for (let { label } of defaultInputs)
-            setValue(label, default_address_obj[label] || '')
+        if (!default_address)
+            return toast.warning('You don\'t set a default address yet')
+
+        default_address = JSON.parse(default_address)
+
+        for (let { label } of defaultInputs) {
+            onSetInputValue(label, default_address[label] || '')
+            if (onGetInputValues(label)) onClearsError(label)
+        }
     }
 
     return (
-        <ShippingInfoSection
-            id="ShippingInfoSection"
-            onSubmit={handleSubmit(shippingSubmit)}
+        <Tooltip
+            title="Click to use your default address"
+            onClick={usingDefaultAddress}
         >
-            <SectionTitle>Shipping Info</SectionTitle>
+            <StyledBookmarkIcon />
+        </Tooltip>
+    )
+}
 
-            <UserLocationSection>
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                    <Tooltip
-                        placement="right"
-                        title="Click to use your location"
-                        onClick={getUserLocation}
-                    >
-                        <StyledMyLocationIcon sx={getLocationLoading && { animationDuration: '2s', pointerEvents: 'none', cursor: 'not-allowed' }} />
-                    </Tooltip>
-                    <UserLocationText>GET MY LOCATION</UserLocationText>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                    <Tooltip
-                        placement="right"
-                        title="Click to use your default address"
-                        onClick={usingDefaultAddress}
-                    >
-                        <StyledBookmarkIcon />
-                    </Tooltip>
-                    <UserLocationText>USE MY DEFAULT ADDRESS</UserLocationText>
-                </div>
-            </UserLocationSection>
+const Inputs = () => {
+    return (
+        <ConnectForm>
+            {({ register, setValue, formState: { errors } }) => (
+                <InputsContainer>
+                    {
+                        defaultInputs.map(({ label, icon, required, maxLength }) => (
+                            <FormGroup key={label}>
+                                <InputLabel>{label}</InputLabel>
 
-            <InputsContainer>
-                {
-                    defaultInputs.map(({ label, icon, required, maxLength }) => (
-                        <FormGroup key={label}>
-                            <InputLabel>{label}</InputLabel>
-                            <TitleAndInput>
-                                {icon}
-                                {
-                                    label === 'Country' ?
-                                        <FormGroup>
-                                            <StyledSelect
-                                                native
-                                                onChange={(e) => changePickCountry(e, label)}
-                                                fullWidth
+                                <InputContainer>
+                                    {icon}
+                                    {
+                                        label === 'Country' ?
+                                            <Country
+                                                onSetValueInput={setValue}
+                                                required={required}
+                                                label={label}
+                                                register={register}
+                                            />
+                                            :
+                                            <Input
+                                                placeholder={'Enter ' + label + ' here...'}
                                                 {...register(label, { required })}
-                                            >
-                                                <option value=""></option>
-                                                {
-                                                    Object.keys(countries).map((key) => (
-                                                        <option
-                                                            key={key}
-                                                            value={countries[key]}
-                                                        >
-                                                            {countries[key]}
-                                                        </option>
-                                                    ))
-                                                }
-                                            </StyledSelect>
-                                        </FormGroup>
-                                        :
-                                        <Input
-                                            placeholder={'Enter ' + label + ' here...'}
-                                            {...register(label, { required })}
-                                            maxLength={maxLength}
-                                        />
-                                }
-                            </TitleAndInput>
-                            {
-                                errors[label] &&
-                                <InputWarning>
-                                    <WarningIcon sx={{ color: 'red', fontSize: '1.2em' }} />
-                                    <span>
-                                        {
-                                            label === 'Phone Number' ?
-                                                'Please type a correct phone number format that starts with calling code. Example: +1...'
-                                                :
-                                                'Please don\'t empty this field'
-                                        }
-                                    </span>
-                                </InputWarning>
-                            }
-                        </FormGroup>
-                    ))
-                }
-            </InputsContainer>
+                                                maxLength={maxLength}
+                                            />
+                                    }
+                                </InputContainer>
 
-            <SubmitBtn type="submit">
-                <span>Continue</span>
-                <DoubleArrowIcon />
-            </SubmitBtn>
-        </ShippingInfoSection>
+                                <InputWarning label={label} error={errors[label]} />
+                            </FormGroup>
+                        ))
+                    }
+                </InputsContainer>
+            )}
+        </ConnectForm>
+    )
+}
+
+const ShippingInfo = () => {
+    const number_of_items_in_cart = useSelector(({ cart }) => cart.cartItems.length)
+    const useForm_methods = useForm()
+    const { handleSubmit } = useForm_methods
+    const dispatch = useDispatch()
+    const navigate = useNavigate()
+
+    if (number_of_items_in_cart === 0) {
+        return (<Navigate to={-1} />)
+    }
+
+    const shippingSubmit = (data, e) => {
+        e.preventDefault()
+
+        let { setError } = useForm_methods
+        let {
+            Address,
+            City,
+            State,
+            'Zip Code': Zip_Code,
+            Country,
+            'Phone Number': Phone_Number,
+            'Shipping Method': Shipping_Method,
+        } = data
+
+        if (Phone_Number) {
+            let phone_number = Phone_Number.trim()
+            if (phone_number[0] !== '+' || /[a-zA-Z]/.test(phone_number) || phone_number.length < 6)
+                return setError('Phone Number')
+        }
+        if (!Shipping_Method)
+            return toast.warning('Please select a shipping method')
+
+        let shipping_method_selected = shipping_methods.find(({ method }) => method === Shipping_Method)
+
+        let shipping_info = {
+            'Address': Address,
+            'City': City,
+            'State': State,
+            'Zip Code': Zip_Code,
+            'Country': Country,
+            'Phone Number': Phone_Number,
+            'Method': {
+                'name': Shipping_Method,
+                'cost': shipping_method_selected.cost !== 'Free' ? shipping_method_selected.cost.slice(1) * 1 : 0,
+            }
+        }
+
+        dispatch(saveShippingInfo(shipping_info))
+
+        navigate('/checkout/confirm_order')
+    }
+
+    return (
+        <ShippingInfoSection id="ShippingInfoSection">
+            <SectionTitle>Delivery Information</SectionTitle>
+
+            <Stack flexDirection="row" columnGap="20px">
+                <FormProvider {...useForm_methods}>
+                    <ShippingMethods />
+                </FormProvider>
+
+                <Divider orientation="vertical" variant="middle" flexItem />
+
+                <Stack width="50%">
+                    <FormProvider {...useForm_methods}>
+                        <Inputs />
+                    </FormProvider>
+
+                    <Stack marginTop="30px" alignItems="center">
+                        <Note>
+                            <ErrorIcon sx={{ fontSize: '1.2em', color: 'gray' }} />
+                            <span>The shipping info above will be set to your default address ater you continue</span>
+                        </Note>
+
+                        <SubmitBtn onClick={handleSubmit(shippingSubmit)}>
+                            <span>Continue</span>
+                            <DoubleArrowIcon />
+                        </SubmitBtn>
+                    </Stack>
+                </Stack>
+
+                <Stack
+                    rowGap="50px"
+                    height="fit-content"
+                    padding="20px 10px"
+                    paddingRight="20px"
+                    position="sticky"
+                    top="0"
+                >
+                    <UserLocation
+                        onSetInputValue={useForm_methods.setValue}
+                        onClearsError={useForm_methods.clearErrors}
+                        onGetInputValues={useForm_methods.getValues}
+                    />
+                    <DefaultAddress
+                        onSetInputValue={useForm_methods.setValue}
+                        onClearsError={useForm_methods.clearErrors}
+                        onGetInputValues={useForm_methods.getValues}
+                    />
+                </Stack>
+            </Stack>
+        </ShippingInfoSection >
     )
 }
 
 export default ShippingInfo
 
-const ShippingInfoSection = styled('form')(({ theme }) => ({
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexDirection: 'column',
+const ShippingInfoSection = styled('div')(({ theme }) => ({
     width: '100%',
-    position: 'relative',
+    fontFamily: theme.fontFamily.nunito,
+    margin: '20px 0',
 }))
 
 const SectionTitle = styled('h2')({
     color: 'white',
     boxSizing: 'border-box',
     margin: '20px 0',
-    fontFamily: '"Gill Sans", sans-serif',
     textAlign: 'center',
     padding: '15px',
     width: '100%',
@@ -248,23 +421,12 @@ const SectionTitle = styled('h2')({
     letterSpacing: '3px',
 })
 
-const UserLocationSection = styled('div')({
-    display: 'flex',
-    flexDirection: 'column',
-    rowGap: '30px',
-    justifyContent: 'center',
-    position: 'absolute',
-    right: '10%',
-    height: '100%',
-})
-
 const style = {
     margin: 'auto',
     fontSize: '2em',
-    padding: '5px',
+    padding: '7px',
     borderRadius: '50%',
     cursor: 'pointer',
-    border: '2px white solid',
     animation: 'get_user_location 0s infinite linear',
     '&:hover': {
         outline: '2px black solid',
@@ -283,19 +445,10 @@ const StyledBookmarkIcon = styled(BookmarkIcon)({
     ...style,
 })
 
-const UserLocationText = styled('div')({
-    marginTop: '10px',
-    fontFamily: '"Roboto", "sans-serif"',
-    fontSize: '1em',
-    paddingBottom: '1px',
-    borderBottom: '2px black solid',
-    maxWidth: '200px',
-    textAlign: 'center',
-})
-
 const InputsContainer = styled('div')({
-    padding: '0 10px 10px',
-    width: '40%',
+    paddingLeft: '10px',
+    width: '100%',
+    boxSizing: 'border-box',
 })
 
 const FormGroup = styled('div')({
@@ -303,7 +456,7 @@ const FormGroup = styled('div')({
     width: '100%',
 })
 
-const TitleAndInput = styled('div')({
+const InputContainer = styled('div')({
     display: 'flex',
     alignItems: 'center',
     columnGap: '10px',
@@ -340,7 +493,6 @@ const StyledSelect = styled(Select)(({ theme }) => ({
 const InputLabel = styled('label')({
     display: 'block',
     fontSize: '1em',
-    fontFamily: '"Roboto", "sans-serif"',
     fontWeight: 'bold',
     marginBottom: '5px',
     marginLeft: '40px',
@@ -351,7 +503,6 @@ const Input = styled('input')({
     width: '100%',
     padding: '10px 15px',
     fontSize: '1em',
-    fontFamily: '"Roboto", "sans-serif"',
     outline: 'unset',
     '&:focus': {
         borderRightWidth: '8px',
@@ -359,16 +510,27 @@ const Input = styled('input')({
     },
 })
 
-const InputWarning = styled('div')({
+const InputWarningSection = styled('div')({
     display: 'flex',
     alignItems: 'center',
     columnGap: '5px',
     padding: '3px',
     fontSize: '0.9em',
-    fontFamily: '"Roboto", "sans-serif"',
     color: 'red',
     marginLeft: '40px',
     marginTop: '3px',
+})
+
+const Note = styled('div')({
+    display: 'flex',
+    alignItems: 'center',
+    columnGap: '5px',
+    marginTop: '10px',
+    paddingLeft: '10px',
+    '& span': {
+        fontFamily: '"Nunito", "sans-serif"',
+        fontSize: '0.8em',
+    }
 })
 
 const SubmitBtn = styled('button')({
@@ -378,13 +540,13 @@ const SubmitBtn = styled('button')({
     backgroundColor: 'black',
     color: 'white',
     padding: '8px 30px',
-    fontFamily: '"Roboto", "sans-serif"',
     fontSize: '1em',
     marginTop: '20px',
     border: '2px black solid',
     cursor: 'pointer',
     boxSizing: 'border-box',
     borderRadius: '20px',
+    width: 'fit-content',
     '&:hover': {
         backgroundColor: 'white',
         color: 'black',
@@ -392,5 +554,20 @@ const SubmitBtn = styled('button')({
     '&:active': {
         backgroundColor: 'black',
         color: 'white',
+    },
+})
+
+const HelperText = styled('div')({
+    color: 'gray',
+    fontFamily: '"Gill Sans", sans-serif',
+    fontSize: '0.8em',
+    marginBottom: '5px',
+})
+
+const StyledRadio = styled(Radio)({
+    pointerEvents: 'none',
+    color: 'black',
+    '& .MuiSvgIcon-root': {
+        fontSize: '1em',
     },
 })

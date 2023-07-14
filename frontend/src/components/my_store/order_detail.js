@@ -2,7 +2,7 @@ import React, { useEffect } from "react"
 import { styled } from '@mui/material/styles'
 import { useNavigate, useParams } from "react-router-dom"
 import { useDispatch, useSelector } from "react-redux"
-import { getOrderForShop } from "../../store/actions/order_actions"
+import { getOrderDetailForShop } from "../../store/actions/order_actions"
 import { Skeleton } from "@mui/material"
 import Stepper from '@mui/material/Stepper'
 import Step from '@mui/material/Step'
@@ -99,16 +99,19 @@ const OrderStatus = ({ orderStatus }) => (
     </ContainerComponent>
 )
 
+const get_total_price = (items) => {
+    return items.reduce((accumulator, { price, quantity }) => {
+        return (accumulator + (price * quantity)).toFixed(2) * 1
+    }, 0)
+}
+
 const TotalPriceSection = ({ items }) => {
-
-    const get_total_price = () => items.reduce((accumulator, { price, quantity }) => accumulator + (price * quantity).toFixed(2) * 1, 0)
-
     return (
         <Payment>
             <span></span>
             <div style={{ display: 'flex', columnGap: '20px' }}>
-                <Type>Total</Type>
-                <div>{'$' + get_total_price()}</div>
+                <Type>Total:</Type>
+                <div>{'$' + get_total_price(items)}</div>
             </div>
         </Payment>
     )
@@ -192,7 +195,7 @@ const OrderDetail = () => {
     const navigate = useNavigate()
 
     useEffect(() => {
-        dispatch(getOrderForShop(undefined, orderId))
+        dispatch(getOrderDetailForShop(orderId))
     }, [dispatch])
 
     return (

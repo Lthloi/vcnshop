@@ -11,7 +11,7 @@ const status = {
     fail: 'fail',
 }
 
-const ProtectedRoute = ({ children, isWithInternalComponent, isAdminRoute }) => {
+const ProtectedResource = ({ children, isWithInternalComponent, isAdminRoute }) => {
     const [statusOfVerify, setstatusOfVerify] = useState(null)
     const { user: { isAuthenticated, role }, error } = useSelector(({ user }) => user)
     const navigate_to_login = useNavToRedirectLogin()
@@ -62,7 +62,7 @@ const ProtectedRoute = ({ children, isWithInternalComponent, isAdminRoute }) => 
     )
 }
 
-export default ProtectedRoute
+export default ProtectedResource
 
 const InternalComponent = styled('div')(({ theme }) => ({
     display: 'flex',

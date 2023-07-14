@@ -10,7 +10,7 @@ import ListItemIcon from '@mui/material/ListItemIcon'
 import ListItemText from '@mui/material/ListItemText'
 import DashboardIcon from '@mui/icons-material/Dashboard'
 import Dashboard from "../components/admin/dashboard"
-import { Skeleton } from "@mui/material"
+import { Skeleton, Stack } from "@mui/material"
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings'
 import AllInboxIcon from '@mui/icons-material/AllInbox'
 import Products from "../components/admin/products"
@@ -99,7 +99,7 @@ const Admin = () => {
                     }
                 </StyledList>
                 {
-                    users && users.length > 0 && orders && orders.length > 0 && products && products.length > 0 ?
+                    users && orders && products ?
                         button === tabs.dashboard ? (
                             <Dashboard
                                 users={users}
@@ -111,13 +111,10 @@ const Admin = () => {
                             <Products products={products} />
                         )
                         :
-                        <LoadingContainer>
-                            <StyledSkeleton sx={{ height: '500px', width: '20%' }} />
-                            <div style={{ width: '80%' }}>
-                                <StyledSkeleton sx={{ height: '100px' }} />
-                                <StyledSkeleton sx={{ height: '380px', marginTop: '20px' }} />
-                            </div>
-                        </LoadingContainer>
+                        <Stack width="100%" boxSizing="border-box">
+                            <StyledSkeleton sx={{ height: '100px' }} />
+                            <StyledSkeleton sx={{ height: '380px', marginTop: '20px' }} />
+                        </Stack>
                 }
             </AdminSection>
         </AdminPageSection>
@@ -194,15 +191,6 @@ const StyledListItemButton = styled(ListItemButton)({
     '& .MuiListItemIcon-root': {
         minWidth: '40px',
     },
-})
-
-const LoadingContainer = styled('div')({
-    display: 'flex',
-    columnGap: '20px',
-    width: '100%',
-    padding: '0 20px',
-    marginTop: '30px',
-    boxSizing: 'border-box',
 })
 
 const StyledSkeleton = styled(Skeleton)({

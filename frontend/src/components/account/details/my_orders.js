@@ -66,7 +66,7 @@ const RenderType = (label_of_type, value_of_type) => {
 }
 
 const MyOrders = () => {
-    const { orders, countOrder, currentPage, currentTab, loading, error } = useSelector(({ order }) => order)
+    const { orders, countOrders, currentPage, currentTab, loading, error } = useSelector(({ order }) => order)
     const dispatch = useDispatch()
     const orders_container_ref = useRef()
     const navigate = useNavigate()
@@ -93,13 +93,13 @@ const MyOrders = () => {
     const viewOrder = (order_id) => navigate(current_route + '/orderDetail/' + order_id)
 
     const continueToPayment = (order_id) => {
-        navigate('/checkout?step=payment&orderId=' + order_id)
+        navigate('/checkout/payment?orderId=' + order_id)
     }
 
     return (
         <MyOrdersSection id="MyOrdersSection">
             <TitleSection>My Orders</TitleSection>
-            <HelperText>{'Displaying ' + orders.length + ' of ' + countOrder}</HelperText>
+            <HelperText>{'Displaying ' + orders.length + ' of ' + countOrders}</HelperText>
             {
                 loading ? (
                     <>
@@ -175,7 +175,7 @@ const MyOrders = () => {
             }
             <div style={{ display: 'flex', justifyContent: 'center' }}>
                 <ReviewPages
-                    count={Math.ceil(countOrder / LIMIT_GET_ORDERS)}
+                    count={Math.ceil(countOrders / LIMIT_GET_ORDERS)}
                     variant="outlined"
                     shape="rounded"
                     onChange={switchPage}

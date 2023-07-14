@@ -23,15 +23,16 @@
                 Receiver Info
             </h2>
             <div><%= 'Email: ' + receiverInfo.email %></div>
-            <div><%= 'Phone: ' + receiverInfo.phone %></div>
-            <div><%= 'Paid On: ' + receiverInfo.payment_method %></div>
+            <div><%= 'Phone: +' + receiverInfo.phone %></div>
+            <div><%= 'Paid On: ' + receiverInfo.paidOn %></div>
+            <div><%= 'Paid At: ' + paidAt %></div>
         </div>
         <div style="font-family: Arial, Helvetica, sans-serif; font-size: 14px; width: 50%; color: gray; ">
             <h2 style="font-family: Arial, Helvetica, sans-serif; margin: 10px 0 5px;">
                 Delivery Info
             </h2>
             <div><%= 'Address: ' + deliveryInfo.address %></div>
-            <div><%= 'Shipping Method: ' + deliveryInfo.shipping_method %></div>
+            <div><%= 'Shipping Method: ' + deliveryInfo.shippingMethod %></div>
         </div>
     </div>
     <h2 style="font-family: Arial, Helvetica, sans-serif; font-size: 16px; font-weight: bold; margin: 15px 0 2px;">
@@ -40,13 +41,13 @@
     <table style="width: 99%; border-collapse: collapse;">
         <tbody>
             <tr style="font-family: Arial, Helvetica, sans-serif; font-size: 12px;">
-                <th style="background-color: lightgray; width: 65%; padding: 3px; border: 1px gray solid;">
+                <th style="background-color: lightgrey; width: 65%; padding: 3px; border: 1px gray solid;">
                     Item
                 </th>
-                <th style="background-color: lightgray; width: 14%; padding: 3px; border: 1px gray solid;">
+                <th style="background-color: lightgrey; width: 14%; padding: 3px; border: 1px gray solid;">
                     Quantity
                 </th>
-                <th style="background-color: lightgray; width: 20%; padding: 3px; border: 1px gray solid;">
+                <th style="background-color: lightgrey; width: 20%; padding: 3px; border: 1px gray solid;">
                     Subtotal (USD)
                 </th>
             </tr>
@@ -67,19 +68,19 @@
 
             <tr style="font-family: Arial, Helvetica, sans-serif; font-size: 12px;">
                 <th colspan="2"
-                    style="padding: 3px; background-color: lightgray; font-size: 14px; border: 1px gray solid; font-weight: normal;">
+                    style="padding: 3px; background-color: lightgrey; font-size: 14px; border: 1px gray solid; font-weight: normal;">
                     Shipping Fee
                 </th>
-                <th style="padding: 3px; background-color: lightgray; border: 1px gray solid; font-weight: normal;">
+                <th style="padding: 3px; background-color: lightgrey; border: 1px gray solid; font-weight: normal;">
                     <%= shipping_fee %>
                 </th>
             </tr>
             <tr style="font-family: Arial, Helvetica, sans-serif; font-size: 12px;">
                 <th colspan="2"
-                    style="padding: 3px; background-color: lightgray; font-size: 14px; border: 1px gray solid; font-weight: normal;">
+                    style="padding: 3px; background-color: lightgrey; font-size: 14px; border: 1px gray solid; font-weight: normal;">
                     Tax Fee
                 </th>
-                <th style="padding: 3px; background-color: lightgray; border: 1px gray solid; font-weight: normal;">
+                <th style="padding: 3px; background-color: lightgrey; border: 1px gray solid; font-weight: normal;">
                     <%= tax_fee %>
                 </th>
             </tr>

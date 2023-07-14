@@ -17,6 +17,7 @@ import PlaceIcon from '@mui/icons-material/Place'
 import HomeIcon from '@mui/icons-material/Home'
 import ErrorIcon from '@mui/icons-material/Error'
 import moment from "moment"
+import { Stack } from '@mui/material'
 
 const RenderPayment = (type_name, type_cost) => (
     <Payment>
@@ -43,7 +44,7 @@ const RenderCustomerDetail = (icon, text) => (
 )
 
 const format_date = (time_string) => {
-    return moment(time_string.toISOString()).format('MMMM Do YYYY, HH:mm')
+    return moment(time_string).format('MMMM Do YYYY, h:mm a')
 }
 
 const OrderDetail = () => {
@@ -75,7 +76,7 @@ const OrderDetail = () => {
                         <span className="hightlight">{'#' + order.payment_info.id}</span>
                         <CreatedAt>{format_date(order.createdAt)}</CreatedAt>
                     </IDTitle>
-                    <div style={{ display: 'flex', columnGap: '20px', marginTop: '25px' }}>
+                    <Stack flexDirection="row" columnGap="20px" marginTop="25px">
                         <OrderedItemsContainer>
                             <OrderedItemTitle>Ordered Items</OrderedItemTitle>
                             <OrderItems>
@@ -118,8 +119,8 @@ const OrderDetail = () => {
                         </OrderedItemsContainer>
 
                         <OrderStatus status={order.order_status} />
-                    </div>
-                    <div style={{ display: 'flex', columnGap: '20px', justifyContent: 'space-between', marginTop: '30px' }}>
+                    </Stack>
+                    <Stack flexDirection="row" columnGap="20px" justifyContent="space-between" marginTop="30px">
                         <CustomerDetailsContainer>
                             <DetailsTitle>
                                 <LocalShippingIcon />
@@ -147,7 +148,7 @@ const OrderDetail = () => {
                                 {RenderCustomerDetail(<CreditCardIcon />, 'paid on ' + order.payment_info.method)}
                             </div>
                         </CustomerDetailsContainer>
-                    </div>
+                    </Stack>
                 </div>
             }
         </OrderDetailSection>

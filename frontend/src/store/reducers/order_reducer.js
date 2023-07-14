@@ -7,17 +7,20 @@ export const orderSlice = createSlice({
         currentTab: null,
         order: {},
         orders: [],
-        countOrder: 0,
+        countOrders: 0,
         loading: false,
         error: null,
+        paymentCompleted: false
     },
     reducers: {
         completeOrderRequest: (state, action) => {
             state.loading = true
             state.error = null
+            state.paymentCompleted = false
         },
         completeOrderSuccess: (state, action) => {
             state.loading = true
+            state.paymentCompleted = true
         },
         completeOrderFail: (state, action) => {
             state.loading = false
@@ -47,8 +50,8 @@ export const orderSlice = createSlice({
             state.loading = false
             state.orders = action.payload.orders
 
-            let { currentPage, countOrder, currentTab } = action.payload
-            state.countOrder = countOrder
+            let { currentPage, countOrders, currentTab } = action.payload
+            state.countOrders = countOrders
             state.currentPage = currentPage
             state.currentTab = currentTab
         },

@@ -11,7 +11,7 @@ import { useDispatch } from "react-redux"
 import { NavLink } from 'react-router-dom'
 import { Tooltip } from "@mui/material"
 
-const description_titles = [
+const titles = [
     { title: 'Product', width: '20%', },
     { title: 'Detail', width: '35%', },
     { title: 'Quantity', width: '15%', },
@@ -19,37 +19,86 @@ const description_titles = [
     { title: 'Remove', width: '15%', },
 ]
 
-const quantity_icon_style = {
-    cursor: 'pointer',
-    width: '1em',
-    height: '1em',
-    transition: 'transform 0.2s',
-    '&:hover': {
-        transform: 'scale(1.2)',
-    }
-}
-
-const ProductCardsSection = ({ cartItems }) => {
+const ProductCard = ({ itemInfo }) => {
+    const { _id, image_link, name, size, color, quantity, stock, price } = itemInfo
     const dispatch = useDispatch()
 
-    const removeItems = (product_id) => {
-        dispatch(removeItemFromCart(product_id))
+    const removeItems = () => {
+        dispatch(removeItemFromCart(_id))
     }
 
-    const changeProductQuantity = (option, quantity, stock, product_id) => {
+    const changeProductQuantity = (option) => {
         if (option === 1 && quantity === stock) return
         if (option === -1 && quantity === 1) return
-        dispatch(changeQuantity(product_id, option))
+        dispatch(changeQuantity(_id, option))
+    }
+
+    const getQtyIocnStyle = (option) => {
+        let quantity_icon_style = {
+            cursor: 'pointer',
+            width: '1em',
+            height: '1em',
+            transition: 'transform 0.2s',
+            '&:hover': {
+                transform: 'scale(1.2)',
+            }
+        }
+
+        if ((option === 1 && quantity === stock) || (option === -1 && quantity === 1))
+            return { ...quantity_icon_style, opacity: '0.5', pointerEvents: 'none' }
+        else
+            return quantity_icon_style
     }
 
     return (
-        <ProductCardsSectionArea
-            id="ProductCardsSectionArea"
+        <ProductCardSection>
+            <ProductImgWrapper to={`/productDetail/${_id}`}>
+                <img src={image_link} style={{ width: '100%' }} alt="Product" />
+            </ProductImgWrapper>
+            <ProductInfoContainer>
+                <Name to={`/productDetail/${_id}`}>
+                    {name}
+                </Name>
+                <div>{'Size: ' + size}</div>
+                <div>{'Color: ' + color}</div>
+            </ProductInfoContainer>
+            <Quantity>
+                <Tooltip title="Increase one" placement="top">
+                    <AddCircleOutlineIcon
+                        sx={getQtyIocnStyle(1)}
+                        onClick={() => changeProductQuantity(1)}
+                    />
+                </Tooltip>
+                <NumberCount>{quantity}</NumberCount>
+                <Tooltip title="Decrease one">
+                    <RemoveCircleOutlineIcon
+                        sx={getQtyIocnStyle(-1)}
+                        onClick={() => changeProductQuantity(-1)}
+                    />
+                </Tooltip>
+            </Quantity>
+            <Price>
+                {'$' + price.toLocaleString('en', { useGrouping: true })}
+            </Price>
+            <Remove>
+                <Tooltip title="Remove this product">
+                    <StyledDeleteForeverIcon onClick={() => removeItems(_id)} />
+                </Tooltip>
+            </Remove>
+        </ProductCardSection>
+    )
+}
+
+const ProductCards = ({ cartItems }) => {
+
+    return (
+        <ProductCardsSection
+            id="ProductCardsSection"
             sx={cartItems.length > 0 ? { height: 'fit-content' } : { height: 'auto' }}
         >
             <DescriptionsCard>
                 {
-                    description_titles.map(({ title, width }) => (
+                    titles.map(({ title, width }) => (
                         <DescriptionsTitle
                             title={title}
                             key={title}
@@ -62,43 +111,9 @@ const ProductCardsSection = ({ cartItems }) => {
             </DescriptionsCard>
             {
                 cartItems.length > 0 ?
-                    cartItems.map(({ _id, image_link, name, size, color, quantity, stock, price }) => (
-                        <React.Fragment key={_id}>
-                            <ProductCardsArea>
-                                <ProductImgWrapper to={`/productDetail/${_id}`}>
-                                    <img src={image_link} style={{ width: '100%' }} alt="Product" />
-                                </ProductImgWrapper>
-                                <ProductInfoContainer>
-                                    <Name to={`/productDetail/${_id}`}>
-                                        {name}
-                                    </Name>
-                                    <div>{'Size: ' + size}</div>
-                                    <div>{'Color: ' + color}</div>
-                                </ProductInfoContainer>
-                                <Quantity>
-                                    <Tooltip title="Increase one" placement="top">
-                                        <AddCircleOutlineIcon
-                                            sx={quantity_icon_style}
-                                            onClick={() => changeProductQuantity(1, quantity, stock, _id)}
-                                        />
-                                    </Tooltip>
-                                    <NumberCount>{quantity}</NumberCount>
-                                    <Tooltip title="Decrease one">
-                                        <RemoveCircleOutlineIcon
-                                            sx={quantity_icon_style}
-                                            onClick={() => changeProductQuantity(-1, quantity, stock, _id)}
-                                        />
-                                    </Tooltip>
-                                </Quantity>
-                                <Price>
-                                    {'$' + price.toLocaleString('en', { useGrouping: true })}
-                                </Price>
-                                <Remove>
-                                    <Tooltip title="Remove this product">
-                                        <StyledDeleteForeverIcon onClick={() => removeItems(_id)} />
-                                    </Tooltip>
-                                </Remove>
-                            </ProductCardsArea>
+                    cartItems.map((item) => (
+                        <React.Fragment key={item._id}>
+                            <ProductCard itemInfo={item} />
 
                             <Hr />
                         </React.Fragment>
@@ -121,13 +136,13 @@ const ProductCardsSection = ({ cartItems }) => {
                         </EmptyCartBtn>
                     </EmptyCartContainer>
             }
-        </ProductCardsSectionArea>
+        </ProductCardsSection>
     )
 }
 
-export default ProductCardsSection
+export default ProductCards
 
-const ProductCardsSectionArea = styled('div')(({ theme }) => ({
+const ProductCardsSection = styled('div')(({ theme }) => ({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
@@ -158,7 +173,7 @@ const DescriptionsTitle = styled('div')({
     boxSizing: 'border-box',
 })
 
-const ProductCardsArea = styled('div')(({ theme }) => ({
+const ProductCardSection = styled('div')(({ theme }) => ({
     display: 'flex',
     justifyContent: 'space-between',
     columnGap: '10px',
@@ -169,7 +184,7 @@ const ProductCardsArea = styled('div')(({ theme }) => ({
 
 const ProductImgWrapper = styled(NavLink)({
     display: 'block',
-    width: description_titles[0].width,
+    width: titles[0].width,
     boxSizing: 'border-box',
 })
 
@@ -189,7 +204,7 @@ const ProductInfoContainer = styled('div')({
     display: 'flex',
     flexDirection: 'column',
     rowGap: '10px',
-    width: description_titles[1].width,
+    width: titles[1].width,
     boxSizing: 'border-box',
 })
 
@@ -211,7 +226,7 @@ const Quantity = styled('div')({
     justifyContent: 'center',
     alignItems: 'center',
     rowGap: '5px',
-    width: description_titles[2].width,
+    width: titles[2].width,
     boxSizing: 'border-box',
 })
 
@@ -226,13 +241,13 @@ const Price = styled('div')({
     alignItems: 'center',
     fontWeight: 'bold',
     fontSize: '1.2em',
-    width: description_titles[3].width,
+    width: titles[3].width,
     boxSizing: 'border-box',
 })
 
 const Remove = styled('div')({
     display: 'flex',
-    width: description_titles[4].width,
+    width: titles[4].width,
     boxSizing: 'border-box',
 })
 

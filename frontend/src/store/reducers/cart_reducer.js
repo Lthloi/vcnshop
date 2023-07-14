@@ -1,16 +1,26 @@
 import { createSlice, current } from '@reduxjs/toolkit'
 
+const get_cartItems = () => {
+    let cart_items = localStorage.getItem('cartItems')
+    return cart_items ? JSON.parse(cart_items) : []
+}
+
+const get_shippingInfo = () => {
+    let shipping_info = localStorage.getItem('shippingInfo')
+    return shipping_info ? JSON.parse(shipping_info) : null
+}
+
+const get_orderInfo = () => {
+    let order_info = sessionStorage.getItem('orderInfo')
+    return order_info ? JSON.parse(order_info) : null
+}
+
 export const cartSlice = createSlice({
     name: 'cart',
     initialState: {
-        cartItems: localStorage.getItem('cartItems') ?
-            JSON.parse(localStorage.getItem('cartItems'))
-            :
-            [],
-        shippingInfo: localStorage.getItem('shippingInfo') ?
-            JSON.parse(localStorage.getItem('shippingInfo'))
-            :
-            null,
+        cartItems: get_cartItems(),
+        shippingInfo: get_shippingInfo(),
+        orderInfo: get_orderInfo(),
         loading: false,
         error: null,
     },
@@ -58,13 +68,45 @@ export const cartSlice = createSlice({
 
             state.cartItems = current(state).cartItems.filter(({ _id }) => _id !== productId)
         },
+
+
+        saveShipping: (state, action) => {
+            state.shippingInfo = action.payload
+        },
+
+
+        saveOrder: (state, action) => {
+            let {
+                total_to_pay,
+                shipping_fee,
+                tax_fee,
+                tax_charge,
+                shipping_fee_charge,
+                subtotal,
+            } = action.payload
+
+            state.orderInfo = {
+                total_to_pay,
+                shipping_fee,
+                tax_fee,
+                tax_charge,
+                shipping_fee_charge,
+                subtotal,
+            }
+        },
+
+
+        deleteCheckout: (state, action) => {
+            state.orderInfo = null
+        },
     },
 })
 
 export const {
     addProductToCartRequest, addProductToCartSuccess, addProductToCartFail,
     changeQuantityRequest, changeQuantityFail,
-    removeItem,
+    removeItem, saveShipping, saveOrder,
+    deleteCheckout,
     initPaymentRequest, initPaymentSuccess, initPaymentFail,
 } = cartSlice.actions
 

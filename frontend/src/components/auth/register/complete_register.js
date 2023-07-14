@@ -9,7 +9,7 @@ import "react-toastify/dist/ReactToastify.css"
 import { useDispatch } from "react-redux"
 import { completeRegister } from "../../../store/actions/user_actions"
 
-const CompleteRegister = ({ emailWasTyped, loading, authTheme }) => {
+const CompleteRegister = ({ emailWasTyped, loading }) => {
     const { register, handleSubmit, setError, formState: { errors }, reset } = useForm()
     const [checkboxChecked, setCheckboxChecked] = useState(false)
     const [showWarningCheckbox, setShowWarningCheckbox] = useState(false)
@@ -55,7 +55,6 @@ const CompleteRegister = ({ emailWasTyped, loading, authTheme }) => {
         <ProvideInfoForm
             id="CompleteRegister"
             onSubmit={handleSubmit(submitProvideInfo)}
-            theme={authTheme}
         >
             <Title>We need more information...</Title>
             <Desc>
@@ -111,7 +110,7 @@ const CompleteRegister = ({ emailWasTyped, loading, authTheme }) => {
 export default CompleteRegister
 
 const ProvideInfoForm = styled('form')(({ theme }) => ({
-    ...theme,
+    ...theme.auth_background,
     overflowY: 'auto',
 }))
 

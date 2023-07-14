@@ -14,7 +14,7 @@ import ResetPasswordSection from "./reset_password"
 import { forgotPassword } from "../../store/actions/user_actions"
 import ForgotPasswordVerifyOTP from './forgot_password_verify_OTP'
 
-const ForgotPasswordSection = ({ authTheme }) => {
+const ForgotPasswordSection = () => {
     const [openProblemSection, setOpenProblemSection] = useState(false)
     const email_input_ref = useRef()
     const email_was_typed_ref = useRef()
@@ -53,7 +53,7 @@ const ForgotPasswordSection = ({ authTheme }) => {
         forgotPasswordStep === 3 ? (
             <ResetPasswordSection emailWasTyped={email_was_typed_ref.current} loading={loading} />
         ) :
-            <ForgotPasswordArea id="ForgotPasswordArea" theme={authTheme}>
+            <ForgotPasswordArea id="ForgotPasswordArea">
 
                 <ProblemSection
                     open={openProblemSection}
@@ -135,7 +135,7 @@ const ForgotPasswordSection = ({ authTheme }) => {
 export default ForgotPasswordSection
 
 const ForgotPasswordArea = styled('div')(({ theme }) => ({
-    ...theme,
+    ...theme.auth_background,
     overflowY: 'auto',
 }))
 

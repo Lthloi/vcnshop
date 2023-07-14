@@ -2,7 +2,8 @@ import axios from 'axios'
 import {
     addProductToCartRequest, addProductToCartSuccess, addProductToCartFail,
     changeQuantityRequest, changeQuantityFail,
-    removeItem,
+    removeItem, saveShipping, saveOrder,
+    deleteCheckout,
 } from '../../store/reducers/cart_reducer'
 import { toast } from 'react-toastify'
 import actionsErrorHandler from '../../utils/error_handler'
@@ -27,7 +28,7 @@ const addProductToCart = (product_id, options) => async (dispatch, getState) => 
 
         if (product_in_cart) {
             let current_qty = product_in_cart.quantity
-            if (current_qty + 1 >= productData.stock || current_qty === productData.stock) {
+            if (current_qty + 1 > productData.stock || current_qty === productData.stock) {
                 dispatch(addProductToCartFail({}))
                 return toast.warning('The quantity of product in your cart now is greater than in stock')
             }
@@ -37,11 +38,9 @@ const addProductToCart = (product_id, options) => async (dispatch, getState) => 
             _id: product_id,
             image_link: productData.image_link,
             name: productData.name,
-            size: options ? options.size : productData.options.size[0],
-            color: options ? options.color : productData.options.color[0],
-            shop: {
-                id: productData.shop.id,
-            },
+            size: options ? options.size : productData.options.sizes[0],
+            color: options ? options.color : productData.options.colors[0],
+            shop_id: productData.shop.id,
             price: productData.price.value,
             quantity: 1,
             stock: productData.stock,
@@ -79,12 +78,46 @@ const changeQuantity = (product_id, option) => async (dispatch, getState) => {
     }
 }
 
-const removeItemFromCart = (product_id) => async (dispatch, getState) => {
+const removeItemFromCart = (product_id) => (dispatch, getState) => {
     dispatch(removeItem({ productId: product_id }))
 
     localStorage.setItem('cartItems', JSON.stringify(getState().cart.cartItems))
 }
 
+const saveShippingInfo = (shipping_info) => (dispatch, getState) => {
+    dispatch(saveShipping(shipping_info))
+
+    localStorage.setItem('shippingInfo', JSON.stringify(getState().cart.shippingInfo))
+}
+
+const saveOrderInfo = ({
+    total_to_pay,
+    shipping_fee,
+    tax_fee,
+    tax_charge,
+    shipping_fee_charge,
+    subtotal,
+}) => (dispatch, getState) => {
+    dispatch(saveOrder({
+        total_to_pay,
+        shipping_fee,
+        tax_fee,
+        tax_charge,
+        shipping_fee_charge,
+        subtotal,
+    }))
+
+    sessionStorage.setItem('orderInfo', JSON.stringify(getState().cart.orderInfo))
+}
+
+const deleteCheckoutInfo = () => (dispatch) => {
+    dispatch(deleteCheckout())
+
+    sessionStorage.removeItem('orderInfo')
+    localStorage.removeItem('cartItems')
+}
+
 export {
     addProductToCart, removeItemFromCart, changeQuantity,
+    saveShippingInfo, saveOrderInfo, deleteCheckoutInfo,
 }

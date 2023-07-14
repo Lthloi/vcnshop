@@ -1,11 +1,12 @@
 import React, { useState } from "react"
-import { createTheme, styled } from '@mui/material/styles'
+import { styled, ThemeProvider } from '@mui/material/styles'
+import { auth_theme } from "../styles/themes"
 import Mascot from '../assets/images/VCNShop_Mascot.png'
 import TermsOfUse from "../components/terms_of_use"
 import { NavLink } from "react-router-dom"
-import LoginSection from '../components/auth/login'
-import RegisterSection from '../components/auth/register/register'
-import ForgotPasswordSection from '../components/auth/forgot_password'
+import Login from '../components/auth/login'
+import Register from '../components/auth/register/register'
+import ForgotPassword from '../components/auth/forgot_password'
 import { Route, Routes } from "react-router-dom"
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline'
 
@@ -53,30 +54,18 @@ const Auth = () => {
                 </div>
             </Layout>
 
-            <Routes>
-                <Route path='/' element={<LoginSection authTheme={customTheme.auth_section_background} />} />
-                <Route path='/login' element={<LoginSection authTheme={customTheme.auth_section_background} />} />
-                <Route path='/register' element={<RegisterSection authTheme={customTheme.auth_section_background} />} />
-                <Route path='/forgotPassword' element={<ForgotPasswordSection authTheme={customTheme.auth_section_background} />} />
-            </Routes>
+            <ThemeProvider theme={auth_theme}>
+                <Routes>
+                    <Route path='/login' element={<Login />} />
+                    <Route path='/register' element={<Register />} />
+                    <Route path='/forgotPassword' element={<ForgotPassword />} />
+                </Routes>
+            </ThemeProvider>
         </AuthPage>
     )
 }
 
 export default Auth
-
-const customTheme = createTheme({
-    auth_section_background: {
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between',
-        width: '40%',
-        height: '100%',
-        padding: '20px 40px 30px',
-        boxSizing: 'border-box',
-        backgroundColor: '#242424',
-    },
-})
 
 const AuthPage = styled('div')({
     display: 'flex',

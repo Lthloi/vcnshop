@@ -63,10 +63,12 @@ const sendReceiptViaEmail = async (
         taxFee,
         shippingFee,
         totalToPay,
+        createdAt
     }
 ) => {
 
-    let generated_on = moment().format("dddd, MMMM Do YYYY")
+    let generated_on = moment().format("MMMM Do YYYY")
+    let paidAt = moment(createdAt).format('MMMM Do YYYY, h:mm a')
 
     try {
         let html_to_send = await getReceiptHtmlString(
@@ -78,7 +80,8 @@ const sendReceiptViaEmail = async (
             shippingFee,
             taxFee,
             totalToPay,
-            generated_on
+            generated_on,
+            paidAt
         )
 
         await transporter.sendMail({

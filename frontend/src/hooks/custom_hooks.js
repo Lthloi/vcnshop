@@ -84,17 +84,17 @@ const useNumerToWords = () => (number, currency_code = 'USD') => {
     return words
 }
 
-const useGetQueryValue = () => (query_string_input, unique_string_name) => {
-    if (query_string_input === 1) {
+const useGetQueryValue = () => (query_string_input, unique_query_name) => {
+    if (query_string_input === 1) { // if this then get query value by the current route with query string
         let query_string_to_get = new URLSearchParams(window.location.search)
-        return query_string_to_get.get(unique_string_name)
+        return query_string_to_get.get(unique_query_name)
     } else {
         let query_string_to_get = new URLSearchParams(query_string_input)
-        return query_string_to_get.get(unique_string_name)
+        return query_string_to_get.get(unique_query_name)
     }
 }
 
-// per rerender then this hook will have a new route
+// per rerender then this hook is able to have a new route (return route without query string)
 const useCurrentRoute = () => useLocation().pathname
 
 const useCheckIsAdminRole = () => (role) => role === 'admin' || role === 'Admin'

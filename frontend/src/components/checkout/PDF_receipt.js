@@ -4,6 +4,7 @@ import {
     Image as PDFImage, StyleSheet as PDFStyleSheet,
 } from '@react-pdf/renderer'
 import black_app_logo from '../../assets/images/logo_app_black.jpg'
+import moment from "moment"
 
 const pdf_styles = PDFStyleSheet.create({
     table: {
@@ -44,9 +45,14 @@ const pdf_styles = PDFStyleSheet.create({
     },
 })
 
-const PDFReceipt = ({ items, website, systemEmail, deliveryInfo, receiverInfo, paymentInfo, totalToPay, shippingFee, taxFee }) => {
+const set_date_of_payment = (time_string) => moment(time_string).format('MMMM Do YYYY, h:mm a')
 
-    const now = new Date()
+const set_date_of_receipt_created = () => moment().format('MMMM Do YYYY')
+
+const PDFReceipt = ({
+    items, website, systemEmail, deliveryInfo, receiverInfo, paymentInfo, totalToPay, shippingFee, taxFee,
+    dateOfPayment,
+}) => {
 
     return (
         <PDFDoc>
@@ -54,7 +60,7 @@ const PDFReceipt = ({ items, website, systemEmail, deliveryInfo, receiverInfo, p
                 <PDFText style={{ fontSize: 20 }}>
                     Payment Receipts
                 </PDFText>
-                <PDFText style={{ fontSize: 10, marginTop: 2 }}>
+                <PDFText style={{ fontSize: 10, marginTop: 3 }}>
                     {'ID: ' + paymentInfo.id}
                 </PDFText>
                 <PDFText style={{ fontSize: 10, marginTop: 3 }}>
@@ -79,11 +85,14 @@ const PDFReceipt = ({ items, website, systemEmail, deliveryInfo, receiverInfo, p
                             {
                                 deliveryInfo && deliveryInfo.phone_number &&
                                 <PDFText style={pdf_styles.small_text}>
-                                    {'Phone: ' + deliveryInfo.phone_number}
+                                    {'Phone: +' + deliveryInfo.phone_number}
                                 </PDFText>
                             }
                             <PDFText style={pdf_styles.small_text}>
                                 {'Paid On: ' + paymentInfo.method}
+                            </PDFText>
+                            <PDFText style={pdf_styles.small_text}>
+                                {'Paid At: ' + set_date_of_payment(dateOfPayment)}
                             </PDFText>
                         </PDFView>
                     </PDFView>
@@ -177,7 +186,7 @@ const PDFReceipt = ({ items, website, systemEmail, deliveryInfo, receiverInfo, p
                     </PDFText>
                 </PDFView>
                 <PDFText style={{ marginTop: 15, textAlign: 'center', fontSize: 12, textDecoration: 'underline' }}>
-                    {'Generated on ' + now.toDateString()}
+                    {'Generated on ' + set_date_of_receipt_created()}
                 </PDFText>
                 <PDFText style={{ marginTop: 10, textAlign: 'center', fontSize: 10 }}>
                     Thank for shopping with us. If you have any questions, you always can contact to us via email below.

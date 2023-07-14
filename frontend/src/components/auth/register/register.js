@@ -14,7 +14,7 @@ import { sendRegisterOTP } from "../../../store/actions/user_actions"
 import CompleteRegister from "./complete_register"
 import validator from 'validator'
 
-const RegisterSection = ({ authTheme }) => {
+const Register = () => {
     const { user: { registerStep, isAuthenticated }, loading } = useSelector(({ user }) => user)
     const [openProblemSection, setOpenProblemSection] = useState(false)
     const [sendOTPNote, setSendOTPNote] = useState(false)
@@ -50,16 +50,16 @@ const RegisterSection = ({ authTheme }) => {
 
     return (
         registerStep === 3 ? (
-            <CompleteRegister emailWasTyped={email_was_typed_ref.current} loading={loading} authTheme={authTheme} />
+            <CompleteRegister emailWasTyped={email_was_typed_ref.current} loading={loading} />
         ) :
-            <RegisterSectionArea id="RegisterSectionArea" theme={authTheme}>
+            <RegisterSection id="RegisterSectionArea">
 
                 <ProblemSection
                     open={openProblemSection}
                     handleOpen={handleOpenProblemSection}
                 />
 
-                <FormContainer>
+                <div>
                     <FormTitle>Register</FormTitle>
                     {
 
@@ -123,7 +123,7 @@ const RegisterSection = ({ authTheme }) => {
                             />
                         }
                     </SendOTPArea>
-                </FormContainer>
+                </div>
 
                 <SignIn >
                     <span>Already have an account ? </span>
@@ -134,19 +134,15 @@ const RegisterSection = ({ authTheme }) => {
 
                 <BottomForm />
 
-            </RegisterSectionArea >
+            </RegisterSection >
     )
 }
 
-export default RegisterSection
+export default Register
 
-const RegisterSectionArea = styled('div')(({ theme }) => ({
-    ...theme,
+const RegisterSection = styled('div')(({ theme }) => ({
+    ...theme.auth_background,
 }))
-
-const FormContainer = styled('div')({
-
-})
 
 const FormTitle = styled('h2')({
     fontFamily: '"Roboto", "sans-serif"',

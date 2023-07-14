@@ -105,7 +105,7 @@ const Detail = () => {
                         inputProps={{ maxLength: 500 }}
                         rows={9}
                         helperText={check_error(errors, 'Description', 'Describe your product. Enter everything your customer should know about this product. You shouldn\'t enter special characters that can make your description loose some letters.')}
-                        InputProps={{ ...register('Description', { required: true }) }}
+                        InputProps={{ ...register('Description') }}
                         error={!!errors['Description']}
                         color="success"
                     />
@@ -143,7 +143,7 @@ const Detail = () => {
                         color="success"
                         type="number"
                         helperText={check_error(errors, 'Stock', 'Enter the current amount of your product.')}
-                        InputProps={{ ...register('Stock', { pattern: /^[0-9]+$/, required: true }) }}
+                        InputProps={{ ...register('Stock', { pattern: /^[0-9]+$/ }) }}
                         error={!!errors['Stock']}
                         inputProps={{ min: 1, max: 1000 }}
                     />

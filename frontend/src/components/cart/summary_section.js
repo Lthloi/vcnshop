@@ -50,13 +50,7 @@ const SummarySection = ({ cartItems }) => {
     const handleCheckOut = () => {
         if (cartItems.length === 0) return toast.warning('You have no product in the cart!')
 
-        let summary_object = {
-            subtotal,
-        }
-
-        sessionStorage.setItem('summary', JSON.stringify(summary_object))
-
-        window.open('/checkout?step=shipping_info', '_self')
+        window.open('/checkout/shipping_info', '_self')
     }
 
     return (

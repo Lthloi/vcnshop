@@ -1,33 +1,100 @@
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useCallback } from "react"
 import { styled } from '@mui/material/styles'
 import EmailIcon from '@mui/icons-material/Email'
 import LockIcon from '@mui/icons-material/Lock'
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff'
 import VisibilityIcon from '@mui/icons-material/Visibility'
 import BottomForm from "./bottom_form"
-import { NavLink, useLocation } from "react-router-dom"
+import { NavLink } from "react-router-dom"
 import { useDispatch, useSelector } from "react-redux"
 import { loginUser } from "../../store/actions/user_actions"
 import validator from 'validator'
 import { toast } from "react-toastify"
 import CircularProgress from '@mui/material/CircularProgress'
 import { useForm } from "react-hook-form"
+import { Stack } from "@mui/material"
+import UndoIcon from '@mui/icons-material/Undo'
+import { IconButton } from "@mui/material"
+import { Tooltip } from '@mui/material'
+import { useCurrentRoute } from "../../hooks/custom_hooks"
 
 const form_group_icon_style = { color: 'white', marginLeft: '10px' }
 
-const LoginSection = ({ authTheme }) => {
+const auto_account = {
+    user: {
+        email: 'luongthanhloi000@gmail.com',
+        password: 'asd123C',
+    },
+    admin: {
+        email: 'codevoicainay@gmail.com',
+        password: 'Adminvcnshop095',
+    }
+}
+
+const AutoAccount = ({ handleSetAutoAccount }) => {
+    const [getAccountBtn, setGetAccountBtn] = useState(false)
+
+    const style_for_btn = {
+        padding: '10px 25px',
+        cursor: 'pointer',
+        border: 'none',
+        borderRadius: '5px',
+    }
+
+    return (
+        <Stack columnGap="10px" flexDirection="row" marginTop="20px" alignItems="center">
+            {
+                getAccountBtn ?
+                    <>
+                        <button
+                            style={style_for_btn}
+                            onClick={() => handleSetAutoAccount('user')}
+                            type="button"
+                        >
+                            For User
+                        </button>
+                        <button
+                            style={style_for_btn}
+                            onClick={() => handleSetAutoAccount('admin')}
+                            type="button"
+                        >
+                            For Admin
+                        </button>
+                        <Tooltip arrow title="Back">
+                            <IconButton onClick={() => setGetAccountBtn(false)} sx={{ border: '1px gray solid' }}>
+                                <UndoIcon sx={{ color: 'white', fontSize: '0.8em' }} />
+                            </IconButton>
+                        </Tooltip>
+                    </>
+                    :
+                    <button style={style_for_btn} onClick={() => setGetAccountBtn(true)}>
+                        Get An Accnount
+                    </button>
+            }
+        </Stack>
+    )
+}
+
+const handle_login_redirect = (current_route, ms_to_delay = 1000) => {
+    let redirect
+    if (current_route && current_route.includes('redirect='))
+        redirect = current_route.split('redirect=')[1]
+
+    return setTimeout(() => {
+        window.open(redirect ? '/' + redirect : '/account', '_self')
+    }, ms_to_delay)
+}
+
+const Login = () => {
     const [showPassword, setShowPassword] = useState(false)
-    const { register, handleSubmit } = useForm()
+    const { register, handleSubmit, setValue } = useForm()
     const { user: { loginStep }, loading } = useSelector(({ user }) => user)
     const dispatch = useDispatch()
-    const search = useLocation().search
+    const current_route = useCurrentRoute()
 
     useEffect(() => {
         if (loginStep === 2) {
-            let redirect
-            if (search && search.includes('redirect=')) redirect = search.split('redirect=')[1]
-
-            let timeout = setTimeout(() => { window.open(redirect ? '/' + redirect : '/account', '_self') }, 1000)
+            let timeout = handle_login_redirect(current_route)
 
             return () => clearTimeout(timeout)
         }
@@ -52,13 +119,23 @@ const LoginSection = ({ authTheme }) => {
         if (e.key === 'Enter') loginSubmit()
     }
 
+    const handleSetAutoAccount = useCallback((role) => {
+        if (role === 'user') {
+            setValue('Email', auto_account.user.email)
+            setValue('Password', auto_account.user.password)
+        } else {
+            setValue('Email', auto_account.admin.email)
+            setValue('Password', auto_account.admin.password)
+        }
+    }, [])
+
     return (
-        <LoginSectionArea id="LoginSectionArea" theme={authTheme}>
-            <LoginSectionForm onSubmit={handleSubmit(loginSubmit)}>
+        <LoginSection id="LoginSectionArea">
+            <form onSubmit={handleSubmit(loginSubmit)} action="#">
                 <FormTitle>Sign In</FormTitle>
-                <EmailFormGroup>
+                <FormGroup>
                     <EmailIcon sx={form_group_icon_style} />
-                    <EmailInput
+                    <Input
                         {...register('Email')}
                         type="email"
                         id="email"
@@ -66,11 +143,11 @@ const LoginSection = ({ authTheme }) => {
                         onKeyDown={catchEnterKey}
                         autoComplete="on"
                     />
-                    <EmailLabel htmlFor="email">Enter your e-mail</EmailLabel>
-                </EmailFormGroup>
+                    <Label htmlFor="email">Enter your e-mail</Label>
+                </FormGroup>
                 <PasswordFormGroup>
                     <LockIcon sx={form_group_icon_style} />
-                    <PasswordInput
+                    <Input
                         {...register('Password')}
                         id="password"
                         placeholder=" "
@@ -78,7 +155,7 @@ const LoginSection = ({ authTheme }) => {
                         onKeyDown={catchEnterKey}
                         autoComplete="on"
                     />
-                    <PasswordLabel htmlFor="password">Enter your password</PasswordLabel>
+                    <Label htmlFor="password">Enter your password</Label>
                     <ShowPasswordIconWrapper onClick={() => handleShowPassword()}>
                         {
                             showPassword ?
@@ -88,9 +165,11 @@ const LoginSection = ({ authTheme }) => {
                         }
                     </ShowPasswordIconWrapper>
                 </PasswordFormGroup>
-                <SubmitBtnContainer>
-                    <ForgotPassword to="/auth/forgotPassword">Forgot Password ?</ForgotPassword>
-                    <SignInBtn type="submit">
+                <Stack marginTop="20px" flexDirection="row" justifyContent="space-between" alignItems="center">
+                    <ForgotPassword to="/auth/forgotPassword">
+                        Forgot Password ?
+                    </ForgotPassword>
+                    <SignInBtn>
                         {
                             loading ?
                                 <CircularProgress
@@ -101,8 +180,9 @@ const LoginSection = ({ authTheme }) => {
                                 : <span>Login</span>
                         }
                     </SignInBtn>
-                </SubmitBtnContainer>
-            </LoginSectionForm>
+                </Stack>
+                <AutoAccount handleSetAutoAccount={handleSetAutoAccount} />
+            </form>
             <SignUp>
                 <span>Don't have an account ? </span>
                 <NavLink
@@ -113,11 +193,16 @@ const LoginSection = ({ authTheme }) => {
                 </NavLink>
             </SignUp>
             <BottomForm />
-        </LoginSectionArea>
+        </LoginSection>
     )
 }
 
-export default LoginSection
+export default Login
+
+const LoginSection = styled('div')(({ theme }) => ({
+    ...theme.auth_background,
+    fontFamily: theme.fontFamily.nunito,
+}))
 
 const FormGroup = styled('div')({
     display: 'flex',
@@ -132,7 +217,6 @@ const FormGroup = styled('div')({
 const Label = styled('label')({
     color: 'grey',
     fontSize: '0.9em',
-    fontFamily: '"Roboto", "sans-serif"',
     fontWeight: '500',
     padding: '2px 12px',
     position: 'absolute',
@@ -160,32 +244,11 @@ const Input = styled('input')({
     }
 })
 
-const LoginSectionArea = styled('div')(({ theme }) => ({
-    ...theme,
-}))
-
 const FormTitle = styled('h2')({
-    fontFamily: '"Roboto", "sans-serif"',
-    fontWeight: '500',
+    fontWeight: 'bold',
     fontSize: '2em',
     color: 'white',
     margin: '10px 0 15px',
-})
-
-const LoginSectionForm = styled('form')({
-
-})
-
-const EmailFormGroup = styled(FormGroup)({
-
-})
-
-const EmailLabel = styled(Label)({
-
-})
-
-const EmailInput = styled(Input)({
-
 })
 
 const PasswordFormGroup = styled(FormGroup)({
@@ -200,23 +263,7 @@ const ShowPasswordIconWrapper = styled('div')({
     marginRight: '5px',
 })
 
-const PasswordLabel = styled(Label)({
-
-})
-
-const PasswordInput = styled(Input)({
-
-})
-
-const SubmitBtnContainer = styled('div')({
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: '20px',
-})
-
 const ForgotPassword = styled(NavLink)({
-    fontFamily: '"Roboto", "sans-serif"',
     color: '#d32f2f',
     fontSize: '0.9em',
     cursor: 'pointer',
@@ -233,15 +280,15 @@ const SignInBtn = styled('button')({
     fontWeight: 'bold',
     cursor: 'pointer',
     backgroundColor: '#00b0a7',
-    padding: '7px 15px',
+    padding: '8px 20px',
     borderRadius: '5px',
     border: '1px black solid',
     height: '35px',
 })
 
-const SignUp = styled('div')({
+const SignUp = styled('div')(({ theme }) => ({
+    fontFamily: theme.fontFamily.nunito,
     color: 'white',
-    fontFamily: '"Nunito", "sans-serif"',
     '& .NavLink': {
         color: 'yellow',
         fontWeight: 'bold',
@@ -251,4 +298,4 @@ const SignUp = styled('div')({
             textDecoration: 'underline',
         }
     }
-})
+}))

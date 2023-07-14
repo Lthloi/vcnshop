@@ -50,7 +50,6 @@ const getShopsByAdmin = catchAsyncError(async (req, res, next) => {
         format[key] = 1
 
     let list = await ShopModel.find({}, format)
-    if (!list) throw new BaseError('Something went wrong', 500)
 
     res.status(200).json({ list })
 })

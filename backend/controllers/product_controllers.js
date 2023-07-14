@@ -65,7 +65,8 @@ const createProduct = catchAsyncError(async (req, res, next) => {
                     $position: 0,
                 }
             }
-        }
+        },
+        { runValidators: true }
     )
 
     res.status(200).json({ success: true })
@@ -128,7 +129,8 @@ const updateProduct = catchAsyncError(async (req, res, next) => {
 
     await ProductModel.updateOne(
         { '_id': productId },
-        { $set: update_format }
+        { $set: update_format },
+        { runValidators: true }
     )
 
     res.status(200).json({ success: true })
@@ -144,8 +146,8 @@ const deleteProduct = catchAsyncError(async (req, res, next) => {
 
 //get a product by _id
 const getProduct = catchAsyncError(async (req, res, next) => {
-    if (!req.params) throw new BaseError('Params doesn\'t exist', 400)
-    if (!req.params.productId) throw new BaseError('Wrong request property', 400)
+    if (!req.params || !req.params.productId)
+        throw new BaseError('Wrong property name', 400)
 
     let product = await ProductModel.findOne(
         { _id: req.params.productId },
@@ -161,9 +163,9 @@ const getProduct = catchAsyncError(async (req, res, next) => {
 
 //get some products by query
 const getProducts = catchAsyncError(async (req, res, next) => {
-    let { keyword, category, price, rating, limit, page, targetGender, shopId, stock } = req.query
+    let { keyword, category, price, rating, limit, page, targetGender, shopId, stock, idList } = req.query
     if (!limit || !page)
-        throw new BaseError('Wrong request property', 400)
+        throw new BaseError('Wrong property name', 400)
 
     let queryObject = {}
 
@@ -193,18 +195,29 @@ const getProducts = catchAsyncError(async (req, res, next) => {
         .limit(limit * 1)
         .lean()
 
-    if (!products) throw new BaseError('Products Not Found', 404)
-
     res.status(200).json({
         products,
         countProducts: count_products,
     })
 })
 
+const getProductsById = catchAsyncError(async (req, res, next) => {
+    let { idList } = req.query
+    if (!idList)
+        throw new BaseError('Wrong property name', 400)
+
+    let products = await ProductModel.find(
+        { _id: { $in: idList } },
+        { 'review.reviews': 0 }
+    ).lean()
+
+    res.status(200).json({ products })
+})
+
 const getReviews = catchAsyncError(async (req, res, next) => {
     let { productId, page, limit } = req.query
     if (!productId || !page || !limit)
-        throw new BaseError('Wrong request property', 400)
+        throw new BaseError('Wrong property name', 400)
 
     //format for query
     page *= 1
@@ -223,8 +236,6 @@ const getReviews = catchAsyncError(async (req, res, next) => {
         }
     ])
 
-    if (product.length === 0) throw new BaseError('Reviews Not Found', 404)
-
     res.status(200).json({
         reviews: product[0].reviews,
     })
@@ -233,13 +244,13 @@ const getReviews = catchAsyncError(async (req, res, next) => {
 //insert new review to DB
 const newReview = catchAsyncError(async (req, res, next) => {
     let { productId } = req.query
-    if (!productId) throw new BaseError('Wrong request property', 400)
+    if (!productId) throw new BaseError('Wrong property name', 400)
 
     let { _id: userId, avatar, name: user_name } = req.user
 
     let { rating, comment, title } = req.body
     if (!rating || !comment || !title)
-        throw new BaseError('Wrong request property', 400)
+        throw new BaseError('Wrong property name', 400)
 
     let image_urls
     if (req.files)
@@ -249,7 +260,7 @@ const newReview = catchAsyncError(async (req, res, next) => {
             userId
         )
 
-    let products = await ProductModel.aggregate([
+    let product = await ProductModel.aggregate([
         { $match: { '_id': mongoose.Types.ObjectId(productId) } },
         {
             $project: {
@@ -265,7 +276,7 @@ const newReview = catchAsyncError(async (req, res, next) => {
             }
         }
     ])
-    if (products.length === 0) throw new BaseError('Product not found', 404)
+    if (product.length === 0) throw new BaseError('Product not found', 404)
 
     let new_review = {
         name: user_name,
@@ -278,7 +289,7 @@ const newReview = catchAsyncError(async (req, res, next) => {
         imageURLs: image_urls || [],
     }
 
-    let new_reviews = [new_review, ...products[0].review.reviews]
+    let new_reviews = [new_review, ...product[0].review.reviews]
 
     let new_count_reviews = new_reviews.length
 
@@ -294,6 +305,7 @@ const newReview = catchAsyncError(async (req, res, next) => {
                 'review.reviews': new_reviews,
             }
         },
+        { runValidators: true }
     )
 
     res.status(200).json({
@@ -306,7 +318,6 @@ const newReview = catchAsyncError(async (req, res, next) => {
 
 const getProductsName = catchAsyncError(async (req, res, next) => {
     let name_list = await ProductModel.distinct('name')
-    if (!name_list) throw new BaseError('Something went wrong', 500)
 
     res.status(200).json({
         list: name_list,
@@ -322,7 +333,6 @@ const getProductsByAdmin = catchAsyncError(async (req, res, next) => {
         format[key] = 1
 
     let list = await ProductModel.find({}, format)
-    if (!list) throw new BaseError('Something went wrong', 500)
 
     res.status(200).json({ list })
 })
@@ -331,4 +341,5 @@ export {
     getProducts, getProduct, getReviews,
     newReview, getProductsName, getProductsByAdmin,
     createProduct, updateProduct, deleteProduct,
+    getProductsById,
 }

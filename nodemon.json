@@ -2,5 +2,5 @@
     "watch": [
         "./backend/"
     ],
-    "ext": "mjs js"
+    "ext": "mjs js ejs"
 }

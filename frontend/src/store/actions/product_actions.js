@@ -17,7 +17,7 @@ import {
     LIMIT_GET_PRODUCTS_DEFAULT, MAX_STOCK,
 } from '../../utils/constants.js'
 import FileUploadFilter from '../../utils/file_upload_filter.js'
-import { reloadPageAfterSeconds } from '../../utils/methods.js'
+import { redirectAfterSeconds } from '../../utils/action_features.js'
 
 const createNewProduct = (
     productName,
@@ -71,7 +71,7 @@ const createNewProduct = (
 
         toast.success('Add Product Successfully!')
 
-        reloadPageAfterSeconds(1000)
+        redirectAfterSeconds(1000, { isReload: true })
     } catch (error) {
         let errorObject = actionsErrorHandler(error)
 
@@ -127,7 +127,7 @@ const updateProduct = (
 
         toast.success('Update Product Successfully!')
 
-        reloadPageAfterSeconds(1000)
+        redirectAfterSeconds(1000, { isReload: true })
     } catch (error) {
         let errorObject = actionsErrorHandler(error)
 
@@ -141,11 +141,11 @@ const deleteProduct = (product_id) => async (dispatch) => {
     try {
         dispatch(deleteProductRequest())
 
-        let api_to_get_order = '/api/order/getOrderForShop?productId=' + product_id
+        let api_to_get_order = '/api/order/findOrdersWithProductId?productId=' + product_id
 
         let { data } = await axios.get(EXPRESS_SERVER + api_to_get_order, { withCredentials: true })
 
-        if (data.order) {
+        if (data.orders.length > 0) {
             dispatch(deleteProductFail())
 
             toast.error("Can't delete the product now has an order")
@@ -154,14 +154,11 @@ const deleteProduct = (product_id) => async (dispatch) => {
         }
     } catch (error) {
         let errorObject = actionsErrorHandler(error)
+        toast.error(errorObject.message)
 
-        if (errorObject.statusCode !== 404) {
-            toast.error(errorObject.message)
+        dispatch(deleteProductFail({ error: errorObject }))
 
-            dispatch(deleteProductFail({ error: errorObject }))
-
-            return
-        }
+        return
     }
 
     try {

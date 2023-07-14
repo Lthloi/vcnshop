@@ -3,6 +3,7 @@ import {
     getProducts, getProduct, getReviews,
     newReview, getProductsName, getProductsByAdmin,
     createProduct, updateProduct, deleteProduct,
+    getProductsById,
 } from '../controllers/product_controllers.js'
 import { roleAuthorization, verifyJWTtoken, verifyShop } from '../middlewares/auth.js'
 
@@ -25,5 +26,7 @@ router.post('/createProduct', verifyJWTtoken, verifyShop, createProduct)
 router.post('/updateProduct', verifyJWTtoken, verifyShop, updateProduct)
 
 router.delete('/deleteProduct/:productId', verifyJWTtoken, verifyShop, deleteProduct)
+
+router.get('/getProductsById', getProductsById)
 
 export default router

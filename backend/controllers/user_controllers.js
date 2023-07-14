@@ -32,7 +32,10 @@ const sendRegisterOTP = catchAsyncError(async (req, res, next) => {
                 'active': false,
             },
         },
-        { upsert: true }
+        {
+            upsert: true,
+            runValidators: true
+        }
     )
 
     res.status(200).json({ success: true })
@@ -59,7 +62,8 @@ const verifyOTP = catchAsyncError(async (req, res, next) => {
             $set: {
                 'OTP_code.expireAt': moment().add(OTP_verification_expire_in_minute, 'minutes'),
             }
-        }
+        },
+        { runValidators: true }
     )
 
     res.status(200).json({ success: true })
@@ -85,7 +89,8 @@ const completeRegister = catchAsyncError(async (req, res, next) => {
                 active: true,
                 gender,
             }
-        }
+        },
+        { runValidators: true }
     )
 
     sendJWTToken(res, user._id)
@@ -152,7 +157,11 @@ const resetPassword = catchAsyncError(async (req, res, next) => {
     let user_instance = new UserModel()
     let hashed_password = await user_instance.getHashedPassword(newPassword)
 
-    await UserModel.updateOne({ email }, { $set: { 'password': hashed_password } })
+    await UserModel.updateOne(
+        { email },
+        { $set: { 'password': hashed_password } },
+        { runValidators: true }
+    )
 
     sendJWTToken(res, user._id)
 
@@ -191,7 +200,8 @@ const updateProfile = catchAsyncError(async (req, res, next) => {
                 'gender': gender,
                 'date_of_birth': dateOfBirth,
             }
-        }
+        },
+        { runValidators: true }
     )
 
     res.status(200).json({ success: true })
@@ -208,7 +218,11 @@ const changePassword = catchAsyncError(async (req, res, next) => {
     if (!isMatched) throw new BaseError('The old password is not correct!', 401, null, true)
 
     let hashed_newPassword = await user_instance.getHashedPassword(newPassword)
-    await UserModel.updateOne({ _id: user_id }, { $set: { 'password': hashed_newPassword } })
+    await UserModel.updateOne(
+        { _id: user_id },
+        { $set: { 'password': hashed_newPassword } },
+        { runValidators: true }
+    )
 
     res.status(200).json({ sucess: true })
 })
@@ -219,7 +233,11 @@ const updateUserAvatar = catchAsyncError(async (req, res, next) => {
     let avatar_url = await uploadUserAvatar(avatarImage, user_id)
     if (!avatar_url) throw new BaseError('Can\'t upload image', 500)
 
-    await UserModel.updateOne({ _id: user_id }, { $set: { 'avatar': avatar_url } })
+    await UserModel.updateOne(
+        { _id: user_id },
+        { $set: { 'avatar': avatar_url } },
+        { runValidators: true }
+    )
 
     res.status(200).json({ avatarUrl: avatar_url })
 })
@@ -257,7 +275,6 @@ const getUsersByAdmin = catchAsyncError(async (req, res, next) => {
         format[key] = 1
 
     let list = await UserModel.find({}, format)
-    if (!list) throw new BaseError('Something went wrong', 500)
 
     res.status(200).json({ list })
 })

@@ -1,67 +1,175 @@
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { styled } from '@mui/material/styles'
 import { useStripe, PaymentElement, useElements } from '@stripe/react-stripe-js'
 import { toast } from "react-toastify"
 import EmailIcon from '@mui/icons-material/Email'
 import ErrorIcon from '@mui/icons-material/Error'
-import { CircularProgress } from "@mui/material"
-import { useDispatch } from "react-redux"
+import { CircularProgress, Typography } from "@mui/material"
+import { useDispatch, useSelector } from "react-redux"
 import { completePlaceOrder } from '../../store/actions/order_actions'
+import axios from "axios"
+import { EXPRESS_SERVER } from "../../utils/constants"
+import actionsErrorHandler from '../../utils/error_handler'
+import { deleteCheckoutInfo } from "../../store/actions/cart_actions"
 
 const email_is_read_only = true
 
-const step_after_complete_payment = 'success'
-
 const payment_method = 'card'
 
-const PaymentCardSection = ({ totalToPay, shippingInfo, clientSecret, orderId, currencyCode, userEmail, userName }) => {
+class CheckingStatus {
+    #error
+    #data_if_no_error
+
+    constructor() {
+        this.#error = null
+        this.#data_if_no_error = null
+    }
+
+    getErrorMessage() {
+        return this.#error.message
+    }
+    getError() {
+        return this.#error
+    }
+    getData() {
+        return this.#data_if_no_error
+    }
+
+    setData(data) {
+        this.#data_if_no_error = data
+    }
+    setError(error) {
+        this.#error = {
+            ...error,
+            message: error.message || 'Something went wrong'
+        }
+    }
+
+    checkError() {
+        return this.getError()
+    }
+}
+
+const check_products_stock_before_payemnt = async (cart_items) => {
+    let status = new CheckingStatus()
+
+    let idList = cart_items.map(({ _id }) => _id)
+
+    let products
+
+    try {
+        let { data } = await axios.get(
+            EXPRESS_SERVER + '/api/product/getProductsById',
+            { params: { idList: idList } }
+        )
+
+        products = data.products
+    } catch (error) {
+        let errorObject = actionsErrorHandler(error)
+        status.setError(errorObject)
+        return status
+    }
+
+    for (let { quantity, _id: item_id } of cart_items) {
+
+        let product = products.find(({ _id: product_id }) => item_id === product_id)
+
+        if (product) {
+            let product_stock = product.stock
+            if (product_stock === 0) {
+                status.setError({ message: 'The product is out of stock' })
+                return status
+            } else if (quantity > product_stock) {
+                status.setError({ message: 'There is a item with the quantity is greater than in stock' })
+                return status
+            }
+        }
+    }
+
+    return status
+}
+
+const confirm_the_payment = async (stripe, payment_elements, shipping_info, name_of_user) => {
+    let status = new CheckingStatus()
+
+    let response = await stripe.confirmPayment({
+        elements: payment_elements,
+        confirmParams: {
+            return_url: window.location.origin + '/checkout/success',
+            shipping: {
+                address: {
+                    country: shipping_info.City,
+                    city: shipping_info.City,
+                    state: shipping_info.State,
+                },
+                phone: shipping_info['Phone Number'],
+                name: name_of_user,
+            },
+        },
+        redirect: 'if_required',
+    })
+
+    if (response.error) {
+        let error = response.error
+
+        if (error.type === 'validation_error' || error.type === 'card_error') {
+            status.setError(error)
+        } else if (error.type === 'invalid_request_error') {
+            status.setError({ message: 'Can\'t complete the payment, fail in authentication.' })
+        } else {
+            status.setError({ message: 'Something went wrong with the payment section!' })
+        }
+
+        return status
+    }
+
+    status.setData(response)
+
+    return status
+}
+
+const PaymentCardSection = ({ totalToPay, shippingInfo, orderId, currencyCode }) => {
+    const { user } = useSelector(({ user }) => user)
+    const { cartItems } = useSelector(({ cart }) => cart)
+    const { paymentCompleted } = useSelector(({ order }) => order)
     const stripe = useStripe()
     const elements = useElements()
     const [paying, setPaying] = useState(false)
     const dispatch = useDispatch()
+    const [almostThere, setAlmostThere] = useState(false)
+
+    useEffect(() => {
+        if (paymentCompleted) dispatch(deleteCheckoutInfo())
+    }, [paymentCompleted])
 
     const confirmPayment = async () => {
-        if (!clientSecret) return toast.error('Something went wrong, please reload page and try again in some minutes later!')
-
         setPaying(true)
 
-        let response = await stripe.confirmPayment({
-            elements: elements,
-            confirmParams: {
-                return_url: window.location.origin + '/checkout?step=' + step_after_complete_payment,
-                shipping: {
-                    address: {
-                        country: shippingInfo.City,
-                        city: shippingInfo.City,
-                        state: shippingInfo.State,
-                    },
-                    phone: shippingInfo['Phone Number'],
-                    name: userName,
-                },
-            },
-            redirect: 'if_required',
-        })
-
-        if (response.error) {
-            let error = response.error
-            if (error.type === 'validation_error' || error.type === 'card_error') {
-                toast.error(error.message)
-            } else if (error.type === 'invalid_request_error') {
-                toast.error('Can\'t complete the payment, fail in authentication.')
-            }
+        let status_of_check_product_stock = await check_products_stock_before_payemnt(cartItems)
+        if (status_of_check_product_stock.checkError()) {
+            toast.warning(status_of_check_product_stock.getErrorMessage())
             setPaying(false)
-        } else {
-            let paymentIntent_info = response.paymentIntent
-
-            dispatch(completePlaceOrder(
-                {
-                    orderId,
-                    paymentMethod: payment_method,
-                    paymentId: paymentIntent_info.id,
-                },
-                step_after_complete_payment
-            ))
+            return
         }
+
+        let status_of_confirm_payment = await confirm_the_payment(stripe, elements, shippingInfo, user.name)
+        if (status_of_confirm_payment.checkError()) {
+            toast.warning(status_of_confirm_payment.getErrorMessage())
+            setPaying(false)
+            return
+        }
+
+        setAlmostThere(true)
+
+        let paymentIntent_info = status_of_confirm_payment.getData().paymentIntent
+
+        dispatch(completePlaceOrder(
+            {
+                orderId,
+                paymentMethod: payment_method,
+                paymentId: paymentIntent_info.id,
+            }
+        ))
     }
 
     return (
@@ -74,7 +182,7 @@ const PaymentCardSection = ({ totalToPay, shippingInfo, clientSecret, orderId, c
                         readOnly={email_is_read_only}
                         sx={email_is_read_only && { pointerEvents: 'none' }}
                         maxLength={35}
-                        defaultValue={userEmail || ''}
+                        defaultValue={user.email || ''}
                         placeholder="Enter your email for receipts..."
                     />
                     <EmailIcon />
@@ -87,7 +195,9 @@ const PaymentCardSection = ({ totalToPay, shippingInfo, clientSecret, orderId, c
                     </span>
                 </Note>
             </EmailFromGroup>
+
             <PaymentElement />
+
             <PayNowBtn onClick={confirmPayment} sx={paying && { pointerEvents: 'none' }}>
                 {
                     paying ?
@@ -101,6 +211,13 @@ const PaymentCardSection = ({ totalToPay, shippingInfo, clientSecret, orderId, c
                 }
             </PayNowBtn>
             <HoverBarAnimation className="hover_animate" />
+
+            {
+                almostThere &&
+                <Typography color="#1ea865" textAlign="center" marginTop="5px">
+                    We're almost there...
+                </Typography>
+            }
         </>
     )
 }

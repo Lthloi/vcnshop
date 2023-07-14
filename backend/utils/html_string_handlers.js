@@ -22,7 +22,8 @@ const getReceiptHtmlString = async (
     shipping_fee,
     tax_fee,
     total_to_pay,
-    generated_on
+    generated_on,
+    paidAt
 ) => {
     let html_string = await ejs.renderFile(
         './backend/templates/receipt.ejs',
@@ -36,6 +37,7 @@ const getReceiptHtmlString = async (
             shipping_fee,
             tax_fee,
             total_to_pay,
+            paidAt
         }
     )
 

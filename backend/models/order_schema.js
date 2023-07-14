@@ -1,5 +1,7 @@
 import mongoose from 'mongoose'
 import ProductModel from './product_schema.js'
+import moment from 'moment'
+import BaseError from '../utils/base_error.js'
 
 const { Schema } = mongoose
 
@@ -31,6 +33,7 @@ const OrderSchema = new Schema({
         method: {
             type: String,
             required: true,
+            enum: ['Sea', 'Airport'],
         }
     },
     items_of_order: [
@@ -88,7 +91,7 @@ const OrderSchema = new Schema({
             required: true,
         }
     },
-    payment_info: {
+    payment_info: { // payment intent
         id: {
             type: String,
             required: true,
@@ -99,6 +102,10 @@ const OrderSchema = new Schema({
             type: String,
             required: true,
         },
+        client_secret: {
+            type: String,
+            required: true,
+        }
     },
     payment_status: {
         type: String,
@@ -133,28 +140,6 @@ const OrderSchema = new Schema({
         type: Date,
         default: Date.now,
     },
-})
-
-// update the product after every time update order
-OrderSchema.pre('updateOne', async function (next) {
-    let update_obj = this.getUpdate()
-    if (update_obj.$set && update_obj.$set.payment_status === 'succeeded') {
-        let order = await OrderModel.findOne({ _id: this.getQuery()._id }, { '_id': 0, 'items_of_order._id': 1 })
-        let id_list = order.items_of_order.map(({ _id }) => _id)
-        await ProductModel.updateMany(
-            { '_id': { $in: id_list } },
-            {
-                $inc: {
-                    'stock': -1,
-                    'sold.count': 1,
-                },
-                $set: {
-                    'sold.is_sold_last_time': Date.now,
-                }
-            }
-        )
-    }
-    next()
 })
 
 const OrderModel = mongoose.model('orders', OrderSchema)

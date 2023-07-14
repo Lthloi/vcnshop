@@ -6,7 +6,6 @@ const ProductSchema = new Schema({
     image_link: {
         type: String,
         required: true,
-        unique: true,
     },
     name: {
         type: String,
