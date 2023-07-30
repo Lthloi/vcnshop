@@ -1,195 +1,145 @@
-import React, { useEffect, useState } from "react"
+import React from "react"
 import Badge from '@mui/material/Badge'
-import { styled } from '@mui/material'
+import { Stack, styled, Typography, Box } from '@mui/material'
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
-import foxLogoWhite from '../../../assets/images/logo_app_white.svg'
-import SearchIcon from '@mui/icons-material/Search'
+import foxLogoWhite from '../../../assets/images/logo_app_black.svg'
 import MenuBar from "./menu_bar"
-import SearchDialog from "./search_dialog"
+import Search from "./search"
 import { useSelector } from "react-redux"
 import UserNav from "./user_nav"
 import Tooltip from '@mui/material/Tooltip'
 import { NavLink } from "react-router-dom"
+import { useTheme } from "@emotion/react"
 
-const Navigation = () => {
-    const numberOfCartItems = useSelector(({ cart }) => cart.cartItems.length)
-
-    const [openSearchDialog, setOpenSearchDialog] = useState(false)
-
-    useEffect(() => {
-        if (openSearchDialog) {
-            document.body.style.overflow = 'hidden'
-        } else {
-            document.body.style.overflow = 'unset'
-        }
-    }, [openSearchDialog])
-
-    const handleOpenSearchDialog = open => {
-        setOpenSearchDialog(open)
-    }
+const LeftSection = () => {
+    const theme = useTheme()
 
     return (
-        <NavigationArea>
+        <Stack
+            flexDirection="row"
+            alignItems="center"
+            minHeight="100%"
+            fontFamily={theme.fontFamily.nunito}
+            position="absolute"
+            top="0"
+            left="30px"
+        >
+            <Search />
+        </Stack>
+    )
+}
 
-            {
-                openSearchDialog &&
-                <SearchDialog handleOpenSearchDialog={handleOpenSearchDialog} />
-            }
+const CenterSection = () => {
+    return (
+        <Stack
+            alignItems="center"
+            rowGap="5px"
+            padding="10px 0"
+            component="a"
+            href="/"
+            sx={{ textDecoration: 'none', color: 'black' }}
+            margin="auto"
+        >
 
-            <NavigationBar id="NavigationBar" >
-                <LeftSection className="LeftSection" >
-                    <Language>EN</Language>
-                    <SearchContainer
-                        id="SearchContainerNavigation"
-                        onClick={() => handleOpenSearchDialog(true)}
+            <Logo src={foxLogoWhite} alt="App Logo" />
+
+            <Stack alignItems="center" marginTop="5px">
+                <Typography
+                    component="h2"
+                    margin="0"
+                    lineHeight="1em"
+                    fontSize="1.3em"
+                    fontWeight="bold"
+                    sx={{ cursor: 'pointer' }}
+                >
+                    VCN SHOP - FOX COR
+                </Typography>
+                <Typography
+                    letterSpacing="1px"
+                    marginTop="3px"
+                    sx={{
+                        cursor: 'pointer',
+                        wordSpacing: '3px',
+                    }}
+                >
+                    Shopping Too Easy
+                </Typography>
+            </Stack>
+
+        </Stack>
+    )
+}
+
+const RightSection = () => {
+    const numberOfCartItems = useSelector(({ cart }) => cart.cartItems.length)
+
+    return (
+        <Stack
+            flexDirection="row"
+            alignItems="center"
+            columnGap="20px"
+            position="absolute"
+            minHeight="100%"
+            top="0"
+            right="30px"
+        >
+
+            <UserNav />
+
+            <Tooltip title="Cart">
+                <NavLink to="/cart">
+                    <StyledBadge
+                        badgeContent={numberOfCartItems}
+                        color="default"
+                        showZero
                     >
-                        <SearchIcon />
-                        <SearchText>Find Product By Names...</SearchText>
-                    </SearchContainer>
-                </LeftSection>
+                        <ShoppingCartIcon sx={{ fill: 'black' }} />
+                    </StyledBadge>
+                </NavLink>
+            </Tooltip>
 
-                <CenterSection className="CenterSection" href="/">
-                    <Logo src={foxLogoWhite} alt="Can't load logo" sx={{ fill: 'white' }} />
-                    <TitleArea>
-                        <Title>VCN SHOP - FOX COR</Title>
-                        <Subtitle>Shopping Too Easy</Subtitle>
-                    </TitleArea>
-                </CenterSection>
+        </Stack>
+    )
+}
 
-                <RightSection className="RightSection" >
-                    <span></span>
-                    <div style={{ display: 'flex', alignItems: 'center', columnGap: '20px' }}>
+const Navigation = () => {
 
-                        <UserNav />
+    return (
+        <Box
+            component="div"
+            id="Navigation-Header"
+        >
 
-                        <Tooltip title="Cart">
-                            <NavLink to="/cart">
-                                <StyledBadge
-                                    badgeContent={numberOfCartItems}
-                                    color="default"
-                                    showZero
-                                >
-                                    <StyledShoppingCartIcon />
-                                </StyledBadge>
-                            </NavLink>
-                        </Tooltip>
-                    </div>
-                </RightSection>
-            </NavigationBar>
+            <Stack
+                flexDirection="row"
+                padding="10px 30px"
+                position="relative"
+            >
+
+                <LeftSection />
+
+                <CenterSection />
+
+                <RightSection />
+
+            </Stack>
 
             <MenuBar />
 
-        </NavigationArea>
+        </Box>
     )
 }
 
 export default Navigation
 
-const text_style = {
-    color: 'white',
-    fontFamily: 'nunito',
-    fontSize: '1em',
-    fontWeight: 'bold',
-    textDecoration: 'unset',
-}
-
-const NavigationArea = styled('div')({
-    width: '100%',
-})
-
-const NavigationBar = styled('div')({
-    display: 'flex',
-    justifyContent: 'space-between',
-    padding: '5px 20px',
-    backgroundColor: 'black',
-})
-
-const LeftSection = styled('div')({
-    display: 'flex',
-    alignItems: 'center',
-    flex: '1',
-    columnGap: '15px',
-    minHeight: '100%',
-})
-
-const Language = styled('div')({
-    ...text_style,
-    cursor: 'pointer',
-    '&:hover': {
-        color: '#51fff6',
-    },
-})
-
-const SearchContainer = styled('div')({
-    display: 'flex',
-    alignItems: 'center',
-    padding: '5px 8px',
-    columnGap: '10px',
-    cursor: 'pointer',
-    border: '2px black solid',
-    borderRadius: '5px',
-    overflow: 'hidden',
-    backgroundColor: 'white',
-    '&:hover': {
-        outline: '3px #51fff6 solid',
-    }
-})
-
-const SearchText = styled('div')({
-    fontSize: '0.9em',
-    color: 'rgba(0,0,0,0.8)',
-    fontFamily: '"Roboto", "sans-serif"',
-})
-
-const CenterSection = styled('a')({
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    rowGap: '5px',
-    textDecoration: 'unset',
-    color: 'black',
-    padding: '10px 0',
-})
-
 const Logo = styled('img')({
     height: '5em',
+    width: '5em',
     cursor: 'pointer',
-})
-
-const TitleArea = styled('div')({
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    marginTop: '5px',
-})
-
-const Title = styled('h2')({
-    ...text_style,
-    margin: '0',
-    lineHeight: '1em',
-    fontSize: '1.3em',
-    fontWeight: 'bold',
-    cursor: 'pointer',
-    fontFamily: '"Roboto", "sans-serif"',
-})
-
-const Subtitle = styled('div')({
-    ...text_style,
-    wordSpacing: '3px',
-    letterSpacing: '1px',
-    cursor: 'pointer',
-    marginTop: '2px',
-})
-
-const RightSection = styled('div')({
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    flex: '1',
+    color: 'white',
 })
 
 const StyledBadge = styled(Badge)({
-    marginRight: '10px',
     cursor: 'pointer',
     color: 'black',
     ' span.MuiBadge-anchorOriginTopRight': {
@@ -201,8 +151,4 @@ const StyledBadge = styled(Badge)({
     '&:hover svg': {
         transform: 'scale(1.2)',
     },
-})
-
-const StyledShoppingCartIcon = styled(ShoppingCartIcon)({
-    fill: 'white',
 })

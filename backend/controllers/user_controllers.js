@@ -9,10 +9,10 @@ import { uploadUserAvatar } from '../utils/image_uploading.js'
 import { IP2_ERROR } from '../utils/constants.js'
 
 const sendRegisterOTP = catchAsyncError(async (req, res, next) => {
-    let { email } = req.body
+    let email = req.body.email.toLowerCase()
     if (!email) throw new BaseError('Wrong property name', 400)
 
-    let user = await UserModel.findOne({ email }, { 'active': 1, '_id': 0 })
+    let user = await UserModel.findOne({ email }, { 'active': 1 })
     if (user && user.active)
         throw new BaseError('User with the email has been registered!', 409, null, true)
 
@@ -47,11 +47,11 @@ const verifyOTP = catchAsyncError(async (req, res, next) => {
 
     let user = await UserModel.findOne(
         {
-            email,
+            email: email.toLowerCase(),
             'OTP_code.expireAt': { $gt: moment() },
         }
     ).lean()
-    if (!user) throw new BaseError('Time for register is over!', 408, null, true)
+    if (!user) throw new BaseError('Time for verify OTP is over!', 408, null, true)
 
     if (user.OTP_code.value !== OTP_code) throw new BaseError('OTP code is incorrect!', 401, null, true)
 
@@ -73,7 +73,16 @@ const completeRegister = catchAsyncError(async (req, res, next) => {
     let { name, email, password, gender } = req.body
     if (!email || !password) throw new BaseError('Wrong property name', 400)
 
-    let user = await UserModel.findOne({ email, 'OTP_code.expireAt': { $gt: moment() } }).lean()
+    email = email.toLowerCase()
+
+    let user = await UserModel.findOne(
+        {
+            email,
+            'OTP_code.expireAt': {
+                $gt: moment()
+            }
+        }
+    ).lean()
     if (!user) throw new BaseError('Time for register is over!', 408, null, true)
 
     let user_instance = new UserModel()
@@ -103,7 +112,7 @@ const loginUser = catchAsyncError(async (req, res, next) => {
     if (!email || !password) throw new BaseError('Wrong property name', 400)
 
     let user = await UserModel.findOne(
-        { email },
+        { email: email.toLowerCase() },
         {
             'active': 1,
             'password': 1,
@@ -131,6 +140,8 @@ const forgotPassword = catchAsyncError(async (req, res, next) => {
     let { email } = req.body
     if (!email) throw new BaseError('Wrong property name', 400)
 
+    email = email.toLowerCase()
+
     let user = await UserModel.findOne({ email }, { 'active': 1, '_id': 0 })
     if (!user)
         throw new BaseError('User with the email is not registered, please register to continue!', 404, null, true)
@@ -150,6 +161,8 @@ const forgotPassword = catchAsyncError(async (req, res, next) => {
 const resetPassword = catchAsyncError(async (req, res, next) => {
     let { email, newPassword } = req.body
     if (!email || !newPassword) throw new BaseError('Wrong property name', 400)
+
+    email = email.toLowerCase()
 
     let user = await UserModel.findOne({ email, 'OTP_code.expireAt': { $gt: moment() } }).lean()
     if (!user) throw new BaseError('Time for reset password is over!', 408, null, true)
@@ -186,20 +199,23 @@ const getUser = catchAsyncError(async (req, res, next) => {
 })
 
 const updateProfile = catchAsyncError(async (req, res, next) => {
-    let { nameOfUser, email, gender, dateOfBirth } = req.body
-    if (!nameOfUser || !email || !gender || !dateOfBirth) throw new BaseError('Wrong property name', 400)
+    let { nameOfUser, gender } = req.body
+    if (!nameOfUser && !gender)
+        throw new BaseError('Wrong property name', 400)
 
     let user_id = req.user._id
+
+    let update = {}
+
+    if (nameOfUser)
+        update.name = nameOfUser
+    if (gender)
+        update.gender = gender
 
     await UserModel.updateOne(
         { _id: user_id },
         {
-            $set: {
-                'name': nameOfUser,
-                'email': email,
-                'gender': gender,
-                'date_of_birth': dateOfBirth,
-            }
+            $set: update
         },
         { runValidators: true }
     )
@@ -209,22 +225,28 @@ const updateProfile = catchAsyncError(async (req, res, next) => {
 
 const changePassword = catchAsyncError(async (req, res, next) => {
     let { oldPassword, newPassword } = req.body
+    if (!oldPassword || !newPassword)
+        throw new BaseError('Wrong property name', 400)
+
     let user_id = req.user._id
-    if (!oldPassword || !newPassword) throw new BaseError('Wrong property name', 400)
 
     let user = await UserModel.findOne({ _id: user_id }, { 'password': 1 })
+    
     let user_instance = new UserModel({ password: user.password })
+
     let isMatched = await user_instance.compareHashedPassword(oldPassword)
-    if (!isMatched) throw new BaseError('The old password is not correct!', 401, null, true)
+    if (!isMatched)
+        throw new BaseError('The old password is not correct!', 401, null, true)
 
     let hashed_newPassword = await user_instance.getHashedPassword(newPassword)
+
     await UserModel.updateOne(
         { _id: user_id },
         { $set: { 'password': hashed_newPassword } },
         { runValidators: true }
     )
 
-    res.status(200).json({ sucess: true })
+    res.status(200).json({ success: true })
 })
 
 const updateUserAvatar = catchAsyncError(async (req, res, next) => {

@@ -7,7 +7,7 @@ import ScoreCard from "./score_card"
 import AddImages from "./add_images"
 import { toast } from 'react-toastify'
 import RatingSet from "./rating_set"
-import ProtectedResource from "../../protected_resource"
+import { ProtectedSection } from "../../../utils/protected_resource"
 import { CircularProgress } from "@mui/material"
 
 const ProductReview = ({ productId }) => {
@@ -55,7 +55,7 @@ const ProductReview = ({ productId }) => {
 
             <Hr />
 
-            <ProtectedResource isWithInternalComponent>
+            <ProtectedSection>
                 <ReviewContainer>
                     <Title>Overview</Title>
 
@@ -107,7 +107,7 @@ const ProductReview = ({ productId }) => {
                             </>
                     }
                 </ReviewContainer>
-            </ProtectedResource>
+            </ProtectedSection>
         </div>
     )
 }

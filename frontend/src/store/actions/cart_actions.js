@@ -42,7 +42,7 @@ const addProductToCart = (product_id, options) => async (dispatch, getState) => 
             color: options ? options.color : productData.options.colors[0],
             shop_id: productData.shop.id,
             price: productData.price.value,
-            quantity: 1,
+            quantity: product_in_cart ? product_in_cart.quantity : 1,
             stock: productData.stock,
         }
 

@@ -2,9 +2,8 @@ import React, { useEffect, useState } from "react"
 import { styled } from '@mui/material/styles'
 import { useDispatch, useSelector } from "react-redux"
 import { getProductDetail } from "../../store/actions/product_actions"
-import { Skeleton } from "@mui/material"
+import { Skeleton, Typography, Tooltip } from "@mui/material"
 import InfoIcon from '@mui/icons-material/Info'
-import { Tooltip } from '@mui/material'
 import ReviewsAndDescription from "./reviews_and_description"
 import { Divider } from "@mui/material"
 import EditProduct from "./edit_product"
@@ -69,7 +68,21 @@ const ProductDetail = () => {
                         <ProductStack>
                             <Images images={product.images} image_link={product.image_link} />
                             <InfoContainer>
-                                <h2 style={{ margin: 0 }}>{product.name}</h2>
+                                <Tooltip
+                                    title={product.name}
+                                >
+                                    <Typography
+                                        component="div"
+                                        margin="0"
+                                        textOverflow="ellipsis"
+                                        whiteSpace="nowrap"
+                                        fontSize="1.5em"
+                                        width="100%"
+                                        overflow="hidden"
+                                    >
+                                        {product.name}
+                                    </Typography>
+                                </Tooltip>
                                 <div>
                                     <Fields>
                                         <InfoIcon sx={{ fontSize: '1em' }} />
@@ -80,7 +93,7 @@ const ProductDetail = () => {
                                         <Divider orientation="vertical" flexItem={true} />
                                         <Field>
                                             <span className="bold">Target Gender: </span>
-                                            <span>{product.for}</span>
+                                            <span>{product.target_gender}</span>
                                         </Field>
                                         <Divider orientation="vertical" flexItem={true} />
                                         <Field>
@@ -172,14 +185,16 @@ const GoBackBtn = styled('button')({
     }
 })
 
-const Error = styled('div')({
+const Error = styled('div')(({ theme }) => ({
     color: 'red',
     width: '100%',
     textAlign: 'center',
-    padding: '20px 0',
+    padding: '20px',
     fontSize: '1.2em',
     fontWeight: 'bold',
-})
+    boxSizing: 'border-box',
+    fontFamily: theme.fontFamily.nunito,
+}))
 
 const ProductStack = styled('div')({
     display: 'flex',

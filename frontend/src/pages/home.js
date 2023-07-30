@@ -1,23 +1,57 @@
-import React, { useRef } from "react"
-import TopWeek from "../components/home/top_week/top_week"
-import BestSelling from "../components/home/best_selling/best_selling"
+import React from "react"
 import NewsLetter from "../components/home/new_letter"
-import SalesAndCoupons from "../components/home/sales_coupons"
 import ScrollToTopBtn from "../components/scroll_top_top_btn"
-import Introduce from "../components/home/introduce"
+import Background from "../components/home/background"
+import SecBanners from "../components/home/sec_banners"
+import WomenSProducts from "../components/home/women's_products"
+import MenSProducts from "../components/home/men's_products"
+import { Box, Typography } from "@mui/material"
+import { useTheme } from "@emotion/react"
+import Overview from "../components/home/overview"
 
 const Home = () => {
-    const scrollRef = useRef()
+    const theme = useTheme()
+
     return (
-        <div id="Home" style={{ width: '100%' }}>
-            <Introduce scrollRef={scrollRef} />
-            <SalesAndCoupons />
-            <TopWeek ref={scrollRef} />
-            <BestSelling />
+        <Box
+            id="Home"
+            component="div"
+            width="100%"
+        >
+            <Background />
+
+            <SecBanners />
+
+            <Typography
+                fontFamily={theme.fontFamily.kanit}
+                fontWeight="bold"
+                fontSize="3em"
+                paddingLeft="60px"
+                marginTop="80px"
+            >
+                Most Sold
+            </Typography>
+
+            <WomenSProducts />
+
+            <MenSProducts />
+
+            <Typography
+                fontFamily={theme.fontFamily.kanit}
+                fontWeight="bold"
+                fontSize="3em"
+                paddingLeft="60px"
+                marginTop="80px"
+            >
+                Overview
+            </Typography>
+
+            <Overview />
+
             <NewsLetter />
 
             <ScrollToTopBtn />
-        </div>
+        </Box>
     )
 }
 

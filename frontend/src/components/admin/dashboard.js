@@ -5,7 +5,7 @@ import AllInboxIcon from '@mui/icons-material/AllInbox'
 import InventoryIcon from '@mui/icons-material/Inventory'
 import ErrorIcon from '@mui/icons-material/Error'
 import DashboardChart from "./dashboard_chart"
-import AutoIncreaAnimate from "../auto_increa_animate"
+import AutoIncreaAnimate from "../materials/auto_increa_animate"
 import StoreIcon from '@mui/icons-material/Store'
 
 const style_for_icons = {

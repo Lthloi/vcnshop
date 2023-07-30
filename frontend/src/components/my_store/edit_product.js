@@ -35,6 +35,7 @@ const options = {
         'Black',
         'Beige',
         'Gray',
+        'Brown',
     ],
     sizes: ['S', 'M', 'L'],
 }
@@ -326,7 +327,7 @@ const EditProduct = ({ productId }) => {
             sizes_array,
             colors_array,
             stock,
-            description,
+            description.trim(),
             productId,
             images
         ))

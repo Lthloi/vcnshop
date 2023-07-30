@@ -1,50 +1,29 @@
 import React, { useState, useRef, useEffect } from "react"
 import { styled } from '@mui/material/styles'
 import AddAPhotoIcon from '@mui/icons-material/AddAPhoto'
-import { useDispatch } from "react-redux"
+import { useDispatch, useSelector } from "react-redux"
 import { updateUserAvatar } from "../../store/actions/user_actions"
-import { CircularProgress } from "@mui/material"
-import Tooltip from '@mui/material/Tooltip'
+import { Modal, Stack, Tooltip, CircularProgress, Avatar as AvatarMUI, Box, Typography } from '@mui/material'
+import { useTheme } from "@emotion/react"
 
-const RenderFirstCharacterOfName = (name_of_user) => {
-    let display_name = ''
-    let name_of_user_trimed = name_of_user.trim()
-    name_of_user_trimed = ' ' + name_of_user_trimed
-    for (let i = name_of_user_trimed.length; i > -1; i--)
-        if (name_of_user_trimed[i] === ' ')
-            display_name = name_of_user_trimed[i + 1].toUpperCase()
-
-    return (<span>{display_name}</span>)
-}
-
-const RenderNameOfUserConvertion = (name_of_user) => {
-    let name_of_user_trimed = name_of_user.trim()
-    if (name_of_user_trimed.length > 5)
-        name_of_user_trimed = name_of_user_trimed.slice(0, 8) + '...'
-
-    return name_of_user_trimed
-}
-
-const Avatar = ({ nameOfUser, userAvatar }) => {
+const UpdateAvatar = ({ userAvatar }) => {
     const [openChangeAvatarSection, setOpenChangeAvatarSection] = useState(false)
-    const [updating, setUpdating] = useState(false)
     const [avatarUrl, setAvatarUrl] = useState(null)
-    const image_to_upload_ref = useRef(null)
+    const theme = useTheme()
+    const [updating, setUpdating] = useState(false)
     const dispatch = useDispatch()
+    const image_to_upload_ref = useRef(null)
 
     useEffect(() => {
-        setAvatarUrl(userAvatar)
         setUpdating(false)
         setOpenChangeAvatarSection(false)
     }, [userAvatar])
 
-    const handleChangeAvatar = () => {
-        let image = image_to_upload_ref.current.files[0]
-        setAvatarUrl(URL.createObjectURL(image))
-        setOpenChangeAvatarSection(true)
-    }
+    useEffect(() => {
+        setUpdating(false)
+    }, [])
 
-    const changeAvatarAction = (is_changing) => {
+    const avatarAction = (is_changing) => {
         if (is_changing) {
             setUpdating(true)
             let avatar_to_update = image_to_upload_ref.current.files[0]
@@ -53,42 +32,18 @@ const Avatar = ({ nameOfUser, userAvatar }) => {
             setOpenChangeAvatarSection(false)
             setUpdating(false)
             image_to_upload_ref.current.value = null
+            URL.revokeObjectURL(avatarUrl)
         }
     }
 
+    const handleChangeAvatar = () => {
+        let image = image_to_upload_ref.current.files[0]
+        setAvatarUrl(URL.createObjectURL(image))
+        setOpenChangeAvatarSection(true)
+    }
+
     return (
-        <AvatarSection id="AvatarSection">
-
-            {
-                !!openChangeAvatarSection &&
-                <AvatarChangingModalBase>
-                    <ChangeAvatarSection>
-                        <AvatarWarraper sx={{ margin: '0 auto', backgroundImage: `url("${avatarUrl}")`, backgroundSize: '100% 100%' }} />
-                        <TextConfirm>Set this image to your avatar ?</TextConfirm>
-                        <CancelAgreeContainer>
-                            <span></span>
-                            <div style={{ display: 'flex', columnGap: '15px' }}>
-                                <CancelBtn onClick={() => changeAvatarAction(false)}>
-                                    Cancel
-                                </CancelBtn>
-                                <AgreeBtn onClick={() => changeAvatarAction(true)}>
-                                    {
-                                        updating ?
-                                            <CircularProgress
-                                                sx={{ color: 'black', margin: 'auto' }}
-                                                size={15}
-                                                thickness={6}
-                                            />
-                                            :
-                                            <span>Agree</span>
-                                    }
-                                </AgreeBtn>
-                            </div>
-                        </CancelAgreeContainer>
-                    </ChangeAvatarSection>
-                </AvatarChangingModalBase>
-            }
-
+        <>
             <input
                 ref={image_to_upload_ref}
                 style={{ display: 'none' }}
@@ -97,27 +52,134 @@ const Avatar = ({ nameOfUser, userAvatar }) => {
                 onChange={handleChangeAvatar}
             />
 
-            <Tooltip title="Click to change avatar">
-                <AvatarWarraper sx={userAvatar && { backgroundImage: `url("${userAvatar}")`, backgroundSize: '100% 100%' }}>
-                    {!userAvatar && nameOfUser && RenderFirstCharacterOfName(nameOfUser)}
-
-                    <ChangeAvatarBtn
-                        className="change_avatar_btn"
-                        htmlFor="fake_avatar_input"
+            <Modal
+                open={openChangeAvatarSection}
+                onClose={() => avatarAction(false)}
+                sx={{ '& .wrapper_box': { outline: 'none' } }}
+            >
+                <Box
+                    className="wrapper_box"
+                    display="flex"
+                    height="100%"
+                >
+                    <Stack
+                        padding="20px 20px 15px"
+                        borderRadius="5px"
+                        border="1px black solid"
+                        bgcolor="white"
+                        width="30%"
+                        boxSizing="border-box"
+                        fontFamily={theme.fontFamily.kanit}
+                        margin="auto"
                     >
-                        <AddAPhotoIcon sx={{ margin: 'auto', width: '40%', height: '40%', color: 'black' }} />
-                    </ChangeAvatarBtn>
-                </AvatarWarraper>
-            </Tooltip>
+                        <Box display="flex">
+                            <AvatarMUI src={avatarUrl} sx={{ height: '110px', width: '110px', margin: 'auto' }} />
+                        </Box>
+                        <Typography
+                            marginTop="20px"
+                            borderBottom="1px gray solid"
+                            paddingLeft="5px"
+                            width="100%"
+                        >
+                            Set this image to your avatar ?
+                        </Typography>
+                        <Stack flexDirection="row" justifyContent="space-between" marginTop="5px" padding="5px">
+                            <span></span>
+                            <Stack flexDirection="row" columnGap="20px">
+                                <ActionBtn onClick={() => avatarAction(false)}>
+                                    Cancel
+                                </ActionBtn>
+                                <ActionBtn onClick={() => avatarAction(true)}>
+                                    {
+                                        updating ?
+                                            <CircularProgress
+                                                sx={{ color: 'black', margin: 'auto' }}
+                                                size={15}
+                                                thickness={6}
+                                            />
+                                            :
+                                            'Agree'
+                                    }
+                                </ActionBtn>
+                            </Stack>
+                        </Stack>
+                    </Stack>
+                </Box>
+            </Modal>
+        </>
+    )
+}
 
-            <NameTextContainer>
-                <div>Hello,</div>
-                <Tooltip title={nameOfUser} placement="right">
-                    <div>
-                        {RenderNameOfUserConvertion(nameOfUser)}
-                    </div>
-                </Tooltip>
-            </NameTextContainer>
+const DisplayAvatar = ({ nameOfUser, userAvatar }) => {
+
+    return (
+        <Tooltip title="Click to change avatar">
+            <AvatarWarraper>
+                {
+                    userAvatar ?
+                        <AvatarMUI src={userAvatar} sx={{ height: '100%', width: '100%' }} />
+                        :
+                        <AvatarMUI>
+                            {nameOfUser[0]}
+                        </AvatarMUI>
+                }
+
+                <Box
+                    className="change_avatar_btn"
+                    htmlFor="fake_avatar_input"
+                    component="label"
+                    display="none"
+                    position="absolute"
+                    width="100%"
+                    height="100%"
+                    borderRadius="50%"
+                    sx={{ cursor: 'pointer' }}
+                >
+                    <AddAPhotoIcon sx={{ margin: 'auto', width: '40%', height: '40%', color: 'black' }} />
+                </Box>
+            </AvatarWarraper>
+        </Tooltip>
+    )
+}
+
+const set_name_of_user = (name_of_user) => {
+    let name_of_user_trimed = name_of_user.trim()
+    if (name_of_user_trimed.length > 5)
+        name_of_user_trimed = name_of_user_trimed.slice(0, 8) + '...'
+
+    return name_of_user_trimed
+}
+
+const NameOfUser = ({ nameOfUser }) => (
+    <Stack
+        marginLeft="15px"
+    >
+        <div>Hello,</div>
+        <Tooltip title={nameOfUser} placement="right">
+            <Typography
+                fontWeight="bold"
+                fontSize="1.2em"
+                textOverflow="ellipsis"
+                whiteSpace="nowrap"
+                sx={{ overflowX: 'hidden' }}
+            >
+                {set_name_of_user(nameOfUser)}
+            </Typography>
+        </Tooltip>
+    </Stack>
+)
+
+const Avatar = () => {
+    const { user } = useSelector(({ user }) => user)
+
+    return (
+        <AvatarSection id="AvatarSection">
+            
+            <UpdateAvatar userAvatar={user.avatar} />
+
+            <DisplayAvatar nameOfUser={user.name} userAvatar={user.avatar} />
+
+            <NameOfUser nameOfUser={user.name} />
 
         </AvatarSection>
     )
@@ -130,49 +192,11 @@ const AvatarSection = styled('div')(({ theme }) => ({
     justifyContent: 'center',
     alignItems: 'center',
     padding: '20px',
+    fontFamily: theme.fontFamily.kanit,
 }))
 
-const AvatarChangingModalBase = styled('div')({
+const ActionBtn = styled('span')({
     display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    position: 'fixed',
-    top: '0',
-    bottom: '0',
-    right: '0',
-    left: '0',
-    backgroundColor: '#0000006e',
-    zIndex: '99',
-})
-
-const ChangeAvatarSection = styled('div')({
-    padding: '20px 20px 15px',
-    borderRadius: '10px',
-    border: '1px black solid',
-    backgroundColor: 'white',
-    width: '30%',
-    boxSizing: 'border-box',
-})
-
-const TextConfirm = styled('div')({
-    marginTop: '10px',
-    fontFamily: '"Kanit", "sans-serif"',
-    borderBottom: '1px gray solid',
-    paddingLeft: '5px',
-    width: '100%',
-})
-
-const CancelAgreeContainer = styled('div')({
-    display: 'flex',
-    justifyContent: 'space-between',
-    marginTop: '5px',
-    fontFamily: '"Kanit", "sans-serif"',
-    border: 'none',
-    padding: '5px',
-    borderRadius: '5px',
-})
-
-const CancelBtn = styled('span')({
     padding: '5px 15px',
     backgroundColor: '#d6d6d6',
     borderRadius: '5px',
@@ -180,10 +204,6 @@ const CancelBtn = styled('span')({
     ':hover': {
         outline: '2px black solid',
     }
-})
-
-const AgreeBtn = styled(CancelBtn)({
-    display: 'flex',
 })
 
 const AvatarWarraper = styled('div')({
@@ -198,33 +218,10 @@ const AvatarWarraper = styled('div')({
     color: 'white',
     fontSize: '3em',
     fontWeight: 'bold',
-    fontFamily: '"Kanit", "sans-serif"',
     '&:hover label.change_avatar_btn': {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: '#ffffff70',
-    },
-})
-
-const ChangeAvatarBtn = styled('label')({
-    display: 'none',
-    position: 'absolute',
-    width: '100%',
-    height: '100%',
-    borderRadius: '50%',
-    cursor: 'pointer',
-})
-
-const NameTextContainer = styled('div')({
-    fontFamily: '"Kanit", "sans-serif"',
-    marginLeft: '15px',
-    overflowX: 'hidden',
-    '& div:nth-of-type(2)': {
-        fontWeight: 'bold',
-        fontSize: '1.2em',
-        overflowX: 'hidden',
-        textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap',
     },
 })

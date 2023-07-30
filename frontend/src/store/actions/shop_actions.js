@@ -4,7 +4,7 @@ import {
     getShopRequest, getShopSuccess, getShopFail,
     createShopRequest, createShopSuccess, createShopFail,
     getShopsRequest, getShopsSuccess, getShopsFail,
-} from '../reducers/shop_reducer.js'
+} from '../reducers/store_reducer.js'
 import { EXPRESS_SERVER } from '../../utils/constants.js'
 import { toast } from 'react-toastify'
 

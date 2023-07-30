@@ -19,7 +19,7 @@ const ForgotPasswordSection = () => {
     const email_input_ref = useRef()
     const email_was_typed_ref = useRef()
     const [sendOTPNote, setSendOTPNote] = useState(false)
-    const { user: { forgotPasswordStep, isAuthenticated }, loading } = useSelector(({ user }) => user)
+    const { auth: { forgotPasswordStep, isAuthenticated }, loading } = useSelector(({ user }) => user)
     const dispatch = useDispatch()
 
     useEffect(() => {
@@ -51,7 +51,7 @@ const ForgotPasswordSection = () => {
 
     return (
         forgotPasswordStep === 3 ? (
-            <ResetPasswordSection emailWasTyped={email_was_typed_ref.current} loading={loading} />
+            <ResetPasswordSection emailWasTyped={email_was_typed_ref.current} />
         ) :
             <ForgotPasswordArea id="ForgotPasswordArea">
 

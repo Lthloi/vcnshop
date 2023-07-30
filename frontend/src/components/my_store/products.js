@@ -1,12 +1,11 @@
-import React, { useCallback, useContext, useEffect, useMemo, useRef, useState, createContext } from "react"
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { styled } from '@mui/material/styles'
 import ErrorIcon from '@mui/icons-material/Error'
 import AddProduct from './add_product'
 import { useDispatch, useSelector } from "react-redux"
 import { Skeleton } from "@mui/material"
 import { getProducts } from "../../store/actions/product_actions"
-import ProductDetail from "./product_detail"
-import { useNavigate, Routes, Route } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
 import TableCell, { tableCellClasses } from '@mui/material/TableCell'
@@ -22,15 +21,10 @@ import InputLabel from '@mui/material/InputLabel'
 import FormControl from '@mui/material/FormControl'
 import SearchIcon from '@mui/icons-material/Search'
 import { useDebounce } from "../../hooks/custom_hooks"
-import { Pagination } from "@mui/material"
-import { Avatar } from "@mui/material"
-import { IconButton } from "@mui/material"
-import { Tooltip } from '@mui/material'
+import { Pagination as PaginationMUI, Tooltip, Avatar, IconButton, Stack, Box, Typography } from "@mui/material"
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank'
 import ViewCompactIcon from '@mui/icons-material/ViewCompact'
 import SentimentNeutralIcon from '@mui/icons-material/SentimentNeutral'
-
-const ThemeContext = createContext()
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
     [`&.${tableCellClasses.head}`]: {
@@ -86,8 +80,10 @@ const sortHandler = (products, order_by, order_type) => {
     else if (order_by === 'Date Of Adding') order_by = 'createdAt'
     else if (order_by === 'Price (USD)') order_by = 'price'
     else if (order_by === 'Stock') order_by = 'stock'
+    else if (order_by === 'Sold') order_by = 'sold'
 
     let sort_products = [...products]
+    
     if (order_by === 'createdAt')
         sort_products.sort((pre, next) => {
             if (order_type === 'asc')
@@ -101,6 +97,13 @@ const sortHandler = (products, order_by, order_type) => {
                 return doingSortByFloatNumber(pre.price.value, next.price.value)
             else
                 return -doingSortByFloatNumber(pre.price.value, next.price.value)
+        })
+    else if (order_by === 'sold')
+        sort_products.sort((pre, next) => {
+            if (order_type === 'asc')
+                return doingSortByString(pre.sold, next.sold, 'count')
+            else
+                return -doingSortByString(pre.sold, next.sold, 'count')
         })
     else
         sort_products.sort((pre, next) => {
@@ -125,7 +128,7 @@ const get_number_of_pages = (count_products, maximum_number_of_products) => {
     return Math.ceil(count_products / maximum_number_of_products)
 }
 
-const table_head_sort_labels = ['Product Name', 'Date Of Adding', 'Price (USD)', 'Stock']
+const table_head_sort_labels = ['Product Name', 'Date Of Adding', 'Sold', 'Price (USD)', 'Stock']
 
 const TableComponent = ({ products, tableHeadRef, onViewProduct, onCreateSort, order }) => (
     <TableContainer component={Paper} ref={tableHeadRef}>
@@ -160,7 +163,7 @@ const TableComponent = ({ products, tableHeadRef, onViewProduct, onCreateSort, o
                 </StyledTableRow>
             </TableHead>
             <TableBody>
-                {products.map(({ _id, name, createdAt, price, stock }, index) => (
+                {products.map(({ _id, name, createdAt, price, stock, sold }, index) => (
                     <StyledTableRow key={_id}>
                         <StyledTableCell component="th" scope="row">
                             {index + 1}
@@ -169,6 +172,7 @@ const TableComponent = ({ products, tableHeadRef, onViewProduct, onCreateSort, o
                             {name}
                         </StyledTableCell>
                         <StyledTableCell>{converDate(createdAt)}</StyledTableCell>
+                        <StyledTableCell align="center">{sold.count}</StyledTableCell>
                         <StyledTableCell align="center">{price.value}</StyledTableCell>
                         <StyledTableCell align="center">{stock}</StyledTableCell>
                         <StyledTableCell>
@@ -186,7 +190,13 @@ const TableComponent = ({ products, tableHeadRef, onViewProduct, onCreateSort, o
 )
 
 const EmptyHeadingComponent = ({ option }) => (
-    <EmptyHeading>
+    <Typography
+        fontSize='1.2em'
+        width='100%'
+        textAlign='center'
+        marginTop='30px'
+        component="h2"
+    >
         <SentimentNeutralIcon sx={{ fontSize: '1.8em' }} />
         <div>
             {
@@ -197,17 +207,29 @@ const EmptyHeadingComponent = ({ option }) => (
                 )
             }
         </div>
-    </EmptyHeading >
+    </Typography >
 )
 
-const ProductsSection = ({ option }) => {
-    const { products, loading, error, countProducts, currentPage } = useSelector(({ product }) => product)
+const Products = ({ option, shopId }) => {
+    const { products, loading, error } = useSelector(({ product }) => product)
     const [keyword, setKeyword] = useState('')
     const [order, setOrder] = useState({ by: '', type: 'asc' })
     const dispatch = useDispatch()
     const navigate = useNavigate()
     const table_head_ref = useRef()
-    const context = useContext(ThemeContext)
+
+    useEffect(() => {
+        dispatch(getProducts(
+            maximum_number_of_products,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            1,
+            undefined,
+            shopId
+        ))
+    }, [dispatch])
 
     const decounce = useDebounce()
 
@@ -217,7 +239,7 @@ const ProductsSection = ({ option }) => {
     }
 
     const handleViewProduct = useCallback((product_id) => {
-        navigate('/myStore/Products/product/' + product_id)
+        navigate('/myStore/product/' + product_id)
     }, [])
 
     const handleCreateSort = useCallback((label) => {
@@ -235,33 +257,26 @@ const ProductsSection = ({ option }) => {
         return new_products
     }, [products, keyword, order])
 
-    const switchPage = (e, new_page) => {
-        if (new_page === currentPage) return
-
-        table_head_ref.current.scrollIntoView({ block: 'start' })
-
-        dispatch(getProducts(
-            maximum_number_of_products,
-            undefined,
-            undefined,
-            undefined,
-            undefined,
-            new_page,
-            undefined,
-            context.shopId,
-        ))
-    }
-
     return (
         loading ? (
             <Skeleton sx={{ transform: 'none', height: '300px', marginTop: '30px' }} />
         ) : error ? (
-            <Error>
+            <Stack
+                flexDirection="row"
+                alignItems='center'
+                justifyContent='center'
+                columnGap='5px'
+                fontSize='1.1em'
+                fontWeight='bold'
+                color='red'
+                width='100%'
+                marginTop='30px'
+            >
                 <ErrorIcon sx={{ fontSize: '1.2em' }} />
                 <span>{error.message}</span>
-            </Error>
-        ) : products && products.length > 0 ? (
-            <div style={{ marginTop: '30px' }}>
+            </Stack>
+        ) : update_products && update_products.length > 0 ? (
+            <>
                 <FormControl fullWidth sx={{ marginBottom: '20px' }}>
                     <InputLabel htmlFor="search_by_name" color="success">Search By Name</InputLabel>
                     <OutlinedInput
@@ -282,23 +297,46 @@ const ProductsSection = ({ option }) => {
                     onCreateSort={handleCreateSort}
                     tableHeadRef={table_head_ref}
                 />
-
-                {
-                    option === 'All Products' &&
-                    <div style={{ display: 'flex', justifyContent: 'center' }}>
-                        <Pages
-                            count={get_number_of_pages(countProducts, maximum_number_of_products)}
-                            variant="outlined"
-                            shape="rounded"
-                            onChange={switchPage}
-                            page={currentPage}
-                        />
-                    </div>
-                }
-            </div>
+            </>
         ) : (
             <EmptyHeadingComponent option={option} />
         )
+    )
+}
+
+const Pagination = ({ option, shopId }) => {
+    const { countProducts, currentPage } = useSelector(({ product }) => product)
+    const dispatch = useDispatch()
+
+    const switchPage = (e, new_page) => {
+        if (new_page === currentPage) return
+
+        dispatch(getProducts(
+            maximum_number_of_products,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            new_page,
+            undefined,
+            shopId,
+        ))
+    }
+
+    return (
+        option === 'All Products' &&
+        <Stack
+            flexDirection="row"
+            justifyContent="center"
+        >
+            <Pages
+                count={get_number_of_pages(countProducts, maximum_number_of_products)}
+                variant="outlined"
+                shape="rounded"
+                onChange={switchPage}
+                page={currentPage}
+            />
+        </Stack>
     )
 }
 
@@ -314,10 +352,11 @@ const options = [
     },
 ]
 
-const OptionsAndProducts = () => {
+const maximum_number_of_products = 20
+
+const ProductsSection = ({ shopId }) => {
     const [option, setOption] = useState('All Products')
     const dispatch = useDispatch()
-    const context = useContext(ThemeContext)
 
     const switchOption = (title) => {
         if (title === option) return
@@ -331,7 +370,7 @@ const OptionsAndProducts = () => {
                 undefined,
                 1,
                 undefined,
-                context.shopId
+                shopId
             ))
         else if (title === 'Stockout')
             dispatch(getProducts(
@@ -342,7 +381,7 @@ const OptionsAndProducts = () => {
                 undefined,
                 undefined,
                 undefined,
-                context.shopId,
+                shopId,
                 [0, 0]
             ))
 
@@ -350,11 +389,19 @@ const OptionsAndProducts = () => {
     }
 
     return (
-        <>
-            <OptionsContainer>
+        <div id="ProductsOfStore">
+
+            <Stack
+                flexDirection="row"
+                justifyContent="space-between"
+                marginTop="20px"
+            >
                 <AddProduct />
 
-                <OptionsSection id="OptionsSection">
+                <Stack
+                    flexDirection="row"
+                    columnGap="20px"
+                >
                     {
                         options.map(({ title, icon, tooltip }) => (
                             <Tooltip
@@ -370,102 +417,28 @@ const OptionsAndProducts = () => {
                             </Tooltip>
                         ))
                     }
-                </OptionsSection>
-            </OptionsContainer>
+                </Stack>
+            </Stack>
 
-            <ProductsSection
-                option={option}
-            />
-        </>
-    )
-}
+            <Box
+                marginTop="30px"
+            >
+                <Products
+                    option={option}
+                    shopId={shopId}
+                />
 
-const maximum_number_of_products = 20
-
-const Products = ({ shopId }) => {
-    const dispatch = useDispatch()
-
-    useEffect(() => {
-        dispatch(getProducts(
-            maximum_number_of_products,
-            undefined,
-            undefined,
-            undefined,
-            undefined,
-            1,
-            undefined,
-            shopId
-        ))
-    }, [dispatch])
-
-    return (
-        <div id="ProductsOfStore">
-            <ThemeContext.Provider value={{ shopId }}>
-                <Routes>
-                    <Route
-                        path="/"
-                        element={
-                            <OptionsAndProducts />
-                        }
-                    />
-                    <Route path="/product/:productId" element={<ProductDetail />} />
-                </Routes>
-            </ThemeContext.Provider>
+                <Pagination
+                    option={option}
+                    shopId={shopId}
+                />
+            </Box>
         </div>
     )
 }
 
-export default Products
+export default ProductsSection
 
-const OptionsContainer = styled('div')({
-    display: 'flex',
-    justifyContent: 'space-between',
-    marginTop: '20px',
-})
-
-const OptionsSection = styled('div')(({ theme }) => ({
-    display: 'flex',
-    columnGap: '20px',
-}))
-
-const Error = styled('div')({
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    columnGap: '5px',
-    fontSize: '1.1em',
-    fontWeight: 'bold',
-    color: 'red',
-    width: '100%',
+const Pages = styled(PaginationMUI)({
     marginTop: '30px',
-})
-
-const EmptyHeading = styled('h2')({
-    fontSize: '1.2em',
-    width: '100%',
-    textAlign: 'center',
-    marginTop: '30px',
-})
-
-const Pages = styled(Pagination)({
-    marginTop: '30px',
-    '& button.MuiPaginationItem-root': {
-        backgroundColor: 'black',
-        border: '1.5px black solid',
-        color: 'white',
-        '&:hover': {
-            border: '2px white solid',
-        },
-        '&.Mui-selected': {
-            border: '2px white solid',
-            backgroundColor: '#a4dfff',
-            color: 'black',
-        },
-        '&.Mui-disabled': {
-            opacity: 0.3,
-        },
-        '& span.MuiTouchRipple-root': {
-            display: 'none',
-        }
-    }
 })

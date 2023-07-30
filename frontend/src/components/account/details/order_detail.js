@@ -48,7 +48,7 @@ const format_date = (time_string) => {
 }
 
 const OrderDetail = () => {
-    const { order, loading, error } = useSelector(({ order }) => order)
+    const { order, loading, error } = useSelector(({ order_for_user }) => order_for_user)
     const dispatch = useDispatch()
     const { orderId } = useParams()
     const navigate = useNavigate()

@@ -15,13 +15,8 @@ import Paper from '@mui/material/Paper'
 import LaunchIcon from '@mui/icons-material/Launch'
 import moment from "moment"
 import TableSortLabel from '@mui/material/TableSortLabel'
-import { Pagination } from "@mui/material"
-import { IconButton } from "@mui/material"
-import { Tooltip } from '@mui/material'
+import { Pagination, IconButton, Tooltip, Collapse, Typography, Box, Stack } from "@mui/material"
 import { useNavigate, Routes, Route } from 'react-router-dom'
-import Box from '@mui/material/Box'
-import Collapse from '@mui/material/Collapse'
-import Typography from '@mui/material/Typography'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
 import FilterAltIcon from '@mui/icons-material/FilterAlt'
@@ -217,9 +212,21 @@ const RowComponent = ({ orderStatus, paymentStatus, createdAt, rowId, items, onV
                                 items.map(({ _id, name, image_link, price, quantity }) => (
                                     <Product key={_id}>
                                         <ProductImage src={image_link} />
-                                        <ProductName>{name}</ProductName>
-                                        <ProductQty>{'Qty: ' + quantity}</ProductQty>
-                                        <ProductCost>{'$' + price}</ProductCost>
+                                        <Typography
+                                            fontSize="1.2em"
+                                        >
+                                            {name}
+                                        </Typography>
+                                        <Typography
+                                            fontSize="1.5em"
+                                        >
+                                            {'Qty: ' + quantity}
+                                        </Typography>
+                                        <Typography
+                                            fontSize="1.5em"
+                                        >
+                                            {'$' + price}
+                                        </Typography>
                                     </Product>
                                 ))
                             }
@@ -299,8 +306,13 @@ const TableComponent = ({ orders, tableHeadRef, onViewOrder, onCreateSort, sort 
     )
 }
 
-const EmptyHeadingComponent = ({ option }) => (
-    <EmptyHeading>
+const EmptyHeading = ({ option }) => (
+    <Box
+        fontSize="1.2em"
+        width="100%"
+        textAlign="center"
+        marginTop="50px"
+    >
         <StorageIcon sx={{ fontSize: '1.8em' }} />
         <div>
             {
@@ -311,7 +323,7 @@ const EmptyHeadingComponent = ({ option }) => (
                 )
             }
         </div>
-    </EmptyHeading >
+    </Box >
 )
 
 const get_number_of_pages = (count_products, maximum_number_of_orders) => {
@@ -329,7 +341,7 @@ const set_total_price_for_each_order = (orders) => {
 }
 
 const OrdersSection = ({ option }) => {
-    const { orders, loading, error, countOrders, currentPage } = useSelector(({ order }) => order)
+    const { orders, loading, error, countOrders, currentPage } = useSelector(({ order_for_store }) => order_for_store)
     const [sort, setSort] = useState({ by: '', type: 'asc' })
     const table_head_ref = useRef()
     const navigate = useNavigate()
@@ -343,14 +355,18 @@ const OrdersSection = ({ option }) => {
         setSort(pre => ({ by: label, type: pre.type === 'asc' ? 'desc' : 'asc' }))
     }, [])
 
-    const update_orders = useMemo(() => {
-        let new_orders = orders
+    const updated_orders = useMemo(() => {
+        if (orders && orders.length > 0) {
+            let new_orders = orders
 
-        new_orders = set_total_price_for_each_order(new_orders)
+            new_orders = set_total_price_for_each_order(new_orders)
 
-        new_orders = sortHandler(new_orders, sort.by, sort.type)
+            new_orders = sortHandler(new_orders, sort.by, sort.type)
 
-        return new_orders
+            return new_orders
+        }
+
+        return null
     }, [orders, sort])
 
     const switchPage = (e, new_page) => {
@@ -363,17 +379,29 @@ const OrdersSection = ({ option }) => {
 
     return (
         loading ? (
-            <Skeleton sx={{ transform: 'none', height: '300px', marginTop: '30px' }} />
+            <Skeleton sx={{ transform: 'scale(1)', height: '300px', marginTop: '30px' }} />
         ) : error ? (
-            <Error>
+            <Typography
+                flexDirection="row"
+                alignItems="center"
+                justifyContent="center"
+                columnGap="5px"
+                fontSize="1.1em"
+                fontWeight="bold"
+                color="red"
+                marginTop="30px"
+                width="100%"
+            >
                 <ErrorIcon sx={{ fontSize: '1.2em' }} />
                 <span>{error.message}</span>
-            </Error>
-        ) : orders && orders.length > 0 ? (
-            <div style={{ marginTop: '30px' }}>
+            </Typography>
+        ) : updated_orders && updated_orders.length > 0 ? (
+            <Box
+                marginTop="30px"
+            >
                 <TableComponent
                     tableHeadRef={table_head_ref}
-                    orders={update_orders}
+                    orders={updated_orders}
                     sort={sort}
                     onViewOrder={handleViewOrder}
                     onCreateSort={handleCreateSort}
@@ -391,9 +419,9 @@ const OrdersSection = ({ option }) => {
                         />
                     </div>
                 }
-            </div>
+            </Box>
         ) : (
-            <EmptyHeadingComponent option={option} />
+            <EmptyHeading option={option} />
         )
     )
 }
@@ -433,10 +461,20 @@ const OptionsAndOrders = () => {
 
     return (
         <>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <Stack
+                flexDirection="row"
+                justifyContent="space-between"
+            >
                 <span></span>
                 <OptionsSection id="OptionsSection">
-                    <TitleText>Filter By Order Status:</TitleText>
+
+                    <Typography
+                        fontWeight="bold"
+                        fontFamily="inherit"
+                    >
+                        Filter By Order Status:
+                    </Typography>
+
                     {
                         options.map(({ title, icon, tooltip }) => (
                             <Tooltip
@@ -455,8 +493,9 @@ const OptionsAndOrders = () => {
                             </Tooltip>
                         ))
                     }
+
                 </OptionsSection>
-            </div>
+            </Stack>
 
             <OrdersSection
                 option={option}
@@ -468,43 +507,29 @@ const OptionsAndOrders = () => {
 const maximum_number_of_orders = 10
 
 const Orders = () => {
-    // This flag for get orders, if there is not this flag then this component run callback of useEffect only after this 
-    // component completed its commit (because the code of react redux is synchronous, this flag will be effective)
-    const [flag, setFlag] = useState(false)
     const dispatch = useDispatch()
 
     useEffect(() => {
         dispatch(getOrdersForShop(maximum_number_of_orders, 1))
-        setFlag(true)
     }, [dispatch])
 
     return (
         <div id="OrdersSection">
-            {
-                flag &&
-                <Routes>
-                    <Route
-                        path="/"
-                        element={
-                            <OptionsAndOrders />
-                        }
-                    />
+            <Routes>
+                <Route
+                    path="/"
+                    element={
+                        <OptionsAndOrders />
+                    }
+                />
 
-                    <Route path="/order/:orderId" element={<OrderDetail />} />
-                </Routes>
-            }
+                <Route path="/order/:orderId" element={<OrderDetail />} />
+            </Routes>
         </div>
     )
 }
 
 export default Orders
-
-const EmptyHeading = styled('div')({
-    fontSize: '1.2em',
-    width: '100%',
-    textAlign: 'center',
-    marginTop: '50px',
-})
 
 const OptionsSection = styled('div')(({ theme }) => ({
     display: 'flex',
@@ -533,22 +558,6 @@ const Option = styled('div')({
     }
 })
 
-const TitleText = styled('div')({
-    fontWeight: 'bold',
-})
-
-const Error = styled('div')({
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    columnGap: '5px',
-    fontSize: '1.1em',
-    fontWeight: 'bold',
-    color: 'red',
-    width: '100%',
-    marginTop: '30px',
-})
-
 const Product = styled('div')(({ theme }) => ({
     display: 'flex',
     justifyContent: 'space-between',
@@ -562,18 +571,6 @@ const ProductImage = styled('img')({
     width: '100px',
     height: '100px',
     border: '1px lightgrey solid',
-})
-
-const ProductName = styled('div')({
-    fontSize: '1.2em',
-})
-
-const ProductQty = styled('div')({
-    fontSize: '1.5em',
-})
-
-const ProductCost = styled('div')({
-    fontSize: '1.5em',
 })
 
 const Pages = styled(Pagination)({

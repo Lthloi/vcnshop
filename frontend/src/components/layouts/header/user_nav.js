@@ -5,68 +5,74 @@ import PersonIcon from '@mui/icons-material/Person'
 import { useNavToRedirectLogin } from "../../../hooks/custom_hooks"
 import { CircularProgress } from "@mui/material"
 import Tooltip from '@mui/material/Tooltip'
+import { useNavigate } from "react-router-dom"
+import { Stack } from '@mui/material'
 
 const UserNav = () => {
-    const { user: { isAuthenticated }, error } = useSelector(({ user }) => user)
-    const navigate = useNavToRedirectLogin()
+    const { auth: { isAuthenticated }, error } = useSelector(({ user }) => user)
+    const navigate_to_login = useNavToRedirectLogin()
+    const navigate = useNavigate()
 
-    if (isAuthenticated)
-        return (
+    const handleAuthNavigate = (option) => {
+        if (option === 'login')
+            navigate_to_login()
+        else if (option === 'register')
+            navigate('/auth/register')
+        else
+            navigate('/account')
+    }
+
+    return (
+        isAuthenticated ? (
             <Tooltip title="Account">
-                <PersonIconWrapper href="/account">
-                    <StyledPersonIcon />
+                <PersonIconWrapper onClick={() => handleAuthNavigate('account')}>
+                    <PersonIcon sx={{ fontSize: '1.8em', color: 'black' }} />
                 </PersonIconWrapper>
             </Tooltip>
-        )
-    else if (!isAuthenticated && error)
-        return (
-            <>
-                <AuthBtn onClick={() => navigate()}>
+        ) : !isAuthenticated && error ? (
+            <Stack flexDirection="row" alignItems="center">
+                <AuthBtn onClick={() => handleAuthNavigate('login')}>
                     Sign In
                 </AuthBtn>
-                <AuthBtn href="/auth/register">
+                <AuthBtn onClick={() => handleAuthNavigate('register')}>
                     Sign Up
                 </AuthBtn>
-            </>
-        )
-    else
-        return (
+            </Stack>
+        ) :
             <CircularProgress
                 size={15}
                 thickness={5}
-                sx={{ color: 'white' }}
+                sx={{ color: 'black' }}
             />
-        )
+    )
 }
 
 export default UserNav
 
-const AuthBtn = styled('a')({
-    color: 'white',
-    fontFamily: 'nunito',
+const AuthBtn = styled('span')(({ theme }) => ({
+    fontFamily: theme.fontFamily.nunito,
     fontSize: '1em',
     fontWeight: 'bold',
     cursor: 'pointer',
     textDecoration: 'unset',
+    padding: '5px 15px',
+    borderRadius: '10px',
     '&:hover': {
-        color: '#51fff6',
-        textDecoration: 'underline',
+        backgroundColor: 'black',
+        color: 'white',
     },
-})
+}))
 
-const PersonIconWrapper = styled('a')({
+const PersonIconWrapper = styled('span')({
     display: 'flex',
     alignItems: 'center',
-    padding: '3px',
+    padding: '5px',
     borderRadius: '50%',
-    ':hover': {
-        outline: '2px #51fff6 solid',
-    }
-})
-
-const StyledPersonIcon = styled(PersonIcon)({
-    fontSize: '1.8em',
-    color: 'white',
     cursor: 'pointer',
-    textDecoration: 'unset',
+    '&:hover': {
+        backgroundColor: 'black',
+        '& svg': {
+            color: 'white',
+        }
+    }
 })

@@ -7,7 +7,7 @@ import './styles/toastify.scss'
 import './styles/problem_section.scss'
 import { Provider } from 'react-redux'
 import store from './store/store'
-import ErrorBoundary from './components/error_boundary'
+import ErrorBoundary from './utils/error_boundary'
 import ErrorPage from './pages/error_page'
 
 const root = ReactDOM.createRoot(document.getElementById('root'))

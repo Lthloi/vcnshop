@@ -9,7 +9,7 @@ import SearchResult from './pages/search_result'
 import Auth from './pages/auth'
 import Account from './pages/account'
 import { BrowserRouter } from "react-router-dom"
-import ProtectedResource from './components/protected_resource'
+import { ProtectedRoute } from './utils/protected_resource'
 import { useEffect } from 'react'
 import { useDispatch } from 'react-redux'
 import { getUser } from './store/actions/user_actions'
@@ -18,6 +18,7 @@ import { ThemeProvider } from '@mui/material/styles'
 import global_theme from './styles/themes'
 import Admin from './pages/admin'
 import MyStore from './pages/my_store'
+import TermsOfUse from './pages/terms_of_use'
 
 function App() {
   const dispatch = useDispatch()
@@ -32,20 +33,22 @@ function App() {
         <BrowserRouter>
           <Routes>
 
-            {/*Put routes is not protected with outlet layout*/}
+            {/*Put routes with outlet layout*/}
             <Route path='/' element={<PageLayout />}>
               <Route index element={<Home />} />
               <Route path='/cart' element={<Cart />} />
               <Route path='/productDetail/:productId' element={<Product />} />
               <Route path='/search/:keyword' element={<SearchResult />} />
-              <Route path='/account/*' element={<ProtectedResource><Account /></ProtectedResource>} />
-              <Route path='/admin/*' element={<ProtectedResource isAdminRoute><Admin /></ProtectedResource>} />
-              <Route path='/myStore/*' element={<ProtectedResource><MyStore /></ProtectedResource>} />
+              <Route path='/account/*' element={<ProtectedRoute><Account /></ProtectedRoute>} />
+              <Route path='/admin/*' element={<ProtectedRoute isAdminRoute><Admin /></ProtectedRoute>} />
+              <Route path='/myStore/*' element={<ProtectedRoute><MyStore /></ProtectedRoute>} />
             </Route>
 
             {/*Put other routes with no layout*/}
-            <Route path='/checkout/*' element={<ProtectedResource><Checkout /></ProtectedResource>} />
+            <Route path='/checkout/*' element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
             <Route path='/auth/*' element={<Auth />} />
+
+            <Route path='termOfUse' element={<TermsOfUse />} />
 
             <Route path='/*' element={<NotFound404 />} />
 

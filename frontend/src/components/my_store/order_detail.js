@@ -189,7 +189,7 @@ const ShippingSection = ({ shippingInfo }) => (
 )
 
 const OrderDetail = () => {
-    const { order, loading, error } = useSelector(({ order }) => order)
+    const { order, loading, error } = useSelector(({ order_for_store }) => order_for_store)
     const { orderId } = useParams()
     const dispatch = useDispatch()
     const navigate = useNavigate()

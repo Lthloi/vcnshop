@@ -10,6 +10,7 @@ import {
 import axios from 'axios'
 import { EXPRESS_SERVER } from '../../utils/constants.js'
 import actionsErrorHandler from '../../utils/error_handler.js'
+import { redirectAfterSeconds } from '../../utils/redirect_handler.js'
 
 const sendRegisterOTP = (email) => async (dispatch) => {
     try {
@@ -67,7 +68,6 @@ const completeRegister = (name, email, password, gender) => async (dispatch) => 
         )
 
         dispatch(registerSuccess({ registerStep: 3, isAuthenticated: true }))
-        toast.success('Register successfully!')
     } catch (error) {
         let errorObject = actionsErrorHandler(error, 'Fail to complete register, please try again some minutes later!')
 
@@ -96,12 +96,11 @@ const loginUser = (email, password) => async (dispatch) => {
         dispatch(loginSuccess({ loginStep: 2 }))
         toast.success('Login successfully!')
     } catch (error) {
-        let errorObject = actionsErrorHandler(error, 'Fail to login, please try again some minutes later!')
+        let errorObject = actionsErrorHandler(error,)
 
         dispatch(loginFail({ error: errorObject }))
 
-        if (errorObject.isUserError) toast.warning(errorObject.message)
-        else toast.error(errorObject.message)
+        toast.error(errorObject.message)
     }
 }
 
@@ -163,6 +162,8 @@ const resetPassword = (email, new_password) => async (dispatch) => {
 
         dispatch(forgotPasswordSuccess({ forgotPasswordStep: 3, isAuthenticated: true }))
         toast.success('Reset Password Successfully!')
+
+        redirectAfterSeconds(1000, { isReload: false, href: '/account' })
     } catch (error) {
         let errorObject = actionsErrorHandler(error, 'Fail to reset password, please try again some minutes later!')
 
@@ -216,7 +217,7 @@ const updateUserAvatar = (avatar) => async (dispatch) => {
     }
 }
 
-const updateProfile = (nameOfUser, email, gender, dateOfBirth) => async (dispatch) => {
+const updateProfile = (nameOfUser, gender) => async (dispatch) => {
     try {
         dispatch(getUserRequest())
 
@@ -224,22 +225,19 @@ const updateProfile = (nameOfUser, email, gender, dateOfBirth) => async (dispatc
 
         await axios.put(
             EXPRESS_SERVER + api_to_update_avatar,
-            { nameOfUser, email, gender, dateOfBirth },
+            { nameOfUser, gender },
             { withCredentials: true }
         )
 
-        dispatch(getUserSuccess({ name: nameOfUser, email, gender, date_of_birth: dateOfBirth }))
+        dispatch(getUserSuccess({ name: nameOfUser, gender }))
 
         toast.success('Update profile successfully!')
     } catch (error) {
-        let errorObject = actionsErrorHandler(error, 'Fail to update profile, please try again some minutes later!')
+        let errorObject = actionsErrorHandler(error)
 
         dispatch(getUserFail({ error: errorObject }))
 
-        if (errorObject.isUserError) {
-            toast.warning(errorObject.message)
-        } else
-            toast.error(errorObject.message)
+        toast.error(errorObject.message)
     }
 }
 
@@ -259,14 +257,11 @@ const changePassword = (oldPassword, newPassword) => async (dispatch) => {
 
         toast.success('Change password successfully!')
     } catch (error) {
-        let errorObject = actionsErrorHandler(error, 'Fail to update profile, please try again some minutes later!')
+        let errorObject = actionsErrorHandler(error)
 
         dispatch(getUserFail({ error: errorObject }))
 
-        if (errorObject.isUserError) {
-            toast.warning(errorObject.message)
-        } else
-            toast.error(errorObject.message)
+        toast.error(errorObject.message)
     }
 }
 
@@ -276,9 +271,11 @@ const logoutUser = () => async (dispatch) => {
 
         await axios.post(EXPRESS_SERVER + api_to_logout, {}, { withCredentials: true })
 
-        window.open('/', '_self')
-
         dispatch(logoutSuccess())
+
+        toast.success('Logout successfully!')
+
+        redirectAfterSeconds(1000, { isReload: false, href: '/' })
     } catch (error) {
         toast.error('Fail to logout, please try again some minutes later!')
     }

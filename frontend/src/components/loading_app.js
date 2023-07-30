@@ -1,8 +1,15 @@
-import React from "react"
+import React, { useEffect } from "react"
 import { styled } from '@mui/material/styles'
 import foxLogoBlack from '../assets/images/logo_app_black.svg'
 
 const LoadingApp = () => {
+
+    useEffect(() => {
+        document.body.style.overflow = 'hidden'
+
+        return () => document.body.style.overflow = 'unset'
+    }, [])
+
     return (
         <LoadingAppModalBase id="LoadingApp" >
             <ImageAnimationContainer>

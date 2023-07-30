@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useTransition } from "react"
+import React, { useCallback, useEffect, useRef, useState, useTransition } from "react"
 import { styled } from '@mui/material/styles'
 import Dialog from '@mui/material/Dialog'
 import AddIcon from '@mui/icons-material/Add'
@@ -19,9 +19,9 @@ import FormControl from '@mui/material/FormControl'
 import FormLabel from '@mui/material/FormLabel'
 import { Avatar } from "@mui/material"
 import { Stack } from "@mui/material"
-import Cash from '../../assets/images/payment_methods/cash.png'
-import Mastercard from '../../assets/images/payment_methods/mastercard.png'
-import Visa from '../../assets/images/payment_methods/visa.png'
+import Cash from '../../assets/images/payment_methods/cash.jpg'
+import Mastercard from '../../assets/images/payment_methods/mastercard.jpg'
+import Visa from '../../assets/images/payment_methods/visa.jpg'
 import FormGroup from '@mui/material/FormGroup'
 import Checkbox from '@mui/material/Checkbox'
 import FormHelperText from '@mui/material/FormHelperText'
@@ -40,6 +40,7 @@ const options = {
         'Black',
         'Beige',
         'Gray',
+        'Brown',
     ],
     sizes: ['S', 'M', 'L'],
 }
@@ -67,7 +68,7 @@ const Checkboxes = ({ onSetValue, label, list, helperText, errors }) => {
         if (e.target.checked)
             input_value.current += `,${value}`
         else
-            input_value.current.replace(`,${value}`, '')
+            input_value.current = input_value.current.replace(`,${value}`, '')
 
         onSetValue(label, input_value.current)
     }
@@ -80,12 +81,12 @@ const Checkboxes = ({ onSetValue, label, list, helperText, errors }) => {
                 onChange={handlePick}
             >
                 {
-                    list.map((color) => (
+                    list.map((value) => (
                         <FormControlLabel
-                            key={color}
+                            key={value}
                             control={CheckboxComponent()}
-                            label={color}
-                            value={color}
+                            label={value}
+                            value={value}
                         />
                     ))
                 }
@@ -261,15 +262,16 @@ const Transition = React.forwardRef(function Transition(props, ref) {
     return <Slide direction="up" ref={ref} {...props} unmountOnExit />
 })
 
-const AddImagesSection = React.memo(({ imagesRef }) => {
+const AddImagesSection = React.memo(({ onChange }) => {
     const [imageList, setImageList] = useState([null, null, null, null, null])
 
     useEffect(() => {
-        let images = imageList.filter((image_object) => image_object)
+        let images
+        images = imageList.filter((image_object) => image_object)
         images = images.map(({ file }) => file)
 
-        imagesRef.current = images
-    }, [imageList])
+        onChange(images)
+    }, [imageList, onChange])
 
     const cancelPickImg = (image_url) => {
         setImageList(pre => pre.map(
@@ -307,7 +309,7 @@ const AddImagesSection = React.memo(({ imagesRef }) => {
         e.target.value = null
     }
 
-    const RenderAddImgButton = ({ height, paddingBottom, imageObject, index }) => {
+    const AddImgButton = ({ height, paddingBottom, imageObject, index }) => {
         return (
             <Grid item xs={1}>
                 {
@@ -364,7 +366,7 @@ const AddImagesSection = React.memo(({ imagesRef }) => {
                 columnSpacing={{ xs: 2 }}
                 columns={2}
             >
-                <RenderAddImgButton height={'100%'} paddingBottom={null} imageObject={imageList[0]} index={0} />
+                <AddImgButton height={'100%'} paddingBottom={null} imageObject={imageList[0]} index={0} />
                 <Grid xs={1} item>
                     <Grid
                         container
@@ -372,10 +374,10 @@ const AddImagesSection = React.memo(({ imagesRef }) => {
                         columnSpacing={{ xs: 2 }}
                         columns={2}
                     >
-                        <RenderAddImgButton height={null} paddingBottom={'90%'} imageObject={imageList[1]} index={1} />
-                        <RenderAddImgButton height={null} paddingBottom={'90%'} imageObject={imageList[2]} index={2} />
-                        <RenderAddImgButton height={null} paddingBottom={'90%'} imageObject={imageList[3]} index={3} />
-                        <RenderAddImgButton height={null} paddingBottom={'90%'} imageObject={imageList[4]} index={4} />
+                        <AddImgButton height={null} paddingBottom={'90%'} imageObject={imageList[1]} index={1} />
+                        <AddImgButton height={null} paddingBottom={'90%'} imageObject={imageList[2]} index={2} />
+                        <AddImgButton height={null} paddingBottom={'90%'} imageObject={imageList[3]} index={3} />
+                        <AddImgButton height={null} paddingBottom={'90%'} imageObject={imageList[4]} index={4} />
                     </Grid>
                 </Grid>
             </Grid>
@@ -392,7 +394,11 @@ const AddProduct = () => {
     const { handleSubmit } = useForm_methods
     const [isPending, startTransition] = useTransition()
     const dispatch = useDispatch()
-    const product_images = useRef()
+    const product_images = useRef([])
+
+    const handleSetProductImages = useCallback((images) => {
+        product_images.current = images
+    }, [])
 
     const checkAndSubmitAddProduct = (data, e) => {
         e.preventDefault()
@@ -412,11 +418,10 @@ const AddProduct = () => {
         if (
             !product_name || !description || !price || !stock ||
             !category || !target_gender || !colors || !sizes
-        ) return warning('Please don\'t empty any fields even images field')
+        ) return warning('Please don\'t empty any fields')
 
         if (images.length === 0) {
-            warning('Please don\'t empty any fields even images field')
-            return setError('Images')
+            return warning('Please don\'t empty images field')
         }
 
         if (product_name.length > 150) {
@@ -440,13 +445,13 @@ const AddProduct = () => {
         let sizes_array = sizes.slice(1).split(',')
 
         dispatch(createNewProduct(
-            product_name,
+            product_name.trim(),
             category,
             target_gender,
             price,
             { colors: colors_array, sizes: sizes_array },
             stock,
-            description,
+            description.trim(),
             images
         ))
     }
@@ -468,9 +473,12 @@ const AddProduct = () => {
                     <span>Cancel</span>
                     <h2 className="close_title">Add Product</h2>
                 </CloseContainer>
+
                 <DialogContent>
-                    <AddImagesSection imagesRef={product_images} />
-                    <FormHelperText error={!!useForm_methods.formState.errors['Images']}>
+
+                    <AddImagesSection onChange={handleSetProductImages} />
+
+                    <FormHelperText>
                         Add at least one image for your products. This info will be displayed on product page for the customers
                     </FormHelperText>
 
@@ -498,8 +506,10 @@ const AddProduct = () => {
                                 'Submit'
                         }
                     </SubmitBtn>
+
                 </DialogContent>
             </Dialog >
+
             <AnimationBtn
                 onClick={() => {
                     startTransition(() => { setOpenAddProduct(true) })

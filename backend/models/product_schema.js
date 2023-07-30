@@ -17,9 +17,9 @@ const ProductSchema = new Schema({
         required: true,
         enum: ['Shirt', 'Pant'],
     },
-    for: {
+    target_gender: {
         type: String,
-        default: 'Unisex',
+        required: true,
         enum: ['Male', 'Female', 'Unisex'],
     },
     price: {
@@ -58,8 +58,8 @@ const ProductSchema = new Schema({
         index: true,
     },
     options: {
-        sizes: [{ type: String, }],
-        colors: [{ type: String, }],
+        sizes: [{ type: String, required: true }],
+        colors: [{ type: String, required: true }],
     },
     images: [{ type: String }],
     description: {

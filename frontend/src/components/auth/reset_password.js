@@ -1,14 +1,16 @@
-import React, { useState } from "react"
+import React, { useCallback, useState } from "react"
 import { styled } from '@mui/material/styles'
 import Divider from '@mui/material/Divider'
 import TextField from '@mui/material/TextField'
-import { useForm } from "react-hook-form"
+import { useForm, useFormContext, FormProvider } from "react-hook-form"
 import CancelIcon from '@mui/icons-material/Cancel'
 import VisibilityIcon from '@mui/icons-material/Visibility'
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff'
 import CircularProgress from '@mui/material/CircularProgress'
-import { useDispatch } from "react-redux"
+import { useDispatch, useSelector } from "react-redux"
 import { resetPassword } from "../../store/actions/user_actions"
+import { Stack } from "@mui/material"
+import { MAX_PASSWORD_LENGTH } from "../../utils/constants"
 
 const show_password_icon_style = {
     color: 'white',
@@ -20,38 +22,108 @@ const show_password_icon_style = {
     }
 }
 
-const RenderInputWarning = (order) => {
+const ConnectForm = ({ children }) => {
+    const useForm_methods = useFormContext()
+    return children({ ...useForm_methods })
+}
+
+const Warning = ({ order }) => {
     let warning_text
-    if (order === 1)
-        warning_text = 'Password must be between 6 and 20 characters long. And must contain at least one capital letter and one number and one lowercase letter.'
-    if (order === 2)
+    if (order === 'NewPassword')
+        warning_text = `Password must be between 6 and ${MAX_PASSWORD_LENGTH} characters long. And must contain at least one capital letter and one number and one lowercase letter.`
+    if (order === 'ConfirmPassword')
         warning_text = 'Password doesn\'t match.'
     return (
-        <Warning>
+        <Stack flexDirection="row" marginTop="5px" alignItems="center">
             <CancelIcon sx={{ height: '0.7em', color: 'red' }} />
             <InputWarningText>{warning_text}</InputWarningText>
-        </Warning>
+        </Stack>
     )
 }
 
-const ResetPasswordSection = ({ emailWasTyped, loading }) => {
-    const { register, formState: { errors }, handleSubmit, setError } = useForm()
-    const [showPassword, setshowPassword] = useState(false)
-    const dispatch = useDispatch()
+const FormGroup = ({ label, displayLabel, showPassword, onShowPassword }) => {
 
-    const handleHideShowPassword = () => setshowPassword(pre => !pre)
+    return (
+        <ConnectForm>
+            {({ register, formState: { errors } }) => (
+                <Stack justifyContent="center" marginTop="15px">
+
+                    <Stack position="relative" width="100%">
+                        <NewPasswordInput
+                            label={displayLabel}
+                            variant="standard"
+                            {...register(label)}
+                            fullWidth
+                            type={showPassword ? "text" : "password"}
+                        />
+                        <ShowPasswordIconInputWrapper>
+                            {
+                                showPassword ?
+                                    <VisibilityIcon
+                                        onClick={onShowPassword}
+                                        sx={show_password_icon_style}
+                                    />
+                                    :
+                                    <VisibilityOffIcon
+                                        onClick={onShowPassword}
+                                        sx={show_password_icon_style}
+                                    />
+                            }
+                        </ShowPasswordIconInputWrapper>
+                    </Stack>
+
+                    {errors[label] && <Warning order={label} />}
+
+                </Stack>
+            )}
+        </ConnectForm>
+    )
+}
+
+const Inputs = () => {
+    const [showPassword, setshowPassword] = useState(false)
+
+    const handleShowPassword = useCallback(() => {
+        setshowPassword(pre => !pre)
+    }, [setshowPassword])
+
+    return (
+        <>
+            <FormGroup
+                label={'NewPassword'}
+                displayLabel={'Enter a new password'}
+                showPassword={showPassword}
+                onShowPassword={handleShowPassword}
+            />
+
+            <FormGroup
+                label={'ConfirmPassword'}
+                displayLabel={'Re-enter the new password'}
+                showPassword={showPassword}
+                onShowPassword={handleShowPassword}
+            />
+        </>
+    )
+}
+
+const ResetPasswordSection = ({ emailWasTyped }) => {
+    const { loading } = useSelector(({ user }) => user)
+    const useForm_methods = useForm()
+    const { handleSubmit, setError } = useForm_methods
+    const dispatch = useDispatch()
 
     const resetPasswordSubmit = (data, e) => {
         e.preventDefault()
 
-        let password_regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?!.*\s).{6,}$/
+        let password_regex = new RegExp(`^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?!.*\\s).{6,${MAX_PASSWORD_LENGTH}}$`)
 
         let new_password = data.NewPassword
+        let confirm_password = data.ConfirmPassword
 
         if (!password_regex.test(new_password))
             return setError('NewPassword')
-        if (data.confirmPassword !== new_password)
-            return setError('confirmPassword')
+        if (confirm_password !== new_password)
+            return setError('ConfirmPassword')
 
         dispatch(resetPassword(emailWasTyped, new_password))
     }
@@ -73,72 +145,18 @@ const ResetPasswordSection = ({ emailWasTyped, loading }) => {
 
             <Divider sx={{ borderColor: '#858585', marginTop: '10px' }} />
 
-            <FormGroup>
-                <NewPasswordInputWrapper>
-                    <NewPasswordInput
-                        label="Enter a new password"
-                        variant="standard"
-                        {...register('NewPassword')}
-                        fullWidth
-                        type={showPassword ? "text" : "password"}
-                    />
-                    <ShowPasswordIconInputWrapper>
-                        {
-                            showPassword ?
-                                <VisibilityIcon
-                                    onClick={handleHideShowPassword}
-                                    sx={show_password_icon_style}
-                                />
-                                :
-                                <VisibilityOffIcon
-                                    onClick={handleHideShowPassword}
-                                    sx={show_password_icon_style}
-                                />
-                        }
-                    </ShowPasswordIconInputWrapper>
-                </NewPasswordInputWrapper>
-
-                {errors.NewPassword && RenderInputWarning(1)}
-
-            </FormGroup>
-
-            <FormGroup>
-                <ReEnterNewPasswordInputWrapper>
-                    <ReEnterNewPasswordInput
-                        label="Re-enter the new password"
-                        variant="standard"
-                        {...register('confirmPassword')}
-                        fullWidth
-                        type={showPassword ? "text" : "password"}
-                    />
-                    <ShowPasswordIconInputWrapper>
-                        {
-                            showPassword ?
-                                <VisibilityIcon
-                                    onClick={handleHideShowPassword}
-                                    sx={show_password_icon_style}
-                                />
-                                :
-                                <VisibilityOffIcon
-                                    onClick={handleHideShowPassword}
-                                    sx={show_password_icon_style}
-                                />
-                        }
-                    </ShowPasswordIconInputWrapper>
-                </ReEnterNewPasswordInputWrapper>
-
-                {errors.confirmPassword && RenderInputWarning(2)}
-
-            </FormGroup>
+            <FormProvider {...useForm_methods}>
+                <Inputs />
+            </FormProvider>
 
             <SubmitBtnContainer>
-                <CancleBtn
+                <Button
                     onClick={cancelResetPassword}
                     type="button"
                 >
                     Cancle Update
-                </CancleBtn>
-                <SubmitBtn type="submit">
+                </Button>
+                <Button type="submit">
                     {
                         loading ?
                             <CircularProgress
@@ -148,7 +166,7 @@ const ResetPasswordSection = ({ emailWasTyped, loading }) => {
                             />
                             : <span>Update Password</span>
                     }
-                </SubmitBtn>
+                </Button>
             </SubmitBtnContainer>
         </NewPasswordForm>
     )
@@ -179,7 +197,7 @@ const Title = styled('h2')({
     fontWeight: 'bold',
     width: 'fit-content',
     position: 'relative',
-    textShadow: '2px 2px #893bff ',
+    textShadow: '2px 2px #2dad9d ',
     marginTop: '10px',
 })
 
@@ -193,28 +211,16 @@ const Desc = styled('p')({
     textAlign: 'center',
 })
 
-const FormGroup = styled('div')({
-    display: 'flex',
-    justifyContent: 'center',
-    flexDirection: 'column',
-    marginTop: '15px',
-})
-
-const NewPasswordInputWrapper = styled('div')({
-    position: 'relative',
-    width: '100%',
-})
-
 const NewPasswordInput = styled(TextField)({
     '&.MuiTextField-root': {
         '& label.css-aqpgxn-MuiFormLabel-root-MuiInputLabel-root': {
             color: 'grey',
         },
         '& label.MuiInputLabel-shrink': {
-            color: '#a956ffb5',
+            color: '#2dad9d',
         },
         '& label.MuiInputLabel-standard.Mui-focused': {
-            color: '#a956ffb5',
+            color: '#2dad9d',
         },
     },
     '& .MuiInputBase-root': {
@@ -225,7 +231,7 @@ const NewPasswordInput = styled(TextField)({
             borderBottom: '1.5px white solid',
         },
         '&::after': {
-            borderBottom: '2px #893bff solid',
+            borderBottom: '2px #2dad9d solid',
         },
         '& input': {
             color: 'white',
@@ -244,12 +250,6 @@ const ShowPasswordIconInputWrapper = styled('div')({
     height: '100%',
 })
 
-const Warning = styled('span')({
-    display: 'flex',
-    alignItems: 'center',
-    marginTop: '5px',
-})
-
 const InputWarningText = styled('p')({
     color: 'red',
     fontFamily: 'nunito',
@@ -258,22 +258,13 @@ const InputWarningText = styled('p')({
     height: 'min-content',
 })
 
-const ReEnterNewPasswordInputWrapper = styled('div')({
-    position: 'relative',
-    width: '100%',
-})
-
-const ReEnterNewPasswordInput = styled(NewPasswordInput)({
-
-})
-
 const SubmitBtnContainer = styled('div')({
     display: 'flex',
     columnGap: '3px',
     marginTop: '20px',
 })
 
-const CancleBtn = styled('button')({
+const Button = styled('button')({
     display: 'flex',
     justifyContent: 'center',
     flex: '1',
@@ -295,8 +286,4 @@ const CancleBtn = styled('button')({
         top: '5px',
         boxShadow: 'unset',
     }
-})
-
-const SubmitBtn = styled(CancleBtn)({
-
 })

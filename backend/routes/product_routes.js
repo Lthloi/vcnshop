@@ -1,7 +1,7 @@
 import express from 'express'
 import {
     getProducts, getProduct, getReviews,
-    newReview, getProductsName, getProductsByAdmin,
+    newReview, getAllNames, getProductsByAdmin,
     createProduct, updateProduct, deleteProduct,
     getProductsById,
 } from '../controllers/product_controllers.js'
@@ -17,7 +17,7 @@ router.get('/getReviews', getReviews)
 
 router.post('/newReview', verifyJWTtoken, newReview)
 
-router.get('/getProductsName', getProductsName)
+router.get('/getProductsName', getAllNames)
 
 router.get('/getProductsByAdmin', verifyJWTtoken, roleAuthorization('Admin'), getProductsByAdmin)
 

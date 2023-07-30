@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from "react"
 import { styled } from '@mui/material/styles'
 import ProductDetail from "../components/product/product_detail/product_detail"
 import ScrollToTopBtn from '../components/scroll_top_top_btn'
-import ProductReview from "../components/product/product_review/product_review"
+import MakeReview from "../components/product/product_review/make_review"
 import InfoIcon from '@mui/icons-material/Info'
 import { useParams } from "react-router-dom"
 import { useDispatch, useSelector } from "react-redux"
@@ -63,7 +63,7 @@ const Product = () => {
                                 product && product._id &&
                                 <>
                                     <div style={{ width: '100%' }}>
-                                        <ProductReview productId={product._id} productReview={product.review} />
+                                        <MakeReview productId={product._id} productReview={product.review} />
                                         <ReviewsSection id="Reviews" ref={switch_review_page_ref}>
                                             <div style={{ display: 'flex', columnGap: '10px', alignItems: 'center' }}>
                                                 <CommentIcon />

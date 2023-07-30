@@ -35,9 +35,9 @@ const initPlaceOrder = catchAsyncError(async (req, res, next) => {
     let { email, name, avatar } = req.user
 
     let paymentIntent = await stripe.paymentIntents.create({
-        receipt_email: email,
+        receipt_email: email.toLowerCase(),
         amount: (total_to_pay * 100).toFixed(2) * 1,
-        currency,
+        currency: currency.toLowerCase(),
         metadata: {
             'Company': 'VCN Shop - Fox COR',
         },
@@ -77,6 +77,7 @@ const initPlaceOrder = catchAsyncError(async (req, res, next) => {
 // complete the order
 const completePlaceOrder = catchAsyncError(async (req, res, next) => {
     let { orderId, paymentMethod } = req.body
+
     if (!orderId || !paymentMethod)
         throw new BaseError('Wrong property name', 400)
 

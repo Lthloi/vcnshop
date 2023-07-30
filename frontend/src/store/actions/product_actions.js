@@ -1,14 +1,15 @@
 import axios from 'axios'
 import {
     getProductsRequest, getProductsSuccess, getProductsFail, //search of products
-    getTopWeekRequest, getTopWeekSuccess, getTopWeekFail,
-    getBestSellingRequest, getBestSellingSuccess, getBestSellingFail,
     getProductRequest, getProductSuccess, getProductFail, //product detail
     newReviewRequest, newReviewSuccess, newReviewFail,
     getReviewsRequest, getReviewsSuccess, getReviewsFail,
     createNewProductRequest, createNewProductSuccess, createNewProductFail,
     updateProductRequest, updateProductSuccess, updateProductFail,
     deleteProductRequest, deleteProductSuccess, deleteProductFail,
+    getWomenSProductsRequest, getWomenSProductsSuccess, getWomenSProductsFail,
+    getMenSProductsRequest, getMenSProductsSuccess, getMenSProductsFail,
+    getOverviewRequest, getOverviewSuccess, getOverviewFail,
 } from '../reducers/product_reducer.js'
 import { toast } from 'react-toastify'
 import actionsErrorHandler from '../../utils/error_handler.js'
@@ -17,7 +18,7 @@ import {
     LIMIT_GET_PRODUCTS_DEFAULT, MAX_STOCK,
 } from '../../utils/constants.js'
 import FileUploadFilter from '../../utils/file_upload_filter.js'
-import { redirectAfterSeconds } from '../../utils/action_features.js'
+import { redirectAfterSeconds } from '../../utils/redirect_handler.js'
 
 const createNewProduct = (
     productName,
@@ -38,7 +39,7 @@ const createNewProduct = (
     product_data.set('colors', JSON.stringify(colors))
     product_data.set('sizes', JSON.stringify(sizes))
     product_data.set('stock', stock)
-    product_data.set('description', description)
+    product_data.set('description', JSON.stringify(description))
 
     if (images.length > 0) {
         let file_upload_filter = new FileUploadFilter()
@@ -91,10 +92,14 @@ const updateProduct = (
 ) => async (dispatch) => {
 
     let product_data = new FormData()
-    if (colors.length > 0) product_data.set('colors', JSON.stringify(colors))
-    if (sizes.length > 0) product_data.set('sizes', JSON.stringify(sizes))
-    if (stock) product_data.set('stock', stock)
-    if (description) product_data.set('description', JSON.stringify(description)) // using JSON.stringify for consistent length of description between frontend and backend
+    if (colors.length > 0)
+        product_data.set('colors', JSON.stringify(colors))
+    if (sizes.length > 0)
+        product_data.set('sizes', JSON.stringify(sizes))
+    if (stock)
+        product_data.set('stock', stock)
+    if (description)
+        product_data.set('description', JSON.stringify(description)) // using JSON.stringify for consistent length of description between frontend and backend
 
     if (images.length > 0) {
         let file_upload_filter = new FileUploadFilter()
@@ -181,20 +186,46 @@ const deleteProduct = (product_id) => async (dispatch) => {
 const getProducts = (
     limit = LIMIT_GET_PRODUCTS_DEFAULT, category, keyword, rating = 0,
     price = [0, MAX_PRICE_PORDUCT], page = 1, targetGender, shopId,
-    stock = [0, MAX_STOCK],
+    stock = [0, MAX_STOCK], sort,
 ) => async (dispatch) => {
     try {
         dispatch(getProductsRequest())
 
-        let api_to_getProducts =
-            '/api/product/getProducts?limit=' + limit + '&rating=' + rating +
-            (keyword ? '&keyword=' + keyword : '') + '&page=' + page +
-            (category ? 'category=' + category : '') + (shopId ? '&shopId=' + shopId : '') +
-            '&price[gte]=' + price[0] + '&price[lte]=' + price[1] +
-            (targetGender ? '&targetGender=' + targetGender : '') +
-            '&stock[gte]=' + stock[0] + '&stock[lte]=' + stock[1]
+        let api_to_getProducts = '/api/product/getProducts'
 
-        let { data } = await axios.get(EXPRESS_SERVER + api_to_getProducts)
+        let query = {
+            limit,
+            rating,
+            page,
+            price: {
+                gte: price[0],
+                lte: price[1],
+            },
+            stock: {
+                gte: stock[0],
+                lte: stock[1],
+            },
+        }
+
+        if (keyword)
+            query.keyword = keyword
+        if (category)
+            query.category = category
+        if (shopId)
+            query.shopId = shopId
+        if (targetGender)
+            query.targetGender = targetGender
+        if (sort) {
+            query.sort = {
+                name: sort.name,
+                type: sort.type,
+            }
+        }
+
+        let { data } = await axios.get(
+            EXPRESS_SERVER + api_to_getProducts,
+            { params: query }
+        )
 
         dispatch(getProductsSuccess({
             products: data.products,
@@ -208,38 +239,90 @@ const getProducts = (
     }
 }
 
-const getTopWeek = (limit = 9, page = 1) => async (dispatch) => {
+const getWomenSProducts = (limit = LIMIT_GET_PRODUCTS_DEFAULT, page, sort) => async (dispatch) => {
     try {
-        dispatch(getTopWeekRequest())
+        dispatch(getWomenSProductsRequest())
 
-        let api_to_getTopWeek =
-            '/api/product/getProducts?limit=' + limit + '&page=' + page
+        let api_to_get_products = '/api/product/getProducts'
 
-        let { data } = await axios.get(EXPRESS_SERVER + api_to_getTopWeek)
+        let query = {
+            limit,
+            targetGender: ['Female'],
+            page,
+            sort: {
+                name: sort.name,
+                type: sort.type,
+            },
+        }
 
-        dispatch(getTopWeekSuccess({ products: data.products }))
+        let { data } = await axios.get(
+            EXPRESS_SERVER + api_to_get_products,
+            { params: query }
+        )
+
+        dispatch(getWomenSProductsSuccess({ products: data.products }))
     } catch (error) {
-        let errorObject = actionsErrorHandler(error, 'Error Warning: fail to get top week.')
+        let errorObject = actionsErrorHandler(error, 'Error Warning: fail to get products.')
 
-        dispatch(getTopWeekFail({ error: errorObject }))
+        dispatch(getWomenSProductsFail({ error: errorObject }))
     }
 }
 
-const getBestSelling = (limit = 20, page = 1) => async (dispatch) => {
+const getMenSProducts = (limit = LIMIT_GET_PRODUCTS_DEFAULT, page, sort) => async (dispatch) => {
     try {
-        dispatch(getBestSellingRequest())
+        dispatch(getMenSProductsRequest())
 
-        let api_to_getBestSelling =
-            '/api/product/getProducts?limit=' + limit + '&page=' + page +
-            '&sort[name]=sold.count&sort[type]=' + -1
+        let api_to_get_products = '/api/product/getProducts'
 
-        let { data } = await axios.get(EXPRESS_SERVER + api_to_getBestSelling)
+        let query = {
+            limit,
+            targetGender: ['Male'],
+            page,
+            sort: {
+                name: sort.name,
+                type: sort.type,
+            },
+        }
 
-        dispatch(getBestSellingSuccess({ products: data.products }))
+        let { data } = await axios.get(
+            EXPRESS_SERVER + api_to_get_products,
+            { params: query }
+        )
+
+        dispatch(getMenSProductsSuccess({ products: data.products }))
     } catch (error) {
-        let errorObject = actionsErrorHandler(error, 'Error Warning: fail to get best selling.')
+        let errorObject = actionsErrorHandler(error, 'Error Warning: fail to get products.')
 
-        dispatch(getBestSellingFail({ error: errorObject }))
+        dispatch(getMenSProductsFail({ error: errorObject }))
+    }
+}
+
+const getProductsOverview = (limit = LIMIT_GET_PRODUCTS_DEFAULT, category, page, sort) => async (dispatch) => {
+    try {
+        dispatch(getOverviewRequest())
+
+        let api_to_get_products = '/api/product/getProducts'
+
+        let query = {
+            limit,
+            page,
+            sort: {
+                name: sort.name,
+                type: sort.type,
+            },
+            category,
+        }
+
+        let { data } = await axios.get(
+            EXPRESS_SERVER + api_to_get_products,
+            { params: query }
+        )
+
+        dispatch(getOverviewSuccess({ products: data.products }))
+    } catch (error) {
+        let errorObject = actionsErrorHandler(error)
+
+        dispatch(getOverviewFail({ error: errorObject }))
     }
 }
 
@@ -350,8 +433,8 @@ const getProductsByAdmin = (...fields) => async (dispatch) => {
 }
 
 export {
-    getProducts, getBestSelling, getTopWeek,
+    getProducts, getWomenSProducts, getMenSProducts,
     getReviews, getProductDetail, newReview,
     getProductsByAdmin, createNewProduct,
-    updateProduct, deleteProduct,
+    updateProduct, deleteProduct, getProductsOverview,
 }

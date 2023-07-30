@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useRef, useState } from "react"
+import React, { createContext, useCallback, useContext, useRef, useState } from "react"
 import { styled } from '@mui/material/styles'
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart'
 import { addProductToCart } from "../../../store/actions/cart_actions"
@@ -7,33 +7,136 @@ import { useDispatch, useSelector } from "react-redux"
 import { toast } from 'react-toastify'
 import ConfirmationNumberIcon from '@mui/icons-material/ConfirmationNumber'
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder'
-import Rating from '@mui/material/Rating'
-import { CircularProgress, Stack, Tooltip } from "@mui/material"
+import RatingMUI from '@mui/material/Rating'
+import { CircularProgress, Stack, Tooltip, Typography, Box } from "@mui/material"
 import StraightenIcon from '@mui/icons-material/Straighten'
+import SpeedDial from '@mui/material/SpeedDial'
+import SpeedDialIcon from '@mui/material/SpeedDialIcon'
+import SpeedDialAction from '@mui/material/SpeedDialAction'
+import { useTheme } from "@emotion/react"
 
 const OptionsContext = createContext()
 
-const ColorsComponent = ({ onPickColor }) => {
+const Rating = ({ averageRating, countReviews }) => {
+    return (
+        <Stack columnGap={'10px'} flexDirection={'row'} alignItems={'center'}>
+            <RatingMUI
+                readOnly
+                defaultValue={0}
+                precision={0.5}
+                value={averageRating * 1}
+            />
+            <div>
+                <span>({countReviews}</span>
+                <span>{countReviews > 1 ? ' reviews' : ' review'})</span>
+            </div>
+        </Stack>
+    )
+}
+
+const StockStatus = ({ productStock }) => {
+    return (
+        <Tooltip
+            title={productStock > 0 ? `${productStock} products left` : 'Out of stock'}
+            placement="right"
+        >
+            <Box
+                bgcolor={productStock > 0 ? '#6ce26c' : '#ff6161'}
+                fontSize='0.9em'
+                fontWeight='bold'
+                borderRadius='10px'
+                padding='5px 15px'
+                width='fit-content'
+            >
+                {productStock > 0 ? 'In Stock: ' + productStock : 'Out of stock'}
+            </Box>
+        </Tooltip>
+    )
+}
+
+const Colors = ({ onPickColor }) => {
     const [colorPicked, setColorPicked] = useState()
-    const colors = useContext(OptionsContext).colors
+    const colors_data = useContext(OptionsContext).colors
 
     const pickColor = (color) => {
         setColorPicked(color)
         onPickColor('color', color)
     }
 
+    const selectColor = (e) => {
+        let color = e.target.value
+        if (color === 'none') {
+            e.target.value = ''
+            onPickColor('color', null)
+        } else {
+            e.target.value = color
+            onPickColor('color', color)
+        }
+    }
+
+    const ColorBox = ({ color }) => {
+        return (
+            <Box
+                sx={colorPicked === color ? { outline: '2px gray solid' } : {}}
+                borderRadius="50%"
+            >
+                <Tooltip
+                    key={color}
+                    title={color}
+                >
+                    <Box
+                        borderRadius='50%'
+                        padding='4px'
+                    >
+                        <Box
+                            width='20px'
+                            height='20px'
+                            borderRadius='50%'
+                            boxShadow='0px 0px 4px gray'
+                            cursor='pointer'
+                            bgcolor={color}
+                            component="div"
+                            onClick={() => pickColor(color)}
+                            sx={{ cursor: 'pointer' }}
+                        />
+                    </Box>
+                </Tooltip>
+            </Box>
+
+        )
+    }
+
     return (
         <div>
-            <SectionTitle>Color:</SectionTitle>
-            <Colors>
+            <Typography
+                component="h2"
+                fontSize='1.1em'
+                margin='0'
+                fontWeight='bold'
+            >
+                Color:
+            </Typography>
+
+            <Stack
+                flexDirection="row"
+                columnGap='15px'
+                marginTop='8px'
+            >
                 {
-                    colors.length > 5 ?
-                        <SelectOptions onClick={pickColor}>
+                    colors_data.length > 5 ?
+                        <Box
+                            onClick={selectColor}
+                            component="select"
+                            padding='5px'
+                            fontSize='1em'
+                            border='2px gray solid'
+                            width='100%'
+                        >
                             <option value="none">
                                 Please select one!
                             </option>
                             {
-                                colors.map((color) => (
+                                colors_data.map((color) => (
                                     <option
                                         value={color}
                                         key={color}
@@ -42,29 +145,19 @@ const ColorsComponent = ({ onPickColor }) => {
                                     </option>
                                 ))
                             }
-                        </SelectOptions>
+                        </Box>
                         :
-                        colors.map((color) => (
-                            <Tooltip
-                                key={color}
-                                title={color}
-                            >
-                                <ColorIndicator theme={{ picked: colorPicked === color, color }}>
-                                    <Color
-                                        theme={{ color }}
-                                        onClick={() => pickColor(color)}
-                                    />
-                                </ColorIndicator>
-                            </Tooltip>
+                        colors_data.map((color) => (
+                            <ColorBox color={color} key={color} />
                         ))
                 }
-            </Colors>
-        </div>
+            </Stack>
+        </div >
     )
 }
 
-const SizesComponent = ({ onPickSize }) => {
-    const sizes = useContext(OptionsContext).sizes
+const Sizes = ({ onPickSize }) => {
+    const sizes_data = useContext(OptionsContext).sizes
 
     const handlePickSize = (e) => {
         let size_name = e.target.value
@@ -78,22 +171,48 @@ const SizesComponent = ({ onPickSize }) => {
     }
 
     return (
-        <div style={{ marginTop: '15px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <SectionTitle>Size:</SectionTitle>
-                <FindYourSizeContainer>
+        <Box
+            marginTop="15px"
+        >
+            <Stack
+                flexDirection="row"
+                justifyContent="space-between"
+            >
+                <Typography
+                    component="h2"
+                    fontSize='1.1em'
+                    margin='0'
+                    fontWeight='bold'
+                >
+                    Size:
+                </Typography>
+
+                <Stack
+                    flexDirection="row"
+                    alignItems='center'
+                    columnGap='5px'
+                    width='fit-content'
+                >
                     <StraightenIcon />
                     <FindYourSize>
                         Find your size exactly.
                     </FindYourSize>
-                </FindYourSizeContainer>
-            </div>
-            <SelectOptions onClick={handlePickSize}>
+                </Stack>
+            </Stack>
+            <Box
+                marginTop='5px'
+                padding='5px'
+                fontSize='1em'
+                border='2px gray solid'
+                width='100%'
+                component="select"
+                onClick={handlePickSize}
+            >
                 <option value="none">
                     Please choose one!
                 </option>
                 {
-                    sizes.map((size) => (
+                    sizes_data.map((size) => (
                         <option
                             value={size}
                             key={size}
@@ -102,8 +221,8 @@ const SizesComponent = ({ onPickSize }) => {
                         </option>
                     ))
                 }
-            </SelectOptions>
-        </div>
+            </Box>
+        </Box>
     )
 }
 
@@ -114,63 +233,160 @@ const Options = ({ onSetOptions }) => {
     }
 
     return (
-        <OptionsArea id="Options">
-            <ColorsComponent onPickColor={handleSetOptions} />
-            <SizesComponent onPickSize={handleSetOptions} />
-        </OptionsArea>
+        <Stack
+            rowGap='12px'
+        >
+            <Colors onPickColor={handleSetOptions} />
+            <Sizes onPickSize={handleSetOptions} />
+        </Stack>
+    )
+}
+
+const set_price = (price) => price.toLocaleString('en', { useGrouping: true })
+
+const Price = ({ price }) => {
+    const theme = useTheme()
+
+    return (
+        <Tooltip title={`Price: ${price} USD`} placement="right">
+            <Typography
+                display='flex'
+                columnGap='3px'
+                fontSize='1.8em'
+                fontWeight='bold'
+                margin='10px 0'
+                width='fit-content'
+                fontFamily={theme.fontFamily.kanit}
+            >
+                <span>$</span>
+                <span>
+                    {set_price(price)}
+                </span>
+            </Typography>
+        </Tooltip>
+    )
+}
+
+const AddToCart = ({ options, productId }) => {
+    const { loading } = useSelector(({ cart }) => cart)
+    const dispatch = useDispatch()
+
+    const addToCart = () => {
+        let { color, size } = options.current
+
+        if (!color || !size)
+            return toast.warn('Please select one color and one size')
+
+        dispatch(addProductToCart(productId, { color, size }))
+    }
+
+    return (
+        <Tooltip title="Add this product to your cart">
+            <AddToCartBtn onClick={addToCart}>
+                {
+                    loading ?
+                        <CircularProgress
+                            thickness={6}
+                            size={20}
+                            sx={{ color: 'white', fontSize: '1.2em' }}
+                        />
+                        :
+                        <>
+                            <AddShoppingCartIcon sx={{ color: 'white', fontSize: '1.2em' }} />
+                            <span>Add to cart</span>
+                        </>
+                }
+            </AddToCartBtn>
+        </Tooltip>
+    )
+}
+
+const action_icon_style = {
+    color: 'white',
+}
+
+const actions = [
+    {
+        name: 'Add to wish list',
+        icon: <FavoriteBorderIcon sx={action_icon_style} />,
+    }, {
+        name: 'Coupons',
+        icon: <ConfirmationNumberIcon sx={action_icon_style} />,
+    },
+]
+
+const MoreActions = () => {
+    return (
+        <StyledSpeedDial
+            ariaLabel="SpeedDial-MoreActions"
+            icon={<SpeedDialIcon sx={{ color: 'white' }} />}
+            direction="right"
+            hidden={false}
+        >
+            {
+                actions.map(({ name, icon }) => (
+                    <SpeedDialAction
+                        key={name}
+                        icon={icon}
+                        tooltipTitle={name}
+                        tooltipPlacement="bottom"
+                    />
+                ))
+            }
+        </StyledSpeedDial>
     )
 }
 
 const ProductDetail = ({ product }) => {
-    const { loading } = useSelector(({ cart }) => cart)
-    const dispatch = useDispatch()
     const options = useRef({ color: null, size: null })
+    const theme = useTheme()
 
-    const addToCart = () => {
-        let selections = options.current
-        if (!selections.color || !selections.size)
-            return toast.warn('Please select one color and one size')
-
-        dispatch(addProductToCart(product._id, selections))
-    }
-
-    const handleSetOptions = (option_name, option_value) => {
-        options.current = { ...options.current, [option_name]: option_value }
-    }
+    const handleSetOptions = useCallback((option_name, option_value) => {
+        options.current = {
+            ...options.current,
+            [option_name]: option_value,
+        }
+    }, [])
 
     return (
-        <ProductDetailContainer id="ProductDetailContainer">
-            <Images images={product.images} image_link={product.image_link} />
+        <Stack
+            id="ProductDetailContainer"
+            component="div"
+            flexDirection="row"
+            columnGap='30px'
+            justifyContent='space-between'
+            marginTop='15px'
+            fontFamily={theme.fontFamily.nunito}
+        >
 
-            <DetailContainer>
-                <ProductName>{product.name}</ProductName>
+            <Images
+                images={product.images}
+                image_link={product.image_link}
+            />
 
-                <Stack columnGap={'10px'} flexDirection={'row'} alignItems={'center'}>
-                    <Rating
-                        name="half-review-read" readOnly
-                        defaultValue={0} precision={0.5}
-                        value={product.review.average_rating * 1}
-                    />
-                    <div>
-                        <span>({product.review.count_reviews}</span>
-                        <span>{(product.review.count_reviews) > 1 ? ' reviews' : ' review'})</span>
-                    </div>
-                    <Tooltip title="Add this product to wishlist">
-                        <AddToWishList>
-                            <FavoriteBorderIcon sx={{ width: '0.9em', height: '0.9em', fontSize: '1.1em' }} />
-                            <AddToFavouriteText>
-                                Add To Wishlist
-                            </AddToFavouriteText>
-                        </AddToWishList>
-                    </Tooltip>
-                </Stack>
+            <Stack
+                rowGap='20px'
+                width='70%'
+                boxSizing='border-box'
+                padding='20px 0'
+            >
 
-                <InStock
-                    title={product.stock > 0 ? `Left ${product.stock} products` : 'Out of stock'}
-                    sx={{ backgroundColor: product.stock > 0 ? '#6ce26c' : '#ff6161' }}
+                <Typography
+                    fontFamily={theme.fontFamily.nunito}
+                    fontWeight='bold'
+                    fontSize='1.5em'
                 >
-                    {product.stock > 0 ? 'In Stock: ' + product.stock : 'Out of stock'}
-                </InStock>
+                    {product.name}
+                </Typography>
+
+                <Rating
+                    averageRating={product.review.average_rating}
+                    countReviews={product.review.count_reviews}
+                />
+
+                <StockStatus
+                    productStock={product.stock}
+                />
 
                 <OptionsContext.Provider
                     value={{
@@ -181,71 +397,33 @@ const ProductDetail = ({ product }) => {
                     <Options onSetOptions={handleSetOptions} />
                 </OptionsContext.Provider>
 
-                <Tooltip title={`Price: ${product.price.value}USD`} placement="right">
-                    <Price>
-                        <span>$</span>
-                        <span>
-                            {product.price.value.toLocaleString('en', { useGrouping: true })}
-                        </span>
-                    </Price>
-                </Tooltip>
+                <Price price={product.price.value} />
 
-                <Tooltip title="Add this product to your cart" placement="top">
-                    <AddProductToCartContainer onClick={addToCart}>
-                        {
-                            loading ||false?
-                                <CircularProgress
-                                    thickness={6}
-                                    size={20}
-                                    sx={{ color: 'white', fontSize: '1.2em' }}
-                                />
-                                :
-                                <>
-                                    <AddShoppingCartIcon sx={{ color: 'white', fontSize: '1.2em' }} />
-                                    <span>Add to cart</span>
-                                </>
-                        }
-                    </AddProductToCartContainer>
-                </Tooltip>
+                <AddToCart
+                    options={options}
+                    productId={product._id}
+                />
 
-                <AddCoupons>
-                    <ConfirmationNumberIcon />
-                    <span>Collect Coupons</span>
-                </AddCoupons>
-            </DetailContainer>
-        </ProductDetailContainer>
+                <MoreActions />
+
+            </Stack>
+
+        </Stack>
     )
 }
 
 export default ProductDetail
 
-const ProductDetailContainer = styled('div')(({ theme }) => ({
-    display: 'flex',
-    columnGap: '30px',
-    justifyContent: 'space-between',
-    marginTop: '15px',
-    fontFamily: theme.fontFamily.nunito,
+const StyledSpeedDial = styled(SpeedDial)(({ theme }) => ({
+    '& .MuiButtonBase-root': {
+        backgroundColor: 'black',
+        '&:hover': {
+            backgroundColor: 'black',
+        }
+    }
 }))
 
-const DetailContainer = styled('div')({
-    display: 'flex',
-    flexDirection: 'column',
-    rowGap: '20px',
-    width: '70%',
-    boxSizing: 'border-box',
-    padding: '20px 0',
-})
-
-const Price = styled('div')({
-    display: 'flex',
-    columnGap: '3px',
-    fontSize: '1.8em',
-    fontWeight: 'bold',
-    margin: '10px 0',
-    width: 'fit-content',
-})
-
-const AddProductToCartContainer = styled('button')({
+const AddToCartBtn = styled('button')({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -255,115 +433,13 @@ const AddProductToCartContainer = styled('button')({
     transition: 'background-color 0.2s',
     borderRadius: '20px',
     fontSize: '1em',
-    backgroundColor: 'black',
+    backgroundColor: '#26A69A',
     fontWeight: 'bold',
+    border: 'none',
     color: 'white',
     '&:hover': {
-        backgroundColor: 'pink',
-        '& span , svg': {
-            color: 'black',
-        }
+        backgroundColor: 'black',
     }
-})
-
-const AddCoupons = styled('button')({
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: '5px',
-    columnGap: '8px',
-    fontSize: '0.9em',
-    cursor: 'pointer',
-    fontWeight: 'bold',
-    backgroundColor: 'bisque',
-    border: '1px black solid',
-    borderRadius: '3px',
-    '&:hover': {
-        backgroundColor: '#ffeedb',
-    },
-    '&:active': {
-        backgroundColor: '#ffdeb7',
-    }
-})
-
-const ProductName = styled('div')({
-    fontWeight: 'bold',
-    fontSize: '1.5em',
-})
-
-const AddToWishList = styled('div')({
-    display: 'flex',
-    alignItems: 'center',
-    borderRadius: '5px',
-    transition: 'background-color 0.2s',
-    padding: '3px 5px',
-    cursor: 'pointer',
-    marginLeft: '10px',
-    columnGap: '3px',
-    border: '1px black solid',
-    '&:hover': {
-        backgroundColor: '#fedddd',
-    }
-})
-
-const AddToFavouriteText = styled('div')({
-    fontSize: '0.9em',
-})
-
-const InStock = styled('div')({
-    fontSize: '0.9em',
-    fontWeight: 'bold',
-    borderRadius: '10px',
-    padding: '5px 15px',
-    width: 'fit-content',
-})
-
-const OptionsArea = styled('div')({
-    display: 'flex',
-    flexDirection: 'column',
-    rowGap: '12px',
-})
-
-const SectionTitle = styled('h2')({
-    fontSize: '1.1em',
-    margin: '0',
-    fontWeight: 'bold',
-})
-
-const Colors = styled('div')({
-    display: 'flex',
-    columnGap: '15px',
-    marginTop: '8px',
-})
-
-const ColorIndicator = styled('div')(({ theme }) => ({
-    borderRadius: '50%',
-    padding: '2px',
-    ...(theme.picked ? { outline: `2px ${theme.color.toLowerCase() !== 'white' ? theme.color : 'gray'} solid` } : {}),
-}))
-
-const Color = styled('div')(({ theme }) => ({
-    backgroundColor: theme.color,
-    width: '22px',
-    height: '22px',
-    borderRadius: '50%',
-    boxShadow: '0px 0px 3px gray',
-    cursor: 'pointer',
-}))
-
-const SelectOptions = styled('select')({
-    marginTop: '5px',
-    padding: '5px',
-    fontSize: '1em',
-    border: '2px gray solid',
-    width: '100%',
-})
-
-const FindYourSizeContainer = styled('div')({
-    display: 'flex',
-    alignItems: 'center',
-    columnGap: '5px',
-    width: 'fit-content',
 })
 
 const FindYourSize = styled('div')({

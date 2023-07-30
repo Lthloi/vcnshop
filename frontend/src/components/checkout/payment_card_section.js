@@ -14,7 +14,7 @@ import { deleteCheckoutInfo } from "../../store/actions/cart_actions"
 
 const email_is_read_only = true
 
-const payment_method = 'card'
+const payment_method_default = 'card'
 
 class CheckingStatus {
     #error
@@ -74,15 +74,14 @@ const check_products_stock_before_payemnt = async (cart_items) => {
 
         let product = products.find(({ _id: product_id }) => item_id === product_id)
 
-        if (product) {
-            let product_stock = product.stock
-            if (product_stock === 0) {
-                status.setError({ message: 'The product is out of stock' })
-                return status
-            } else if (quantity > product_stock) {
-                status.setError({ message: 'There is a item with the quantity is greater than in stock' })
-                return status
-            }
+        let product_stock = product.stock
+        if (product_stock === 0) {
+            status.setError({ message: 'The product is out of stock' })
+            return status
+        }
+        if (quantity > product_stock) {
+            status.setError({ message: 'There is an item with the quantity is greater than in stock' })
+            return status
         }
     }
 
@@ -128,10 +127,10 @@ const confirm_the_payment = async (stripe, payment_elements, shipping_info, name
     return status
 }
 
-const PaymentCardSection = ({ totalToPay, shippingInfo, orderId, currencyCode }) => {
+const PaymentCardSection = ({ isUnpaidOrder, orderInfo, shippingInfo, orderId, currencyCode }) => {
     const { user } = useSelector(({ user }) => user)
     const { cartItems } = useSelector(({ cart }) => cart)
-    const { paymentCompleted } = useSelector(({ order }) => order)
+    const { paymentCompleted } = useSelector(({ order_for_user }) => order_for_user)
     const stripe = useStripe()
     const elements = useElements()
     const [paying, setPaying] = useState(false)
@@ -142,10 +141,22 @@ const PaymentCardSection = ({ totalToPay, shippingInfo, orderId, currencyCode })
         if (paymentCompleted) dispatch(deleteCheckoutInfo())
     }, [paymentCompleted])
 
-    const confirmPayment = async () => {
+    const confirmPayment = (order_id, payment_method, payment_id) => {
+        dispatch(completePlaceOrder(
+            {
+                orderId: order_id,
+                paymentMethod: payment_method,
+                paymentId: payment_id,
+            }
+        ))
+    }
+
+    const checkPayment = async () => {
         setPaying(true)
 
-        let status_of_check_product_stock = await check_products_stock_before_payemnt(cartItems)
+        let cart_items = isUnpaidOrder ? orderInfo.items_of_order : cartItems
+
+        let status_of_check_product_stock = await check_products_stock_before_payemnt(cart_items)
         if (status_of_check_product_stock.checkError()) {
             toast.warning(status_of_check_product_stock.getErrorMessage())
             setPaying(false)
@@ -163,13 +174,7 @@ const PaymentCardSection = ({ totalToPay, shippingInfo, orderId, currencyCode })
 
         let paymentIntent_info = status_of_confirm_payment.getData().paymentIntent
 
-        dispatch(completePlaceOrder(
-            {
-                orderId,
-                paymentMethod: payment_method,
-                paymentId: paymentIntent_info.id,
-            }
-        ))
+        confirmPayment(orderId, payment_method_default, paymentIntent_info.id)
     }
 
     return (
@@ -198,7 +203,7 @@ const PaymentCardSection = ({ totalToPay, shippingInfo, orderId, currencyCode })
 
             <PaymentElement />
 
-            <PayNowBtn onClick={confirmPayment} sx={paying && { pointerEvents: 'none' }}>
+            <PayNowBtn onClick={checkPayment} sx={paying && { pointerEvents: 'none' }}>
                 {
                     paying ?
                         <CircularProgress
@@ -207,7 +212,7 @@ const PaymentCardSection = ({ totalToPay, shippingInfo, orderId, currencyCode })
                             sx={{ color: 'white', margin: 'auto' }}
                         />
                         :
-                        <span>{'Pay ' + totalToPay + ' ' + currencyCode.toUpperCase()}</span>
+                        <span>{'Pay ' + orderInfo.total_to_pay + ' ' + currencyCode.toUpperCase()}</span>
                 }
             </PayNowBtn>
             <HoverBarAnimation className="hover_animate" />

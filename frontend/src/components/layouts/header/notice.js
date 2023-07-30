@@ -1,98 +1,129 @@
-import React, { useRef, useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { styled } from '@mui/material/styles'
+import { Stack, Typography } from "@mui/material"
+import { useTheme } from "@emotion/react"
 
-const RenderTimeDisplay = (time_value, desc) => {
+const TimeDisplay = ({ value, label }) => {
+
     return (
-        <TimeWrapper>
-            <TimeValue>{time_value}</TimeValue>
-            <Desc>{desc}</Desc>
-        </TimeWrapper>
+        <Stack
+            alignItems="center"
+            columnGap="10px"
+            fontFamily="inherit"
+            fontSize="0.8em"
+        >
+            <Typography
+                fontSize="inherit"
+                fontFamily="inherit"
+            >
+                {value}
+            </Typography>
+            <Typography
+                fontSize="inherit"
+                fontFamily="inherit"
+            >
+                {label}
+            </Typography>
+        </Stack>
     )
 }
 
 const time_to_countdown_in_ms = 432000000
 
+const get_time_now = () => new Date().getTime()
+
+const get_time_types = (countdown_in_ms) => {
+    return [
+        parseInt(countdown_in_ms / (1000 * 60 * 60 * 24)), //days
+        parseInt((countdown_in_ms % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)), //hours
+        parseInt((countdown_in_ms % (1000 * 60 * 60)) / (1000 * 60)), //minutes
+        parseInt((countdown_in_ms % (1000 * 60)) / 1000), //seconds
+    ]
+}
+
 const Notice = () => {
-    const now_in_ms = new Date().getTime()
+    const theme = useTheme()
+
+    const now_in_ms = get_time_now()
+
     const [now, setNow] = useState(now_in_ms)
 
     const total_time_in_ms = useRef(now_in_ms + time_to_countdown_in_ms)
 
     const countdown_in_ms = total_time_in_ms.current - now
-    const days = Math.floor(countdown_in_ms / (1000 * 60 * 60 * 24))
-    const hours = Math.floor((countdown_in_ms % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
-    const minutes = Math.floor((countdown_in_ms % (1000 * 60 * 60)) / (1000 * 60))
-    const seconds = Math.floor((countdown_in_ms % (1000 * 60)) / 1000)
 
-    if (countdown_in_ms > 0) setTimeout(() => { setNow(new Date().getTime()) }, 1000)
+    const [days, hours, minutes, seconds] = get_time_types(countdown_in_ms)
+
+    const handleSetNow = () => {
+        return setTimeout(() => {
+            setNow(get_time_now())
+        }, 1000)
+    }
+
+    useEffect(() => {
+        if (countdown_in_ms > 0) {
+            let timer = handleSetNow()
+
+            return () => clearTimeout(timer)
+        }
+    }, [countdown_in_ms])
 
     return (
-        <NoticeBar id="NoticeBar">
-            <TextContainer>
-                <Text>
+        <Stack
+            id="NoticeBar"
+            component="div"
+            flexDirection="row"
+            bgcolor="black"
+            padding="15px"
+            color="white"
+            overflow="hidden"
+        >
+
+            <Stack
+                flexDirection="row"
+                alignItems="center"
+                margin="auto"
+                columnGap="10px"
+                fontFamily={theme.fontFamily.nunito}
+            >
+
+                <Typography
+                    fontSize="0.9em"
+                    fontWeight="bold"
+                    fontFamily="inherit"
+                >
                     The supper sale is comming in
-                </Text>
-                <CountDownDateDisplay>
-                    {RenderTimeDisplay(days, 'Days')}
-                    <Seperate>:</Seperate>
-                    {RenderTimeDisplay(hours, 'Hours')}
-                    <Seperate>:</Seperate>
-                    {RenderTimeDisplay(minutes, 'Minutes')}
-                    <Seperate>:</Seperate>
-                    {RenderTimeDisplay(seconds, 'Seconds')}
-                </CountDownDateDisplay>
-            </TextContainer>
-        </NoticeBar>
+                </Typography>
+
+                <Stack
+                    flexDirection="row"
+                    alignItems="center"
+                    fontFamily="inherit"
+                >
+                    <TimeDisplay value={days} label="Days" />
+                    <Seperate>
+                        :
+                    </Seperate>
+                    <TimeDisplay value={hours} label="Hours" />
+                    <Seperate>
+                        :
+                    </Seperate>
+                    <TimeDisplay value={minutes} label="Minutes" />
+                    <Seperate>
+                        :
+                    </Seperate>
+                    <TimeDisplay value={seconds} label="Seconds" />
+                </Stack>
+
+            </Stack>
+
+        </Stack>
     )
 }
 
 export default Notice
 
-const NoticeBar = styled('div')({
-    display: 'flex',
-    background: '#f0f0f0',
-    padding: '5px 0',
-    color: 'black',
-    overflow: 'hidden',
-})
-
-const TextContainer = styled('div')({
-    display: 'flex',
-    alignItems: 'center',
-    margin: 'auto',
-    columnGap: '10px',
-})
-
-const Text = styled('p')({
-    margin: '0',
-    fontFamily: '"Montserrat", "sans-serif"',
-    fontSize: '0.9em',
-    fontWeight: 'bold',
-})
-
-const CountDownDateDisplay = styled('div')(({ theme }) => ({
-    display: 'flex',
-    alignItems: 'center',
-}))
-
-const TimeWrapper = styled('div')({
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    columnGap: '10px',
-})
-
-const TimeValue = styled('div')({
-    fontFamily: 'nunito',
-    fontSize: '0.9em',
-})
-
-const Desc = styled('span')({
-    fontFamily: 'nunito',
-    fontSize: '0.9em',
-})
-
-const Seperate = styled('span')({
+const Seperate = styled('span')(({ theme }) => ({
     margin: '0 10px',
-    fontFamily: 'nunito',
-})
+    fontFamily: theme.fontFamily.nunito,
+}))

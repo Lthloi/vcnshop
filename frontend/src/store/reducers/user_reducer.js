@@ -1,16 +1,15 @@
 import { createSlice, current } from '@reduxjs/toolkit'
 
-const defaultValues = {
-    registerStep: 1,
-    forgotPasswordStep: 1,
-    loginStep: 1,
-    isAuthenticated: false,
-}
-
 export const userSlice = createSlice({
     name: 'user',
     initialState: {
-        user: defaultValues,
+        user: null,
+        auth: {
+            registerStep: 1,
+            forgotPasswordStep: 1,
+            loginStep: 1,
+            isAuthenticated: false,
+        },
         loading: false,
         error: null,
         users: [],
@@ -30,7 +29,7 @@ export const userSlice = createSlice({
                 }
             }
 
-            state.user.isAuthenticated = true
+            state.auth.isAuthenticated = true
             state.loading = false
         },
         getUserFail: (state, action) => {
@@ -44,9 +43,9 @@ export const userSlice = createSlice({
             state.loading = true
         },
         registerSuccess: (state, action) => {
-            state.user.registerStep = action.payload.registerStep
+            state.auth.registerStep = action.payload.registerStep
             if (action.payload.isAuthenticated)
-                state.user.isAuthenticated = true
+                state.auth.isAuthenticated = true
             state.loading = false
         },
         registerFail: (state, action) => {
@@ -60,8 +59,8 @@ export const userSlice = createSlice({
             state.loading = true
         },
         loginSuccess: (state, action) => {
-            state.user.loginStep = action.payload.loginStep
-            state.user.isAuthenticated = true
+            state.auth.loginStep = action.payload.loginStep
+            state.auth.isAuthenticated = true
             state.loading = false
         },
         loginFail: (state, action) => {
@@ -75,9 +74,9 @@ export const userSlice = createSlice({
             state.loading = true
         },
         forgotPasswordSuccess: (state, action) => {
-            state.user.forgotPasswordStep = action.payload.forgotPasswordStep
+            state.auth.forgotPasswordStep = action.payload.forgotPasswordStep
             if (action.payload.isAuthenticated)
-                state.user.isAuthenticated = true
+                state.auth.isAuthenticated = true
             state.loading = false
         },
         forgotPasswordFail: (state, action) => {
@@ -87,8 +86,7 @@ export const userSlice = createSlice({
 
 
         logoutSuccess: (state, action) => {
-            state.error = null
-            state.user = defaultValues
+            state.auth.isAuthenticated = false
         },
 
 

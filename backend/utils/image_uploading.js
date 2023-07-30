@@ -3,7 +3,7 @@ import BaseError from './base_error.js'
 
 const get_data_uri = (mimetype, data) => `data:${mimetype};base64,${data.toString('base64')}`
 
-const uploadOneImage = async (public_id, folder_of_uploading) => {
+const uploadOneImage = async (image_to_upload, public_id, folder_of_uploading) => {
     //delete the old avatar before upload
     await cloudinary.v2.api.delete_resources_by_prefix(folder_of_uploading)
 
@@ -53,10 +53,10 @@ const uploadImages = async (images_to_upload, folder_of_uploading) => {
 }
 
 const uploadUserAvatar = async (image_to_upload, user_id) => {
-    let avatar_public_id = 'avatar.' + image_to_upload.mimetype.split('/')[0]
+    let public_id = 'avatar.' + image_to_upload.mimetype.split('/')[0]
     let folder_of_uploading = 'users/' + user_id + '/profile'
 
-    return await uploadOneImage(avatar_public_id, folder_of_uploading)
+    return await uploadOneImage(image_to_upload, public_id, folder_of_uploading)
 }
 
 const uploadReviewImages = async (images_to_upload, product_id, user_id) => {

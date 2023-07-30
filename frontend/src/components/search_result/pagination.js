@@ -1,78 +1,55 @@
-import React, { useEffect, useState } from "react"
+import React from "react"
 import { styled } from '@mui/material/styles'
 import { Pagination as PagninationUI } from "@mui/material"
 import {
     useDispatch,
+    useSelector,
 } from "react-redux"
 import { getProducts } from '../../store/actions/product_actions'
 import { LIMIT_GET_PRODUCTS_DEFAULT } from "../../utils/constants"
+import { Stack } from '@mui/material'
 
-const Pagination = ({ productsAreaRef, filterDataRef, countProducts }) => {
-    const [productsPage, setProductsPage] = useState(1)
+const get_number_of_pages = (count_products) => {
+    return Math.ceil(count_products / LIMIT_GET_PRODUCTS_DEFAULT)
+}
+
+const Pagination = ({ filterDataRef, handleSetFilterData }) => {
+    const filter_data = filterDataRef.current
+    const { countProducts, currentPage } = useSelector(({ product }) => product)
     const dispatch = useDispatch()
 
-    useEffect(() => {
-        setProductsPage(1)
-    }, [countProducts])
-
     const switchProductsPage = (e, page) => {
-        if (page === productsPage) return
+        if (page === currentPage) return
 
-        productsAreaRef.current.scrollIntoView({ behavior: 'smooth', block: 'start', })
-
-        filterDataRef.current.pagination = page
-
-        let filterDataRef_current = filterDataRef.current
+        handleSetFilterData({ pagination: page })
 
         dispatch(getProducts(
-            filterDataRef_current.limit, filterDataRef_current.category,
-            filterDataRef_current.keyword, filterDataRef_current.rating,
-            filterDataRef_current.price, page, filterDataRef_current.for,
-            filterDataRef_current.type,
+            filter_data.limit,
+            [filter_data.category],
+            filter_data.keyword,
+            filter_data.rating,
+            filter_data.price,
+            page,
+            [filter_data.target],
         ))
-
-        setProductsPage(page)
     }
 
     return (
-        <PaginationArea id="PaginationArea">
+        <Stack flexDirection="row" justifyContent="space-between" id="Product-Search-Pagination">
+            <span></span>
             <ReviewPages
-                count={Math.ceil(countProducts / LIMIT_GET_PRODUCTS_DEFAULT)}
+                count={get_number_of_pages(countProducts)}
                 variant="outlined"
                 shape="rounded"
                 onChange={switchProductsPage}
-                page={productsPage}
+                page={currentPage}
             />
-        </PaginationArea>
+        </Stack>
     )
 }
 
 export default Pagination
 
-const PaginationArea = styled('div')(({ theme }) => ({
-    display: 'flex',
-    justifyContent: 'center',
-}))
-
 const ReviewPages = styled(PagninationUI)({
-    marginTop: '30px',
-    '& button.MuiPaginationItem-root': {
-        backgroundColor: 'black',
-        border: '1.5px black solid',
-        color: 'white',
-        '&:hover': {
-            border: '2px white solid',
-        },
-        '&.Mui-selected': {
-            border: '2px white solid',
-            backgroundColor: '#a4dfff',
-            color: 'black',
-        },
-        '&.Mui-disabled': {
-            opacity: 0.3,
-        },
-        '& span.MuiTouchRipple-root': {
-            display: 'none',
-        }
-    }
+    marginBottom: '30px',
 })

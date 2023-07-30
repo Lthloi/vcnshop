@@ -3,7 +3,7 @@ import {
     Page as PDFPage, Text as PDFText, View as PDFView, Document as PDFDoc,
     Image as PDFImage, StyleSheet as PDFStyleSheet,
 } from '@react-pdf/renderer'
-import black_app_logo from '../../assets/images/logo_app_black.jpg'
+import black_app_logo from '../../assets/images/logo_app_black_min.jpg'
 import moment from "moment"
 
 const pdf_styles = PDFStyleSheet.create({

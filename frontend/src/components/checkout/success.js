@@ -178,7 +178,7 @@ const ReceiptOptionsSection = ({ order }) => {
 }
 
 const Success = () => {
-    const { order } = useSelector(({ order }) => order)
+    const { order } = useSelector(({ order_for_user }) => order_for_user)
     const navigate = useNavigate()
     const dispatch = useDispatch()
     const query_value_getter = useGetQueryValue()

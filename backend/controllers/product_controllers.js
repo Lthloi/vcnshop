@@ -40,7 +40,7 @@ const createProduct = catchAsyncError(async (req, res, next) => {
         'images': image_urls,
         'name': productName,
         'category': category,
-        'for': targetGender,
+        'target_gender': targetGender,
         'price': {
             value: price * 1,
         },
@@ -53,7 +53,7 @@ const createProduct = catchAsyncError(async (req, res, next) => {
             id: shop.id,
             name: shop.name,
         },
-        'description': description.slice(0, 500),
+        'description': JSON.parse(description.slice(0, 500)),
     })
 
     await ShopModel.updateOne(
@@ -163,7 +163,7 @@ const getProduct = catchAsyncError(async (req, res, next) => {
 
 //get some products by query
 const getProducts = catchAsyncError(async (req, res, next) => {
-    let { keyword, category, price, rating, limit, page, targetGender, shopId, stock, idList } = req.query
+    let { keyword, category, price, rating, limit, page, targetGender, shopId, stock } = req.query
     if (!limit || !page)
         throw new BaseError('Wrong property name', 400)
 
@@ -172,13 +172,13 @@ const getProducts = catchAsyncError(async (req, res, next) => {
     if (keyword)
         queryObject.name = { $regex: new RegExp(keyword, 'i') }
     if (category)
-        queryObject.category = category
+        queryObject.category = { $in: category }
     if (price)
         queryObject['price.value'] = { $gte: price.gte * 1, $lte: price.lte * 1 }
     if (rating)
         queryObject['review.average_rating'] = { $gte: rating * 1 }
     if (targetGender)
-        queryObject.for = targetGender
+        queryObject.target_gender = { $in: targetGender }
     if (shopId)
         queryObject['shop.id'] = mongoose.Types.ObjectId(shopId)
     if (stock)
@@ -211,6 +211,9 @@ const getProductsById = catchAsyncError(async (req, res, next) => {
         { 'review.reviews': 0 }
     ).lean()
 
+    if (products.length === 0)
+        throw new BaseError('Products not found', 404)
+
     res.status(200).json({ products })
 })
 
@@ -224,20 +227,21 @@ const getReviews = catchAsyncError(async (req, res, next) => {
     page -= 1
     limit *= 1
 
-    let product = await ProductModel.aggregate([
-        { $match: { _id: mongoose.Types.ObjectId(productId) } },
+    let product = await ProductModel.findById(
+        { _id: productId },
         {
-            $project: {
-                '_id': 0,
-                reviews: {
-                    $slice: ['$review.reviews', page * limit, limit],
-                }
-            }
+            '_id': 1,
+            'review.reviews': {
+                $slice: [page * limit, limit],
+            },
         }
-    ])
+    ).lean()
+
+    if (!product)
+        throw new BaseError('Product not found', 404)
 
     res.status(200).json({
-        reviews: product[0].reviews,
+        reviews: product.review.reviews,
     })
 })
 
@@ -316,7 +320,7 @@ const newReview = catchAsyncError(async (req, res, next) => {
     })
 })
 
-const getProductsName = catchAsyncError(async (req, res, next) => {
+const getAllNames = catchAsyncError(async (req, res, next) => {
     let name_list = await ProductModel.distinct('name')
 
     res.status(200).json({
@@ -339,7 +343,7 @@ const getProductsByAdmin = catchAsyncError(async (req, res, next) => {
 
 export {
     getProducts, getProduct, getReviews,
-    newReview, getProductsName, getProductsByAdmin,
+    newReview, getAllNames, getProductsByAdmin,
     createProduct, updateProduct, deleteProduct,
     getProductsById,
 }

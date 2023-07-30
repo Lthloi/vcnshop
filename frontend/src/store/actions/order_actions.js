@@ -3,13 +3,19 @@ import {
     completeOrderRequest, completeOrderSuccess, completeOrderFail,
     getOrderRequest, getOrderSuccess, getOrderFail,
     getOrdersRequest, getOrdersSuccess, getOrdersFail,
+    getOrderRequestForStore,
+    getOrderSuccessForStore,
+    getOrderFailForStore,
+    getOrdersRequestForStore,
+    getOrdersSuccessForStore,
+    getOrdersFailForStore,
 } from '../reducers/order_reducer.js'
 import { toast } from 'react-toastify'
 import actionsErrorHandler from '../../utils/error_handler.js'
 import {
     LIMIT_GET_ORDERS, EXPRESS_SERVER,
 } from '../../utils/constants.js'
-import { redirectAfterSeconds } from '../../utils/action_features.js'
+import { redirectAfterSeconds } from '../../utils/redirect_handler.js'
 
 const completePlaceOrder = ({ orderId, paymentMethod, paymentId }) => async (dispatch) => {
     try {
@@ -87,14 +93,14 @@ const getOrders = (page = 1, limit = LIMIT_GET_ORDERS, payment_status = null) =>
 
 const getOrdersForShop = (limit = LIMIT_GET_ORDERS, page = 1, order_status) => async (dispatch) => {
     try {
-        dispatch(getOrdersRequest())
+        dispatch(getOrdersRequestForStore())
 
         let api_to_get_orders = '/api/order/getOrdersForShop?&limit=' + limit + '&page=' + page +
             (order_status ? '&orderStatus=' + order_status : '')
 
         let { data } = await axios.get(EXPRESS_SERVER + api_to_get_orders, { withCredentials: true })
 
-        dispatch(getOrdersSuccess({
+        dispatch(getOrdersSuccessForStore({
             orders: data.orders,
             countOrders: data.orders.length,
             currentPage: page,
@@ -103,7 +109,7 @@ const getOrdersForShop = (limit = LIMIT_GET_ORDERS, page = 1, order_status) => a
     } catch (error) {
         let errorObject = actionsErrorHandler(error, 'Error Warning: fail to get orders.')
 
-        dispatch(getOrdersFail({ error: errorObject }))
+        dispatch(getOrdersFailForStore({ error: errorObject }))
 
         toast.error(errorObject.message)
     }
@@ -111,7 +117,7 @@ const getOrdersForShop = (limit = LIMIT_GET_ORDERS, page = 1, order_status) => a
 
 const getOrderDetailForShop = (orderId) => async (dispatch) => {
     try {
-        dispatch(getOrderRequest())
+        dispatch(getOrderRequestForStore())
 
         let api_to_get_order = '/api/order/getOneOrderForShop'
 
@@ -125,11 +131,11 @@ const getOrderDetailForShop = (orderId) => async (dispatch) => {
             }
         )
 
-        dispatch(getOrderSuccess({ order: data.order }))
+        dispatch(getOrderSuccessForStore({ order: data.order }))
     } catch (error) {
         let errorObject = actionsErrorHandler(error, 'Error Warning: fail to get order.')
 
-        dispatch(getOrderFail({ error: errorObject }))
+        dispatch(getOrderFailForStore({ error: errorObject }))
 
         toast.error(errorObject.message)
     }

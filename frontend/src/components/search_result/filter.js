@@ -1,220 +1,308 @@
-import React, { useState } from "react"
+import React, { useState, useCallback } from "react"
 import { styled } from '@mui/material/styles'
-import Rating from '@mui/material/Rating'
 import { toast } from "react-toastify"
-import { useForm } from 'react-hook-form'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-import Collapse from "@mui/material/Collapse"
 import FilterAltIcon from '@mui/icons-material/FilterAlt'
-import { useDispatch } from "react-redux"
+import { useDispatch, useSelector } from "react-redux"
 import { getProducts } from "../../store/actions/product_actions"
 import { MAX_PRICE_PORDUCT } from "../../utils/constants"
-import Category from "./category"
+import {
+    Radio, RadioGroup, Collapse, Rating as RatingMUI,
+    FormControl, FormControlLabel, Stack, Typography,
+    Divider, Box, Tooltip,
+} from "@mui/material"
 
-const Filter = ({ productsLoading, filterDataRef }) => {
-    const { register, formState: { errors }, handleSubmit, setError } = useForm()
-    const [filterCollapse, setFilterCollapse] = useState({
-        Category: true, Rating: true, Price: true,
-    })
-    const [ratingValue, setRatingValue] = useState(0)
-    const dispatch = useDispatch()
+const categories = {
+    category: [
+        'Shirt',
+        'Pant',
+        'Dress',
+    ],
+    target: [
+        'Male',
+        'Female',
+        'Unisex',
+    ],
+}
 
-    const submitFilter = (newFilterData, e) => {
-        if (e) e.preventDefault()
-
-        if (newFilterData.priceFilter && newFilterData.priceFilter * 1 > MAX_PRICE_PORDUCT) {
-            setError('price')
-            return toast.warning('Can\'t apply, please check again')
-        }
-
-        let set_filter_data = filterDataRef.current
-
-        if (newFilterData.rating || newFilterData.rating === 0)
-            set_filter_data.rating = newFilterData.rating
-        if (newFilterData.price || newFilterData.price === 0)
-            set_filter_data.price = [(newFilterData.price || 0) * 1, MAX_PRICE_PORDUCT]
-        if (newFilterData.for) set_filter_data.for = newFilterData.for
-        if (newFilterData.type)
-            set_filter_data.type = newFilterData.type.length > 0 ? newFilterData.type : null
-
-        filterDataRef.current = set_filter_data
-
-        dispatch(getProducts(
-            set_filter_data.limit, set_filter_data.category,
-            set_filter_data.keyword, set_filter_data.rating,
-            set_filter_data.price, 1,
-            set_filter_data.for, set_filter_data.type,
-        ))
-    }
-
-    const expandMoreFilterTab = (tab_title) => {
-        setFilterCollapse(pre => ({ ...pre, [tab_title]: !pre[tab_title] }))
-    }
-
-    const switchRatingValue = (e, newRating) => {
-        if (!newRating) newRating = 0
-        setRatingValue(newRating)
-        submitFilter({ rating: newRating })
-    }
-
-    const RenderFilterTitle = (title) => (
-        <FilterTitle onClick={() => expandMoreFilterTab(title)}>
-            <span>{title}</span>
-            <ExpandMoreIcon sx={{
-                transition: 'transform 0.2s',
-                transform: filterCollapse[title] ? 'rotate(-90deg)' : 'rotate(0deg)',
-            }} />
-        </FilterTitle>
-    )
+const FilterContainer = ({ children, title }) => {
+    const [collapse, setCollapse] = useState(true)
 
     return (
-        <FilterArea id="ProductsFilterArea" action=""
-            onSubmit={handleSubmit(submitFilter)}
-        >
-            {productsLoading && <PreventFilter />}
-
-            <Title>
-                <FilterAltIcon /><span>Filter</span>
-            </Title>
-
-            <Category
-                openCategoryCollapse={filterCollapse.Category}
-                submitFilter={submitFilter}
-                RenderFilterTitle={RenderFilterTitle}
-            />
-
-            <Hr />
-
-            <RatingFilter>
-                {RenderFilterTitle('Rating')}
-                <StyledCollapse in={filterCollapse.Rating}>
-                    <Rating
-                        value={ratingValue} precision={0.5}
-                        onChange={switchRatingValue}
+        <div>
+            <Tooltip title={collapse ? 'Close' : 'Open'}>
+                <FilterTitle onClick={() => setCollapse(pre => !pre)}>
+                    <span>{title}</span>
+                    <ExpandMoreIcon
+                        sx={{
+                            transition: 'transform 0.2s',
+                            transform: collapse ? 'rotate(-90deg)' : 'rotate(0deg)',
+                        }}
                     />
-                    <RatingFilterText>
-                        {'From ' + ratingValue + (ratingValue > 1 ? ' stars' : ' star')}
-                    </RatingFilterText>
-                </StyledCollapse>
-            </RatingFilter>
-
-            <Hr />
-
-            <PriceFilter>
-                {RenderFilterTitle('Price')}
-                <StyledCollapse in={filterCollapse.Price}>
-                    <PriceFilterText>
-                        You're searching products with price from:
-                    </PriceFilterText>
-                    <PriceFilterInputContainer>
-                        <PriceFilterInput
-                            maxLength={5}
-                            {...register('price', {
-                                required: true,
-                                pattern: /^[0-9]+(\.[0-9]+)?$/,
-                            })}
-                        />
-                        <Currency>USD</Currency>
-                    </PriceFilterInputContainer>
-                    {
-                        errors.price &&
-                        <PriceWarning>
-                            Please enter a number smaller than or equal 25000.
-                        </PriceWarning>
-                    }
-                    <PriceApplyButton>
-                        Apply
-                    </PriceApplyButton>
-                </StyledCollapse>
-            </PriceFilter>
-        </FilterArea>
+                </FilterTitle>
+            </Tooltip>
+            <StyledCollapse in={collapse}>
+                {children}
+            </StyledCollapse>
+        </div>
     )
 }
 
-export default Filter
+const Option = ({ category }) => (
+    <OptionSection
+        control={
+            <Radio
+                color="default"
+                sx={{ padding: '5px', color: 'black' }}
+            />
+        }
+        label={category}
+        value={category}
+    />
+)
 
-const FilterTitle = styled('h2')({
-    display: 'flex',
-    justifyContent: 'space-between',
-    margin: '0',
-    fontSize: '1.2em',
-    fontFamily: '"Nunito","sans-serif"',
-    padding: '10px',
-    paddingLeft: '15px',
-    cursor: 'pointer',
-    '&:hover': {
-        backgroundColor: '#e1eeff',
-    },
-})
+const SubCategory = ({ options, label, handleSubmitFilter }) => (
+    <Stack marginTop="10px">
+        <FormControl>
+            <Typography
+                display="flex"
+                component="h2"
+                alignItems="center"
+                justifyContent="space-between"
+                margin="0"
+                fontSize="1em"
+            >
+                {label}
+            </Typography>
+            <RadioGroup
+                name={label}
+                onChange={handleSubmitFilter}
+            >
+                {
+                    options.map((text) => (
+                        <Option
+                            category={text}
+                            key={text}
+                        />
+                    ))
+                }
+            </RadioGroup>
+        </FormControl>
+    </Stack>
+)
 
-const FilterArea = styled('form')(({ theme }) => ({
+const Category = ({ handleSubmitFilter }) => {
+
+    const pickCategory = (e) => {
+        let category = e.target.value
+        let label = e.target.name
+        let field_to_filter
+
+        if (label === 'Type')
+            field_to_filter = 'category'
+        else if (label === 'Target')
+            field_to_filter = 'target'
+
+        handleSubmitFilter({ [field_to_filter]: category })
+    }
+
+    return (
+        <FilterContainer title={'Category'}>
+
+            <SubCategory
+                label={'Type'}
+                options={categories.category}
+                handleSubmitFilter={pickCategory}
+            />
+
+            <SubCategory
+                label={'Target'}
+                options={categories.target}
+                handleSubmitFilter={pickCategory}
+            />
+
+        </FilterContainer>
+    )
+}
+
+const Rating = ({ handleSubmitFilter }) => {
+    const [rating, setRating] = useState(0)
+
+    const switchRatingValue = (e, newRating) => {
+        let new_rating = newRating || 0 // equal 0 when two consecutive time of selecting has the same value
+        setRating(new_rating)
+
+        handleSubmitFilter({ rating: new_rating })
+    }
+
+    return (
+        <FilterContainer title={'Rating'}>
+            <Box marginTop="10px">
+                <RatingMUI
+                    value={rating}
+                    precision={0.5}
+                    onChange={switchRatingValue}
+                />
+            </Box>
+
+            <Typography component="p" fontSize="0.9em" margin="0" marginLeft="5px">
+                {'From ' + rating + (rating > 1 ? ' stars' : ' star')}
+            </Typography>
+        </FilterContainer>
+    )
+}
+
+const Price = ({ handleSubmitFilter }) => {
+    const [warning, setWarning] = useState('')
+    const [price, setPrice] = useState('')
+
+    const submitPrice = () => {
+        if (price * 1 > MAX_PRICE_PORDUCT)
+            return setWarning(`Please enter a number smaller than or equal ${MAX_PRICE_PORDUCT}. Ex: 20.25`)
+        if (price * 1 === 0)
+            return setWarning('Please enter a number greater than zero. Ex: 0.15')
+
+        handleSubmitFilter({ price: price })
+    }
+
+    const catchEnterKeyboard = e => e.key === 'Enter' && submitPrice()
+
+    const inputFormatter = (e) => {
+        let value = e.target.value
+        let price_regex = /^[0-9]{0,}(\.){0,1}(\.[0-9]{1,2})?$/
+
+        if (value === '')
+            setPrice('')
+        else if (price_regex.test(value))
+            setPrice(value)
+    }
+
+    return (
+        <FilterContainer title={'Price'}>
+            <Box marginTop="10px">
+                <Typography fontFamily="inherit" component="label" htmlFor="filter-price-search">
+                    You're searching products with price from:
+                </Typography>
+            </Box>
+
+            <Stack flexDirection="row" alignItems="center" marginTop="10px" columnGap="10px">
+                <PriceFilterInput
+                    value={price}
+                    onChange={inputFormatter}
+                    onKeyDown={catchEnterKeyboard}
+                    id="filter-price-search"
+                />
+                <span>USD</span>
+            </Stack>
+
+            {
+                warning &&
+                <Typography
+                    component="span"
+                    display="block"
+                    color="red"
+                    marginTop="5px"
+                    fontSize="0.8em"
+                    fontFamily="inherit"
+                >
+                    {warning}
+                </Typography>
+            }
+
+            <PriceApplyButton onClick={submitPrice}>
+                Apply
+            </PriceApplyButton>
+        </FilterContainer>
+    )
+}
+
+const Filter = ({ filterDataRef, handleSetFilterData }) => {
+    const { loading } = useSelector(({ product }) => product)
+    const dispatch = useDispatch()
+    const filter_data = filterDataRef.current
+
+    const dispatchSubmitFilter = (category, rating, price, target) => {
+        dispatch(getProducts(
+            filter_data.limit,
+            category ? [category] : [filter_data.category],
+            filter_data.keyword,
+            (rating === 0 ? true : rating) ? rating : filter_data.rating,
+            (price === 0 ? true : price) ? price : filter_data.price,
+            1,
+            target ? [target] : [filter_data.target],
+        ))
+    }
+
+    const handleSubmitFilter = useCallback(({ price, rating, category, target }) => {
+        if (price && price * 1 > MAX_PRICE_PORDUCT) {
+            return toast.warning('Can\'t apply, please check again')
+        }
+
+        let set_filter_data = {}
+
+        if (category)
+            set_filter_data.category = category
+        if (rating || rating === 0)
+            set_filter_data.rating = rating
+        if (price || price === 0)
+            set_filter_data.price = [price * 1, MAX_PRICE_PORDUCT]
+        if (target)
+            set_filter_data.target = target
+
+        handleSetFilterData(set_filter_data)
+
+        dispatchSubmitFilter(
+            set_filter_data.category,
+            set_filter_data.rating,
+            set_filter_data.price,
+            set_filter_data.target
+        )
+    }, [dispatch, handleSetFilterData, filter_data])
+
+    return (
+        <FilterSection
+            id="ProductsFilterArea"
+            sx={loading ? { pointerEvents: 'none' } : {}}
+        >
+
+            <Typography
+                display="flex"
+                alignItems="center"
+                columnGap="5px"
+                borderBottom="1px #939393 solid"
+                margin="0"
+                paddingBottom="10px"
+                fontSize="1.3em"
+            >
+                <FilterAltIcon />
+                <span>Filter</span>
+            </Typography>
+
+            <Category handleSubmitFilter={handleSubmitFilter} />
+
+            <Divider flexItem />
+
+            <Rating handleSubmitFilter={handleSubmitFilter} />
+
+            <Divider flexItem />
+
+            <Price handleSubmitFilter={handleSubmitFilter} />
+
+        </FilterSection>
+    )
+}
+
+export default React.memo(Filter)
+
+const FilterSection = styled('div')(({ theme }) => ({
     display: 'flex',
     flexDirection: 'column',
     rowGap: '10px',
     width: '25%',
     height: 'fit-content',
-    padding: '15px',
-    borderRight: '1px #939393 solid',
-    position: 'relative',
-    zIndex: '1',
+    padding: '20px 15px',
+    fontFamily: theme.fontFamily.nunito,
 }))
-
-const PreventFilter = styled('div')({
-    position: 'absolute',
-    top: '0',
-    left: '0',
-    right: '0',
-    bottom: '0',
-    zIndex: '10',
-})
-
-const Title = styled('h2')({
-    display: 'flex',
-    alignItems: 'center',
-    columnGap: '5px',
-    fontFamily: '"Work Sans", sans-serif',
-    borderBottom: '1px #939393 solid',
-    margin: '0',
-    paddingBottom: '10px',
-})
-
-const StyledCollapse = styled(Collapse)({
-    padding: '0 15px',
-    paddingLeft: '25px',
-})
-
-const Hr = styled('div')({
-    height: '0.5px',
-    backgroundColor: '#939393',
-    width: '100%',
-})
-
-const RatingFilter = styled('div')({
-
-})
-
-const RatingFilterText = styled('p')({
-    margin: '0',
-    fontFamily: '"Nunito","sans-serif"',
-    fontSize: '0.9em',
-    marginLeft: '5px',
-})
-
-const PriceFilter = styled('div')({
-
-})
-
-const PriceFilterText = styled('p')({
-    margin: '0',
-    fontFamily: '"Nunito","sans-serif"',
-})
-
-const PriceFilterInputContainer = styled('div')({
-    display: 'flex',
-    alignItems: 'center',
-    marginTop: '10px',
-    columnGap: '5px',
-})
 
 const PriceFilterInput = styled('input')({
     outline: 'unset',
@@ -222,17 +310,9 @@ const PriceFilterInput = styled('input')({
     padding: '5px 10px',
     boxSizing: 'border-box',
     border: '1px gray solid',
-})
-
-const Currency = styled('span')({
-    fontFamily: '"Nunito","sans-serif"',
-})
-
-const PriceWarning = styled('span')({
-    display: 'block',
-    fontFamily: '"Nunito","sans-serif"',
-    color: 'red',
-    marginTop: '3px',
+    '&:focus': {
+        outline: '1px black solid',
+    }
 })
 
 const PriceApplyButton = styled('button')({
@@ -240,15 +320,47 @@ const PriceApplyButton = styled('button')({
     padding: '5px 10px',
     backgroundColor: 'black',
     color: 'white',
-    marginTop: '10px',
+    marginTop: '15px',
     fontWeight: 'bold',
     cursor: 'pointer',
+    border: '2px black solid',
+    borderRadius: '3px',
     '&:hover': {
-        backgroundColor: 'pink',
+        backgroundColor: 'white',
         color: 'black',
     },
     '&:active': {
         backgroundColor: 'black',
         color: 'white',
+    }
+})
+
+const StyledCollapse = styled(Collapse)({
+    padding: '0 15px',
+    paddingLeft: '25px',
+})
+
+const FilterTitle = styled('h2')({
+    display: 'flex',
+    justifyContent: 'space-between',
+    margin: '0',
+    fontSize: '1.2em',
+    padding: '10px',
+    paddingLeft: '15px',
+    cursor: 'pointer',
+    '&:hover': {
+        backgroundColor: 'rgba(0,0,0,.05)',
+    },
+})
+
+const OptionSection = styled(FormControlLabel)({
+    display: 'flex',
+    alignItems: 'center',
+    columnGap: '5px',
+    paddingLeft: '5px',
+    marginTop: '3px',
+    cursor: 'pointer',
+    '& .MuiFormControlLabel-label': {
+        fontFamily: 'inherit',
     }
 })

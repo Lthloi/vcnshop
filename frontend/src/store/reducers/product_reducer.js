@@ -20,16 +20,21 @@ export const productsSlice = createSlice({
             loading: false,
             error: null,
         },
-        topWeek: {
+        womenS: {
             loading: false,
             error: null,
-            products: [],
+            products: null,
         },
-        bestSelling: {
+        menS: {
             loading: false,
             error: null,
-            products: [],
+            products: null,
         },
+        overview: {
+            loading: false,
+            error: null,
+            products: null,
+        }
     },
     reducers: {
 
@@ -89,31 +94,45 @@ export const productsSlice = createSlice({
         },
 
 
-        getTopWeekRequest: (state, action) => {
-            state.topWeek.error = null
-            state.topWeek.loading = true
+        getWomenSProductsRequest: (state, action) => {
+            state.womenS.error = null
+            state.womenS.loading = true
         },
-        getTopWeekSuccess: (state, action) => {
-            state.topWeek.products = action.payload.products
-            state.topWeek.loading = false
+        getWomenSProductsSuccess: (state, action) => {
+            state.womenS.products = action.payload.products
+            state.womenS.loading = false
         },
-        getTopWeekFail: (state, action) => {
-            state.topWeek.error = action.payload.error
-            state.topWeek.loading = false
+        getWomenSProductsFail: (state, action) => {
+            state.womenS.error = action.payload.error
+            state.womenS.loading = false
         },
 
 
-        getBestSellingRequest: (state, action) => {
-            state.bestSelling.error = null
-            state.bestSelling.loading = true
+        getMenSProductsRequest: (state, action) => {
+            state.menS.error = null
+            state.menS.loading = true
         },
-        getBestSellingSuccess: (state, action) => {
-            state.bestSelling.products = action.payload.products
-            state.bestSelling.loading = false
+        getMenSProductsSuccess: (state, action) => {
+            state.menS.products = action.payload.products
+            state.menS.loading = false
         },
-        getBestSellingFail: (state, action) => {
-            state.bestSelling.error = action.payload.error
-            state.bestSelling.loading = false
+        getMenSProductsFail: (state, action) => {
+            state.menS.error = action.payload.error
+            state.menS.loading = false
+        },
+
+
+        getOverviewRequest: (state, action) => {
+            state.overview.loading = true
+            state.overview.error = null
+        },
+        getOverviewSuccess: (state, action) => {
+            state.overview.loading = false
+            state.overview.products = action.payload.products
+        },
+        getOverviewFail: (state, action) => {
+            state.overview.loading = false
+            state.overview.error = action.payload.error
         },
 
 
@@ -174,14 +193,15 @@ export const productsSlice = createSlice({
 
 export const {
     getProductsRequest, getProductsSuccess, getProductsFail,
-    getTopWeekRequest, getTopWeekSuccess, getTopWeekFail,
-    getBestSellingRequest, getBestSellingSuccess, getBestSellingFail,
+    getWomenSProductsRequest, getWomenSProductsSuccess, getWomenSProductsFail,
+    getMenSProductsRequest, getMenSProductsSuccess, getMenSProductsFail,
     getProductRequest, getProductSuccess, getProductFail,
     newReviewRequest, newReviewSuccess, newReviewFail,
     getReviewsRequest, getReviewsSuccess, getReviewsFail,
     createNewProductRequest, createNewProductSuccess, createNewProductFail,
     updateProductRequest, updateProductSuccess, updateProductFail,
     deleteProductRequest, deleteProductSuccess, deleteProductFail,
+    getOverviewRequest, getOverviewSuccess, getOverviewFail,
 } = productsSlice.actions
 
 export default productsSlice.reducer

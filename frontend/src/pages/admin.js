@@ -42,7 +42,7 @@ const nav_options = [
 
 const Admin = () => {
     const { users, error: user_error } = useSelector(({ user }) => user)
-    const { orders, error: order_error } = useSelector(({ order }) => order)
+    const { orders, error: order_error } = useSelector(({ order_for_user }) => order_for_user)
     const { products, error: product_error } = useSelector(({ product }) => product)
     const { shops, error: shop_error } = useSelector(({ shop }) => shop)
     const dispatch = useDispatch()
@@ -51,7 +51,7 @@ const Admin = () => {
     useEffect(() => {
         dispatch(getOrdersByAdmin('createdAt', 'payment_status'))
         dispatch(getUsersByAdmin('createdAt', 'active'))
-        dispatch(getProductsByAdmin('createdAt', 'stock', 'review.count_reviews', 'for'))
+        dispatch(getProductsByAdmin('createdAt', 'stock', 'review.count_reviews', 'target_gender'))
         dispatch(getShopsByAdmin('createdAt'))
     }, [dispatch])
 

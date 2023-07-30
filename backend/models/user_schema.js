@@ -10,20 +10,20 @@ const UserSchema = new Schema({
     name: {
         type: String,
         default: 'Unname-User',
-        minLength: [2, 'The length of name must not shorter than 2 characters'],
-        maxLength: [25, 'The length of name must not longer than 25 characters'],
+        minLength: [2, 'The length of name must not be shorter than 2 characters'],
+        maxLength: [25, 'The length of name must not be longer than 25 characters'],
     },
     email: {
         type: String,
         required: true,
         index: true,
         unique: true,
-        maxLength: [35, 'The length of email must not longer than 25 characters'],
+        minLength: [5, 'The length of email must not be shorter than 5 characters'],
+        maxLength: [35, 'The length of email must not be longer than 35 characters'],
     },
     password: {
         type: String,
-        maxLength: [20, 'The length of password must not longer than 25 characters'],
-        minLength: [6, 'The length of name must not shorter than 6 characters'],
+        minLength: [6, 'The length of password must not be shorter than 6 characters'],
         required: true,
     },
     gender: {
@@ -32,9 +32,6 @@ const UserSchema = new Schema({
     },
     avatar: {
         type: String,
-    },
-    date_of_birth: {
-        type: String, //dd-mm-yyyy
     },
     role: {
         type: String,

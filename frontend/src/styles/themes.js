@@ -5,7 +5,7 @@ const global_theme = createTheme({
         kanit: '"Kanit", "sans-serif"',
         nunito: '"Nunito", "sans-serif"',
         arial: '"Arial", "Helvetica", "sans-serif"',
-        gillSans: '"Gill Sans", "sans-serif"',
+        gillSans: '"Gill Sans", sans-serif',
     },
 })
 

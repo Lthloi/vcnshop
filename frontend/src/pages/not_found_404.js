@@ -1,6 +1,6 @@
 import React from "react"
 import { styled } from '@mui/material/styles'
-import not_found_404 from '../assets/images/not_found_404.png'
+import not_found_404 from '../assets/images/not_found_404.jpg'
 import { useNavigate } from "react-router-dom"
 
 const NotFound404 = () => {

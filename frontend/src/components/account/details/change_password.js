@@ -8,6 +8,8 @@ import CancelIcon from '@mui/icons-material/Cancel'
 import { changePassword } from "../../../store/actions/user_actions"
 import { useDispatch } from 'react-redux'
 import { CircularProgress } from "@mui/material"
+import { MAX_PASSWORD_LENGTH } from "../../../utils/constants"
+import { Typography, Stack, Box, Tooltip } from "@mui/material"
 
 const inputs = [
     {
@@ -15,16 +17,19 @@ const inputs = [
         required: true,
         maxLength: 25,
         warning: 'Please enter the old password.',
+        placeholder: 'Enter the old password',
     }, {
         label: 'New Password',
         required: true,
-        maxLength: 35,
-        warning: 'Password must be between 6 and 20 characters long. And must contain at least one capital letter and one number and one lowercase letter.',
+        maxLength: MAX_PASSWORD_LENGTH,
+        warning: `Password must be between 6 and ${MAX_PASSWORD_LENGTH} characters long. And must contain at least one capital letter and one number and one lowercase letter.`,
+        placeholder: 'Enter a new password',
     }, {
         label: 'Retype The New Password',
         required: true,
-        maxLength: 35,
+        maxLength: MAX_PASSWORD_LENGTH,
         warning: 'Doen\'t Match',
+        placeholder: 'Enter the new password',
     },
 ]
 
@@ -50,46 +55,74 @@ const ChangePassword = ({ loading }) => {
     const changePasswordSubmit = (data, e) => {
         e.preventDefault()
 
-        let isError = false
-        let password_regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?!.*\s).{6,}$/
+        let password_regex = new RegExp(`^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?!.*\\s).{6,${MAX_PASSWORD_LENGTH}}$`)
 
-        if (!password_regex.test(data['New Password'])) {
-            isError = true
-            setError('New Password')
-        }
-        if (data['New Password'] !== data['Retype The New Password']) {
-            isError = true
-            setError('Retype The New Password')
-        }
-        if (isError) return
+        let old_password = data['The Old Password']
+        let new_password = data['New Password']
+        let retype_password = data['Retype The New Password']
 
-        dispatch(changePassword(data['The Old Password'], data['New Password']))
+        if (!password_regex.test(new_password)) {
+            return setError('New Password')
+        }
+        if (new_password !== retype_password) {
+            return setError('Retype The New Password')
+        }
+
+        dispatch(changePassword(old_password, new_password))
     }
 
     return (
         <ChangePasswordSection id="ChangePasswordSection">
-            <Title>CHANGE YOUR PASSWORD</Title>
-            <HelperText>
+            <Typography
+                component="h2"
+                margin="10px 0"
+                width="100%"
+                textAlign="center"
+                fontSize="2.2em"
+            >
+                CHANGE YOUR PASSWORD
+            </Typography>
+            <Typography
+                fontSize="0.9em"
+                textAlign="center"
+            >
                 We suggest you update your password one time per six months. Note that the fields with * is required.
-            </HelperText>
+            </Typography>
 
-            <div style={{ width: '100%', margin: '20px 0 30px' }}><Dash /></div>
+            <Stack width="100%" margin="20px 0 30px">
+                <Box height="5px" width="40px" margin="auto" bgcolor="black" />
+            </Stack>
 
-            <ChangePasswordForm onSubmit={handleSubmit(changePasswordSubmit)}>
+            <Stack
+                onSubmit={handleSubmit(changePasswordSubmit)}
+                component="form"
+                rowGap="10px"
+                width="100%"
+            >
                 {
-                    inputs.map(({ label, required, maxLength, warning }, index) => (
+                    inputs.map(({ label, required, maxLength, warning, placeholder }, index) => (
                         <FormGroup key={label}>
                             <Label htmlFor={label}>
                                 <span>{label}</span>
                                 {required && <span className="required">*</span>}
                             </Label>
-                            <InputContainer>
+                            <Stack
+                                justifyContent="space-between"
+                                flexDirection="row"
+                                alignItems="center"
+                                width="100%"
+                                border="2px black solid"
+                                boxSizing="border-box"
+                                bgcolor="white"
+                                columnGap="5px"
+                            >
                                 <Input
                                     id={label}
                                     {...register(label, { required })}
                                     type={showPassword[index] ? 'text' : 'password'}
                                     maxLength={maxLength}
                                     autoComplete="on"
+                                    placeholder={placeholder}
                                 />
                                 {
                                     showPassword[index] ?
@@ -103,7 +136,7 @@ const ChangePassword = ({ loading }) => {
                                             onClick={() => handleHideShowPassword(index)}
                                         />
                                 }
-                            </InputContainer>
+                            </Stack>
                             {
                                 errors[label] &&
                                 <InputWarning>
@@ -115,22 +148,25 @@ const ChangePassword = ({ loading }) => {
                     ))
                 }
 
-                <SaveChangeBtn type="submit" title="Click to save the change">
-                    {
-                        loading ?
-                            <StyledCircularProgress
-                                size={24}
-                                thickness={7}
-                                className="loading"
-                            />
-                            :
-                            <>
-                                <SaveAltIcon />
-                                <span>Save Change</span>
-                            </>
-                    }
-                </SaveChangeBtn>
-            </ChangePasswordForm>
+                <Tooltip title="Click to change to new password">
+                    <SaveChangeBtn type="submit">
+                        {
+                            loading ?
+                                <CircularProgress
+                                    size={24}
+                                    thickness={7}
+                                    className="loading"
+                                    sx={{ color: 'white' }}
+                                />
+                                :
+                                <>
+                                    <SaveAltIcon />
+                                    <span>Save Change</span>
+                                </>
+                        }
+                    </SaveChangeBtn>
+                </Tooltip>
+            </Stack>
         </ChangePasswordSection>
     )
 }
@@ -142,36 +178,8 @@ const ChangePasswordSection = styled('div')(({ theme }) => ({
     padding: '20px 30px 40px',
     boxSizing: 'border-box',
     width: '100%',
+    fontFamily: theme.fontFamily.kanit,
 }))
-
-const Title = styled('h2')({
-    margin: '10px 0',
-    width: '100%',
-    textAlign: 'center',
-    fontFamily: '"Kanit", "sans-serif"',
-    fontSize: '2.2em',
-})
-
-const HelperText = styled('p')({
-    margin: '0',
-    fontSize: '0.9em',
-    textAlign: 'center',
-    fontFamily: '"Kanit", "sans-serif"',
-})
-
-const Dash = styled('div')({
-    height: '5px',
-    width: '40px',
-    margin: 'auto',
-    backgroundColor: 'black',
-})
-
-const ChangePasswordForm = styled('form')({
-    display: 'flex',
-    flexDirection: 'column',
-    rowGap: '10px',
-    width: '100%',
-})
 
 const FormGroup = styled('div')({
     display: 'flex',
@@ -184,7 +192,6 @@ const FormGroup = styled('div')({
 const Label = styled('label')({
     display: 'flex',
     columnGap: '5px',
-    fontFamily: '"Kanit", "sans-serif"',
     fontSize: '1.4em',
     fontWeight: 'bold',
     marginLeft: '5px',
@@ -194,38 +201,27 @@ const Label = styled('label')({
     },
 })
 
-const InputContainer = styled('div')({
-    display: 'flex',
-    columnGap: '5px',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    width: '100%',
-    border: '2px black solid',
-    boxSizing: 'border-box',
-    backgroundColor: 'white',
-})
-
-const Input = styled('input')({
+const Input = styled('input')(({ theme }) => ({
     width: '100%',
     backgroundColor: 'white',
     borderRadius: 'unset',
     border: 'none',
     padding: '8px 15px',
-    fontFamily: '"Nunito", "sans-serif"',
     fontSize: '1em',
     outline: 'unset',
     boxSizing: 'border-box',
-})
+    fontFamily: theme.fontFamily.nunito,
+}))
 
-const InputWarning = styled('div')({
+const InputWarning = styled('div')(({ theme }) => ({
     display: 'flex',
     columnGap: '5px',
     alignItems: 'center',
-    fontFamily: '"Nunito", "sans-serif"',
     color: 'red',
     marginTop: '3px',
     marginLeft: '3px',
-})
+    fontFamily: theme.fontFamily.nunito,
+}))
 
 const SaveChangeBtn = styled('button')({
     display: 'flex',
@@ -241,7 +237,6 @@ const SaveChangeBtn = styled('button')({
     color: 'white',
     borderRadius: '30px',
     marginTop: '20px',
-    fontFamily: '"Kanit", "sans-serif"',
     fontSize: '1em',
     cursor: 'pointer',
     '&:hover': {
@@ -255,8 +250,4 @@ const SaveChangeBtn = styled('button')({
         backgroundColor: '#2D2D2D',
         color: 'white',
     }
-})
-
-const StyledCircularProgress = styled(CircularProgress)({
-    color: 'white',
 })

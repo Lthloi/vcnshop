@@ -1,8 +1,7 @@
-import React, { useState } from "react"
+import React from "react"
 import { styled, ThemeProvider } from '@mui/material/styles'
 import { auth_theme } from "../styles/themes"
 import Mascot from '../assets/images/VCNShop_Mascot.png'
-import TermsOfUse from "../components/terms_of_use"
 import { NavLink } from "react-router-dom"
 import Login from '../components/auth/login'
 import Register from '../components/auth/register/register'
@@ -11,23 +10,15 @@ import { Route, Routes } from "react-router-dom"
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline'
 
 const Auth = () => {
-    const [openTermsOfUseDialog, setOpenTermsOfUseDialog] = useState(false)
-
-    const handleOpenTermsOfUseDialog = (open) => setOpenTermsOfUseDialog(open)
 
     return (
         <AuthPage id="AuthPage">
-            <TermsOfUse
-                openDialog={openTermsOfUseDialog}
-                handleOpenDialog={handleOpenTermsOfUseDialog}
-            />
-
             <Layout>
                 <HeaderContainer>
                     <Header>WELCOME TO VCN SHOP</Header>
                     <Navigation>
                         <Nav to="/">Home</Nav>
-                        <Nav onClick={() => handleOpenTermsOfUseDialog(true)}>
+                        <Nav to="/termOfuse">
                             Term Of Use
                         </Nav>
                         <Nav to="/faq">

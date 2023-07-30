@@ -13,9 +13,11 @@ import { useDispatch, useSelector } from 'react-redux'
 import { sendRegisterOTP } from "../../../store/actions/user_actions"
 import CompleteRegister from "./complete_register"
 import validator from 'validator'
+import { redirectAfterSeconds } from "../../../utils/redirect_handler"
+import { Stack } from "@mui/material"
 
 const Register = () => {
-    const { user: { registerStep, isAuthenticated }, loading } = useSelector(({ user }) => user)
+    const { auth: { registerStep, isAuthenticated }, loading } = useSelector(({ user }) => user)
     const [openProblemSection, setOpenProblemSection] = useState(false)
     const [sendOTPNote, setSendOTPNote] = useState(false)
     const email_input_ref = useRef()
@@ -24,7 +26,8 @@ const Register = () => {
 
     useEffect(() => {
         if (registerStep === 3 && isAuthenticated) {
-            let timeout = setTimeout(() => { window.open('/account', '_self') }, 1000)
+            let timeout = redirectAfterSeconds(1000, { isReload: false, href: '/account' })
+
             return () => clearTimeout(timeout)
         }
     }, [isAuthenticated])
@@ -50,9 +53,9 @@ const Register = () => {
 
     return (
         registerStep === 3 ? (
-            <CompleteRegister emailWasTyped={email_was_typed_ref.current} loading={loading} />
+            <CompleteRegister emailWasTyped={email_was_typed_ref.current} />
         ) :
-            <RegisterSection id="RegisterSectionArea">
+            <RegisterSection id="RegisterSection">
 
                 <ProblemSection
                     open={openProblemSection}
@@ -95,7 +98,7 @@ const Register = () => {
                         registerStep === 2 &&
                         <VerifyOTP emailWasTyped={email_was_typed_ref.current} />
                     }
-                    <SendOTPArea>
+                    <Stack flexDirection="row" justifyContent="space-between" alignItems="center" marginTop="10px">
                         <Problems onClick={() => handleOpenProblemSection(true)}>
                             Have problem ?
                         </Problems>
@@ -122,7 +125,7 @@ const Register = () => {
                                 emailWasTyped={email_was_typed_ref.current && email_was_typed_ref.current}
                             />
                         }
-                    </SendOTPArea>
+                    </Stack>
                 </div>
 
                 <SignIn >
@@ -142,11 +145,11 @@ export default Register
 
 const RegisterSection = styled('div')(({ theme }) => ({
     ...theme.auth_background,
+    fontFamily: theme.fontFamily.nunito,
 }))
 
 const FormTitle = styled('h2')({
-    fontFamily: '"Roboto", "sans-serif"',
-    fontWeight: '500',
+    fontWeight: 'bold',
     fontSize: '2em',
     color: 'white',
     margin: '10px 0 15px',
@@ -163,7 +166,6 @@ const FormGroup = styled('div')({
 
 const Label = styled('label')({
     color: 'white',
-    fontFamily: '"Roboto", "sans-serif"',
     fontWeight: '500',
     padding: '2px',
 })
@@ -194,16 +196,8 @@ const HelperText = styled('p')({
     }
 })
 
-const SendOTPArea = styled('div')({
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: '5px',
-})
-
 const Problems = styled('div')({
-    fontFamily: '"Roboto", "sans-serif"',
-    color: '#d32f2f',
+    color: 'red',
     fontSize: '0.9em',
     cursor: 'pointer',
     '&:hover': {
@@ -218,14 +212,13 @@ const SendOTPBtn = styled('button')({
     fontWeight: 'bold',
     cursor: 'pointer',
     backgroundColor: '#00b0a7',
-    padding: '7px 10px',
+    padding: '8px 15px',
     borderRadius: '5px',
     border: '1px black solid',
 })
 
 const SignIn = styled('div')({
     color: 'white',
-    fontFamily: '"Nunito", "sans-serif"',
     '& .NavLink': {
         color: 'yellow',
         fontWeight: 'bold',

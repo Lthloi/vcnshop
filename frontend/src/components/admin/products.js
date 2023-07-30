@@ -1,6 +1,6 @@
 import React, { useMemo } from "react"
 import { styled } from '@mui/material/styles'
-import AutoIncreaAnimate from "../auto_increa_animate"
+import AutoIncreaAnimate from "../materials/auto_increa_animate"
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js"
 import { Doughnut } from "react-chartjs-2"
 import AllInboxIcon from '@mui/icons-material/AllInbox'
@@ -86,7 +86,7 @@ const Products = ({ products }) => {
 
     const counted_product_groups = useMemo(() => {
         let gender_obj = { Male: 0, Female: 0, Unisex: 0 }
-        for (let { for: target_gender } of products)
+        for (let { target_gender } of products)
             gender_obj[target_gender]++
         return gender_obj
     }, [products])

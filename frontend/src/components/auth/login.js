@@ -16,7 +16,8 @@ import { Stack } from "@mui/material"
 import UndoIcon from '@mui/icons-material/Undo'
 import { IconButton } from "@mui/material"
 import { Tooltip } from '@mui/material'
-import { useCurrentRoute } from "../../hooks/custom_hooks"
+import { useGetQueryValue } from "../../hooks/custom_hooks"
+import { redirectAfterSeconds } from '../../utils/redirect_handler'
 
 const form_group_icon_style = { color: 'white', marginLeft: '10px' }
 
@@ -31,7 +32,7 @@ const auto_account = {
     }
 }
 
-const AutoAccount = ({ handleSetAutoAccount }) => {
+const AutoAccountButton = ({ handleSetAutoAccount }) => {
     const [getAccountBtn, setGetAccountBtn] = useState(false)
 
     const style_for_btn = {
@@ -75,26 +76,29 @@ const AutoAccount = ({ handleSetAutoAccount }) => {
     )
 }
 
-const handle_login_redirect = (current_route, ms_to_delay = 1000) => {
-    let redirect
-    if (current_route && current_route.includes('redirect='))
-        redirect = current_route.split('redirect=')[1]
-
-    return setTimeout(() => {
-        window.open(redirect ? '/' + redirect : '/account', '_self')
-    }, ms_to_delay)
-}
-
 const Login = () => {
     const [showPassword, setShowPassword] = useState(false)
     const { register, handleSubmit, setValue } = useForm()
-    const { user: { loginStep }, loading } = useSelector(({ user }) => user)
+    const { auth: { loginStep }, loading } = useSelector(({ user }) => user)
     const dispatch = useDispatch()
-    const current_route = useCurrentRoute()
+    const query_value_getter = useGetQueryValue()
+
+    const handle_login_redirect = (ms_to_delay) => {
+        let redirect = query_value_getter(1, 'redirect')
+
+        if (redirect)
+            redirect = '/' + redirect
+        else
+            redirect = '/account'
+
+        return redirectAfterSeconds(ms_to_delay, { isReload: false, href: redirect })
+    }
 
     useEffect(() => {
         if (loginStep === 2) {
-            let timeout = handle_login_redirect(current_route)
+            toast.success('Register successfully!')
+
+            let timeout = handle_login_redirect(1000)
 
             return () => clearTimeout(timeout)
         }
@@ -145,7 +149,7 @@ const Login = () => {
                     />
                     <Label htmlFor="email">Enter your e-mail</Label>
                 </FormGroup>
-                <PasswordFormGroup>
+                <FormGroup sx={{ marginTop: '30px' }}>
                     <LockIcon sx={form_group_icon_style} />
                     <Input
                         {...register('Password')}
@@ -164,7 +168,7 @@ const Login = () => {
                                 <VisibilityOffIcon sx={{ color: 'white' }} />
                         }
                     </ShowPasswordIconWrapper>
-                </PasswordFormGroup>
+                </FormGroup>
                 <Stack marginTop="20px" flexDirection="row" justifyContent="space-between" alignItems="center">
                     <ForgotPassword to="/auth/forgotPassword">
                         Forgot Password ?
@@ -181,7 +185,7 @@ const Login = () => {
                         }
                     </SignInBtn>
                 </Stack>
-                <AutoAccount handleSetAutoAccount={handleSetAutoAccount} />
+                <AutoAccountButton handleSetAutoAccount={handleSetAutoAccount} />
             </form>
             <SignUp>
                 <span>Don't have an account ? </span>
@@ -237,7 +241,7 @@ const Input = styled('input')({
     backgroundColor: 'transparent',
     color: 'white',
     '&:focus ~ label , :not(:placeholder-shown) ~ label': {
-        top: '-33%',
+        top: '-40%',
         left: '12%',
         backgroundColor: '#00B0A7',
         color: 'black',
@@ -251,10 +255,6 @@ const FormTitle = styled('h2')({
     margin: '10px 0 15px',
 })
 
-const PasswordFormGroup = styled(FormGroup)({
-    marginTop: '20px',
-})
-
 const ShowPasswordIconWrapper = styled('div')({
     display: 'flex',
     justifyContent: 'center',
@@ -264,7 +264,7 @@ const ShowPasswordIconWrapper = styled('div')({
 })
 
 const ForgotPassword = styled(NavLink)({
-    color: '#d32f2f',
+    color: 'red',
     fontSize: '0.9em',
     cursor: 'pointer',
     textDecoration: 'unset',

@@ -102,13 +102,14 @@ const Payment = () => {
     const get_value_of_query_string = useGetQueryValue()
     const navigate = useNavigate()
 
-    const init_order = (order_info, client_secret, stripe_key, order_id) => {
+    const init_order = (order_info, client_secret, stripe_key, order_id, is_unpaid_order) => {
         setOrderInfo(order_info)
 
         setOrderInitor({
             client_secret: client_secret,
             stripe_key: stripe_key,
             order_id: order_id,
+            is_unpaid_order: is_unpaid_order,
         })
     }
 
@@ -125,7 +126,12 @@ const Payment = () => {
             return
         }
 
-        init_order(stored_orderInfo, order_data.client_secret, order_data.stripe_key, order_data.orderId)
+        init_order(
+            stored_orderInfo,
+            order_data.client_secret,
+            order_data.stripe_key,
+            order_data.orderId
+        )
     }
 
     const initUnpaidOrder = async (order_id) => {
@@ -144,7 +150,13 @@ const Payment = () => {
             return
         }
 
-        init_order(order_data, order_data.payment_info.client_secret, stripe_key, order_data._id)
+        init_order(
+            order_data,
+            order_data.payment_info.client_secret,
+            stripe_key,
+            order_data._id,
+            true
+        )
     }
 
     useEffect(() => {
@@ -162,7 +174,7 @@ const Payment = () => {
 
     if (!orderInitor || !orderInfo)
         return (
-            <Stack rowGap="30px" alignItems="center" marginTop="20px">
+            <Stack rowGap="30px" alignItems="center" margin="20px 0">
                 <Loading sx={{ width: '50%', height: '100px' }} animation="wave" />
                 <Loading sx={{ width: '50%', height: '500px' }} animation="wave" />
             </Stack>
@@ -170,7 +182,9 @@ const Payment = () => {
 
     return (
         <Stack id="PaymentSection" marginBottom="50px">
-            <Title>Payment</Title>
+            <Title>
+                Payment
+            </Title>
 
             <Stack justifyContent="center" alignItems="center" marginTop="30px">
                 <Logo />
@@ -192,7 +206,8 @@ const Payment = () => {
                             currencyCode={currency_code}
                             orderId={orderInitor.order_id}
                             shippingInfo={shippingInfo}
-                            totalToPay={orderInfo.total_to_pay}
+                            isUnpaidOrder={orderInitor.is_unpaid_order}
+                            orderInfo={orderInfo}
                         />
                     </Elements>
                 </Stack>
@@ -209,18 +224,18 @@ const Loading = styled(Skeleton)({
     transform: 'scale(1)',
 })
 
-const Title = styled('h2')({
+const Title = styled('h2')(({ theme }) => ({
     color: 'white',
     boxSizing: 'border-box',
     margin: '20px 0',
-    fontFamily: '"Gill Sans", sans-serif',
+    fontFamily: theme.fontFamily.gillSans,
     textAlign: 'center',
     padding: '15px',
     width: '100%',
     fontSize: '1.5em',
     backgroundColor: 'black',
     letterSpacing: '3px',
-})
+}))
 
 const LogoContainer = styled('div')(({ theme }) => ({
     display: 'flex',

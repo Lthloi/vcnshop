@@ -1,172 +1,244 @@
-import React, { useState } from "react"
+import React from "react"
 import { styled } from '@mui/material/styles'
 import CategoryIcon from '@mui/icons-material/Category'
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder'
 import LiveHelpIcon from '@mui/icons-material/LiveHelp'
-import ArrowForwardIosSharpIcon from '@mui/icons-material/ArrowForwardIosSharp'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import ConfirmationNumberIcon from '@mui/icons-material/ConfirmationNumber'
 import HomeIcon from '@mui/icons-material/Home'
 import { NavLink } from "react-router-dom"
+import { Stack, Typography, Box } from "@mui/material"
+import category_background_image from '../../../assets/images/dropdown_menu.jpg'
+import { useTheme } from "@emotion/react"
 
-const category_dropdown = [
-    {
-        background: 'https://i.pinimg.com/564x/0e/c5/59/0ec55917a6abc08f7c5cedc91fe997b8.jpg',
-        title: 'CLOTHING',
-        names: [
-            'Jacket',
-            'Sweater',
-            'Hoodie',
-        ]
-    }, {
-        background: 'https://cdn.shopify.com/s/files/1/1124/8462/products/Andreas-Mens-Leather-Shoes-Brown--Model-JULKE_600x.jpg?v=1625743714',
-        title: 'SHOES',
-        names: [
-            'Nike',
-            'Adidas',
-            'Sneakers',
-        ]
-    }, {
-        background: 'https://i.pinimg.com/564x/1d/41/b9/1d41b9971da2bae667c25baafd14df03.jpg',
-        title: 'ACCESSORIES',
-        names: [
-            'Glass',
-            'Necklace',
-        ]
-    }
+const clothing_subtitles = [
+    'Jacket',
+    'Sweater',
+    'Hoodie',
+]
+const shoes_subtitles = [
+    'Nike',
+    'Adidas',
+    'Sneakers',
+]
+const accessories_subtitles = [
+    'Glass',
+    'Necklace',
 ]
 
-const non_dropdown_options = [
+const CategoryList = ({ title, subTitles }) => {
+    return (
+        <Stack height="100%" marginLeft="10px" padding="10px">
+            <Typography
+                display="block"
+                color="white"
+                fontSize="1.1em"
+                textAlign="center"
+                padding="0 5px 5px 5px"
+                margin="0"
+                component="h2"
+                borderBottom="2px white solid"
+            >
+                {title}
+            </Typography>
+
+            <Stack padding="10px" rowGap="5px" alignItems="center">
+                {
+                    subTitles.map((title) => (
+                        <Category key={title}>
+                            {title}
+                        </Category>
+                    ))
+                }
+            </Stack>
+        </Stack>
+    )
+}
+
+const DropdownMenu = () => {
+    return (
+        <Box
+            className="dropdown_menu"
+            display="none"
+            position="absolute"
+            zIndex="10"
+            left="8%"
+            top="100%"
+            width="80vw"
+            height="300px"
+            bgcolor="black"
+            padding="10px"
+            columnGap="10px"
+            border="1px white solid"
+            sx={{ cursor: 'initial' }}
+        >
+
+            <DropdownMenuImage src={category_background_image} />
+
+            <Stack width="100%" flexDirection="row" justifyContent="space-evenly">
+                <CategoryList title={'CLOTHING'} subTitles={clothing_subtitles} />
+                <CategoryList title={'SHOES'} subTitles={shoes_subtitles} />
+                <CategoryList title={'ACCESSORIES'} subTitles={accessories_subtitles} />
+            </Stack>
+
+        </Box>
+    )
+}
+
+const style_for_icons_nav = {
+    color: 'white',
+}
+
+const navs = [
     {
-        icon: <HomeIcon />,
-        title: 'Home',
+        icon: <HomeIcon sx={style_for_icons_nav} />,
+        label: 'Home',
         action: '/#'
     }, {
 
-        icon: <CategoryIcon />,
-        title: 'Category',
-        action: '/#',
-        dropdown_list: category_dropdown
+        icon: <CategoryIcon sx={style_for_icons_nav} />,
+        label: 'Category',
+        action: '/',
+        with_dropdown_menu: true,
+        dropdown_menu: <DropdownMenu />
     }, {
 
-        icon: <ConfirmationNumberIcon />,
-        title: 'Coupon',
-        action: '/#'
+        icon: <ConfirmationNumberIcon sx={style_for_icons_nav} />,
+        label: 'Coupon',
+        action: '/'
     }, {
 
-        icon: <FavoriteBorderIcon />,
-        title: 'My Wishlist',
-        action: '/#'
+        icon: <FavoriteBorderIcon sx={style_for_icons_nav} />,
+        label: 'My Wishlist',
+        action: '/'
     }, {
 
-        icon: <ShoppingCartIcon />,
-        title: 'Cart',
+        icon: <ShoppingCartIcon sx={style_for_icons_nav} />,
+        label: 'Cart',
         action: '/cart'
     }, {
 
-        icon: <LiveHelpIcon />,
-        title: 'Help Center',
-        action: '/#'
+        icon: <LiveHelpIcon sx={style_for_icons_nav} />,
+        label: 'FAQ',
+        action: '/faq'
     },
 ]
 
-const MenuBar = () => {
-    const [categoryDropdown, setcategoryDropdown] = useState(null)
+const Nav = ({ navInfo }) => {
+    const { label, icon, action, with_dropdown_menu, dropdown_menu } = navInfo
 
     return (
-        <MenuBarArea id="MenuBarArea">
-            {
-                non_dropdown_options.map(({ title, icon, action, dropdown_list }) => (
-                    <Option
-                        key={title}
-                        to={action}
-                        className="drop_down_menu_wrapper"
-                        onMouseOver={() => dropdown_list && setcategoryDropdown(dropdown_list)}
-                        onMouseOut={() => dropdown_list && setcategoryDropdown(null)}
+        <NavContainer>
+            <NavItem
+                to={action}
+                className="animation-container"
+            >
+
+                <div className="animation-wrapper">
+                    <Stack
+                        flexDirection="row"
+                        alignItems="center"
+                        columnGap="5px"
                     >
                         <IconOption>{icon}</IconOption>
-                        <span>{title}</span>
+                        <span>{label}</span>
                         {
-                            dropdown_list &&
-                            <ArrowForwardIosSharpIconWrapper>
-                                <ArrowForwardIosSharpIcon sx={{ color: 'white', fontSize: '1em' }} />
-                            </ArrowForwardIosSharpIconWrapper>
+                            with_dropdown_menu &&
+                            <Stack>
+                                <ExpandMoreIcon sx={{ color: 'white', fontSize: '1.2em', margin: 'auto' }} />
+                            </Stack>
                         }
-                    </Option>
+                    </Stack>
+                </div>
+
+            </NavItem>
+
+            {dropdown_menu}
+        </NavContainer>
+    )
+}
+
+const MenuBar = () => {
+    const theme = useTheme()
+
+    return (
+        <Stack
+            id="MenuBarSection"
+            component="div"
+            flexDirection="row"
+            justifyContent="space-around"
+            position="relative"
+            width="100%"
+            fontFamily={theme.fontFamily.nunito}
+            bgcolor="black"
+        >
+            {
+                navs.map((navInfo) => (
+                    <Nav navInfo={navInfo} key={navInfo.label} />
                 ))
             }
-            {
-                categoryDropdown &&
-                <DropdownSectionWrapper>
-                    <DropdownSection
-                        id="DropdownSection"
-                        onMouseOver={() => category_dropdown && setcategoryDropdown(category_dropdown)}
-                        onMouseOut={() => setcategoryDropdown(null)}
-                    >
-                        {category_dropdown.map(({ title, names, background }) => (
-                            <Category key={title}>
-                                <CategoryImgWrapper>
-                                    <CategoryImgModalBase className="CategoryImgModalBase">
-                                        {title}
-                                    </CategoryImgModalBase>
-                                    <CategoryImg src={background} />
-                                </CategoryImgWrapper>
-                                <CategoryTextArea>
-                                    <CategoryTitle>
-                                        {title}
-                                    </CategoryTitle>
-                                    <CategoryNamesContainer>
-                                        {
-                                            names.map((items) => (
-                                                <CategoryNames key={items}>
-                                                    {items}
-                                                </CategoryNames>
-                                            ))
-                                        }
-                                    </CategoryNamesContainer>
-                                </CategoryTextArea>
-                            </Category>
-                        ))}
-                    </DropdownSection>
-                </DropdownSectionWrapper>
-            }
-        </MenuBarArea>
+        </Stack>
     )
 }
 
 export default MenuBar
 
-const MenuBarArea = styled('div')({
-    display: 'flex',
-    justifyContent: 'space-around',
-    backgroundColor: 'black',
-    border: `1px white solid`,
-    borderLeft: 'none',
-    borderRight: 'none',
-    position: 'relative',
-    width: '100%',
+const NavContainer = styled('div')({
+    height: 'fit-content',
+    '&:hover .dropdown_menu': {
+        display: 'flex',
+    },
+    "&:hover .animation-container::after , &:hover .animation-container::before": {
+        height: "100%",
+        width: "100%",
+    },
+    '&:hover .animation-wrapper , &:hover svg': {
+        color: 'black',
+    }
 })
 
-const Option = styled(NavLink)(({ theme }) => ({
-    display: 'flex',
-    alignItems: 'center',
-    columnGap: '5px',
-    fontFamily: theme.fontFamily.arial,
-    height: '100%',
-    padding: '10px 20px',
-    boxSizing: 'border-box',
-    cursor: 'pointer',
-    textDecoration: 'unset',
-    fontSize: '1.2rem',
+const NavItem = styled(NavLink)({
+    display: 'block',
     color: 'white',
-    '&:hover': {
-        backgroundColor: '#33c1ba',
-        color: 'black',
-        '& svg': {
-            color: 'black',
-        }
-    }
-}))
+    textDecoration: 'none',
+    padding: "2px 3px",
+    border: "none",
+    position: "relative",
+    zIndex: 1,
+    boxSizing: "border-box",
+    "& .animation-wrapper": {
+        position: "relative",
+        width: "fit-content",
+        boxSizing: "border-box",
+        zIndex: 3,
+        padding: "10px 20px",
+        fontSize: "0.9em",
+        transition: 'color 0.3s ease',
+    },
+    "&::after": {
+        position: "absolute",
+        content: '""',
+        right: "0",
+        bottom: "0",
+        width: "0",
+        height: "0",
+        backgroundColor: "white",
+        transition: "all 0.3s ease",
+        zIndex: 2
+    },
+    "&::before": {
+        position: "absolute",
+        content: '""',
+        left: "0",
+        top: "0",
+        backgroundColor: "white",
+        transition: "all 0.3s ease",
+        width: "0",
+        height: "0",
+        zIndex: 2
+    },
+})
 
 const IconOption = styled('div')({
     display: 'flex',
@@ -175,104 +247,44 @@ const IconOption = styled('div')({
     marginRight: '5px',
     '& svg': {
         fontSize: '1.3rem',
+        transition: 'color 0.3s ease',
     }
 })
 
-const ArrowForwardIosSharpIconWrapper = styled('div')({
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
+const DropdownMenuImage = styled('img')({
+    maxWidth: '25%',
     height: '100%',
-    width: '10px',
-    marginLeft: '12px',
-    transform: 'rotate(90deg)',
-})
-
-const DropdownSectionWrapper = styled('div')({
-    display: 'flex',
-    justifyContent: 'center',
-    position: 'absolute',
-    zIndex: '10',
-    top: '100%',
-    left: '0',
-    width: '100%',
-    height: '0',
-    overflowY: 'visible',
-})
-
-const DropdownSection = styled('div')({
-    display: 'flex',
-    backgroundColor: 'black',
-    padding: '10px',
-    height: '300px',
-    border: '1px white solid',
 })
 
 const Category = styled('div')({
-    display: 'flex',
-    width: 'fit-content',
-    height: '100%',
-    flex: '1',
-})
-
-const CategoryImgWrapper = styled('div')({
-    height: 'fit-content',
-    position: 'relative',
-    '&:hover .CategoryImgModalBase': {
-        backgroundColor: '#00000078',
-        fontSize: '1.3rem',
-    }
-})
-
-const CategoryImgModalBase = styled('div')({
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'transparent',
-    position: 'absolute',
-    width: '100%',
-    height: '100%',
-    color: 'white',
-    cursor: 'pointer',
-    fontFamily: '"Lato", sans-serif',
-    fontSize: '0',
-    transition: 'font-size 0.2s',
-})
-
-const CategoryImg = styled('img')({
-    width: '100%',
-    maxHeight: '300px',
-})
-
-const CategoryTextArea = styled('div')({
-    height: '100%',
-    marginLeft: '10px',
-    padding: '10px',
-})
-
-const CategoryTitle = styled('h2')({
-    display: 'block',
-    color: 'white',
-    fontFamily: '"Roboto", "sans-serif"',
-    fontSize: '1.3rem',
-    padding: '0 5px 5px 5px',
-    margin: '0',
-    textAlign: 'center',
-    borderBottom: '2px white solid',
-})
-
-const CategoryNamesContainer = styled('div')({
-    padding: '5px 10px',
-    fontFamily: '"Roboto", "sans-serif"',
-})
-
-const CategoryNames = styled('div')({
-    padding: '10px 5px',
+    padding: '5px 15px',
     borderRadius: '5px',
     cursor: 'pointer',
     color: 'white',
-    '&:hover': {
+    fontSize: '0.9em',
+    position: 'relative',
+    zIndex: '1',
+    transition: 'color 0.3s',
+    width: '100%',
+    textAlign: 'center',
+    '&::after': {
+        content: '""',
+        position: 'absolute',
         backgroundColor: 'white',
+        height: '100%',
+        width: '0',
+        top: '0',
+        left: '0',
+        margin: 'auto',
+        transition: 'width 0.3s',
+        zIndex: '-1',
+        borderRadius: '3px',
+    },
+    '&:hover': {
         color: 'black',
+
+        '&::after': {
+            width: '100%',
+        }
     }
 })

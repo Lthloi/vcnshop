@@ -3,17 +3,17 @@ import { styled } from '@mui/material/styles'
 import { useDispatch, useSelector } from "react-redux"
 import { getShop } from "../store/actions/shop_actions"
 import RegisterShop from "../components/my_store/register_store"
-import { Skeleton } from "@mui/material"
+import { Skeleton, Stack } from "@mui/material"
 import Avatar from '@mui/material/Avatar'
 import PhoneIcon from '@mui/icons-material/Phone'
 import StoreIcon from '@mui/icons-material/Store'
 import Products from "../components/my_store/products"
 import ScrollToTopBtn from "../components/scroll_top_top_btn"
 import Orders from '../components/my_store/orders'
-import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
 import { useNavigate, Route, Routes } from "react-router-dom"
 import { useCurrentRoute } from "../hooks/custom_hooks"
 import ErrorIcon from '@mui/icons-material/Error'
+import ProductDetail from '../components/my_store/product_detail'
 
 const GreetingSection = ({ greeting }) => {
     return (
@@ -23,9 +23,39 @@ const GreetingSection = ({ greeting }) => {
     )
 }
 
-const MyStore = () => {
-    const { shop, loading, error, checkShopIsExist } = useSelector(({ shop }) => shop)
-    const dispatch = useDispatch()
+const StoreInfo = ({ store }) => {
+    return (
+        <Stack
+            bgcolor="rgba(0,0,0,0.05)"
+            width="100%"
+            justifyContent="center"
+            alignItems="center"
+            padding="30px"
+            marginTop="30px"
+            boxSizing="border-box"
+            borderRadius="10px"
+        >
+            <Stack>
+                {
+                    store.avatar ?
+                        <StyledAvatar src={store.avatar} alt="Shop Avatar" />
+                        :
+                        <StyledAvatar>{store.name[0]}</StyledAvatar>
+                }
+                <div style={{ margin: '15px auto', fontSize: '1.2em' }}>
+                    {store.name}
+                </div>
+            </Stack>
+
+            <Stack columnGap="5px" alignItems="center" fontSize="0.8em" color="gray" flexDirection="row">
+                <PhoneIcon sx={{ fontSize: '1.2em' }} />
+                <span>{store.contact_info.phone}</span>
+            </Stack>
+        </Stack>
+    )
+}
+
+const NavButton = ({ navText, href }) => {
     const navigate = useNavigate()
     const current_route = useCurrentRoute()
 
@@ -33,21 +63,35 @@ const MyStore = () => {
         navigate('/myStore/' + href)
     }
 
+    return (
+        <NavBtn
+            onClick={() => switchNav(href)}
+            sx={current_route.includes(href) ? { backgroundColor: 'black', color: 'white' } : {}}
+        >
+            {navText}
+        </NavBtn>
+    )
+}
+
+const Navigation = () => {
+
+    return (
+        <Stack flexDirection="row" marginTop="20px" width="100%">
+            <NavButton navText={'Products'} href={'Products'} />
+            <NavButton navText={'Greeting'} href={'Greeting'} />
+            <NavButton navText={'Orders'} href={'Orders'} />
+        </Stack>
+    )
+}
+
+const MyStore = () => {
+    const { shop, loading, error, checkShopIsExist } = useSelector(({ shop }) => shop)
+    const dispatch = useDispatch()
+
     useEffect(() => {
         if (!checkShopIsExist)
             dispatch(getShop())
     }, [dispatch])
-
-    const NavButton = ({ navText, href }) => {
-        return (
-            <NavBtn
-                onClick={() => switchNav(href)}
-                sx={current_route.includes(href) ? { backgroundColor: 'black', color: 'white' } : {}}
-            >
-                {navText}
-            </NavBtn>
-        )
-    }
 
     return (
         <MyStoreSection id="MyStoreSection">
@@ -64,45 +108,40 @@ const MyStore = () => {
                     </Error>
                 ) : !checkShopIsExist ? (
                     <RegisterShop />
-                ) : shop && shop.name && (
-                    <InfoContainer id="StoreSection">
+                ) : shop && (
+                    <Stack
+                        id="StoreSection"
+                        justifyContent="center"
+                        alignItems="center"
+                        width="100%"
+                        boxSizing="border-box"
+                        padding="50px 30px"
+                    >
+
                         <PageTitle>
                             <StoreIcon sx={{ width: '1.4em', height: '1.4em' }} />
                             <span>Store</span>
                         </PageTitle>
-                        <AvatarContainer>
-                            {
-                                shop.avatar ?
-                                    <StyledAvatar src={shop.avatar} alt="Shop Avatar" />
-                                    :
-                                    <StyledAvatar>{shop.name[0]}</StyledAvatar>
-                            }
-                            <div style={{ margin: '15px auto', fontSize: '1.2em' }}>
-                                {shop.name}
-                            </div>
-                        </AvatarContainer>
-                        <ContactInfo>
-                            <PhoneIcon sx={{ fontSize: '1.2em' }} />
-                            <span>{shop.contact_info.phone}</span>
-                        </ContactInfo>
-                        <Navigation>
-                            <ArrowForwardIosIcon />
-                            <NavButton navText={'Products'} href={'Products'} />
-                            <NavButton navText={'Greeting'} href={'Greeting'} />
-                            <NavButton navText={'Orders'} href={'Orders'} />
-                        </Navigation>
+
+                        <StoreInfo store={shop} />
+
+                        <Navigation />
+
                         <Note>
                             <ErrorIcon sx={{ fontSize: '1.2em', color: 'gray' }} />
                             <span>Now select one tab above to view</span>
                         </Note>
-                        <Content>
+
+                        <Main>
                             <Routes>
                                 <Route path="/Products/*" element={<Products shopId={shop._id} />} />
                                 <Route path="/Greeting" element={<GreetingSection greeting={shop.greeting} />} />
                                 <Route path="/Orders/*" element={<Orders />} />
+                                <Route path="/Product/:productId" element={<ProductDetail />} />
                             </Routes>
-                        </Content>
-                    </InfoContainer>
+                        </Main>
+
+                    </Stack>
                 )
             }
 
@@ -122,16 +161,6 @@ const Loading = styled(Skeleton)({
     transform: 'none',
 })
 
-const InfoContainer = styled('div')({
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexDirection: 'column',
-    width: '100%',
-    boxSizing: 'border-box',
-    padding: '30px 50px',
-})
-
 const PageTitle = styled('div')({
     display: 'flex',
     alignItems: 'center',
@@ -143,12 +172,6 @@ const PageTitle = styled('div')({
     fontSize: '1.8em',
 })
 
-const AvatarContainer = styled('div')({
-    display: 'flex',
-    flexDirection: 'column',
-    marginTop: '30px',
-})
-
 const StyledAvatar = styled(Avatar)({
     width: '150px',
     height: '150px',
@@ -157,34 +180,19 @@ const StyledAvatar = styled(Avatar)({
     border: '2px white solid',
 })
 
-const ContactInfo = styled('div')({
-    display: 'flex',
-    columnGap: '5px',
-    alignItems: 'center',
-    fontSize: '0.8em',
-    color: 'gray',
-})
-
-const Navigation = styled('div')({
-    display: 'flex',
-    alignItems: 'center',
-    marginTop: '30px',
-    width: '100%',
-})
-
 const NavBtn = styled('button')({
     fontWeight: 'bold',
     border: '2px black solid',
-    backgroundColor: 'white',
+    backgroundColor: 'black',
+    color: 'white',
     padding: '10px 30px',
     cursor: 'pointer',
-    marginLeft: '20px',
-    '&:nth-of-type(1)': {
-        marginLeft: '10px',
-    },
+    fontFamily: 'inherit',
+    transition: 'transform 0.2s ease',
     '&:hover': {
-        backgroundColor: 'black',
-        color: 'white',
+        backgroundColor: 'white',
+        color: 'black',
+        transform: 'scale(1.1)',
     }
 })
 
@@ -193,16 +201,12 @@ const Note = styled('div')({
     alignItems: 'center',
     columnGap: '5px',
     marginTop: '10px',
-    paddingLeft: '30px',
     width: '100%',
     boxSizing: 'border-box',
-    '& span': {
-        fontFamily: '"Nunito", "sans-serif"',
-        fontSize: '0.8em',
-    }
+    fontSize: '0.8em',
 })
 
-const Content = styled('div')(({ theme }) => ({
+const Main = styled('div')(({ theme }) => ({
     fontFamily: theme.fontFamily.nunito,
     padding: '30px 50px 0',
     width: '100%',
