@@ -1,18 +1,21 @@
+import moment from "moment"
+
+// error for both sync error and async error
 class BaseError extends Error {
-    constructor(message, statusCode, name, isUserError) {
+    constructor(message, statusCode, name, isUserError = false) {
         super(message)
 
-        this.name = name || this.name
-        this.message = message
-        this.statusCode = statusCode
-        this.createdAt = new Date()
-
-        //status error includes errors that is not important such as: register timing out, user with the email is exist in database, etc
-        this.isUserError = isUserError || false
-
-        if (Error.captureStackTrace) {
-            Error.captureStackTrace(this, BaseError)
+        if (name) {
+            this.name = name
         }
+
+        this.statusCode = statusCode
+        this.createdAt = moment()
+
+        // status error includes errors such as: register timing out, user with the email existed in database, etc
+        this.isUserError = isUserError
+
+        Error.captureStackTrace(this)
     }
 }
 

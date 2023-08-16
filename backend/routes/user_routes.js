@@ -1,40 +1,42 @@
 import express from 'express'
 import {
-    sendRegisterOTP, verifyOTP, completeRegister,
-    loginUser, forgotPassword, resetPassword,
     getUser,
     updateProfile, changePassword, updateUserAvatar,
-    logoutUser, getUserLocation,
+    getUserLocation,
     getUsersByAdmin,
 } from '../controllers/user_controllers.js'
 import { roleAuthorization, verifyJWTtoken } from '../middlewares/auth.js'
+import {
+    checkEmptyFieldsInBody,
+    checkOneOf,
+    checkValidation,
+} from '../middlewares/input_validation.js'
+import catchAsyncError from '../middlewares/catch_async_error.js'
 
 const router = express.Router()
 
-router.post('/sendRegisterOTP', sendRegisterOTP)
+router.get('/getUser', verifyJWTtoken, catchAsyncError(getUser))
 
-router.post('/verifyOTP', verifyOTP)
+router.put(
+    '/updateProfile',
+    verifyJWTtoken,
+    checkOneOf(checkEmptyFieldsInBody('nameOfUser', 'gender')),
+    checkValidation,
+    catchAsyncError(updateProfile)
+)
 
-router.post('/completeRegister', completeRegister)
+router.put(
+    '/changePassword',
+    verifyJWTtoken,
+    checkEmptyFieldsInBody('oldPassword', 'newPassword'),
+    checkValidation,
+    catchAsyncError(changePassword)
+)
 
-router.post('/loginUser', loginUser)
+router.put('/updateUserAvatar', verifyJWTtoken, catchAsyncError(updateUserAvatar))
 
-router.post('/forgotPassword', forgotPassword)
+router.get('/getUserLocation', catchAsyncError(getUserLocation))
 
-router.post('/resetPassword', resetPassword)
-
-router.get('/getUser', verifyJWTtoken, getUser)
-
-router.put('/updateProfile', verifyJWTtoken, updateProfile)
-
-router.put('/changePassword', verifyJWTtoken, changePassword)
-
-router.put('/updateUserAvatar', verifyJWTtoken, updateUserAvatar)
-
-router.post('/logoutUser', logoutUser)
-
-router.get('/getUserLocation', getUserLocation)
-
-router.get('/getUsersByAdmin', verifyJWTtoken, roleAuthorization('Admin'), getUsersByAdmin)
+router.get('/getUsersByAdmin', verifyJWTtoken, roleAuthorization('Admin'), catchAsyncError(getUsersByAdmin))
 
 export default router

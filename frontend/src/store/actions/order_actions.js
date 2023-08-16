@@ -11,20 +11,26 @@ import {
     getOrdersFailForStore,
 } from '../reducers/order_reducer.js'
 import { toast } from 'react-toastify'
-import actionsErrorHandler from '../../utils/error_handler.js'
+import axiosErrorHandler from '../../utils/axios_error_handler.js'
 import {
-    LIMIT_GET_ORDERS, EXPRESS_SERVER,
-} from '../../utils/constants.js'
+    LIMIT_GET_ORDERS,
+} from '../../configs/constants.js'
 import { redirectAfterSeconds } from '../../utils/redirect_handler.js'
+import {
+    complete_place_order_api,
+    get_order_api,
+    get_orders_api,
+    get_orders_for_shop_api,
+    get_one_order_for_shop_api,
+    get_orders_by_admin_api,
+} from '../../apis/order_apis.js'
 
 const completePlaceOrder = ({ orderId, paymentMethod, paymentId }) => async (dispatch) => {
     try {
         dispatch(completeOrderRequest())
 
-        let api_to_create_new_order = '/api/order/completePlaceOrder'
-
         await axios.put(
-            EXPRESS_SERVER + api_to_create_new_order,
+            complete_place_order_api,
             {
                 orderId,
                 paymentMethod,
@@ -38,7 +44,7 @@ const completePlaceOrder = ({ orderId, paymentMethod, paymentId }) => async (dis
 
         redirectAfterSeconds(1000, { href: '/checkout/success?payment_intent=' + paymentId })
     } catch (error) {
-        let errorObject = actionsErrorHandler(error, 'Error Warning: fail to complete the order.')
+        let errorObject = axiosErrorHandler(error, 'Error Warning: fail to complete the order.')
 
         dispatch(completeOrderFail({ error: errorObject }))
 
@@ -47,19 +53,27 @@ const completePlaceOrder = ({ orderId, paymentMethod, paymentId }) => async (dis
 }
 
 const getOrder = (paymentId, orderId) => async (dispatch) => {
-
-    if (paymentId && orderId) return
-
     try {
         dispatch(getOrderRequest())
 
-        let api_to_get_order = '/api/order/getOrder' + (paymentId ? '?paymentId=' + paymentId : '') + (orderId ? '?orderId=' + orderId : '')
+        let query = {}
 
-        let { data } = await axios.get(EXPRESS_SERVER + api_to_get_order, { withCredentials: true })
+        if (paymentId)
+            query.paymentId = paymentId
+        else if (orderId)
+            query.orderId = orderId
+
+        let { data } = await axios.get(
+            get_order_api,
+            {
+                withCredentials: true,
+                params: query,
+            }
+        )
 
         dispatch(getOrderSuccess({ order: data.order }))
     } catch (error) {
-        let errorObject = actionsErrorHandler(error, 'Error Warning: fail to get order.')
+        let errorObject = axiosErrorHandler(error, 'Error Warning: fail to get order.')
 
         dispatch(getOrderFail({ error: errorObject }))
 
@@ -71,10 +85,21 @@ const getOrders = (page = 1, limit = LIMIT_GET_ORDERS, payment_status = null) =>
     try {
         dispatch(getOrdersRequest())
 
-        let api_to_get_orders = '/api/order/getOrders?page=' + page + '&limit=' + limit +
-            (payment_status ? '&paymentStatus=' + payment_status : '')
+        let query = {
+            page,
+            limit,
+        }
 
-        let { data } = await axios.get(EXPRESS_SERVER + api_to_get_orders, { withCredentials: true })
+        if (payment_status)
+            query.paymentStatus = payment_status
+
+        let { data } = await axios.get(
+            get_orders_api,
+            {
+                withCredentials: true,
+                params: query,
+            }
+        )
 
         dispatch(getOrdersSuccess({
             orders: data.orders,
@@ -83,7 +108,7 @@ const getOrders = (page = 1, limit = LIMIT_GET_ORDERS, payment_status = null) =>
             currentTab: payment_status,
         }))
     } catch (error) {
-        let errorObject = actionsErrorHandler(error)
+        let errorObject = axiosErrorHandler(error)
 
         dispatch(getOrdersFail({ error: errorObject }))
 
@@ -95,10 +120,21 @@ const getOrdersForShop = (limit = LIMIT_GET_ORDERS, page = 1, order_status) => a
     try {
         dispatch(getOrdersRequestForStore())
 
-        let api_to_get_orders = '/api/order/getOrdersForShop?&limit=' + limit + '&page=' + page +
-            (order_status ? '&orderStatus=' + order_status : '')
+        let query = {
+            page,
+            limit,
+        }
 
-        let { data } = await axios.get(EXPRESS_SERVER + api_to_get_orders, { withCredentials: true })
+        if (order_status)
+            query.orderStatus = order_status
+
+        let { data } = await axios.get(
+            get_orders_for_shop_api,
+            {
+                withCredentials: true,
+                params: query,
+            }
+        )
 
         dispatch(getOrdersSuccessForStore({
             orders: data.orders,
@@ -107,7 +143,7 @@ const getOrdersForShop = (limit = LIMIT_GET_ORDERS, page = 1, order_status) => a
             currentTab: null,
         }))
     } catch (error) {
-        let errorObject = actionsErrorHandler(error, 'Error Warning: fail to get orders.')
+        let errorObject = axiosErrorHandler(error, 'Error Warning: fail to get orders.')
 
         dispatch(getOrdersFailForStore({ error: errorObject }))
 
@@ -119,10 +155,8 @@ const getOrderDetailForShop = (orderId) => async (dispatch) => {
     try {
         dispatch(getOrderRequestForStore())
 
-        let api_to_get_order = '/api/order/getOneOrderForShop'
-
         let { data } = await axios.get(
-            EXPRESS_SERVER + api_to_get_order,
+            get_one_order_for_shop_api,
             {
                 withCredentials: true,
                 params: {
@@ -133,7 +167,7 @@ const getOrderDetailForShop = (orderId) => async (dispatch) => {
 
         dispatch(getOrderSuccessForStore({ order: data.order }))
     } catch (error) {
-        let errorObject = actionsErrorHandler(error, 'Error Warning: fail to get order.')
+        let errorObject = axiosErrorHandler(error, 'Error Warning: fail to get order.')
 
         dispatch(getOrderFailForStore({ error: errorObject }))
 
@@ -145,20 +179,22 @@ const getOrdersByAdmin = (...fields) => async (dispatch) => {
     try {
         dispatch(getOrdersRequest())
 
-        let api_to_get_orders = '/api/order/getOrdersByAdmin'
+        let query = {}
 
-        if (fields.length > 1) {
-            api_to_get_orders += `?${fields[0]}=true`
-            for (let i = 1; i < fields.length; i++)
-                api_to_get_orders += `&${fields[i]}=true`
-        } else
-            api_to_get_orders += `?${fields[0]}=true`
+        for (let field of fields)
+            query[field] = 'true'
 
-        let { data } = await axios.get(EXPRESS_SERVER + api_to_get_orders, { withCredentials: true })
+        let { data } = await axios.get(
+            get_orders_by_admin_api,
+            {
+                withCredentials: true,
+                params: query,
+            }
+        )
 
         dispatch(getOrdersSuccess({ orders: data.list }))
     } catch (error) {
-        let errorObject = actionsErrorHandler(error)
+        let errorObject = axiosErrorHandler(error)
 
         dispatch(getOrdersFail({ error: errorObject }))
 

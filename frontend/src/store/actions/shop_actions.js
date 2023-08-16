@@ -1,27 +1,29 @@
 import axios from 'axios'
-import actionsErrorHandler from '../../utils/error_handler.js'
+import axiosErrorHandler from '../../utils/axios_error_handler.js'
 import {
     getShopRequest, getShopSuccess, getShopFail,
     createShopRequest, createShopSuccess, createShopFail,
     getShopsRequest, getShopsSuccess, getShopsFail,
 } from '../reducers/store_reducer.js'
-import { EXPRESS_SERVER } from '../../utils/constants.js'
 import { toast } from 'react-toastify'
+import {
+    get_shop_api,
+    get_shops_by_admin_api,
+    create_shop_api,
+} from '../../apis/shop_apis.js'
 
 const getShop = () => async (dispatch) => {
     try {
         dispatch(getShopRequest())
 
-        let api_to_get_shop = `/api/shop/getShop`
-
         let { data } = await axios.get(
-            EXPRESS_SERVER + api_to_get_shop,
+            get_shop_api,
             { withCredentials: true }
         )
 
         dispatch(getShopSuccess({ shop: data.shop }))
     } catch (error) {
-        let errorObject = actionsErrorHandler(error)
+        let errorObject = axiosErrorHandler(error)
 
         dispatch(getShopFail({ error: errorObject }))
     }
@@ -31,10 +33,8 @@ const createShop = (storeName, greeting, phone_number) => async (dispatch) => {
     try {
         dispatch(createShopRequest())
 
-        let api_to_create_shop = '/api/shop/createShop'
-
         let { data } = await axios.post(
-            EXPRESS_SERVER + api_to_create_shop,
+            create_shop_api,
             {
                 storeName,
                 greeting,
@@ -47,7 +47,7 @@ const createShop = (storeName, greeting, phone_number) => async (dispatch) => {
 
         toast.success('Create a store successfully')
     } catch (error) {
-        let errorObject = actionsErrorHandler(error, 'Fail to create a store')
+        let errorObject = axiosErrorHandler(error, 'Fail to create a store')
 
         toast.error(errorObject.client_message)
 
@@ -59,23 +59,22 @@ const getShopsByAdmin = (...fields) => async (dispatch) => {
     try {
         dispatch(getShopsRequest())
 
-        let api_to_get_shops = '/api/shop/getShopsByAdmin'
+        let query = {}
 
-        if (fields.length > 1) {
-            api_to_get_shops += `?${fields[0]}=true`
-            for (let i = 1; i < fields.length; i++)
-                api_to_get_shops += `&${fields[i]}=true`
-        } else
-            api_to_get_shops += `?${fields[0]}=true`
+        for (let field of fields)
+            query[field] = 'true'
 
         let { data } = await axios.get(
-            EXPRESS_SERVER + api_to_get_shops,
-            { withCredentials: true }
+            get_shops_by_admin_api,
+            {
+                withCredentials: true,
+                params: query,
+            }
         )
 
         dispatch(getShopsSuccess({ shops: data.list }))
     } catch (error) {
-        let errorObject = actionsErrorHandler(error)
+        let errorObject = axiosErrorHandler(error)
 
         dispatch(getShopsFail({ error: errorObject }))
 

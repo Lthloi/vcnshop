@@ -1,4 +1,4 @@
-const actionsErrorHandler = (error, client_message = 'Something went wrong, please try again minutes later') => {
+const axiosErrorHandler = (error, client_message = 'Something went wrong, please try again minutes later') => {
     const errorObject = {
         originalError: error,
         statusCode: 500,
@@ -30,4 +30,4 @@ const actionsErrorHandler = (error, client_message = 'Something went wrong, plea
     return errorObject
 }
 
-export default actionsErrorHandler
+export default axiosErrorHandler

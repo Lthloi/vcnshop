@@ -6,7 +6,7 @@ import Pagination from '@mui/material/Pagination'
 import { getReviews } from "../../../store/actions/product_actions"
 import { Skeleton } from "@mui/material"
 import CommentIcon from '@mui/icons-material/Comment'
-import { LIMIT_GET_COMMENTS } from "../../../utils/constants"
+import { LIMIT_GET_COMMENTS } from "../../../configs/constants"
 
 const convertDate = (time_string) => {
     let date_in_string = new window.Date(time_string).toLocaleDateString()
@@ -18,7 +18,7 @@ const convertDate = (time_string) => {
 }
 
 const Reviews = ({ productId, srollReviewRef }) => {
-    const { reviews, loading, error } = useSelector(({ product }) => product.reviewsState)
+    const { reviews, loading, error } = useSelector(({ product }) => product.reviews)
     const [reviewPage, setReviewPage] = useState(1)
     const dispatch = useDispatch()
 

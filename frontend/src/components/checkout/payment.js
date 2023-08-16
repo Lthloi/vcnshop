@@ -6,14 +6,18 @@ import PaymentCardSection from "./payment_card_section"
 import { Elements } from '@stripe/react-stripe-js'
 import { loadStripe } from "@stripe/stripe-js"
 import axios from "axios"
-import { EXPRESS_SERVER } from "../../utils/constants"
 import { toast } from "react-toastify"
-import actionsErrorHandler from "../../utils/error_handler"
+import axiosErrorHandler from "../../utils/axios_error_handler"
 import { useGetQueryValue } from '../../hooks/custom_hooks'
 import { useNavigate } from "react-router-dom"
 import { Stack, Avatar, Paper } from '@mui/material'
 import BlackLogo from '../../assets/images/logo_app_black.svg'
 import ErrorIcon from '@mui/icons-material/Error'
+import {
+    init_place_order_api,
+    get_order_api,
+    get_stripe_key_api,
+} from '../../apis/order_apis'
 
 const payment_appearance = {
     theme: 'flat',
@@ -53,7 +57,7 @@ const currency_code = 'usd'
 
 const get_order_initor = async (shippingInfo, order_info, cartItems) => {
     return axios.post(
-        EXPRESS_SERVER + '/api/order/initPlaceOrder',
+        init_place_order_api,
         {
             currency: currency_code,
             shipping_info: {
@@ -76,11 +80,19 @@ const get_order_initor = async (shippingInfo, order_info, cartItems) => {
 }
 
 const get_unpaid_order = async (order_id) => {
-    return axios.get(EXPRESS_SERVER + '/api/order/getOrder?orderId=' + order_id, { withCredentials: true })
+    return axios.get(
+        get_order_api,
+        {
+            withCredentials: true,
+            params: {
+                orderId: order_id,
+            }
+        }
+    )
 }
 
 const get_stripe_key = async () => {
-    return axios.get(EXPRESS_SERVER + '/api/order/getStripeKey', { withCredentials: true })
+    return axios.get(get_stripe_key_api, { withCredentials: true })
 }
 
 const Logo = () => {
@@ -121,7 +133,7 @@ const Payment = () => {
 
             order_data = response.data
         } catch (error) {
-            let errorObject = actionsErrorHandler(error)
+            let errorObject = axiosErrorHandler(error)
             toast.error(errorObject.message)
             return
         }
@@ -145,7 +157,7 @@ const Payment = () => {
             order_data = response_of_getOrder.data.order
             stripe_key = response_of_getStripeKey.data.stripe_key
         } catch (error) {
-            let errorObject = actionsErrorHandler(error)
+            let errorObject = axiosErrorHandler(error)
             toast.error(errorObject.message)
             return
         }

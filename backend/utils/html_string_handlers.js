@@ -13,31 +13,44 @@ const getOTPHtmlString = async (company_info, OTP_expire_in_minute, OTP_code) =>
     return html_string
 }
 
-const getReceiptHtmlString = async (
-    paymentId,
-    deliveryInfo,
+const getReceiptHtmlString = async ({
+    paymentInfo,
+    shippingInfo,
     receiverInfo,
     items,
+    shippingFee,
+    taxFee,
+    totalToPay,
+    generatedOn,
+    paidAt,
     company_info,
-    shipping_fee,
-    tax_fee,
-    total_to_pay,
-    generated_on,
-    paidAt
-) => {
+}) => {
     let html_string = await ejs.renderFile(
         './backend/templates/receipt.ejs',
         {
-            paymentId,
-            deliveryInfo,
+            paymentInfo,
+            shippingInfo,
             receiverInfo,
-            company_info,
-            generated_on,
             items,
-            shipping_fee,
-            tax_fee,
-            total_to_pay,
-            paidAt
+            shippingFee,
+            taxFee,
+            totalToPay,
+            generatedOn,
+            paidAt,
+            company_info,
+        }
+    )
+
+    return html_string
+}
+
+const getOAuthHtmlString = async (status, message, access_token) => {
+    let html_string = await ejs.renderFile(
+        './backend/templates/oauth_response.ejs',
+        {
+            status,
+            message,
+            access_token,
         }
     )
 
@@ -45,5 +58,5 @@ const getReceiptHtmlString = async (
 }
 
 export {
-    getOTPHtmlString, getReceiptHtmlString,
+    getOTPHtmlString, getReceiptHtmlString, getOAuthHtmlString,
 }

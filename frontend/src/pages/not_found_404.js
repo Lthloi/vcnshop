@@ -2,89 +2,93 @@ import React from "react"
 import { styled } from '@mui/material/styles'
 import not_found_404 from '../assets/images/not_found_404.jpg'
 import { useNavigate } from "react-router-dom"
+import { Box, Stack, Typography } from "@mui/material"
 
 const NotFound404 = () => {
     const navigate = useNavigate()
 
-    const navigatePage = (back) => {
-        if (back) {
+    const navigatePage = (is_back) => {
+        if (is_back) {
             return navigate(-1)
         }
         return navigate('/')
     }
 
     return (
-        <NotFound404Page id="NotFound404Page">
-            <ImgWrapper>
-                <Img src={not_found_404} />
-            </ImgWrapper>
-            <Desc>
-                <Title>Oops!</Title>
+        <Stack
+            id="NotFound404Page"
+            component="div"
+            display='flex'
+            justifyContent='center'
+            alignItems='center'
+            columnGap='10px'
+            width='99vw'
+            height='99vh'
+            flexDirection="row"
+        >
+
+            <Box
+                height="45vh"
+            >
+                <Box
+                    src={not_found_404}
+                    component="img"
+                    height="100%"
+                />
+            </Box>
+
+            <div>
+
+                <Typography
+                    letterSpacing="2px"
+                    margin="0"
+                    component="h1"
+                >
+                    Oops!
+                </Typography>
+
                 <Text>
                     Either you aren't cool enough to visit this page or it doesn't exist...
                 </Text>
+
                 <Text>
                     I mean <span>"404 not found"</span>
                 </Text>
-                <ButtonContainer>
+
+                <Stack
+                    flexDirection="row"
+                    columnGap="10px"
+                >
+
                     <Button onClick={() => navigatePage(false)}>
                         Back to Home page
                     </Button>
+
                     <Button onClick={() => navigatePage(true)}>
                         Back to previous page
                     </Button>
-                </ButtonContainer>
-            </Desc>
-        </NotFound404Page>
+
+                </Stack>
+
+            </div>
+
+        </Stack>
     )
 }
 
 export default NotFound404
 
-const NotFound404Page = styled('div')(({ theme }) => ({
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    columnGap: '10px',
-    width: '99vw',
-    height: '99vh',
-}))
-
-const ImgWrapper = styled('div')({
-    height: '45vh',
-})
-
-const Img = styled('img')({
-    height: '100%',
-})
-
-const Desc = styled('main')({
-
-})
-
-const Title = styled('h1')({
-    fontFamily: '"Fontdiner Swanky", "cursive"',
-    letterSpacing: '2px',
-    margin: '0',
-})
-
-const Text = styled('p')({
-    fontFamily: 'Arial, Helvetica, sans-serif',
+const Text = styled('p')(({ theme }) => ({
+    fontFamily: theme.fontFamily.arial,
     fontWeight: 'bold',
     margin: '10px',
     '& span': {
-        fontWeight: 'bold',
         fontSize: '1.2em',
     }
-})
+}))
 
-const ButtonContainer = styled('div')({
-    display: 'flex',
-    columnGap: '10px',
-})
-
-const Button = styled('button')({
-    fontFamily: '"Fontdiner Swanky", "cursive"',
+const Button = styled('button')(({ theme }) => ({
+    fontFamily: theme.fontFamily.arial,
     fontSize: '1.1em',
     color: 'white',
     border: 'none',
@@ -101,4 +105,4 @@ const Button = styled('button')({
         transform: 'scale(1.15)',
         zIndex: '2',
     }
-})
+}))

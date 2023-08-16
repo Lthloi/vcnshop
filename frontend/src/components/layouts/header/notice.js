@@ -2,8 +2,9 @@ import React, { useEffect, useRef, useState } from "react"
 import { styled } from '@mui/material/styles'
 import { Stack, Typography } from "@mui/material"
 import { useTheme } from "@emotion/react"
+import { useTranslation } from "react-i18next"
 
-const TimeDisplay = ({ value, label }) => {
+const TimeLabel = ({ value, label }) => {
 
     return (
         <Stack
@@ -43,6 +44,7 @@ const get_time_types = (countdown_in_ms) => {
 
 const Notice = () => {
     const theme = useTheme()
+    const { t } = useTranslation('home_page')
 
     const now_in_ms = get_time_now()
 
@@ -92,7 +94,7 @@ const Notice = () => {
                     fontWeight="bold"
                     fontFamily="inherit"
                 >
-                    The supper sale is comming in
+                    {t('The supper sale is comming in')}
                 </Typography>
 
                 <Stack
@@ -100,19 +102,19 @@ const Notice = () => {
                     alignItems="center"
                     fontFamily="inherit"
                 >
-                    <TimeDisplay value={days} label="Days" />
+                    <TimeLabel value={days} label={t("Days")} />
                     <Seperate>
                         :
                     </Seperate>
-                    <TimeDisplay value={hours} label="Hours" />
+                    <TimeLabel value={hours} label={t("Hours")} />
                     <Seperate>
                         :
                     </Seperate>
-                    <TimeDisplay value={minutes} label="Minutes" />
+                    <TimeLabel value={minutes} label={t("Minutes")} />
                     <Seperate>
                         :
                     </Seperate>
-                    <TimeDisplay value={seconds} label="Seconds" />
+                    <TimeLabel value={seconds} label={t("Seconds")} />
                 </Stack>
 
             </Stack>

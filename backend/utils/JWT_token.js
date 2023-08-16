@@ -1,8 +1,11 @@
-import UserModel from '../models/user_schema.js'
+import jwt from 'jsonwebtoken'
 
-const { JWT_TOKEN_MAX_AGE_IN_HOUR } = process.env
+const {
+    JWT_TOKEN_MAX_AGE_IN_HOUR,
+    JWT_SECRET_KEY,
+} = process.env
 
-const cookie_option = {
+const cookie_options = {
     maxAge: JWT_TOKEN_MAX_AGE_IN_HOUR * 3600000,
     path: '/',
     httpOnly: true,
@@ -10,17 +13,22 @@ const cookie_option = {
     domain: 'localhost',
 }
 
-const sendJWTToken = (response, user_id) => {
-    let user_instance = new UserModel({ _id: user_id })
-    let JWT_token = user_instance.getJWTToken()
-
-    response.cookie('JWT_token', JWT_token, cookie_option)
+const getJWTToken = (userId) => {
+    let payload = { userId }
+    let token = jwt.sign(payload, JWT_SECRET_KEY, { 'expiresIn': JWT_TOKEN_MAX_AGE_IN_HOUR + 'h' })
+    return token
 }
 
-const removeJWTToken = (response) => {
-    response.clearCookie('JWT_token', { domain: cookie_option.domain, path: cookie_option.path })
+const sendJWTToken = (res, user_id) => {
+    let JWT_token = getJWTToken(user_id)
+
+    res.cookie('JWT_token', JWT_token, cookie_options)
+}
+
+const removeJWTToken = (res) => {
+    res.clearCookie('JWT_token', { domain: cookie_options.domain, path: cookie_options.path })
 }
 
 export {
-    sendJWTToken, removeJWTToken,
+    sendJWTToken, removeJWTToken, getJWTToken,
 }

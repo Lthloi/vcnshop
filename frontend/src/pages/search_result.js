@@ -5,7 +5,7 @@ import { useSelector } from 'react-redux'
 import Filter from "../components/search_result/filter"
 import ScrollToTopBtn from '../components/scroll_top_top_btn'
 import Pagination from '../components/search_result/pagination'
-import { LIMIT_GET_PRODUCTS_DEFAULT } from "../utils/constants"
+import { LIMIT_GET_PRODUCTS_DEFAULT } from "../configs/constants"
 import { Stack, Typography } from '@mui/material'
 import Products from "../components/search_result/products"
 
@@ -89,9 +89,10 @@ const SearchResult = () => {
                 width="100%"
                 marginTop="50px"
                 padding="10px"
+                boxSizing="border-box"
                 bgcolor="rgba(0,0,0,.05)"
             >
-                If you are looking for the pagination then scroll up you can find them 
+                If you are looking for the pagination then scroll up you can find them
             </Typography>
 
             <ScrollToTopBtn />

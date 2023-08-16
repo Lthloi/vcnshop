@@ -2,7 +2,6 @@ import mongoose from 'mongoose'
 import { totp } from 'otplib'
 import bcrypt from 'bcrypt'
 import moment from 'moment'
-import jwt from 'jsonwebtoken'
 
 const { Schema } = mongoose
 
@@ -28,7 +27,7 @@ const UserSchema = new Schema({
     },
     gender: {
         type: String,
-        default: 'Female',
+        default: 'Other',
     },
     avatar: {
         type: String,
@@ -57,10 +56,18 @@ const UserSchema = new Schema({
     shop: {
         id: {
             type: mongoose.Types.ObjectId,
-            required: true,
-            unique: true,
             index: true,
+        },
+        createdAt: {
+            type: Date,
         }
+    },
+
+    access_token: {
+        type: String,
+    },
+    refresh_token: {
+        type: String,
     },
 
 
@@ -81,7 +88,7 @@ const UserSchema = new Schema({
     },
 })
 
-const { OTP_SECRET_KEY, JWT_SECRET_KEY, JWT_TOKEN_MAX_AGE_IN_HOUR } = process.env
+const { OTP_SECRET_KEY } = process.env
 
 UserSchema.methods.getOTPCode = function () {
     totp.options = { digits: 4 }
@@ -96,12 +103,6 @@ UserSchema.methods.getHashedPassword = async function (password) {
 
 UserSchema.methods.compareHashedPassword = async function (password) {
     return bcrypt.compare(password, this.password)
-}
-
-UserSchema.methods.getJWTToken = function () {
-    let payload = { userId: this._id }
-    let token = jwt.sign(payload, JWT_SECRET_KEY, { 'expiresIn': JWT_TOKEN_MAX_AGE_IN_HOUR + 'h' })
-    return token
 }
 
 const UserModel = mongoose.model('users', UserSchema)

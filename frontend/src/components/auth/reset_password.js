@@ -10,7 +10,7 @@ import CircularProgress from '@mui/material/CircularProgress'
 import { useDispatch, useSelector } from "react-redux"
 import { resetPassword } from "../../store/actions/user_actions"
 import { Stack } from "@mui/material"
-import { MAX_PASSWORD_LENGTH } from "../../utils/constants"
+import { MAX_PASSWORD_LENGTH } from "../../configs/constants"
 
 const show_password_icon_style = {
     color: 'white',

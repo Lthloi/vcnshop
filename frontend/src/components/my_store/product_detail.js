@@ -59,7 +59,7 @@ const ProductDetail = () => {
                 <span>Product Detail</span>
             </SectionTitle>
             {
-                loading && (!product || !product.name) ? (
+                loading ? (
                     <Skeleton sx={{ height: '400px', transform: 'scale(1)', marginTop: '20px' }} />
                 ) : error ? (
                     <Error>{error.message}</Error>

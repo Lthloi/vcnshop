@@ -5,7 +5,7 @@ import store_reducer from './reducers/store_reducer.js'
 import user_reducer from './reducers/user_reducer.js'
 import order_reducer from './reducers/order_reducer.js'
 
-export default configureStore({
+const store = configureStore({
     reducer: {
         product: product_reducer,
         cart: cart_reducer,
@@ -15,3 +15,5 @@ export default configureStore({
         order_for_store: order_reducer.store,
     },
 })
+
+export default store

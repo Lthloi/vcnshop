@@ -4,10 +4,11 @@ import SearchIcon from '@mui/icons-material/Search'
 import CloseIcon from '@mui/icons-material/Close'
 import { useDebounce } from '../../../hooks/custom_hooks'
 import { toast } from 'react-toastify'
-import { EXPRESS_SERVER } from '../../../utils/constants'
 import axios from 'axios'
 import { Stack, Typography, Box, LinearProgress, Tooltip, Drawer } from '@mui/material'
 import { useTheme } from "@emotion/react"
+import { get_products_name_api } from '../../../apis/product_apis'
+import { useTranslation } from "react-i18next"
 
 const remove_class = (ele_of_suggestions, index_to_remove) => {
     ele_of_suggestions[index_to_remove].classList.remove('arrow_down_focusing')
@@ -27,7 +28,7 @@ const Search = ({ handleSetSuggestions, suggestionRef, handleSubmitSearch }) => 
 
     const getSuggestions = async () => {
         try {
-            let response = await axios.get(EXPRESS_SERVER + '/api/product/getProductsName')
+            let response = await axios.get(get_products_name_api)
             setSuggestionsData(response.data.list)
         } catch (error) {
             toast.error(error.message)
@@ -251,6 +252,7 @@ const SearchSection = ({ handleOpenSearch }) => {
     const [suggestions, setSuggestions] = useState([])
     const theme = useTheme()
     const suggestion_ref = useRef()
+    const { t } = useTranslation('home_page')
 
     const handleSetSuggestions = (suggestions_list) => {
         setSuggestions(suggestions_list)
@@ -288,7 +290,7 @@ const SearchSection = ({ handleOpenSearch }) => {
                     VCN SHOP
                 </Typography>
 
-                <Tooltip title="Close">
+                <Tooltip title={t("Close")}>
                     <CloseSearchIcon onClick={() => handleOpenSearch(false)} />
                 </Tooltip>
             </Stack>
@@ -307,6 +309,7 @@ const SearchSection = ({ handleOpenSearch }) => {
 
 const SearchButton = () => {
     const [open, setOpen] = useState(false)
+    const { t } = useTranslation('home_page')
 
     const handleOpenSearch = (is_open) => {
         startTransition(() => {
@@ -330,14 +333,14 @@ const SearchButton = () => {
             </Drawer>
 
             <Tooltip
-                title="Tap to search"
+                title={t('Tap to search')}
             >
                 <SearchBtn
                     onClick={() => handleOpenSearch(true)}
                 >
                     <SearchIcon sx={{ color: 'black' }} />
                     <Typography fontSize="0.9em" color="rgba(0,0,0,0.8)">
-                        Find Product By Names...
+                        {t('Find Product By Names...')}
                     </Typography>
                 </SearchBtn>
             </Tooltip>
@@ -345,7 +348,7 @@ const SearchButton = () => {
     )
 }
 
-export default SearchButton
+export default React.memo(SearchButton)
 
 const SearchInput = styled('input')({
     outline: 'unset',

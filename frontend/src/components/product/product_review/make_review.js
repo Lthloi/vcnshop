@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react"
 import { styled } from '@mui/material/styles'
 import ReviewsIcon from '@mui/icons-material/Reviews'
-import { useDispatch, useSelector } from "react-redux"
+import { useDispatch } from "react-redux"
 import { newReview } from "../../../store/actions/product_actions"
 import ScoreCard from "./score_card"
 import AddImages from "./add_images"
@@ -11,31 +11,39 @@ import { ProtectedSection } from "../../../utils/protected_resource"
 import { CircularProgress } from "@mui/material"
 
 const ProductReview = ({ productId }) => {
-    const { newReviewProcessing, reviews } = useSelector(({ product }) => product.reviewsState)
     const [ratingAndImgs, setReview] = useState({ rating: 0, images: [] })
+    const [newReviewProcessing, setNewReviewProcessing] = useState(false)
     const comment_title_ref = useRef()
     const comment_ref = useRef()
     const dispatch = useDispatch()
 
-    const submitReviews = () => {
-        if (ratingAndImgs.rating === 0 || ratingAndImgs.comment_title === '' || ratingAndImgs.comment === '')
+    const submitReview = async () => {
+        let rating = ratingAndImgs.rating
+        let images = ratingAndImgs.images
+        let comment = comment_ref.current.value
+        let cmt_tilte = comment_title_ref.current.value
+
+        if (rating === 0 || cmt_tilte === '' || comment === '')
             return toast.warn('Please complete Rating and Title and Comment!')
 
-        dispatch(
-            newReview(
-                productId,
-                ratingAndImgs.images,
-                ratingAndImgs.rating,
-                comment_title_ref.current.value,
-                comment_ref.current.value,
-                reviews
-            )
-        )
+        setNewReviewProcessing(true)
 
         //set ratingAndImgs state to original
-        setReview({ rating: 0, images: [] })
         comment_title_ref.current.value = ''
         comment_ref.current.value = ''
+        setReview({ rating: 0, images: [] })
+
+        await dispatch(
+            newReview({
+                productId,
+                images,
+                rating,
+                title: cmt_tilte,
+                comment,
+            })
+        )
+
+        setNewReviewProcessing(false)
     }
 
     const updateReviewImages = (images) => {
@@ -100,7 +108,7 @@ const ProductReview = ({ productId }) => {
 
                                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                     <span></span>
-                                    <SubmitCommentBtn onClick={submitReviews}>
+                                    <SubmitCommentBtn onClick={submitReview}>
                                         Submit Review
                                     </SubmitCommentBtn>
                                 </div>

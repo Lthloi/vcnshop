@@ -6,6 +6,10 @@ import cors from 'cors'
 import ErrorHandler from './middlewares/error_handler.js'
 import fileUpload from 'express-fileupload'
 import initRoutes from './routes/routes.js'
+import connectMongoDB from './configs/connectDB.js'
+
+//connect to database
+connectMongoDB()
 
 const app = express()
 

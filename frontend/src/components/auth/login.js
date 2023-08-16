@@ -4,7 +4,7 @@ import EmailIcon from '@mui/icons-material/Email'
 import LockIcon from '@mui/icons-material/Lock'
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff'
 import VisibilityIcon from '@mui/icons-material/Visibility'
-import BottomForm from "./bottom_form"
+import OAuth from "./OAuth"
 import { NavLink } from "react-router-dom"
 import { useDispatch, useSelector } from "react-redux"
 import { loginUser } from "../../store/actions/user_actions"
@@ -12,10 +12,8 @@ import validator from 'validator'
 import { toast } from "react-toastify"
 import CircularProgress from '@mui/material/CircularProgress'
 import { useForm } from "react-hook-form"
-import { Stack } from "@mui/material"
 import UndoIcon from '@mui/icons-material/Undo'
-import { IconButton } from "@mui/material"
-import { Tooltip } from '@mui/material'
+import { Tooltip, Typography, IconButton, Stack, Box } from '@mui/material'
 import { useGetQueryValue } from "../../hooks/custom_hooks"
 import { redirectAfterSeconds } from '../../utils/redirect_handler'
 
@@ -63,7 +61,7 @@ const AutoAccountButton = ({ handleSetAutoAccount }) => {
                         </button>
                         <Tooltip arrow title="Back">
                             <IconButton onClick={() => setGetAccountBtn(false)} sx={{ border: '1px gray solid' }}>
-                                <UndoIcon sx={{ color: 'white', fontSize: '0.8em' }} />
+                                <UndoIcon sx={{ color: 'white', fontSize: '0.75em' }} />
                             </IconButton>
                         </Tooltip>
                     </>
@@ -135,8 +133,19 @@ const Login = () => {
 
     return (
         <LoginSection id="LoginSectionArea">
+
             <form onSubmit={handleSubmit(loginSubmit)} action="#">
-                <FormTitle>Sign In</FormTitle>
+
+                <Typography
+                    fontWeight='bold'
+                    fontSize='2em'
+                    color='white'
+                    margin='10px 0 15px'
+                    component="h2"
+                >
+                    Sign In
+                </Typography>
+
                 <FormGroup>
                     <EmailIcon sx={form_group_icon_style} />
                     <Input
@@ -149,6 +158,7 @@ const Login = () => {
                     />
                     <Label htmlFor="email">Enter your e-mail</Label>
                 </FormGroup>
+
                 <FormGroup sx={{ marginTop: '30px' }}>
                     <LockIcon sx={form_group_icon_style} />
                     <Input
@@ -160,33 +170,58 @@ const Login = () => {
                         autoComplete="on"
                     />
                     <Label htmlFor="password">Enter your password</Label>
-                    <ShowPasswordIconWrapper onClick={() => handleShowPassword()}>
+                    <Box
+                        onClick={() => handleShowPassword()}
+                        component="div"
+                        display='flex'
+                        justifyContent='center'
+                        alignItems='center'
+                        marginRight='5px'
+                        sx={{ cursor: 'pointer' }}
+                    >
                         {
                             showPassword ?
                                 <VisibilityIcon sx={{ color: 'white' }} />
                                 :
                                 <VisibilityOffIcon sx={{ color: 'white' }} />
                         }
-                    </ShowPasswordIconWrapper>
+                    </Box>
                 </FormGroup>
+
                 <Stack marginTop="20px" flexDirection="row" justifyContent="space-between" alignItems="center">
                     <ForgotPassword to="/auth/forgotPassword">
                         Forgot Password ?
                     </ForgotPassword>
-                    <SignInBtn>
+
+                    <Box
+                        display="flex"
+                        fontSize='1em'
+                        fontWeight='bold'
+                        backgroundColor='#00b0a7'
+                        padding='10px 20px'
+                        borderRadius='5px'
+                        border='1px black solid'
+                        height='40px'
+                        component="button"
+                        sx={{ cursor: 'pointer' }}
+                        type="submit"
+                    >
                         {
                             loading ?
                                 <CircularProgress
-                                    sx={{ color: 'black' }}
+                                    sx={{ color: 'black', margin: 'auto' }}
                                     size={19}
                                     thickness={6}
                                 />
                                 : <span>Login</span>
                         }
-                    </SignInBtn>
+                    </Box>
                 </Stack>
+
                 <AutoAccountButton handleSetAutoAccount={handleSetAutoAccount} />
+
             </form>
+
             <SignUp>
                 <span>Don't have an account ? </span>
                 <NavLink
@@ -196,7 +231,9 @@ const Login = () => {
                     Sign Up.
                 </NavLink>
             </SignUp>
-            <BottomForm />
+
+            <OAuth />
+
         </LoginSection>
     )
 }
@@ -248,21 +285,6 @@ const Input = styled('input')({
     }
 })
 
-const FormTitle = styled('h2')({
-    fontWeight: 'bold',
-    fontSize: '2em',
-    color: 'white',
-    margin: '10px 0 15px',
-})
-
-const ShowPasswordIconWrapper = styled('div')({
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    cursor: 'pointer',
-    marginRight: '5px',
-})
-
 const ForgotPassword = styled(NavLink)({
     color: 'red',
     fontSize: '0.9em',
@@ -271,19 +293,6 @@ const ForgotPassword = styled(NavLink)({
     '&:hover': {
         textDecoration: 'underline',
     }
-})
-
-const SignInBtn = styled('button')({
-    display: 'flex',
-    alignItems: 'center',
-    fontSize: '1em',
-    fontWeight: 'bold',
-    cursor: 'pointer',
-    backgroundColor: '#00b0a7',
-    padding: '8px 20px',
-    borderRadius: '5px',
-    border: '1px black solid',
-    height: '35px',
 })
 
 const SignUp = styled('div')(({ theme }) => ({

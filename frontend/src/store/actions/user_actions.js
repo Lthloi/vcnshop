@@ -8,22 +8,35 @@ import {
     getUsersByAdminRequest, getUsersByAdminSuccess, getUsersByAdminFail,
 } from '../reducers/user_reducer.js'
 import axios from 'axios'
-import { EXPRESS_SERVER } from '../../utils/constants.js'
-import actionsErrorHandler from '../../utils/error_handler.js'
+import axiosErrorHandler from '../../utils/axios_error_handler.js'
 import { redirectAfterSeconds } from '../../utils/redirect_handler.js'
+import {
+    get_user_api,
+    update_user_avatar_api,
+    update_profile_api,
+    change_password_api,
+    get_users_by_admin_api,
+} from '../../apis/user_apis.js'
+import {
+    send_register_OTP_api,
+    verify_OTP_api,
+    complete_register_api,
+    login_user_api,
+    forgot_password_api,
+    reset_password_api,
+    logout_user_api,
+} from '../../apis/auth_apis.js'
 
 const sendRegisterOTP = (email) => async (dispatch) => {
     try {
         dispatch(registerRequest())
 
-        let api_to_send_OTP = '/api/user/sendRegisterOTP'
-
-        await axios.post(EXPRESS_SERVER + api_to_send_OTP, { email })
+        await axios.post(send_register_OTP_api, { email })
 
         dispatch(registerSuccess({ registerStep: 2 }))
         toast.success('OTP was sent!')
     } catch (error) {
-        let errorObject = actionsErrorHandler(error, 'Fail to send OTP, please try again some minutes later!')
+        let errorObject = axiosErrorHandler(error, 'Fail to send OTP, please try again some minutes later!')
 
         dispatch(registerFail({ error: errorObject }))
 
@@ -36,14 +49,12 @@ const verifyRegisterOTP = (OTP_code, email) => async (dispatch) => {
     try {
         dispatch(registerRequest())
 
-        let api_to_verify_OTP = '/api/user/verifyOTP'
-
-        await axios.post(EXPRESS_SERVER + api_to_verify_OTP, { OTP_code, email })
+        await axios.post(verify_OTP_api, { OTP_code, email })
 
         dispatch(registerSuccess({ registerStep: 3 }))
         toast.success('Verify OTP successfully!')
     } catch (error) {
-        let errorObject = actionsErrorHandler(error, 'Fail to verify OTP, please try again some minutes later!')
+        let errorObject = axiosErrorHandler(error, 'Fail to verify OTP, please try again some minutes later!')
 
         dispatch(registerFail({ error: errorObject }))
 
@@ -59,17 +70,15 @@ const completeRegister = (name, email, password, gender) => async (dispatch) => 
     try {
         dispatch(registerRequest())
 
-        let api_to_complete_register = '/api/user/completeRegister'
-
         await axios.post(
-            EXPRESS_SERVER + api_to_complete_register,
+            complete_register_api,
             { name, email, password, gender },
             { withCredentials: true }
         )
 
         dispatch(registerSuccess({ registerStep: 3, isAuthenticated: true }))
     } catch (error) {
-        let errorObject = actionsErrorHandler(error, 'Fail to complete register, please try again some minutes later!')
+        let errorObject = axiosErrorHandler(error, 'Fail to complete register, please try again some minutes later!')
 
         dispatch(registerFail({ error: errorObject }))
 
@@ -84,19 +93,17 @@ const completeRegister = (name, email, password, gender) => async (dispatch) => 
 const loginUser = (email, password) => async (dispatch) => {
     try {
         dispatch(loginRequest())
-
-        let api_to_login = '/api/user/loginUser'
-
+console.log('>>> run this 1')
         await axios.post(
-            EXPRESS_SERVER + api_to_login,
+            login_user_api,
             { email, password },
             { withCredentials: true }
         )
-
+console.log('>>> run this 2')
         dispatch(loginSuccess({ loginStep: 2 }))
         toast.success('Login successfully!')
     } catch (error) {
-        let errorObject = actionsErrorHandler(error,)
+        let errorObject = axiosErrorHandler(error)
 
         dispatch(loginFail({ error: errorObject }))
 
@@ -108,14 +115,12 @@ const forgotPassword = (email) => async (dispatch) => {
     try {
         dispatch(forgotPasswordRequest())
 
-        let api_of_forgot_password = '/api/user/forgotPassword'
-
-        await axios.post(EXPRESS_SERVER + api_of_forgot_password, { email })
+        await axios.post(forgot_password_api, { email })
 
         dispatch(forgotPasswordSuccess({ forgotPasswordStep: 2 }))
         toast.success('OTP was sent!')
     } catch (error) {
-        let errorObject = actionsErrorHandler(error, 'Fail to send OTP, please try again some minutes later!')
+        let errorObject = axiosErrorHandler(error, 'Fail to send OTP, please try again some minutes later!')
 
         dispatch(forgotPasswordFail({ error: errorObject }))
 
@@ -128,14 +133,12 @@ const verifyOTPOfForgotPassword = (OTP_code, email) => async (dispatch) => {
     try {
         dispatch(forgotPasswordRequest())
 
-        let api_to_verify_OTP = '/api/user/verifyOTP'
-
-        await axios.post(EXPRESS_SERVER + api_to_verify_OTP, { OTP_code, email })
+        await axios.post(verify_OTP_api, { OTP_code, email })
 
         dispatch(forgotPasswordSuccess({ forgotPasswordStep: 3 }))
         toast.success('Verify OTP successfully!')
     } catch (error) {
-        let errorObject = actionsErrorHandler(error, 'Fail to verify OTP, please try again some minutes later!')
+        let errorObject = axiosErrorHandler(error, 'Fail to verify OTP, please try again some minutes later!')
 
         dispatch(forgotPasswordFail({ error: errorObject }))
 
@@ -152,10 +155,8 @@ const resetPassword = (email, new_password) => async (dispatch) => {
     try {
         dispatch(forgotPasswordRequest())
 
-        let api_to_reset_password = '/api/user/resetPassword'
-
         await axios.post(
-            EXPRESS_SERVER + api_to_reset_password,
+            reset_password_api,
             { newPassword: new_password, email },
             { withCredentials: true }
         )
@@ -165,7 +166,7 @@ const resetPassword = (email, new_password) => async (dispatch) => {
 
         redirectAfterSeconds(1000, { isReload: false, href: '/account' })
     } catch (error) {
-        let errorObject = actionsErrorHandler(error, 'Fail to reset password, please try again some minutes later!')
+        let errorObject = axiosErrorHandler(error, 'Fail to reset password, please try again some minutes later!')
 
         dispatch(forgotPasswordFail({ error: errorObject }))
 
@@ -181,13 +182,11 @@ const getUser = () => async (dispatch) => {
     try {
         dispatch(getUserRequest())
 
-        let api_to_get_user = '/api/user/getUser'
-
-        let { data } = await axios.get(EXPRESS_SERVER + api_to_get_user, { withCredentials: true })
+        let { data } = await axios.get(get_user_api, { withCredentials: true })
 
         dispatch(getUserSuccess({ ...data.user }))
     } catch (error) {
-        let errorObject = actionsErrorHandler(error)
+        let errorObject = axiosErrorHandler(error)
 
         dispatch(getUserFail({ error: errorObject }))
     }
@@ -198,15 +197,13 @@ const updateUserAvatar = (avatar) => async (dispatch) => {
         let formData = new FormData()
         formData.set('avatarImage', avatar)
 
-        let api_to_update_avatar = '/api/user/updateUserAvatar'
-
-        let { data } = await axios.put(EXPRESS_SERVER + api_to_update_avatar, formData, { withCredentials: true })
+        let { data } = await axios.put(update_user_avatar_api, formData, { withCredentials: true })
 
         dispatch(getUserSuccess({ avatar: data.avatarUrl }))
 
         toast.success('Update user avatar successfully!')
     } catch (error) {
-        let errorObject = actionsErrorHandler(error, 'Fail to update avatar, please try again some minutes later!')
+        let errorObject = axiosErrorHandler(error, 'Fail to update avatar, please try again some minutes later!')
 
         dispatch(getUserFail({ error: errorObject }))
 
@@ -221,10 +218,8 @@ const updateProfile = (nameOfUser, gender) => async (dispatch) => {
     try {
         dispatch(getUserRequest())
 
-        let api_to_update_avatar = '/api/user/updateProfile'
-
         await axios.put(
-            EXPRESS_SERVER + api_to_update_avatar,
+            update_profile_api,
             { nameOfUser, gender },
             { withCredentials: true }
         )
@@ -233,7 +228,7 @@ const updateProfile = (nameOfUser, gender) => async (dispatch) => {
 
         toast.success('Update profile successfully!')
     } catch (error) {
-        let errorObject = actionsErrorHandler(error)
+        let errorObject = axiosErrorHandler(error)
 
         dispatch(getUserFail({ error: errorObject }))
 
@@ -245,10 +240,8 @@ const changePassword = (oldPassword, newPassword) => async (dispatch) => {
     try {
         dispatch(getUserRequest())
 
-        let api_to_update_avatar = '/api/user/changePassword'
-
         await axios.put(
-            EXPRESS_SERVER + api_to_update_avatar,
+            change_password_api,
             { oldPassword, newPassword },
             { withCredentials: true }
         )
@@ -257,7 +250,7 @@ const changePassword = (oldPassword, newPassword) => async (dispatch) => {
 
         toast.success('Change password successfully!')
     } catch (error) {
-        let errorObject = actionsErrorHandler(error)
+        let errorObject = axiosErrorHandler(error)
 
         dispatch(getUserFail({ error: errorObject }))
 
@@ -267,9 +260,7 @@ const changePassword = (oldPassword, newPassword) => async (dispatch) => {
 
 const logoutUser = () => async (dispatch) => {
     try {
-        let api_to_logout = '/api/user/logoutUser'
-
-        await axios.post(EXPRESS_SERVER + api_to_logout, {}, { withCredentials: true })
+        await axios.post(logout_user_api, {}, { withCredentials: true })
 
         dispatch(logoutSuccess())
 
@@ -285,20 +276,22 @@ const getUsersByAdmin = (...fields) => async (dispatch) => {
     try {
         dispatch(getUsersByAdminRequest())
 
-        let api_to_get_users = '/api/user/getUsersByAdmin'
+        let query = {}
 
-        if (fields.length > 1) {
-            api_to_get_users += `?${fields[0]}=true`
-            for (let i = 1; i < fields.length; i++)
-                api_to_get_users += `&${fields[i]}=true`
-        } else
-            api_to_get_users += `?${fields[0]}=true`
+        for (let field of fields)
+            query[field] = 'true'
 
-        let { data } = await axios.get(EXPRESS_SERVER + api_to_get_users, { withCredentials: true })
+        let { data } = await axios.get(
+            get_users_by_admin_api,
+            {
+                withCredentials: true,
+                params: query,
+            }
+        )
 
         dispatch(getUsersByAdminSuccess({ users: data.list }))
     } catch (error) {
-        let errorObject = actionsErrorHandler(error)
+        let errorObject = axiosErrorHandler(error)
 
         dispatch(getUsersByAdminFail({ error: errorObject }))
 

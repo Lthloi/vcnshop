@@ -8,9 +8,9 @@ import { CircularProgress, Typography } from "@mui/material"
 import { useDispatch, useSelector } from "react-redux"
 import { completePlaceOrder } from '../../store/actions/order_actions'
 import axios from "axios"
-import { EXPRESS_SERVER } from "../../utils/constants"
-import actionsErrorHandler from '../../utils/error_handler'
+import axiosErrorHandler from '../../utils/axios_error_handler'
 import { deleteCheckoutInfo } from "../../store/actions/cart_actions"
+import { get_products_by_ids_api } from '../../apis/product_apis'
 
 const email_is_read_only = true
 
@@ -58,14 +58,14 @@ const check_products_stock_before_payemnt = async (cart_items) => {
     let products
 
     try {
-        let { data } = await axios.get(
-            EXPRESS_SERVER + '/api/product/getProductsById',
-            { params: { idList: idList } }
+        let { data } = await axios.post(
+            get_products_by_ids_api,
+            { idList: idList }
         )
 
         products = data.products
     } catch (error) {
-        let errorObject = actionsErrorHandler(error)
+        let errorObject = axiosErrorHandler(error)
         status.setError(errorObject)
         return status
     }

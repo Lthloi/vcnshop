@@ -6,9 +6,11 @@ import banner_background from '../../assets/images/home_banner_background.jpg'
 import { Stack, Typography } from "@mui/material"
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
 import { useTheme } from "@emotion/react"
+import { useTranslation } from "react-i18next"
 
 const Background = () => {
     const theme = useTheme()
+    const { t } = useTranslation('home_page')
 
     const shopNowAction = () => {
         window.scrollTo({
@@ -37,27 +39,28 @@ const Background = () => {
                     fontFamily="inherit"
                     color="red"
                 >
-                    Winter Collection
+                    {t('Winter Collection')}
                 </Typography>
                 <Typography
                     fontFamily="inherit"
                     fontSize="3em"
                     fontWeight="bold"
                 >
-                    New Trending <br />
-                    Collection 2023
+                    <span>{t('New Trending')}</span>
+                    <br />
+                    <span>{t('Collection 2023')}</span>
                 </Typography>
                 <Typography
                     fontFamily={theme.fontFamily.nunito}
                     fontStyle="italic"
                 >
-                    Make up your lifestyle
+                    {t('Make up your lifestyle')}
                 </Typography>
 
                 <ShopNowButton
                     onClick={shopNowAction}
                 >
-                    <span>Shop Now</span>
+                    <span>{t('Shop Now')}</span>
                     <ArrowForwardIcon sx={{ fontSize: '1.1em' }} />
                 </ShopNowButton>
             </Stack>

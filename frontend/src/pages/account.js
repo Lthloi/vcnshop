@@ -11,25 +11,28 @@ import ChangePassword from "../components/account/details/change_password"
 import VCNShop_Mascot from '../assets/images/VCNShop_Mascot.png'
 import OrderDetail from "../components/account/details/order_detail"
 import StoreIcon from '@mui/icons-material/Store'
-import { Stack, Typography } from "@mui/material"
+import { Box, Stack, Typography } from "@mui/material"
+import { useTheme } from "@emotion/react"
 
-const Greeting = () => (
-    <Stack
-        justifyContent="space-between"
-        alignItems="center"
-        rowGap="10px"
-        bgcolor="F5F5F5"
-        padding="20px 30px 40px"
-        boxSizing="border-box"
-        width="100%"
-        height="100%"
-    >
-        <Typography fontSize="3em" component="h2" margin="0">
-            Welcome to VCN Shop
-        </Typography>
-        <img src={VCNShop_Mascot} alt="VCN Shop Mascot" style={{ height: '220px' }} />
-    </Stack>
-)
+const Greeting = () => {
+    return (
+        <Stack
+            justifyContent="space-between"
+            alignItems="center"
+            rowGap="10px"
+            bgcolor="F5F5F5"
+            padding="20px 30px 40px"
+            boxSizing="border-box"
+            width="100%"
+            height="100%"
+        >
+            <Typography fontSize="3em" component="h2" margin="0">
+                Welcome to VCN Shop
+            </Typography>
+            <img src={VCNShop_Mascot} alt="VCN Shop Mascot" style={{ height: '220px' }} />
+        </Stack>
+    )
+}
 
 const GoToStore = () => {
     return (
@@ -49,8 +52,17 @@ const GoToStore = () => {
 }
 
 const Account = () => {
+    const theme = useTheme()
+
     return (
-        <AccountPage id="AccountPage">
+        <Box
+            id="AccountPage"
+            component="div"
+            marginTop='20px'
+            width='100%'
+            padding='0 50px'
+            boxSizing='border-box'
+        >
             <Stack
                 flexDirection="row"
                 alignItems="center"
@@ -58,7 +70,7 @@ const Account = () => {
                 borderBottom="2px black solid"
             >
                 <PersonIcon sx={{ width: '1.4em', height: '1.4em' }} />
-                <Typography component="h2" margin="0" fontSize="1.8em">
+                <Typography component="h2" margin="0" fontSize="1.8em" fontFamily={theme.fontFamily.kanit}>
                     Account
                 </Typography>
             </Stack>
@@ -89,21 +101,13 @@ const Account = () => {
             </Stack>
 
             <ScrollToTopBtn />
-        </AccountPage>
+        </Box>
     )
 }
 
 export default Account
 
-const AccountPage = styled('div')(({ theme }) => ({
-    marginTop: '20px',
-    width: '100%',
-    padding: '0 50px',
-    boxSizing: 'border-box',
-    fontFamily: theme.fontFamily.kanit,
-}))
-
-const NavToMyStore = styled(NavLink)({
+const NavToMyStore = styled(NavLink)(({ theme }) => ({
     display: 'flex',
     alignItems: 'center',
     columnGap: '5px',
@@ -116,8 +120,9 @@ const NavToMyStore = styled(NavLink)({
     cursor: 'pointer',
     border: '2px black solid',
     textDecoration: 'unset',
+    fontFamily: theme.fontFamily.kanit,
     '&:hover': {
         backgroundColor: 'white',
         color: 'black',
     }
-})
+}))

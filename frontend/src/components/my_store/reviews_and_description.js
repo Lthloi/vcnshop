@@ -5,7 +5,7 @@ import { getReviews } from "../../store/actions/product_actions"
 import { Rating } from "@mui/material"
 import { Skeleton } from "@mui/material"
 import CommentIcon from '@mui/icons-material/Comment'
-import { LIMIT_GET_COMMENTS } from "../../utils/constants"
+import { LIMIT_GET_COMMENTS } from "../../configs/constants"
 import { Pagination } from "@mui/material"
 import Collapse from '@mui/material/Collapse'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
@@ -16,7 +16,7 @@ import CloseIcon from '@mui/icons-material/Close'
 import { Tooltip } from "@mui/material"
 
 const ReviewsSection = ({ productId, scrollReviewsRef }) => {
-    const { reviews, loading, error } = useSelector(({ product }) => product.reviewsState)
+    const { reviews, loading, error } = useSelector(({ product }) => product.reviews)
     const [reviewPage, setReviewPage] = useState(1)
     const dispatch = useDispatch()
 

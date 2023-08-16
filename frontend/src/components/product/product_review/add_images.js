@@ -3,7 +3,7 @@ import { styled } from '@mui/material/styles'
 import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate'
 import HighlightOffIcon from '@mui/icons-material/HighlightOff'
 import { toast } from 'react-toastify'
-import { MAX_UPLOAD_IMAGE_REVIEW } from "../../../utils/constants"
+import { MAX_UPLOAD_IMAGE_REVIEW } from "../../../configs/constants"
 
 const AddImages = ({ images, updateReviewImages }) => {
     const [imageObjects, setImageObjects] = useState([])

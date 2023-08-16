@@ -2,7 +2,7 @@ import React, { useEffect, useMemo } from "react"
 import { styled } from '@mui/material/styles'
 import { useDispatch, useSelector } from "react-redux"
 import { getOrders } from "../../../store/actions/order_actions"
-import { LIMIT_GET_ORDERS } from "../../../utils/constants"
+import { LIMIT_GET_ORDERS } from "../../../configs/constants"
 import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
 import { Box, Skeleton, Stack } from "@mui/material"
@@ -174,30 +174,26 @@ const Orders = () => {
     }, [dispatch])
 
     return (
-        <>
-
-
-            {
-                loading ? (
-                    <>
-                        <Loading sx={{ height: '50px', marginTop: '30px' }} />
-                        <Loading sx={{ height: '300px', marginTop: '5px' }} />
-                    </>
-                ) : error ? (
-                    <Typography
-                        color="red"
-                        textAlign="center"
-                        padding="20px"
-                    >
-                        {error.message}
-                    </Typography>
-                ) :
-                    orders && orders.length > 0 &&
-                    orders.map((order) => (
-                        <Order orderInfo={order} key={order._id} />
-                    ))
-            }
-        </>
+        loading ? (
+            <>
+                <Loading sx={{ height: '50px', marginTop: '30px' }} />
+                <Loading sx={{ height: '300px', marginTop: '5px' }} />
+            </>
+        ) : error ? (
+            <Typography
+                color="red"
+                textAlign="center"
+                padding="20px"
+            >
+                {error.message}
+            </Typography>
+        ) : orders && orders.length > 0 &&
+        orders.map((order) => (
+            <Order
+                orderInfo={order}
+                key={order._id}
+            />
+        ))
     )
 }
 

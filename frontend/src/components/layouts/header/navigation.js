@@ -1,15 +1,16 @@
 import React from "react"
 import Badge from '@mui/material/Badge'
-import { Stack, styled, Typography, Box } from '@mui/material'
+import { Stack, styled, Typography, Box, Tooltip } from '@mui/material'
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
 import foxLogoWhite from '../../../assets/images/logo_app_black.svg'
 import MenuBar from "./menu_bar"
 import Search from "./search"
 import { useSelector } from "react-redux"
 import UserNav from "./user_nav"
-import Tooltip from '@mui/material/Tooltip'
 import { NavLink } from "react-router-dom"
 import { useTheme } from "@emotion/react"
+import ChangeLanguageBtn from "../../change_language_btn"
+import { useTranslation } from "react-i18next"
 
 const LeftSection = () => {
     const theme = useTheme()
@@ -23,13 +24,20 @@ const LeftSection = () => {
             position="absolute"
             top="0"
             left="30px"
+            columnGap="20px"
         >
+
+            <ChangeLanguageBtn />
+
             <Search />
+
         </Stack>
     )
 }
 
 const CenterSection = () => {
+    const { t } = useTranslation('home_page')
+
     return (
         <Stack
             alignItems="center"
@@ -62,7 +70,7 @@ const CenterSection = () => {
                         wordSpacing: '3px',
                     }}
                 >
-                    Shopping Too Easy
+                    {t('Shopping Too Easy')}
                 </Typography>
             </Stack>
 
@@ -72,6 +80,7 @@ const CenterSection = () => {
 
 const RightSection = () => {
     const numberOfCartItems = useSelector(({ cart }) => cart.cartItems.length)
+    const { t } = useTranslation('home_page')
 
     return (
         <Stack
@@ -86,7 +95,7 @@ const RightSection = () => {
 
             <UserNav />
 
-            <Tooltip title="Cart">
+            <Tooltip title={t("Cart")}>
                 <NavLink to="/cart">
                     <StyledBadge
                         badgeContent={numberOfCartItems}

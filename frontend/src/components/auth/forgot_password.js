@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from "react"
 import { styled } from '@mui/material/styles'
-import ProblemSection from "../problem_section"
-import BottomForm from "./bottom_form"
+import OAuth from "./OAuth"
 import Divider from '@mui/material/Divider'
 import ClearIcon from '@mui/icons-material/Clear'
 import "react-toastify/dist/ReactToastify.css"
@@ -15,7 +14,6 @@ import { forgotPassword } from "../../store/actions/user_actions"
 import ForgotPasswordVerifyOTP from './forgot_password_verify_OTP'
 
 const ForgotPasswordSection = () => {
-    const [openProblemSection, setOpenProblemSection] = useState(false)
     const email_input_ref = useRef()
     const email_was_typed_ref = useRef()
     const [sendOTPNote, setSendOTPNote] = useState(false)
@@ -28,10 +26,6 @@ const ForgotPasswordSection = () => {
             return () => clearTimeout(timeout)
         }
     }, [forgotPasswordStep])
-
-    const handleOpenProblemSection = (open) => {
-        setOpenProblemSection(open)
-    }
 
     const clearInput = () => email_input_ref.current.value = ''
 
@@ -55,12 +49,7 @@ const ForgotPasswordSection = () => {
         ) :
             <ForgotPasswordArea id="ForgotPasswordArea">
 
-                <ProblemSection
-                    open={openProblemSection}
-                    handleOpen={handleOpenProblemSection}
-                />
-
-                <FormContainer>
+                <div>
                     <Title>Forgot Password</Title>
                     <Desc>
                         Use your email to recover your password.
@@ -96,7 +85,7 @@ const ForgotPasswordSection = () => {
                     {
                         forgotPasswordStep === 1 &&
                         <SubmitBtnContainer>
-                            <ProblemBtn onClick={() => handleOpenProblemSection(true)}>
+                            <ProblemBtn>
                                 Have problem ?
                             </ProblemBtn>
                             <SendRecoverCode onClick={forgotPasswordSubmit}>
@@ -116,18 +105,20 @@ const ForgotPasswordSection = () => {
                         forgotPasswordStep === 2 &&
                         <ForgotPasswordVerifyOTP
                             emailWasTyped={email_was_typed_ref.current}
-                            handleOpenProblemSection={handleOpenProblemSection}
                             loading={loading}
                         />
                     }
-                </FormContainer>
+                </div>
+
                 <SignInContainer>
                     <span>Already have an account ? </span>
                     <NavLink to="/auth/login" className="NavLink">
                         Sign In.
                     </NavLink>
                 </SignInContainer>
-                <BottomForm />
+
+                <OAuth />
+
             </ForgotPasswordArea>
     )
 }
@@ -138,10 +129,6 @@ const ForgotPasswordArea = styled('div')(({ theme }) => ({
     ...theme.auth_background,
     overflowY: 'auto',
 }))
-
-const FormContainer = styled('div')({
-
-})
 
 const Title = styled('h2')({
     margin: '0',

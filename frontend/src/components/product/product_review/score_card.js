@@ -5,7 +5,7 @@ import { useSelector } from "react-redux"
 
 const ScoreCard = () => {
     const { average_rating, count_reviews } = useSelector(({ product }) => product.productDetail.product.review)
-    const { reviews } = useSelector(({ product }) => product.reviewsState)
+    const { reviews } = useSelector(({ product }) => product.reviews)
 
     const countStar = useMemo(() => {
         let count_star = [

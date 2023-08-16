@@ -1,6 +1,6 @@
 class FileUploadFilter {
-    invalidMessage = 'Something went wrong with the file';
-    file = null;
+    #invalidMessage = 'Something went wrong with the file';
+    #file = null;
     #fileTypes = [
         'image',
     ];
@@ -11,10 +11,16 @@ class FileUploadFilter {
     ];
     #limitFileSize = [100, 1000 * 1000 * 10]; //in byte
 
-    setFile(file) { this.file = file }
+    getInvalidMessage() {
+        return this.#invalidMessage
+    }
+
+    setFile(file) {
+        this.#file = file
+    }
 
     mimetypeIsValid() {
-        let mimetype = this.file.type
+        let mimetype = this.#file.type
         let type = {
             fileType: mimetype.split('/')[0],
             mediaType: mimetype.split('/')[1],
@@ -31,13 +37,13 @@ class FileUploadFilter {
 
             return true
         } catch (problem) {
-            this.invalidMessage = problem.message
+            this.#invalidMessage = problem.message
             return false
         }
     }
 
     sizeIsValid() {
-        let { size } = this.file
+        let { size } = this.#file
 
         try {
             if (size < this.#limitFileSize[0])
@@ -48,7 +54,7 @@ class FileUploadFilter {
 
             return true
         } catch (problem) {
-            this.invalidMessage = problem.message
+            this.#invalidMessage = problem.message
             return false
         }
     }

@@ -9,11 +9,13 @@ import ProgressiveImage from "../materials/progressive_image"
 import { addProductToCart } from "../../store/actions/cart_actions"
 import { NavLink } from "react-router-dom"
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
+import { useTranslation } from "react-i18next"
 
 const categories = ['Shirt', 'Pant']
 
 const WomenBanner = () => {
     const theme = useTheme()
+    const { t } = useTranslation('home_page')
 
     return (
         <Box
@@ -39,7 +41,7 @@ const WomenBanner = () => {
                     color="white"
                     fontSize="3em"
                 >
-                    Women's
+                    {t("Women's")}
                 </Typography>
                 <Typography
                     fontFamily='inherit'
@@ -49,99 +51,82 @@ const WomenBanner = () => {
                     borderBottom="3px white solid"
                     sx={{ cursor: 'pointer' }}
                 >
-                    Discover More
+                    {t('Discover More')}
                 </Typography>
             </Stack>
         </Box>
     )
 }
 
-const ProductAvatar = ({ productId, imageLink }) => {
-    const dispatch = useDispatch()
-
-    const handleAddProductToCart = () => {
-        dispatch(addProductToCart(productId))
-    }
-
-    return (
-        <Stack
-            justifyContent="center"
-            alignItems="center"
-            position="relative"
-            cursor="pointer"
-            overflow="hidden"
-            height="250px"
-            width="100%"
-            border="1px rgba(0,0,0,.05) solid"
-            boxSizing="border-box"
-        >
-
-            <Box
-                to={`/productDetail/${productId}`}
-                component={NavLink}
-                display="flex"
-                width="100%"
-                height="100%"
-                color="black"
-                sx={{ textDecoration: 'none' }}
-            >
-                <ProgressiveImage
-                    src={imageLink}
-                    alt="Product"
-                    css={{ maxHeight: '100%', maxWidth: '100%', margin: 'auto' }}
-                />
-            </Box>
-
-            <AddProductToCartBtn
-                onClick={handleAddProductToCart}
-                className="AddToCartBtn"
-            >
-                Add To Cart
-            </AddProductToCartBtn>
-
-        </Stack>
-    )
-}
-
-const ProductInfo = ({ productName, productId, price }) => {
-    const theme = useTheme()
-
-    return (
-        <Box
-            padding="0 5px"
-        >
-            <Name to={`/productDetail/${productId}`}>
-                {productName}
-            </Name>
-
-            <Typography
-                fontFamily={theme.fontFamily.kanit}
-                fontSize="0.9em"
-                marginTop="5px"
-                paddingLeft="5px"
-                bgcolor="white"
-                borderRadius="5px"
-                textAlign="center"
-            >
-                {'$' + price}
-            </Typography>
-        </Box>
-    )
-}
-
 const Product = ({ productInfo }) => {
     const { image_link, name, price, _id } = productInfo
+    const dispatch = useDispatch()
+    const theme = useTheme()
+    const { t } = useTranslation('home_page')
+
+    const handleAddProductToCart = () => {
+        dispatch(addProductToCart(_id))
+    }
 
     return (
         <ProductSection className="Product">
 
-            <ProductAvatar productId={_id} imageLink={image_link} />
+            <Stack
+                justifyContent="center"
+                alignItems="center"
+                position="relative"
+                cursor="pointer"
+                overflow="hidden"
+                height="250px"
+                width="100%"
+                border="1px rgba(0,0,0,.05) solid"
+                boxSizing="border-box"
+            >
 
-            <ProductInfo
-                price={price.value}
-                productName={name}
-                productId={_id}
-            />
+                <Box
+                    to={`/productDetail/${_id}`}
+                    component={NavLink}
+                    display="flex"
+                    width="100%"
+                    height="100%"
+                    color="black"
+                    sx={{ textDecoration: 'none' }}
+                >
+                    <ProgressiveImage
+                        src={image_link}
+                        alt="Product"
+                        scss={{ maxHeight: '100%', maxWidth: '100%', margin: 'auto' }}
+                    />
+                </Box>
+
+                <AddProductToCartBtn
+                    onClick={handleAddProductToCart}
+                    className="AddToCartBtn"
+                >
+                    {t('Add To Cart')}
+                </AddProductToCartBtn>
+
+            </Stack>
+
+            <Box
+                padding="0 5px"
+            >
+                <Name to={`/productDetail/${_id}`}>
+                    {name}
+                </Name>
+
+                <Typography
+                    fontFamily={theme.fontFamily.kanit}
+                    fontSize="0.9em"
+                    marginTop="5px"
+                    paddingLeft="5px"
+                    bgcolor="white"
+                    borderRadius="5px"
+                    textAlign="center"
+                >
+                    {'$' + price.value}
+                </Typography>
+            </Box>
 
         </ProductSection>
     )
@@ -171,12 +156,28 @@ const Slider = ({ products }) => {
     const [slideIndex, setSlideIndex] = useState(0)
 
     const switchSlide = (direction) => {
+        if (products.length < 4) return
+
         if (direction === 'left') {
             setSlideIndex(pre => pre > 0 ? pre - 1 : 2)
         } else {
             setSlideIndex(pre => pre < 2 ? pre + 1 : 0)
         }
     }
+
+    const time_to_auto_slide_in_ms = 3000
+
+    useEffect(() => {
+        let interval
+
+        if (products.length > 3) {
+            interval = setInterval(() => {
+                setSlideIndex(pre => pre < 2 ? pre + 1 : 0)
+            }, time_to_auto_slide_in_ms)
+        }
+
+        return () => clearInterval(interval)
+    }, [slideIndex, products.length])
 
     const get_translate_x = () => {
         if (products.length < 4) return `translateX(0)`
@@ -313,7 +314,10 @@ const Products = () => {
                         <Skeleton sx={loading_style} />
                     </Stack>
                 ) : error ? (
-                    <Typography>
+                    <Typography
+                        color="red"
+                        marginTop="30px"
+                    >
                         {error.message}
                     </Typography>
                 ) :

@@ -9,7 +9,9 @@ import {
 } from "../../store/actions/cart_actions"
 import { useDispatch } from "react-redux"
 import { NavLink } from 'react-router-dom'
-import { Tooltip } from "@mui/material"
+import { Tooltip, Box, Stack, Typography } from "@mui/material"
+import { useTheme } from "@emotion/react"
+import ProgressiveImage from "../materials/progressive_image"
 
 const titles = [
     { title: 'Product', width: '20%', },
@@ -51,64 +53,137 @@ const ProductCard = ({ itemInfo }) => {
     }
 
     return (
-        <ProductCardSection>
-            <ProductImgWrapper to={`/productDetail/${_id}`}>
-                <img src={image_link} style={{ width: '100%' }} alt="Product" />
-            </ProductImgWrapper>
-            <ProductInfoContainer>
+        <Stack
+            flexDirection="row"
+            justifyContent='space-between'
+            columnGap='10px'
+            padding='10px'
+            boxSizing='border-box'
+            width='100%'
+        >
+            <Box
+                to={`/productDetail/${_id}`}
+                component={NavLink}
+                display='block'
+                width={titles[0].width}
+                boxSizing='border-box'
+                height="145px"
+            >
+                <ProgressiveImage
+                    src={image_link}
+                    scss={{ maxHeight: '100%' }}
+                    width="100%"
+                    alt="Product"
+                />
+            </Box>
+            <Stack
+                marginLeft='10px'
+                rowGap='10px'
+                width={titles[1].width}
+                boxSizing='border-box'
+            >
                 <Name to={`/productDetail/${_id}`}>
                     {name}
                 </Name>
                 <div>{'Size: ' + size}</div>
                 <div>{'Color: ' + color}</div>
-            </ProductInfoContainer>
-            <Quantity>
+            </Stack>
+            <Stack
+                justifyContent='center'
+                alignItems='center'
+                rowGap='5px'
+                width={titles[2].width}
+                boxSizing='border-box'
+            >
                 <Tooltip title="Increase one" placement="top">
                     <AddCircleOutlineIcon
                         sx={getQtyIocnStyle(1)}
                         onClick={() => changeProductQuantity(1)}
                     />
                 </Tooltip>
-                <NumberCount>{quantity}</NumberCount>
+                <Typography
+                    fontSize='1.2em'
+                    fontWeight='bold'
+                >
+                    {quantity}
+                </Typography>
                 <Tooltip title="Decrease one">
                     <RemoveCircleOutlineIcon
                         sx={getQtyIocnStyle(-1)}
                         onClick={() => changeProductQuantity(-1)}
                     />
                 </Tooltip>
-            </Quantity>
-            <Price>
+            </Stack>
+            <Stack
+                flexDirection="row"
+                justifyContent='center'
+                alignItems='center'
+                fontWeight='bold'
+                fontSize='1.2em'
+                width={titles[3].width}
+                boxSizing='border-box'
+            >
                 {'$' + price.toLocaleString('en', { useGrouping: true })}
-            </Price>
-            <Remove>
+            </Stack>
+            <Stack
+                flexDirection="row"
+                width={titles[4].width}
+                boxSizing='border-box'
+            >
                 <Tooltip title="Remove this product">
                     <StyledDeleteForeverIcon onClick={() => removeItems(_id)} />
                 </Tooltip>
-            </Remove>
-        </ProductCardSection>
+            </Stack>
+        </Stack >
     )
 }
 
 const ProductCards = ({ cartItems }) => {
+    const theme = useTheme()
 
     return (
-        <ProductCardsSection
+        <Stack
             id="ProductCardsSection"
+            component="div"
+            alignItems='center'
+            width='65%'
+            backgroundColor='#f0f0f0'
+            fontFamily={theme.fontFamily.nunito}
             sx={cartItems.length > 0 ? { height: 'fit-content' } : { height: 'auto' }}
         >
-            <DescriptionsCard>
+            <Stack
+                flexDirection="row"
+                justifyContent='space-between'
+                columnGap='10px'
+                padding='10px'
+                boxSizing='border-box'
+                width='100%'
+                backgroundColor='black'
+                marginBottom='10px'
+            >
                 {
                     titles.map(({ title, width }) => (
-                        <DescriptionsTitle
-                            title={title}
+                        <Tooltip
                             key={title}
-                            sx={{ width }}
+                            title={title}
                         >
-                            {title}
-                        </DescriptionsTitle>
+                            <Typography
+                                fontWeight='bold'
+                                fontSize='1.1em'
+                                textAlign='center'
+                                color='black'
+                                borderRadius='5px'
+                                backgroundColor='white'
+                                padding='2px 0'
+                                boxSizing='border-box'
+                                width={width}
+                            >
+                                {title}
+                            </Typography>
+                        </Tooltip>
                     ))
                 }
-            </DescriptionsCard>
+            </Stack>
             {
                 cartItems.length > 0 ?
                     cartItems.map((item) => (
@@ -119,7 +194,12 @@ const ProductCards = ({ cartItems }) => {
                         </React.Fragment>
                     ))
                     :
-                    <EmptyCartContainer>
+                    <Stack
+                        justifyContent='center'
+                        alignItems='center'
+                        margin='auto'
+                        padding='50px 10px'
+                    >
                         <img
                             src={empty_cart}
                             style={{ height: '20vh' }}
@@ -134,59 +214,13 @@ const ProductCards = ({ cartItems }) => {
                         <EmptyCartBtn href="/">
                             Shopping Now
                         </EmptyCartBtn>
-                    </EmptyCartContainer>
+                    </Stack>
             }
-        </ProductCardsSection>
+        </Stack>
     )
 }
 
 export default ProductCards
-
-const ProductCardsSection = styled('div')(({ theme }) => ({
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    width: '65%',
-    backgroundColor: '#f0f0f0',
-    fontFamily: theme.fontFamily.nunito,
-}))
-
-const DescriptionsCard = styled('div')({
-    display: 'flex',
-    justifyContent: 'space-between',
-    columnGap: '10px',
-    padding: '10px',
-    boxSizing: 'border-box',
-    width: '100%',
-    backgroundColor: 'black',
-    marginBottom: '10px',
-})
-
-const DescriptionsTitle = styled('div')({
-    fontWeight: 'bold',
-    fontSize: '1.1em',
-    textAlign: 'center',
-    color: 'black',
-    borderRadius: '5px',
-    backgroundColor: 'white',
-    padding: '2px 0',
-    boxSizing: 'border-box',
-})
-
-const ProductCardSection = styled('div')(({ theme }) => ({
-    display: 'flex',
-    justifyContent: 'space-between',
-    columnGap: '10px',
-    padding: '10px',
-    boxSizing: 'border-box',
-    width: '100%',
-}))
-
-const ProductImgWrapper = styled(NavLink)({
-    display: 'block',
-    width: titles[0].width,
-    boxSizing: 'border-box',
-})
 
 const Hr = styled('hr')({
     border: '0.5px grey solid',
@@ -197,15 +231,6 @@ const Hr = styled('hr')({
     '&:last-of-type': {
         display: 'none',
     }
-})
-
-const ProductInfoContainer = styled('div')({
-    marginLeft: '10px',
-    display: 'flex',
-    flexDirection: 'column',
-    rowGap: '10px',
-    width: titles[1].width,
-    boxSizing: 'border-box',
 })
 
 const Name = styled(NavLink)({
@@ -220,37 +245,6 @@ const Name = styled(NavLink)({
     }
 })
 
-const Quantity = styled('div')({
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-    rowGap: '5px',
-    width: titles[2].width,
-    boxSizing: 'border-box',
-})
-
-const NumberCount = styled('div')({
-    fontSize: '1.2em',
-    fontWeight: 'bold',
-})
-
-const Price = styled('div')({
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    fontWeight: 'bold',
-    fontSize: '1.2em',
-    width: titles[3].width,
-    boxSizing: 'border-box',
-})
-
-const Remove = styled('div')({
-    display: 'flex',
-    width: titles[4].width,
-    boxSizing: 'border-box',
-})
-
 const StyledDeleteForeverIcon = styled(DeleteForeverIcon)({
     height: '1.5em',
     width: '1.5em',
@@ -261,15 +255,6 @@ const StyledDeleteForeverIcon = styled(DeleteForeverIcon)({
     '&:hover': {
         transform: 'scale(1.2)',
     }
-})
-
-const EmptyCartContainer = styled('div')({
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexDirection: 'column',
-    margin: 'auto',
-    padding: '50px 10px',
 })
 
 const EmptyCartText = styled('p')(({ theme }) => ({

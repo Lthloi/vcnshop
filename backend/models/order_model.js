@@ -1,7 +1,4 @@
 import mongoose from 'mongoose'
-import ProductModel from './product_schema.js'
-import moment from 'moment'
-import BaseError from '../utils/base_error.js'
 
 const { Schema } = mongoose
 

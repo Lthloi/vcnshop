@@ -8,9 +8,11 @@ import MenSProducts from "../components/home/men's_products"
 import { Box, Typography } from "@mui/material"
 import { useTheme } from "@emotion/react"
 import Overview from "../components/home/overview"
+import { useTranslation } from 'react-i18next'
 
 const Home = () => {
     const theme = useTheme()
+    const { t } = useTranslation('home_page')
 
     return (
         <Box
@@ -29,7 +31,7 @@ const Home = () => {
                 paddingLeft="60px"
                 marginTop="80px"
             >
-                Most Sold
+                {t('Most Sold')}
             </Typography>
 
             <WomenSProducts />
@@ -43,7 +45,7 @@ const Home = () => {
                 paddingLeft="60px"
                 marginTop="80px"
             >
-                Overview
+                {t('Overview')}
             </Typography>
 
             <Overview />

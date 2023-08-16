@@ -1,8 +1,7 @@
 import React, { useRef, useState, useEffect } from "react"
 import { styled } from '@mui/material/styles'
-import ProblemSection from "../../problem_section"
 import VerifyOTP from "./verify_OTP"
-import BottomForm from "../bottom_form"
+import OAuth from "../OAuth"
 import "react-toastify/dist/ReactToastify.css"
 import CircularProgress from '@mui/material/CircularProgress'
 import ResendOTP from "./resend_OTP"
@@ -18,7 +17,6 @@ import { Stack } from "@mui/material"
 
 const Register = () => {
     const { auth: { registerStep, isAuthenticated }, loading } = useSelector(({ user }) => user)
-    const [openProblemSection, setOpenProblemSection] = useState(false)
     const [sendOTPNote, setSendOTPNote] = useState(false)
     const email_input_ref = useRef()
     const email_was_typed_ref = useRef()
@@ -33,8 +31,6 @@ const Register = () => {
     }, [isAuthenticated])
 
     const timeToResendOTP = 120
-
-    const handleOpenProblemSection = open => setOpenProblemSection(open)
 
     const sendOTPSubmit = () => {
         let email = email_input_ref.current.value
@@ -56,11 +52,6 @@ const Register = () => {
             <CompleteRegister emailWasTyped={email_was_typed_ref.current} />
         ) :
             <RegisterSection id="RegisterSection">
-
-                <ProblemSection
-                    open={openProblemSection}
-                    handleOpen={handleOpenProblemSection}
-                />
 
                 <div>
                     <FormTitle>Register</FormTitle>
@@ -99,7 +90,7 @@ const Register = () => {
                         <VerifyOTP emailWasTyped={email_was_typed_ref.current} />
                     }
                     <Stack flexDirection="row" justifyContent="space-between" alignItems="center" marginTop="10px">
-                        <Problems onClick={() => handleOpenProblemSection(true)}>
+                        <Problems>
                             Have problem ?
                         </Problems>
                         {
@@ -135,7 +126,7 @@ const Register = () => {
                     </NavLink>
                 </SignIn>
 
-                <BottomForm />
+                <OAuth />
 
             </RegisterSection >
     )

@@ -9,14 +9,13 @@ export const productsSlice = createSlice({
         error: null,
         products: [],
 
-        reviewsState: {
+        reviews: {
             loading: false,
             error: null,
             reviews: [],
-            newReviewProcessing: false,
         },
         productDetail: {
-            product: {},
+            product: null,
             loading: false,
             error: null,
         },
@@ -34,10 +33,14 @@ export const productsSlice = createSlice({
             loading: false,
             error: null,
             products: null,
+        },
+        shop: {
+            loading: false,
+            error: null,
+            products: null,
         }
     },
     reducers: {
-
         createNewProductRequest: (state, action) => {
             state.productDetail.loading = true
             state.productDetail.error = null
@@ -63,18 +66,16 @@ export const productsSlice = createSlice({
             state.productDetail.error = action.payload.error
         },
 
+
         deleteProductRequest: (state, action) => {
-            state.productDetail.loading = true
-            state.productDetail.error = null
+            // state.productDetail.error = null
         },
         deleteProductSuccess: (state, action) => {
-            state.productDetail.loading = false
+            
         },
         deleteProductFail: (state, action) => {
-            state.productDetail.loading = false
-
-            let error = action.payload && action.payload.error
-            if (error) state.productDetail.error = error
+            // let error = action.payload && action.payload.error
+            // if (error) state.productDetail.error = error
         },
 
 
@@ -138,7 +139,6 @@ export const productsSlice = createSlice({
 
         getProductRequest: (state, action) => {
             state.productDetail.error = null
-            state.reviewsState.newReviewProcessing = false
             state.productDetail.loading = true
         },
         getProductSuccess: (state, action) => {
@@ -152,30 +152,27 @@ export const productsSlice = createSlice({
 
 
         getReviewsRequest: (state, action) => {
-            state.reviewsState.error = null
-            state.reviewsState.loading = true
+            state.reviews.error = null
+            state.reviews.loading = true
         },
         getReviewsSuccess: (state, action) => {
-            state.reviewsState.reviews = action.payload.reviews
-            state.reviewsState.loading = false
+            state.reviews.reviews = action.payload.reviews
+            state.reviews.loading = false
         },
         getReviewsFail: (state, action) => {
-            state.reviewsState.error = action.payload.error
-            state.reviewsState.loading = false
+            state.reviews.error = action.payload.error
+            state.reviews.loading = false
         },
 
 
         newReviewRequest: (state, action) => {
-            state.reviewsState.newReviewProcessing = true
-            state.reviewsState.error = null
+            state.reviews.error = null
         },
         newReviewSuccess: (state, action) => {
             let { newReview, newAverageRating, newCountReview } = action.payload
-            let update_reviews = current(state).reviewsState.reviews.filter(({ user_id }) => user_id !== newReview.user_id)
+            let update_reviews = current(state).reviews.reviews.filter(({ user_id }) => user_id !== newReview.user_id)
 
-            state.reviewsState.newReviewProcessing = false
-
-            state.reviewsState.reviews = [newReview, ...update_reviews]
+            state.reviews.reviews = [newReview, ...update_reviews]
 
             let current_review = current(state).productDetail.product.review
             state.productDetail.product.review = {
@@ -185,8 +182,7 @@ export const productsSlice = createSlice({
             }
         },
         newReviewFail: (state, action) => {
-            state.reviewsState.newReviewProcessing = false
-            state.reviewsState.error = action.payload.error
+            state.reviews.error = action.payload.error
         },
     }
 })

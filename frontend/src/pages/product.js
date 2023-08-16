@@ -54,50 +54,45 @@ const Product = () => {
                     <Error>
                         {error.message}
                     </Error>
-                ) :
-                    <>
-                        {product && product._id && <ProductDetail product={product} />}
+                ) : product &&
+                <>
+                    <ProductDetail product={product} />
 
-                        <ReviewsAndIntroduction>
-                            {
-                                product && product._id &&
-                                <>
-                                    <div style={{ width: '100%' }}>
-                                        <MakeReview productId={product._id} productReview={product.review} />
-                                        <ReviewsSection id="Reviews" ref={switch_review_page_ref}>
-                                            <div style={{ display: 'flex', columnGap: '10px', alignItems: 'center' }}>
-                                                <CommentIcon />
-                                                <ReviewsTitle>Reviews</ReviewsTitle>
-                                            </div>
+                    <ReviewsAndIntroduction>
+                        <div style={{ width: '100%' }}>
+                            <MakeReview productId={product._id} productReview={product.review} />
+                            <ReviewsSection id="Reviews" ref={switch_review_page_ref}>
+                                <div style={{ display: 'flex', columnGap: '10px', alignItems: 'center' }}>
+                                    <CommentIcon />
+                                    <ReviewsTitle>Reviews</ReviewsTitle>
+                                </div>
 
-                                            <Hr />
+                                <Hr />
 
-                                            <Reviews
-                                                productId={productId}
-                                                srollReviewRef={switch_review_page_ref}
-                                            />
-                                        </ReviewsSection>
-                                    </div>
+                                <Reviews
+                                    productId={productId}
+                                    srollReviewRef={switch_review_page_ref}
+                                />
+                            </ReviewsSection>
+                        </div>
 
-                                    <DetailsContainer>
-                                        <Title>Description</Title>
-                                        <Description>
-                                            {product.description}
-                                        </Description>
+                        <DetailsContainer>
+                            <Title>Description</Title>
+                            <Description>
+                                {product.description}
+                            </Description>
 
-                                        <VistShopButton>
-                                            <StorefrontIcon />
-                                            <span>Vist Shop</span>
-                                        </VistShopButton>
-                                    </DetailsContainer>
-                                </>
-                            }
-                        </ReviewsAndIntroduction>
-                    </>
+                            <VistShopButton>
+                                <StorefrontIcon />
+                                <span>Vist Shop</span>
+                            </VistShopButton>
+                        </DetailsContainer>
+                    </ReviewsAndIntroduction>
+                </>
             }
 
             <ScrollToTopBtn />
-        </ProductDetailPage>
+        </ProductDetailPage >
     )
 }
 

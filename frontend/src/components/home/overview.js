@@ -7,91 +7,66 @@ import { useTheme } from "@emotion/react"
 import { NavLink } from "react-router-dom"
 import ProgressiveImage from '../materials/progressive_image'
 import FilterListIcon from '@mui/icons-material/FilterList'
-
-const categories = [
-    'Shirt',
-    'Pant',
-]
-
-const ProductAvatar = ({ productId, imageink }) => {
-    return (
-        <Box
-            overflow="hidden"
-        >
-            <ProductAvatarWrapper
-                to={`/productDetail/${productId}`}
-            >
-                <ProgressiveImage
-                    src={imageink}
-                    alt="Product"
-                    css={{
-                        maxHeight: '100%',
-                        maxWidth: '100%',
-                        margin: 'auto',
-                    }}
-                />
-            </ProductAvatarWrapper>
-        </Box>
-    )
-}
-
-const ProductInfo = ({ productId, productName, averageRating, price }) => {
-    const theme = useTheme()
-
-    return (
-        <Box
-            padding="0 5px"
-        >
-
-            <Tooltip
-                title={productName}
-            >
-                <Name to={`/productDetail/${productId}`}>
-                    {productName}
-                </Name>
-            </Tooltip>
-
-            <Rating
-                defaultValue={0}
-                precision={0.5}
-                readOnly
-                value={averageRating}
-                size="small"
-            />
-
-            <Typography
-                fontFamily={theme.fontFamily.kanit}
-                fontSize="0.9em"
-                marginTop="5px"
-                paddingLeft="5px"
-                bgcolor="white"
-                borderRadius="5px"
-            >
-                {'$' + price}
-            </Typography>
-
-        </Box>
-    )
-}
+import { useTranslation } from "react-i18next"
 
 const Product = ({ productInfo }) => {
     const { _id, image_link, name, price, review, category } = productInfo
+    const theme = useTheme()
 
     return (
         <ProductSection
             className={`Product_${category}`}
         >
-            <ProductAvatar
-                imageink={image_link}
-                productId={_id}
-            />
+            <Box
+                overflow="hidden"
+            >
+                <ProductAvatarWrapper
+                    to={`/productDetail/${_id}`}
+                >
+                    <ProgressiveImage
+                        src={image_link}
+                        alt="Product"
+                        scss={{
+                            maxHeight: '100%',
+                            maxWidth: '100%',
+                            margin: 'auto',
+                        }}
+                    />
+                </ProductAvatarWrapper>
+            </Box>
 
-            <ProductInfo
-                averageRating={review.average_rating}
-                productId={_id}
-                productName={name}
-                price={price.value}
-            />
+            <Box
+                padding="0 5px"
+            >
+
+                <Tooltip
+                    title={name}
+                >
+                    <Name to={`/productDetail/${_id}`}>
+                        {name}
+                    </Name>
+                </Tooltip>
+
+                <Rating
+                    defaultValue={0}
+                    precision={0.5}
+                    readOnly
+                    value={review.average_rating}
+                    size="small"
+                />
+
+                <Typography
+                    fontFamily={theme.fontFamily.kanit}
+                    fontSize="0.9em"
+                    marginTop="5px"
+                    paddingLeft="5px"
+                    bgcolor="white"
+                    borderRadius="5px"
+                >
+                    {'$' + price.value}
+                </Typography>
+
+            </Box>
         </ProductSection>
     )
 }
@@ -161,6 +136,8 @@ const Loading = () => {
 }
 
 const MoreBtn = () => {
+    const { t } = useTranslation('home_page')
+
     return (
         <Box
             display="flex"
@@ -168,11 +145,16 @@ const MoreBtn = () => {
             marginTop="50px"
         >
             <ViewMoreBtn>
-                VIEW MORE
+                {t('VIEW MORE')}
             </ViewMoreBtn>
         </Box>
     )
 }
+
+const categories = [
+    'Shirt',
+    'Pant',
+]
 
 const max_number_of_products = 16
 
@@ -187,6 +169,7 @@ const Overview = () => {
     const [tab, setTab] = useState(categories[0])
     const [mainProducts, setMainProducts] = useState(null)
     const dispatch = useDispatch()
+    const { t } = useTranslation('home_page')
 
     useEffect(() => {
         dispatch(getProductsOverview(
@@ -200,7 +183,7 @@ const Overview = () => {
     useEffect(() => {
         if (products && products.length > 0) {
             startTransition(() => {
-                setMainProducts(filterProducts(products, tab)) 
+                setMainProducts(filterProducts(products, tab))
             })
         }
     }, [products, tab])
@@ -236,7 +219,7 @@ const Overview = () => {
                             <StyledTab
                                 key={category}
                                 value={category}
-                                label={category}
+                                label={t(category)}
                             />
                         ))
                     }

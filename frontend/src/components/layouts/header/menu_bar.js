@@ -11,6 +11,7 @@ import { NavLink } from "react-router-dom"
 import { Stack, Typography, Box } from "@mui/material"
 import category_background_image from '../../../assets/images/dropdown_menu.jpg'
 import { useTheme } from "@emotion/react"
+import { useTranslation } from "react-i18next"
 
 const clothing_subtitles = [
     'Jacket',
@@ -27,7 +28,7 @@ const accessories_subtitles = [
     'Necklace',
 ]
 
-const CategoryList = ({ title, subTitles }) => {
+const CategoryList = ({ title, subTitles, translator }) => {
     return (
         <Stack height="100%" marginLeft="10px" padding="10px">
             <Typography
@@ -47,7 +48,7 @@ const CategoryList = ({ title, subTitles }) => {
                 {
                     subTitles.map((title) => (
                         <Category key={title}>
-                            {title}
+                            {translator(title)}
                         </Category>
                     ))
                 }
@@ -57,6 +58,8 @@ const CategoryList = ({ title, subTitles }) => {
 }
 
 const DropdownMenu = () => {
+    const { t } = useTranslation('home_page')
+
     return (
         <Box
             className="dropdown_menu"
@@ -77,9 +80,9 @@ const DropdownMenu = () => {
             <DropdownMenuImage src={category_background_image} />
 
             <Stack width="100%" flexDirection="row" justifyContent="space-evenly">
-                <CategoryList title={'CLOTHING'} subTitles={clothing_subtitles} />
-                <CategoryList title={'SHOES'} subTitles={shoes_subtitles} />
-                <CategoryList title={'ACCESSORIES'} subTitles={accessories_subtitles} />
+                <CategoryList title={t('CLOTHING')} subTitles={clothing_subtitles} translator={t} />
+                <CategoryList title={t('SHOES')} subTitles={shoes_subtitles} translator={t} />
+                <CategoryList title={t('ACCESSORIES')} subTitles={accessories_subtitles} translator={t} />
             </Stack>
 
         </Box>
@@ -125,8 +128,8 @@ const navs = [
     },
 ]
 
-const Nav = ({ navInfo }) => {
-    const { label, icon, action, with_dropdown_menu, dropdown_menu } = navInfo
+const Nav = ({ navInfo, navLabel }) => {
+    const { icon, action, with_dropdown_menu, dropdown_menu } = navInfo
 
     return (
         <NavContainer>
@@ -142,7 +145,7 @@ const Nav = ({ navInfo }) => {
                         columnGap="5px"
                     >
                         <IconOption>{icon}</IconOption>
-                        <span>{label}</span>
+                        <span>{navLabel}</span>
                         {
                             with_dropdown_menu &&
                             <Stack>
@@ -161,6 +164,7 @@ const Nav = ({ navInfo }) => {
 
 const MenuBar = () => {
     const theme = useTheme()
+    const { t } = useTranslation('home_page')
 
     return (
         <Stack
@@ -175,7 +179,11 @@ const MenuBar = () => {
         >
             {
                 navs.map((navInfo) => (
-                    <Nav navInfo={navInfo} key={navInfo.label} />
+                    <Nav
+                        navInfo={navInfo}
+                        navLabel={t(navInfo.label)}
+                        key={navInfo.label}
+                    />
                 ))
             }
         </Stack>

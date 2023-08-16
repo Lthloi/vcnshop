@@ -19,11 +19,18 @@ import global_theme from './styles/themes'
 import Admin from './pages/admin'
 import MyStore from './pages/my_store'
 import TermsOfUse from './pages/terms_of_use'
+import webfont from 'webfontloader'
 
 function App() {
   const dispatch = useDispatch()
 
   useEffect(() => {
+    webfont.load({
+      google: {
+        families: ['Nunito', 'Kanit', 'Arial', 'gillSans']
+      }
+    })
+
     dispatch(getUser())
   }, [dispatch])
 
@@ -48,7 +55,7 @@ function App() {
             <Route path='/checkout/*' element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
             <Route path='/auth/*' element={<Auth />} />
 
-            <Route path='termOfUse' element={<TermsOfUse />} />
+            <Route path='/termOfUse' element={<TermsOfUse />} />
 
             <Route path='/*' element={<NotFound404 />} />
 

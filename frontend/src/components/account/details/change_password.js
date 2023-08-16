@@ -8,7 +8,7 @@ import CancelIcon from '@mui/icons-material/Cancel'
 import { changePassword } from "../../../store/actions/user_actions"
 import { useDispatch } from 'react-redux'
 import { CircularProgress } from "@mui/material"
-import { MAX_PASSWORD_LENGTH } from "../../../utils/constants"
+import { MAX_PASSWORD_LENGTH } from "../../../configs/constants"
 import { Typography, Stack, Box, Tooltip } from "@mui/material"
 
 const inputs = [

@@ -12,13 +12,26 @@ import {
     getOverviewRequest, getOverviewSuccess, getOverviewFail,
 } from '../reducers/product_reducer.js'
 import { toast } from 'react-toastify'
-import actionsErrorHandler from '../../utils/error_handler.js'
+import axiosErrorHandler from '../../utils/axios_error_handler.js'
 import {
-    EXPRESS_SERVER, LIMIT_GET_COMMENTS, MAX_PRICE_PORDUCT,
+    LIMIT_GET_COMMENTS, MAX_PRICE_PORDUCT,
     LIMIT_GET_PRODUCTS_DEFAULT, MAX_STOCK,
-} from '../../utils/constants.js'
+} from '../../configs/constants.js'
 import FileUploadFilter from '../../utils/file_upload_filter.js'
 import { redirectAfterSeconds } from '../../utils/redirect_handler.js'
+import {
+    create_product_api,
+    update_product_api,
+    delete_product_api,
+    get_products_api,
+    get_product_api,
+    new_review_api,
+    get_reviews_api,
+    get_products_by_admin_api,
+} from '../../apis/product_apis.js'
+import {
+    find_orders_with_productId_api,
+} from '../../apis/order_apis.js'
 
 const createNewProduct = (
     productName,
@@ -42,13 +55,14 @@ const createNewProduct = (
     product_data.set('description', JSON.stringify(description))
 
     if (images.length > 0) {
-        let file_upload_filter = new FileUploadFilter()
+        let file_filter = new FileUploadFilter()
+
         for (let file of images) {
-            file_upload_filter.setFile(file)
-            if (!file_upload_filter.mimetypeIsValid())
-                return toast.error(file_upload_filter.invalidMessage)
-            if (!file_upload_filter.sizeIsValid())
-                return toast.error(file_upload_filter.invalidMessage)
+            file_filter.setFile(file)
+            if (!file_filter.mimetypeIsValid())
+                return toast.error(file_filter.getInvalidMessage())
+            if (!file_filter.sizeIsValid())
+                return toast.error(file_filter.getInvalidMessage())
 
             product_data.append('images', file)
         }
@@ -57,10 +71,8 @@ const createNewProduct = (
     try {
         dispatch(createNewProductRequest())
 
-        let api_to_create_new_product = '/api/product/createProduct'
-
         await axios.post(
-            EXPRESS_SERVER + api_to_create_new_product,
+            create_product_api,
             product_data,
             {
                 withCredentials: true,
@@ -74,7 +86,7 @@ const createNewProduct = (
 
         redirectAfterSeconds(1000, { isReload: true })
     } catch (error) {
-        let errorObject = actionsErrorHandler(error)
+        let errorObject = axiosErrorHandler(error)
 
         toast.error(errorObject.message)
 
@@ -92,6 +104,7 @@ const updateProduct = (
 ) => async (dispatch) => {
 
     let product_data = new FormData()
+    product_data.set('productId', productId)
     if (colors.length > 0)
         product_data.set('colors', JSON.stringify(colors))
     if (sizes.length > 0)
@@ -117,14 +130,12 @@ const updateProduct = (
     try {
         dispatch(updateProductRequest())
 
-        let api_to_update_product = '/api/product/updateProduct?productId=' + productId
-
         await axios.post(
-            EXPRESS_SERVER + api_to_update_product,
+            update_product_api,
             product_data,
             {
                 withCredentials: true,
-                headers: { 'Content-Type': 'multipart/form-data' }
+                headers: { 'Content-Type': 'multipart/form-data' },
             }
         )
 
@@ -134,7 +145,7 @@ const updateProduct = (
 
         redirectAfterSeconds(1000, { isReload: true })
     } catch (error) {
-        let errorObject = actionsErrorHandler(error)
+        let errorObject = axiosErrorHandler(error)
 
         toast.error(errorObject.message)
 
@@ -146,11 +157,17 @@ const deleteProduct = (product_id) => async (dispatch) => {
     try {
         dispatch(deleteProductRequest())
 
-        let api_to_get_order = '/api/order/findOrdersWithProductId?productId=' + product_id
+        let { data } = await axios.get(
+            find_orders_with_productId_api,
+            {
+                withCredentials: true,
+                params: {
+                    productId: product_id,
+                }
+            }
+        )
 
-        let { data } = await axios.get(EXPRESS_SERVER + api_to_get_order, { withCredentials: true })
-
-        if (data.orders.length > 0) {
+        if (data.orders && data.orders.length > 0 && data.orders.find(({ order_status }) => order_status === 'uncompleted' || order_status === 'processing' || order_status === 'delivering')) {
             dispatch(deleteProductFail())
 
             toast.error("Can't delete the product now has an order")
@@ -158,7 +175,7 @@ const deleteProduct = (product_id) => async (dispatch) => {
             return
         }
     } catch (error) {
-        let errorObject = actionsErrorHandler(error)
+        let errorObject = axiosErrorHandler(error)
         toast.error(errorObject.message)
 
         dispatch(deleteProductFail({ error: errorObject }))
@@ -167,15 +184,13 @@ const deleteProduct = (product_id) => async (dispatch) => {
     }
 
     try {
-        let api_to_delete_product = '/api/product/deleteProduct/' + product_id
-
-        await axios.delete(EXPRESS_SERVER + api_to_delete_product, { withCredentials: true })
+        await axios.delete(delete_product_api + product_id, { withCredentials: true })
 
         dispatch(deleteProductSuccess())
 
         toast.success('Delete the product successfully')
     } catch (error) {
-        let errorObject = actionsErrorHandler(error)
+        let errorObject = axiosErrorHandler(error)
 
         toast.error(errorObject.message)
 
@@ -190,8 +205,6 @@ const getProducts = (
 ) => async (dispatch) => {
     try {
         dispatch(getProductsRequest())
-
-        let api_to_getProducts = '/api/product/getProducts'
 
         let query = {
             limit,
@@ -223,7 +236,7 @@ const getProducts = (
         }
 
         let { data } = await axios.get(
-            EXPRESS_SERVER + api_to_getProducts,
+            get_products_api,
             { params: query }
         )
 
@@ -233,7 +246,7 @@ const getProducts = (
             currentPage: page || 1,
         }))
     } catch (error) {
-        let errorObject = actionsErrorHandler(error, 'Error Warning: fail to get products.')
+        let errorObject = axiosErrorHandler(error, 'Error Warning: fail to get products.')
 
         dispatch(getProductsFail({ error: errorObject }))
     }
@@ -242,8 +255,6 @@ const getProducts = (
 const getWomenSProducts = (limit = LIMIT_GET_PRODUCTS_DEFAULT, page, sort) => async (dispatch) => {
     try {
         dispatch(getWomenSProductsRequest())
-
-        let api_to_get_products = '/api/product/getProducts'
 
         let query = {
             limit,
@@ -256,13 +267,13 @@ const getWomenSProducts = (limit = LIMIT_GET_PRODUCTS_DEFAULT, page, sort) => as
         }
 
         let { data } = await axios.get(
-            EXPRESS_SERVER + api_to_get_products,
+            get_products_api,
             { params: query }
         )
 
         dispatch(getWomenSProductsSuccess({ products: data.products }))
     } catch (error) {
-        let errorObject = actionsErrorHandler(error, 'Error Warning: fail to get products.')
+        let errorObject = axiosErrorHandler(error, 'Error Warning: fail to get products.')
 
         dispatch(getWomenSProductsFail({ error: errorObject }))
     }
@@ -271,8 +282,6 @@ const getWomenSProducts = (limit = LIMIT_GET_PRODUCTS_DEFAULT, page, sort) => as
 const getMenSProducts = (limit = LIMIT_GET_PRODUCTS_DEFAULT, page, sort) => async (dispatch) => {
     try {
         dispatch(getMenSProductsRequest())
-
-        let api_to_get_products = '/api/product/getProducts'
 
         let query = {
             limit,
@@ -285,13 +294,13 @@ const getMenSProducts = (limit = LIMIT_GET_PRODUCTS_DEFAULT, page, sort) => asyn
         }
 
         let { data } = await axios.get(
-            EXPRESS_SERVER + api_to_get_products,
+            get_products_api,
             { params: query }
         )
 
         dispatch(getMenSProductsSuccess({ products: data.products }))
     } catch (error) {
-        let errorObject = actionsErrorHandler(error, 'Error Warning: fail to get products.')
+        let errorObject = axiosErrorHandler(error, 'Error Warning: fail to get products.')
 
         dispatch(getMenSProductsFail({ error: errorObject }))
     }
@@ -300,8 +309,6 @@ const getMenSProducts = (limit = LIMIT_GET_PRODUCTS_DEFAULT, page, sort) => asyn
 const getProductsOverview = (limit = LIMIT_GET_PRODUCTS_DEFAULT, category, page, sort) => async (dispatch) => {
     try {
         dispatch(getOverviewRequest())
-
-        let api_to_get_products = '/api/product/getProducts'
 
         let query = {
             limit,
@@ -314,13 +321,13 @@ const getProductsOverview = (limit = LIMIT_GET_PRODUCTS_DEFAULT, category, page,
         }
 
         let { data } = await axios.get(
-            EXPRESS_SERVER + api_to_get_products,
+            get_products_api,
             { params: query }
         )
 
         dispatch(getOverviewSuccess({ products: data.products }))
     } catch (error) {
-        let errorObject = actionsErrorHandler(error)
+        let errorObject = axiosErrorHandler(error)
 
         dispatch(getOverviewFail({ error: errorObject }))
     }
@@ -330,12 +337,11 @@ const getProductDetail = (product_id) => async (dispatch) => {
     try {
         dispatch(getProductRequest())
 
-        let api_to_getProduct = '/api/product/getProduct/' + product_id
-        let { data } = await axios.get(EXPRESS_SERVER + api_to_getProduct)
+        let { data } = await axios.get(get_product_api + product_id)
 
         dispatch(getProductSuccess({ product: data.product }))
     } catch (error) {
-        let errorObject = actionsErrorHandler(error, 'Error Warning: fail to get product detail.')
+        let errorObject = axiosErrorHandler(error, 'Error Warning: fail to get product detail.')
 
         dispatch(getProductFail({ error: errorObject }))
     }
@@ -345,21 +351,26 @@ const getReviews = (productId, page = 1, limit = LIMIT_GET_COMMENTS) => async (d
     try {
         dispatch(getReviewsRequest())
 
-        let api_to_get_review =
-            '/api/product/getReviews?productId=' + productId + '&page=' + page +
-            '&limit=' + limit
-
-        let { data } = await axios.get(EXPRESS_SERVER + api_to_get_review)
+        let { data } = await axios.get(
+            get_reviews_api,
+            {
+                params: {
+                    productId,
+                    page,
+                    limit,
+                }
+            }
+        )
 
         dispatch(getReviewsSuccess({ reviews: data.reviews }))
     } catch (error) {
-        let errorObject = actionsErrorHandler(error, 'Error Warning: fail to get review.')
+        let errorObject = axiosErrorHandler(error, 'Error Warning: fail to get review.')
 
         dispatch(getReviewsFail({ error: errorObject }))
     }
 }
 
-const newReview = (productId, images, rating, title, comment, current_reviews) => async (dispatch) => {
+const newReview = ({ productId, images, rating, title, comment }) => async (dispatch) => {
     let reviewData = new FormData()
     if (images.length > 0) {
         let file_upload_filter = new FileUploadFilter()
@@ -377,19 +388,19 @@ const newReview = (productId, images, rating, title, comment, current_reviews) =
     reviewData.set('rating', rating)
     reviewData.set('title', title)
     reviewData.set('comment', JSON.stringify(comment))
-    reviewData.set('currentReviews', JSON.stringify(current_reviews))
 
     try {
         dispatch(newReviewRequest())
 
-        let api_to_make_new_review = '/api/product/newReview?productId=' + productId
-
         let { data } = await axios.post(
-            EXPRESS_SERVER + api_to_make_new_review,
+            new_review_api,
             reviewData,
             {
                 withCredentials: true,
-                headers: { 'Content-Type': 'multipart/form-data' }
+                headers: { 'Content-Type': 'multipart/form-data' },
+                params: {
+                    productId,
+                }
             },
         )
 
@@ -401,7 +412,7 @@ const newReview = (productId, images, rating, title, comment, current_reviews) =
 
         toast.success('Write a review successfully')
     } catch (error) {
-        let errorObject = actionsErrorHandler(error)
+        let errorObject = axiosErrorHandler(error)
 
         toast.error(errorObject.message)
 
@@ -413,20 +424,22 @@ const getProductsByAdmin = (...fields) => async (dispatch) => {
     try {
         dispatch(getProductsRequest())
 
-        let api_to_get_products = '/api/product/getProductsByAdmin'
+        let query = {}
 
-        if (fields.length > 1) {
-            api_to_get_products += `?${fields[0]}=true`
-            for (let i = 1; i < fields.length; i++)
-                api_to_get_products += `&${fields[i]}=true`
-        } else
-            api_to_get_products += `?${fields[0]}=true`
+        for (let field of fields)
+            query[field] = 'true'
 
-        let { data } = await axios.get(EXPRESS_SERVER + api_to_get_products, { withCredentials: true })
+        let { data } = await axios.get(
+            get_products_by_admin_api,
+            {
+                withCredentials: true,
+                params: query,
+            }
+        )
 
         dispatch(getProductsSuccess({ products: data.list }))
     } catch (error) {
-        let errorObject = actionsErrorHandler(error)
+        let errorObject = axiosErrorHandler(error)
 
         dispatch(getProductsFail({ error: errorObject }))
     }

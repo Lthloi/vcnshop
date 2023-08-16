@@ -4,11 +4,12 @@ import App from './app'
 import reportWebVitals from './reportWebVitals'
 import './styles/body.scss'
 import './styles/toastify.scss'
-import './styles/problem_section.scss'
 import { Provider } from 'react-redux'
 import store from './store/store'
 import ErrorBoundary from './utils/error_boundary'
 import ErrorPage from './pages/error_page'
+
+import './configs/i18n'
 
 const root = ReactDOM.createRoot(document.getElementById('root'))
 root.render(

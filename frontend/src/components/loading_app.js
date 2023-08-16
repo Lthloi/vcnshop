@@ -1,6 +1,7 @@
 import React, { useEffect } from "react"
 import { styled } from '@mui/material/styles'
 import foxLogoBlack from '../assets/images/logo_app_black.svg'
+import { Box } from "@mui/material"
 
 const LoadingApp = () => {
 
@@ -11,41 +12,39 @@ const LoadingApp = () => {
     }, [])
 
     return (
-        <LoadingAppModalBase id="LoadingApp" >
-            <ImageAnimationContainer>
+        <Box
+            id="LoadingApp"
+            component="div"
+            display='flex'
+            justifyContent='center'
+            alignItems='center'
+            position='fixed'
+            top='0'
+            bottom='0'
+            right='0'
+            left='0'
+            zIndex='100'
+            bgcolor='white'
+        >
+            <Box
+                padding='30px'
+                border='5px transparent solid'
+                position='relative'
+                borderRadius='50%'
+                width='85px'
+                height='85px'
+            >
 
                 <CircularAnimation />
 
                 <Image src={foxLogoBlack} />
 
-            </ImageAnimationContainer>
-        </LoadingAppModalBase>
+            </Box>
+        </Box>
     )
 }
 
 export default LoadingApp
-
-const LoadingAppModalBase = styled('div')(({ theme }) => ({
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    position: 'fixed',
-    top: '0',
-    bottom: '0',
-    right: '0',
-    left: '0',
-    zIndex: '100',
-    backgroundColor: 'white',
-}))
-
-const ImageAnimationContainer = styled('div')({
-    padding: '30px',
-    border: '5px transparent solid',
-    position: 'relative',
-    borderRadius: '50%',
-    width: '85px',
-    height: '85px',
-})
 
 const CircularAnimation = styled('div')({
     position: 'absolute',

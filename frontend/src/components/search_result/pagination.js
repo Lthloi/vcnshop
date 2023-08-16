@@ -6,7 +6,7 @@ import {
     useSelector,
 } from "react-redux"
 import { getProducts } from '../../store/actions/product_actions'
-import { LIMIT_GET_PRODUCTS_DEFAULT } from "../../utils/constants"
+import { LIMIT_GET_PRODUCTS_DEFAULT } from "../../configs/constants"
 import { Stack } from '@mui/material'
 
 const get_number_of_pages = (count_products) => {

@@ -1,46 +1,70 @@
-import React, { useState } from "react"
-import { createTheme, styled } from '@mui/material/styles'
+import React, { useEffect, useState } from "react"
+import { styled } from '@mui/material/styles'
 import DoubleArrowIcon from '@mui/icons-material/DoubleArrow'
+import { useTheme } from "@emotion/react"
+import { Box } from "@mui/material"
 
 const ScrollToTopBtn = () => {
+    const theme = useTheme()
     const [open, setOpen] = useState(false)
+
     const showScrollToTopBtn = () => {
-        window.scrollY > 100 ? setOpen(true) : setOpen(false)
+        if (window.scrollY > 100) {
+            setOpen(true)
+        } else {
+            setOpen(false)
+        }
     }
-    window.addEventListener('scroll', showScrollToTopBtn)
+
+    useEffect(() => {
+        window.addEventListener('scroll', showScrollToTopBtn)
+    }, [])
+
+    const scrollToTop = () => {
+        window.scroll({ top: 0, behavior: 'smooth' })
+    }
+
+    const scrollToTopDoubleClick = () => {
+        window.scroll({ top: 0, behavior: 'auto' })
+    }
+
     return (
-        <ScrollToTopContainer id="ScrollToTopContainer" theme={customTheme}
-            sx={{
-                bottom: open ? '20px' : `-${customTheme.primary.height_of_scroll_to_top_btn + 5}px`,
-            }}
-            onClick={() => window.scroll({ top: 0, behavior: 'smooth' })}
-            onDoubleClick={() => window.scroll({ top: 0, behavior: 'auto' })}
+        <ScrollToTopSection
+            id="ScrollToTopSection"
+            sx={{ bottom: open ? '30px' : '-55px' }}
+            onClick={scrollToTop}
+            onDoubleClick={scrollToTopDoubleClick}
         >
-            <ScrollToTopWrapper theme={customTheme}>
+            <Box
+                display='flex'
+                justifyContent='center'
+                alignItems='center'
+                fontFamily={theme.fontFamily.nunito}
+                fontSize='0.9em'
+                fontWeight='bold'
+                textAlign='center'
+                overflow='hidden'
+                borderRadius='50%'
+                width='100%'
+                height='100%'
+            >
                 <StyledDoubleArrowIcon />
-            </ScrollToTopWrapper>
-        </ScrollToTopContainer>
+            </Box>
+        </ScrollToTopSection>
     )
 }
 
 export default ScrollToTopBtn
 
-const customTheme = createTheme({
-    primary: {
-        height_of_scroll_to_top_btn: 50,
-        font_of_scroll_to_top_btn: '"Nunito", "sans-serif"',
-    }
-})
-
-const ScrollToTopContainer = styled('div')(({ theme }) => ({
-    width: `${theme.primary.height_of_scroll_to_top_btn}px`,
-    height: `${theme.primary.height_of_scroll_to_top_btn}px`,
+const ScrollToTopSection = styled('div')({
+    width: '50px',
+    height: '50px',
     position: 'fixed',
-    right: '20px',
+    right: '30px',
     borderRadius: '50%',
     padding: '2px',
     backgroundColor: '#bbb9b9',
-    transition: 'bottom 0.3s',
+    transition: 'bottom 0.5s',
     boxSizing: 'border-box',
     cursor: 'pointer',
     border: '2px black solid',
@@ -48,28 +72,14 @@ const ScrollToTopContainer = styled('div')(({ theme }) => ({
     opacity: '0.3',
     '&:hover': {
         opacity: '1',
-        '& svg.MuiSvgIcon-root': {
+        '& svg': {
             animationPlayState: 'running',
             animationDuration: '0.8s',
         }
     }
-}))
+})
 
-const ScrollToTopWrapper = styled('div')(({ theme }) => ({
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    fontFamily: theme.primary.font_of_scroll_to_top_btn,
-    fontSize: '0.9em',
-    fontWeight: 'bold',
-    textAlign: 'center',
-    overflow: 'hidden',
-    borderRadius: '50%',
-    width: '100%',
-    height: '100%',
-}))
-
-const StyledDoubleArrowIcon = styled(DoubleArrowIcon)(({ theme }) => ({
+const StyledDoubleArrowIcon = styled(DoubleArrowIcon)({
     color: 'black',
     transform: 'rotate(-90deg)',
     width: '1.2em',
@@ -83,4 +93,4 @@ const StyledDoubleArrowIcon = styled(DoubleArrowIcon)(({ theme }) => ({
             transform: 'translateY(-100%) rotate(-90deg)',
         }
     },
-}))
+})

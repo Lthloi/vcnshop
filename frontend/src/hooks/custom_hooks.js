@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 
 const useFloatNumber = () => (number, number_length = 2) => Number(number.toFixed(number_length))
@@ -107,8 +108,24 @@ const useDebounce = () => (fnc, delay) => {
     }
 }
 
+const useMediaQuery = () => {
+    const [width, setWidth] = useState(0)
+
+    const handleResizeWindow = (e) => {
+        setWidth(window.innerWidth)
+    }
+
+    useEffect(() => {
+        window.addEventListener('resize', handleResizeWindow)
+        return () => window.removeEventListener('resize', (e) => { })
+    }, [])
+
+    return { width }
+}
+
 export {
     useFloatNumber, useCurrencyKeyboard, useCurrencyCode,
     useNavToRedirectLogin, useNumerToWords, useGetQueryValue,
     useCurrentRoute, useCheckIsAdminRole, useDebounce,
+    useMediaQuery,
 }

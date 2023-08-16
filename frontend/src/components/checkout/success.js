@@ -14,67 +14,122 @@ import { useDispatch, useSelector } from "react-redux"
 import { PDFDownloadLink } from '@react-pdf/renderer'
 import PDFReceipt from './PDF_receipt'
 import axios from "axios"
-import { EXPRESS_SERVER } from "../../utils/constants"
-import { CircularProgress } from "@mui/material"
 import { toast } from "react-toastify"
-import actionsErrorHandler from "../../utils/error_handler"
-import Skeleton from "@mui/material/Skeleton"
+import axiosErrorHandler from "../../utils/axios_error_handler"
 import { useNavigate } from "react-router-dom"
 import { useGetQueryValue } from "../../hooks/custom_hooks"
-import { Stack } from '@mui/material'
+import { Stack, Typography, CircularProgress, Skeleton, Box } from '@mui/material'
+import { send_receipt_via_email_api } from "../../apis/order_apis"
+import { useTheme } from "@emotion/react"
 
 const project_info = {
     email: 'vcnshop@gmail.com',
     website: 'https://www.vcnshop.new',
 }
 
-const SEA_TRANSPORT = 'Sea Transport'
+const SEA_TRANSPORT = 'Sea'
 
-const SummaryTypeComponent = ({ icon, small_title, value_of_type }) => (
-    <SummaryType>
-        {icon}
-        <div>
-            <Type>{small_title}</Type>
-            <Value>{value_of_type}</Value>
-        </div>
-    </SummaryType>
-)
+const Summary = ({ order }) => {
+    const theme = useTheme()
 
-const SummarySection = ({ order }) => {
+    const SummaryType = ({ icon, small_title, value_of_type }) => (
+        <Stack
+            flexDirection="row"
+            alignItems='center'
+            columnGap='15px'
+            width='100%'
+            marginTop='20px'
+            padding='5px 30px'
+            boxSizing='border-box'
+            bgcolor='rgb(128 128 128 / 11%)'
+        >
+            {icon}
+            <div>
+                <Typography
+                    fontFamily={theme.fontFamily.kanit}
+                    fontSize='0.9em'
+                    color='gray'
+                >
+                    {small_title}
+                </Typography>
+                <Typography
+                    fontFamily={theme.fontFamily.kanit}
+                    fontSize='1.1em'
+                >
+                    {value_of_type}
+                </Typography>
+            </div>
+        </Stack>
+    )
+
     return (
         <Stack padding="0 30px" width="33%" boxSizing="border-box" justifyContent="center" alignItems="center">
-            <Summary>
-                <SummaryTitle>ORDER SUMMARY</SummaryTitle>
-                <SummaryTypeComponent
+            <Stack
+                padding='30px 0'
+                border='1px black solid'
+                borderBottom='5px black solid'
+                borderRight='5px black solid'
+                width='85%'
+                boxSizing='border-box'
+                borderRadius='5px'
+            >
+                <Typography
+                    fontSize='1.3em'
+                    padding='15px 30px'
+                    color='white'
+                    margin='0'
+                    fontFamily={theme.fontFamily.kanit}
+                    letterSpacing='2px'
+                    marginBottom='20px'
+                    bgcolor='black'
+                >
+                    ORDER SUMMARY
+                </Typography>
+                <SummaryType
                     icon={<ListAltIcon />}
                     small_title={order.items_of_order.length + ' items'}
                     value_of_type={order.total_to_pay + ' USD'}
                 />
-                <SummaryTypeComponent
+                <SummaryType
                     icon={<PaymentIcon />}
                     small_title={'Payment'}
                     value_of_type={'Paid on ' + order.payment_info.method}
                 />
-                <SummaryTypeComponent
+                <SummaryType
                     icon={<AccessTimeIcon />}
                     small_title={'Delivery Date & Time'}
                     value_of_type={order.shipping_info.method === SEA_TRANSPORT ? 'Within 5 - 7 days' : ''}
                 />
-                <SummaryTypeComponent
+                <SummaryType
                     icon={<PlaceIcon />}
                     small_title={'Delivery Address'}
                     value_of_type={order.shipping_info.country + ', ' + order.shipping_info.city + ', ' + order.shipping_info.address}
                 />
-            </Summary>
-        </Stack>
+            </Stack>
+        </Stack >
     )
 }
 
-const ThankingSection = () => {
+const Thanking = () => {
+    const theme = useTheme()
+
     return (
-        <Thanking>
+        <Stack
+            alignItems='center'
+            justifyContent='center'
+            width='33%'
+            padding='10px'
+            boxSizing='border-box'
+        >
             <TruckAnimation src={deliveryIcon} />
-            <ThankTitle>THANK YOU!</ThankTitle>
+            <Typography
+                fontFamily={theme.fontFamily.kanit}
+                fontSize='2em'
+                fontWeight='bold'
+                margin='25px 0'
+            >
+                THANK YOU!
+            </Typography>
             <ThankText>
                 We are getting started on your order right away, and you will receive an email for an invoice of
                 your order.
@@ -83,49 +138,39 @@ const ThankingSection = () => {
                 We suggest you should check your email regularly to receive your order in time. Thank
                 for shopping in our site, have a nice day!
             </ThankText>
-            <Buttons>
-                <LeftBtn href="/">
+            <Stack
+                flexDirection="row"
+                columnGap='15px'
+                marginTop='30px'
+            >
+                <ContinueShopping href="/">
                     Continue Shopping
-                </LeftBtn>
-                <RightBtn href="/account/myOrders">
+                </ContinueShopping>
+                <ViewOrder href="/account/myOrders">
                     View Order
-                </RightBtn>
-            </Buttons>
-        </Thanking>
+                </ViewOrder>
+            </Stack>
+        </Stack>
     )
 }
 
-const ReceiptOptionsSection = ({ order }) => {
+const ReceiptOptions = ({ order }) => {
     const [sendReceiptLoading, setSendReceiptLoading] = useState(false)
     const user_email = useSelector(({ user }) => user.user.email)
+    const theme = useTheme()
 
     const sendReceiptViaEmail = async () => {
         setSendReceiptLoading(true)
 
         try {
             await axios.post(
-                EXPRESS_SERVER + '/api/order/sendReceiptViaEmail',
-                {
-                    paymentId: order.payment_info.id,
-                    deliveryInfo: {
-                        address: order.shipping_info.address,
-                        shippingMethod: order.shipping_info.method,
-                    },
-                    receiverInfo: {
-                        email: user_email,
-                        phone: order.shipping_info.phone_number,
-                        paidOn: order.payment_info.method,
-                    },
-                    items: order.items_of_order,
-                    taxFee: order.tax_fee,
-                    shippingFee: order.shipping_fee,
-                    totalToPay: order.total_to_pay,
-                },
+                send_receipt_via_email_api + order.payment_info.id,
+                {},
                 { withCredentials: true }
             )
             toast.success('The receipt was sent to ' + user_email + ' successfully!')
         } catch (error) {
-            let errorObject = actionsErrorHandler(error)
+            let errorObject = axiosErrorHandler(error)
             toast.error(errorObject.message)
         }
 
@@ -133,11 +178,32 @@ const ReceiptOptionsSection = ({ order }) => {
     }
 
     return (
-        <ReceiptOptions>
-            <ReceiptIconWrapper>
+        <Stack
+            justifyContent='center'
+            alignItems='center'
+            width='33%'
+        >
+            <Stack
+                flexDirection="row"
+                padding='5px'
+                bgcolor='black'
+                borderRadius='50%'
+                width='60px'
+                height='60px'
+            >
                 <ReceiptIcon sx={{ fontSize: '3em', color: 'white', margin: 'auto' }} />
-            </ReceiptIconWrapper>
-            <Note>Get A Receipt For Your Order.</Note>
+            </Stack>
+            <Typography
+                textAlign='center'
+                columnGap='5px'
+                marginTop='10px'
+                paddingLeft='10px'
+                fontFamily={theme.fontFamily.nunito}
+                fontSize='0.8em'
+                width='80%'
+            >
+                Get A Receipt For Your Order.
+            </Typography>
             <Option onClick={sendReceiptViaEmail}>
                 {
                     sendReceiptLoading ?
@@ -173,7 +239,7 @@ const ReceiptOptionsSection = ({ order }) => {
                 <FileDownloadIcon />
                 <span>Download A Receipt</span>
             </DownloadOption>
-        </ReceiptOptions>
+        </Stack>
     )
 }
 
@@ -182,10 +248,11 @@ const Success = () => {
     const navigate = useNavigate()
     const dispatch = useDispatch()
     const query_value_getter = useGetQueryValue()
-
-    const paymentId = query_value_getter(1, 'payment_intent')
+    const theme = useTheme()
 
     useEffect(() => {
+        let paymentId = query_value_getter(1, 'payment_intent')
+
         if (!paymentId) {
             navigate(-1)
         } else {
@@ -194,19 +261,34 @@ const Success = () => {
     }, [dispatch])
 
     return (
-        <SuccessSection>
-            <Title>
+        <Box
+            component="div"
+            id="SuccessfulPayment"
+            margin="20px 0"
+        >
+            <Stack
+                alignItems='center'
+                rowGap='10px'
+                bgcolor='black'
+                padding='15px'
+            >
                 <CheckCircleIcon sx={{ fontSize: '3em', color: 'white' }} />
-                <TitleText>Yay! Order Successfully Placed</TitleText>
-            </Title>
+                <Typography
+                    fontFamily={theme.fontFamily.kanit}
+                    margin='0'
+                    color='white'
+                >
+                    Yay! Order Successfully Placed
+                </Typography>
+            </Stack>
             {
                 order && order.shipping_info ?
                     <Stack flexDirection="row" marginTop="30px">
-                        <SummarySection order={order} />
+                        <Summary order={order} />
 
-                        <ThankingSection />
+                        <Thanking />
 
-                        <ReceiptOptionsSection order={order} />
+                        <ReceiptOptions order={order} />
                     </Stack>
                     :
                     <Stack flexDirection="row" columnGap="20px" width="100%" padding="15px 0" marginTop="10px">
@@ -215,102 +297,11 @@ const Success = () => {
                         <Loading animation="wave" />
                     </Stack>
             }
-        </SuccessSection >
+        </Box >
     )
 }
 
 export default Success
-
-const SuccessSection = styled('div')(({ theme }) => ({
-    margin: '20px 0',
-}))
-
-const Title = styled('div')({
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    rowGap: '10px',
-    backgroundColor: 'black',
-    padding: '15px',
-})
-
-const TitleText = styled('h2')({
-    fontFamily: '"Gill Sans", sans-serif',
-    margin: '0',
-    color: 'white',
-})
-
-const Summary = styled('div')({
-    display: 'flex',
-    flexDirection: 'column',
-    padding: '30px 0',
-    border: '1px black solid',
-    borderBottomWidth: '5px',
-    borderRightWidth: '5px',
-    width: '85%',
-    boxSizing: 'border-box',
-    borderRadius: '5px',
-})
-
-const SummaryTitle = styled('h2')({
-    fontSize: '1.3em',
-    padding: '15px 30px',
-    color: 'white',
-    margin: '0',
-    fontFamily: '"Gill Sans", sans-serif',
-    letterSpacing: '2px',
-    marginBottom: '20px',
-    backgroundColor: 'black',
-})
-
-const SummaryType = styled('div')({
-    display: 'flex',
-    alignItems: 'center',
-    columnGap: '15px',
-    width: '100%',
-    marginTop: '20px',
-    padding: '5px 30px',
-    boxSizing: 'border-box',
-    backgroundColor: 'rgb(128 128 128 / 11%)',
-})
-
-const Type = styled('div')({
-    fontFamily: '"Gill Sans", sans-serif',
-    fontSize: '0.9em',
-    color: 'gray',
-})
-
-const Value = styled('div')({
-    fontFamily: '"Gill Sans", sans-serif',
-    fontSize: '1.1em',
-})
-
-const ReceiptOptions = styled('div')({
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexDirection: 'column',
-    width: '33%',
-})
-
-const ReceiptIconWrapper = styled('div')({
-    display: 'flex',
-    padding: '5px',
-    backgroundColor: 'black',
-    borderRadius: '50%',
-    width: '60px',
-    height: '60px',
-})
-
-const Note = styled('div')({
-    textAlign: 'center',
-    columnGap: '5px',
-    marginTop: '10px',
-    paddingLeft: '10px',
-    fontFamily: '"Nunito", "sans-serif"',
-    fontSize: '0.8em',
-    width: '80%',
-})
 
 const style_of_option = {
     display: 'flex',
@@ -350,16 +341,6 @@ const DownloadOption = styled(PDFDownloadLink)({
     ...style_of_option,
 })
 
-const Thanking = styled('div')(({ theme }) => ({
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexDirection: 'column',
-    width: '33%',
-    padding: '10px',
-    boxSizing: 'border-box',
-}))
-
 const TruckAnimation = styled('img')(({ theme }) => ({
     position: 'relative',
     zIndex: '3',
@@ -380,25 +361,12 @@ const TruckAnimation = styled('img')(({ theme }) => ({
     },
 }))
 
-const ThankTitle = styled('h2')({
-    fontFamily: '"Gill Sans", sans-serif',
-    fontSize: '2em',
-    fontWeight: 'bold',
-    margin: '25px 0',
-})
-
-const ThankText = styled('p')({
+const ThankText = styled('p')(({ theme }) => ({
     margin: '0',
-    fontFamily: '"Gill Sans", sans-serif',
+    fontFamily: theme.fontFamily.kanit,
     width: '80%',
     textAlign: 'center',
-})
-
-const Buttons = styled('div')({
-    display: 'flex',
-    columnGap: '15px',
-    marginTop: '30px',
-})
+}))
 
 const Button = styled('a')({
     textDecoration: 'unset',
@@ -418,12 +386,12 @@ const Button = styled('a')({
     },
 })
 
-const LeftBtn = styled(Button)({
+const ContinueShopping = styled(Button)({
     color: 'white',
     backgroundColor: 'black',
 })
 
-const RightBtn = styled(Button)({
+const ViewOrder = styled(Button)({
     boxShadow: '0px 0px 3px gray',
     backgroundColor: 'white',
 })

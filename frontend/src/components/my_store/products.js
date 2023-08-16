@@ -83,7 +83,7 @@ const sortHandler = (products, order_by, order_type) => {
     else if (order_by === 'Sold') order_by = 'sold'
 
     let sort_products = [...products]
-    
+
     if (order_by === 'createdAt')
         sort_products.sort((pre, next) => {
             if (order_type === 'asc')
@@ -116,7 +116,7 @@ const sortHandler = (products, order_by, order_type) => {
     return sort_products
 }
 
-const converDate = (time_string) => moment(time_string).format('DD/MM/YYYY, HH:mm:ss')
+const converDate = (time_string) => moment(time_string).format('DD/MM/YYYY, HH:mm')
 
 const searchHandler = (products, keyword) => {
     return products.filter((product) => {
@@ -258,49 +258,52 @@ const Products = ({ option, shopId }) => {
     }, [products, keyword, order])
 
     return (
-        loading ? (
-            <Skeleton sx={{ transform: 'none', height: '300px', marginTop: '30px' }} />
-        ) : error ? (
-            <Stack
-                flexDirection="row"
-                alignItems='center'
-                justifyContent='center'
-                columnGap='5px'
-                fontSize='1.1em'
-                fontWeight='bold'
-                color='red'
-                width='100%'
-                marginTop='30px'
-            >
-                <ErrorIcon sx={{ fontSize: '1.2em' }} />
-                <span>{error.message}</span>
-            </Stack>
-        ) : update_products && update_products.length > 0 ? (
-            <>
-                <FormControl fullWidth sx={{ marginBottom: '20px' }}>
-                    <InputLabel htmlFor="search_by_name" color="success">Search By Name</InputLabel>
-                    <OutlinedInput
-                        id="search_by_name"
-                        color="success"
-                        startAdornment={<SearchIcon sx={{ paddingRight: '10px' }} />}
-                        label="Search By Name"
-                        onChange={decounce(doingSearch, 300)}
-                        defaultValue={keyword}
-                        placeholder="Enter the product name here..."
-                    />
-                </FormControl>
-
-                <TableComponent
-                    order={order}
-                    products={update_products}
-                    onViewProduct={handleViewProduct}
-                    onCreateSort={handleCreateSort}
-                    tableHeadRef={table_head_ref}
+        <>
+            <FormControl fullWidth sx={{ marginBottom: '20px' }}>
+                <InputLabel htmlFor="search_by_name" color="success">Search By Name</InputLabel>
+                <OutlinedInput
+                    id="search_by_name"
+                    color="success"
+                    startAdornment={<SearchIcon sx={{ paddingRight: '10px' }} />}
+                    label="Search By Name"
+                    onChange={decounce(doingSearch, 300)}
+                    defaultValue={keyword}
+                    placeholder="Enter the product name here..."
                 />
-            </>
-        ) : (
-            <EmptyHeadingComponent option={option} />
-        )
+            </FormControl>
+
+            {
+
+                loading ? (
+                    <Skeleton sx={{ transform: 'none', height: '300px', marginTop: '30px' }} />
+                ) : error ? (
+                    <Stack
+                        flexDirection="row"
+                        alignItems='center'
+                        justifyContent='center'
+                        columnGap='5px'
+                        fontSize='1.1em'
+                        fontWeight='bold'
+                        color='red'
+                        width='100%'
+                        marginTop='30px'
+                    >
+                        <ErrorIcon sx={{ fontSize: '1.2em' }} />
+                        <span>{error.message}</span>
+                    </Stack>
+                ) : update_products && update_products.length > 0 ? (
+                    <TableComponent
+                        order={order}
+                        products={update_products}
+                        onViewProduct={handleViewProduct}
+                        onCreateSort={handleCreateSort}
+                        tableHeadRef={table_head_ref}
+                    />
+                ) : (
+                    <EmptyHeadingComponent option={option} />
+                )
+            }
+        </>
     )
 }
 

@@ -16,6 +16,7 @@ import mastercard from '../../../assets/images/payment_methods/mastercard.jpg'
 import { Box, Divider, Stack, Tooltip, Typography } from "@mui/material"
 import { useTheme } from "@emotion/react"
 import { NavLink } from "react-router-dom"
+import { useTranslation } from "react-i18next"
 
 const social_icon_style = {
     color: 'white',
@@ -83,6 +84,7 @@ const payment_methods = [
 
 const SocialNetworks = () => {
     const theme = useTheme()
+    const { t } = useTranslation('home_page')
 
     return (
         <Stack
@@ -98,7 +100,7 @@ const SocialNetworks = () => {
                 fontSize="1.3em"
                 fontWeight="bold"
             >
-                Contact us on social networks!
+                {t('Contact us on social networks!')}
             </Typography>
 
             <Stack
@@ -125,6 +127,7 @@ const SocialNetworks = () => {
 
 const LogoSection = () => {
     const theme = useTheme()
+    const { t } = useTranslation('home_page')
 
     return (
         <Box
@@ -153,7 +156,7 @@ const LogoSection = () => {
                         fontFamily="inherit"
                         color="white"
                     >
-                        Shopping Too Easy
+                        {t('Shopping Too Easy')}
                     </Typography>
                 </Box>
 
@@ -165,11 +168,9 @@ const LogoSection = () => {
                 fontSize="1.2em"
             >
                 <span>
-                    VCN Shop is an online clothing store and a branch in
-                    Dong Nai of the international e-commerce group Fox COR
-                    based in HCM City.
+                    {t('Thanking Footer')}
                 </span>
-                <span>Thank for VCN VLy distribution center of goods and services.</span>
+                <span>{t('Thanks for VCN VLy distribution center of goods and services.')}</span>
             </Stack>
         </Box>
     )
@@ -177,6 +178,7 @@ const LogoSection = () => {
 
 const Nav = ({ title, list }) => {
     const theme = useTheme()
+    const { t } = useTranslation('home_page')
 
     return (
         <NavSection>
@@ -191,7 +193,7 @@ const Nav = ({ title, list }) => {
                 fontWeight="bold"
                 fontSize="1.3em"
             >
-                {title}
+                {t(title)}
             </Typography>
 
             {
@@ -230,13 +232,13 @@ const Nav = ({ title, list }) => {
                                             '&:hover': { color: '#9ffaff' }
                                         }}
                                     >
-                                        {text}
+                                        {t(text)}
                                     </Typography>
                                     :
                                     <Typography
                                         fontFamily="inherit"
                                     >
-                                        {text}
+                                        {t(text)}
                                     </Typography>
                             }
                         </Box>

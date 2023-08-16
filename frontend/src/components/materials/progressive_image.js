@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react"
 import { Box, Typography } from "@mui/material"
 
-const ProgressiveImage = ({ src, alt, height, width, css, className, textFont, textSize }) => {
+const ProgressiveImage = ({ src, alt, height, width, scss, className, textFont, textSize, textColor }) => {
     const [imgSrc, setImgSrc] = useState()
 
     useEffect(() => {
@@ -24,7 +24,7 @@ const ProgressiveImage = ({ src, alt, height, width, css, className, textFont, t
                 sx={{
                     height: height || 'auto',
                     width: width || 'auto',
-                    ...(css || {}),
+                    ...(scss || {}),
                 }}
             />
         ) :
@@ -34,12 +34,13 @@ const ProgressiveImage = ({ src, alt, height, width, css, className, textFont, t
                     height: height || 'auto',
                     width: width || 'auto',
                     margin: 'auto',
-                    ...(css || {}),
+                    ...(scss || {}),
                 }}
             >
                 <Typography
                     margin="auto"
                     fontSize={textSize || '1em'}
+                    color={textColor || 'inherit'}
                     sx={textFont ? { fontFamily: textFont } : {}}
                 >
                     Loading...

@@ -9,7 +9,6 @@ import { useForm, FormProvider, useFormContext, Controller } from 'react-hook-fo
 import DoubleArrowIcon from '@mui/icons-material/DoubleArrow'
 import MyLocationIcon from '@mui/icons-material/MyLocation'
 import axios from 'axios'
-import { EXPRESS_SERVER } from "../../utils/constants"
 import { toast } from "react-toastify"
 import WarningIcon from '@mui/icons-material/Warning'
 import LocalConvenienceStoreIcon from '@mui/icons-material/LocalConvenienceStore'
@@ -22,6 +21,7 @@ import { useDispatch, useSelector } from "react-redux"
 import { saveShippingInfo } from "../../store/actions/cart_actions"
 import ErrorIcon from '@mui/icons-material/Error'
 import { useTheme } from "@emotion/react"
+import { get_user_location_api } from "../../apis/user_apis"
 
 const defaultInputs = [
     {
@@ -191,12 +191,13 @@ const UserLocation = ({ onSetInputValue, onGetInputValues, onClearsError }) => {
     const [loading, setLoading] = useState(false)
 
     const getUserLocation = async () => {
-        let api_to_get_user_location = '/api/user/getUserLocation'
         let user_location_detail
 
         setLoading(true)
+
         try {
-            let { data } = await axios.get(EXPRESS_SERVER + api_to_get_user_location)
+            let { data } = await axios.get(get_user_location_api)
+
             user_location_detail = {
                 'Country': data.country_name,
                 'State': data.region_name,
@@ -206,6 +207,7 @@ const UserLocation = ({ onSetInputValue, onGetInputValues, onClearsError }) => {
         } catch (error) {
             user_location_detail = error
         }
+
         setLoading(false)
 
         if (user_location_detail instanceof Error)

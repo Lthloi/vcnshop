@@ -3,7 +3,7 @@
         Payment Receipt
     </h2>
     <div style="font-family: Arial, Helvetica, sans-serif; font-size: 12px; ">
-        <%= 'ID: ' + paymentId %>
+        <%= 'ID: ' + paymentInfo.id %>
     </div>
     <div style="font-family: Arial, Helvetica, sans-serif; font-size: 12px; margin-top: 5px; ">
         From:
@@ -23,16 +23,16 @@
                 Receiver Info
             </h2>
             <div><%= 'Email: ' + receiverInfo.email %></div>
-            <div><%= 'Phone: +' + receiverInfo.phone %></div>
-            <div><%= 'Paid On: ' + receiverInfo.paidOn %></div>
+            <div><%= 'Phone: +' + shippingInfo.phone_number %></div>
+            <div><%= 'Paid On: ' + paymentInfo.method %></div>
             <div><%= 'Paid At: ' + paidAt %></div>
         </div>
         <div style="font-family: Arial, Helvetica, sans-serif; font-size: 14px; width: 50%; color: gray; ">
             <h2 style="font-family: Arial, Helvetica, sans-serif; margin: 10px 0 5px;">
                 Delivery Info
             </h2>
-            <div><%= 'Address: ' + deliveryInfo.address %></div>
-            <div><%= 'Shipping Method: ' + deliveryInfo.shippingMethod %></div>
+            <div><%= 'Address: ' + shippingInfo.address %></div>
+            <div><%= 'Shipping Method: ' + shippingInfo.method %></div>
         </div>
     </div>
     <h2 style="font-family: Arial, Helvetica, sans-serif; font-size: 16px; font-weight: bold; margin: 15px 0 2px;">
@@ -72,7 +72,7 @@
                     Shipping Fee
                 </th>
                 <th style="padding: 3px; background-color: lightgrey; border: 1px gray solid; font-weight: normal;">
-                    <%= shipping_fee %>
+                    <%= shippingFee %>
                 </th>
             </tr>
             <tr style="font-family: Arial, Helvetica, sans-serif; font-size: 12px;">
@@ -81,7 +81,7 @@
                     Tax Fee
                 </th>
                 <th style="padding: 3px; background-color: lightgrey; border: 1px gray solid; font-weight: normal;">
-                    <%= tax_fee %>
+                    <%= taxFee %>
                 </th>
             </tr>
         </tbody>
@@ -91,12 +91,12 @@
             Total:
         </div>
         <div style="font-family: Arial, Helvetica, sans-serif; font-size: 20px;">
-            <%= total_to_pay + ' USD' %>
+            <%= totalToPay + ' USD' %>
         </div>
     </div>
     <div
         style="text-align: center; font-family: Arial, Helvetica, sans-serif; margin-top: 10px; font-size: 15px; text-decoration: underline;">
-        <%= 'Generated On ' + generated_on %>
+        <%= 'Generated On ' + generatedOn %>
     </div>
     <div style="margin-top: 20px; text-align: center;">
         Thank for shopping with us. If you have any questions, you always can contact to us via email below.

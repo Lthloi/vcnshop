@@ -6,16 +6,16 @@ import {
     deleteCheckout,
 } from '../../store/reducers/cart_reducer'
 import { toast } from 'react-toastify'
-import actionsErrorHandler from '../../utils/error_handler'
-import { EXPRESS_SERVER } from '../../utils/constants.js'
+import axiosErrorHandler from '../../utils/axios_error_handler'
+import {
+    get_product_api,
+} from '../../apis/product_apis'
 
 const addProductToCart = (product_id, options) => async (dispatch, getState) => {
     try {
         dispatch(addProductToCartRequest())
 
-        let api_to_get_product = '/api/product/getProduct/' + product_id
-
-        let { data } = await axios.get(EXPRESS_SERVER + api_to_get_product)
+        let { data } = await axios.get(get_product_api + product_id)
 
         let productData = data.product
 
@@ -52,7 +52,7 @@ const addProductToCart = (product_id, options) => async (dispatch, getState) => 
 
         toast.success('Add the product to cart successfully')
     } catch (error) {
-        let errorObject = actionsErrorHandler(error)
+        let errorObject = axiosErrorHandler(error)
 
         if (errorObject.statusCode !== 404) {
             dispatch(addProductToCartFail({ error: errorObject }))
@@ -72,7 +72,7 @@ const changeQuantity = (product_id, option) => async (dispatch, getState) => {
 
         localStorage.setItem('cartItems', JSON.stringify(getState().cart.cartItems))
     } catch (error) {
-        let errorObject = actionsErrorHandler(error)
+        let errorObject = axiosErrorHandler(error)
 
         dispatch(changeQuantityFail({ error: errorObject }))
     }

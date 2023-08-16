@@ -1,5 +1,4 @@
 import nodemailer from 'nodemailer'
-import UserModel from '../models/user_schema.js'
 import moment from 'moment'
 import { getOTPHtmlString, getReceiptHtmlString } from './html_string_handlers.js'
 
@@ -22,92 +21,69 @@ const transporter = nodemailer.createTransport({
     },
 })
 
-const sendOTPViaEmail = async (
-    OTP_code, OTP_expire_in_minute, receiver, subject, update_OTP_via_UserModel = true,
-) => {
-    try {
-        let html_to_send = await getOTPHtmlString(company_info, OTP_expire_in_minute, OTP_code)
+const sendOTPViaEmail = async (OTP_code, OTP_expire_in_minute, receiver, subject) => {
+    let html_to_send = await getOTPHtmlString(company_info, OTP_expire_in_minute, OTP_code)
 
-        await transporter.sendMail({
-            from: `"VCN Shop" <${GMAIL_USERNAME}>`,
-            to: receiver,
-            subject: subject,
-            text: 'This is your OTP code: ' + OTP_code + '. If you have not requested this email then, please ignore it.',
-            html: html_to_send,
-        })
-
-        if (update_OTP_via_UserModel)
-            await UserModel.updateOne(
-                { email: receiver },
-                {
-                    $set: {
-                        'OTP_code.value': OTP_code,
-                        'OTP_code.expireAt': moment().add(OTP_expire_in_minute, 'minutes'),
-                    }
-                }
-            )
-
-    } catch (error) {
-        throw error
-    }
+    await transporter.sendMail({
+        from: `"VCN Shop" <${GMAIL_USERNAME}>`,
+        to: receiver,
+        subject: subject,
+        text: 'This is your OTP code: ' + OTP_code + '. If you have not requested this email then, please ignore it.',
+        html: html_to_send,
+    })
 }
 
 const sendReceiptViaEmail = async (
     receiver,
     subject,
     {
-        paymentId,
-        deliveryInfo,
+        paymentInfo,
+        shippingInfo,
         receiverInfo,
         items,
-        taxFee,
         shippingFee,
+        taxFee,
         totalToPay,
-        createdAt
+        createdAt,
     }
 ) => {
-
-    let generated_on = moment().format("MMMM Do YYYY")
+    let generatedOn = moment().format("MMMM Do YYYY")
     let paidAt = moment(createdAt).format('MMMM Do YYYY, h:mm a')
 
-    try {
-        let html_to_send = await getReceiptHtmlString(
-            paymentId,
-            deliveryInfo,
-            receiverInfo,
-            items,
-            company_info,
-            shippingFee,
-            taxFee,
-            totalToPay,
-            generated_on,
-            paidAt
-        )
+    let html_to_send = await getReceiptHtmlString({
+        paymentInfo,
+        shippingInfo,
+        receiverInfo,
+        items,
+        shippingFee,
+        taxFee,
+        totalToPay,
+        generatedOn,
+        paidAt,
+        company_info,
+    })
 
-        await transporter.sendMail({
-            from: `"VCN Shop" <${GMAIL_USERNAME}>`,
-            to: receiver,
-            subject: subject,
-            text:
-                `
+    await transporter.sendMail({
+        from: `"VCN Shop" <${GMAIL_USERNAME}>`,
+        to: receiver,
+        subject: subject,
+        text:
+            `
                 Payment Receipt:\n
-                \nID: ${paymentId}
-                \nAddress: ${deliveryInfo.address}
-                \nShipping Method: ${deliveryInfo.shipping_method}
+                \nID: ${paymentInfo.id}
+                \nAddress: ${shippingInfo.address}
+                \nShipping Method: ${shippingInfo.method}
                 \nEmail: ${receiverInfo.email}
                 \nPhone: ${receiverInfo.phone}
-                \nPaid On: ${receiverInfo.payment_method}
+                \nPaid On: ${paymentInfo.method}
                 \nSum: ${items.length > 1 ? items.length + ' items' : items.length + ' item'}
                 \nTax Fee: ${taxFee}
                 \nShipping Fee: ${shippingFee}
                 \nTotal To Pay: ${totalToPay}
-                \nGenerated On: ${generated_on}
+                \nGenerated On: ${generatedOn}
             `,
-            html: html_to_send,
-        })
-    } catch (error) {
-        throw error
-    }
+        html: html_to_send,
+    })
 }
 
 export {

@@ -5,7 +5,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import FilterAltIcon from '@mui/icons-material/FilterAlt'
 import { useDispatch, useSelector } from "react-redux"
 import { getProducts } from "../../store/actions/product_actions"
-import { MAX_PRICE_PORDUCT } from "../../utils/constants"
+import { MAX_PRICE_PORDUCT } from "../../configs/constants"
 import {
     Radio, RadioGroup, Collapse, Rating as RatingMUI,
     FormControl, FormControlLabel, Stack, Typography,

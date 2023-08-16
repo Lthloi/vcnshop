@@ -6,11 +6,13 @@ import { toast } from 'react-toastify'
 import { Stack, Typography, CircularProgress, Box } from "@mui/material"
 import { useTheme } from "@emotion/react"
 import validator from 'validator'
+import { useTranslation } from "react-i18next"
 
 const NewsLetter = () => {
     const { register, handleSubmit } = useForm()
     const theme = useTheme()
     const [submitting, setSubmitting] = useState()
+    const { t } = useTranslation('home_page')
 
     const submit = async (data, e) => {
         let email = data['Email']
@@ -49,7 +51,7 @@ const NewsLetter = () => {
                 fontSize="2em"
                 fontWeight="bold"
             >
-                Newsletter From Us
+                {t('Newsletter From Us')}
             </Typography>
 
             <Typography
@@ -58,9 +60,7 @@ const NewsLetter = () => {
                 fontFamily="inherit"
                 width="50%"
             >
-                Enter your email below to receive email toasts
-                from <b>VCN Shop - Fox COR</b> about
-                events and big sales.
+                {t('Newsletter Intro')}
             </Typography>
 
             <Stack
@@ -74,7 +74,7 @@ const NewsLetter = () => {
                     padding="10px 20px"
                 >
                     <EmailInput
-                        placeholder="Enter your email address..."
+                        placeholder={t('Enter your email address...')}
                         {...register('Email')}
                     />
                 </Box>

@@ -7,11 +7,13 @@ import { CircularProgress } from "@mui/material"
 import Tooltip from '@mui/material/Tooltip'
 import { useNavigate } from "react-router-dom"
 import { Stack } from '@mui/material'
+import { useTranslation } from "react-i18next"
 
 const UserNav = () => {
     const { auth: { isAuthenticated }, error } = useSelector(({ user }) => user)
     const navigate_to_login = useNavToRedirectLogin()
     const navigate = useNavigate()
+    const { t } = useTranslation('home_page')
 
     const handleAuthNavigate = (option) => {
         if (option === 'login')
@@ -24,7 +26,7 @@ const UserNav = () => {
 
     return (
         isAuthenticated ? (
-            <Tooltip title="Account">
+            <Tooltip title={t("Account")}>
                 <PersonIconWrapper onClick={() => handleAuthNavigate('account')}>
                     <PersonIcon sx={{ fontSize: '1.8em', color: 'black' }} />
                 </PersonIconWrapper>
@@ -32,10 +34,10 @@ const UserNav = () => {
         ) : !isAuthenticated && error ? (
             <Stack flexDirection="row" alignItems="center">
                 <AuthBtn onClick={() => handleAuthNavigate('login')}>
-                    Sign In
+                    {t('Sign In')}
                 </AuthBtn>
                 <AuthBtn onClick={() => handleAuthNavigate('register')}>
-                    Sign Up
+                    {t('Sign Up')}
                 </AuthBtn>
             </Stack>
         ) :

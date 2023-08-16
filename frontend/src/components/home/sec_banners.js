@@ -5,9 +5,11 @@ import SecBanner_2 from '../../assets/images/sec_banner_2.webp'
 import SecBanner_3 from '../../assets/images/sec_banner_3.webp'
 import { useTheme } from "@emotion/react"
 import { Stack, Typography, Box } from "@mui/material"
+import { useTranslation } from "react-i18next"
 
 const SecBanner = ({ banner, title, subtitle }) => {
     const theme = useTheme()
+    const { t } = useTranslation('home_page')
 
     return (
         <Box
@@ -48,7 +50,7 @@ const SecBanner = ({ banner, title, subtitle }) => {
                     <AnimationText
                         className="animation_text"
                     >
-                        Shop Now
+                        {t('Shop Now')}
                     </AnimationText>
                 </AnimationTextContainer>
 
@@ -58,6 +60,8 @@ const SecBanner = ({ banner, title, subtitle }) => {
 }
 
 const SecBanners = () => {
+    const { t } = useTranslation('home_page')
+
     return (
         <Stack
             flexDirection="row"
@@ -67,9 +71,9 @@ const SecBanners = () => {
             padding="0 50px"
             boxSizing="border-box"
         >
-            <SecBanner banner={SecBanner_1} title="Woman" subtitle="Spring 2021" />
-            <SecBanner banner={SecBanner_2} title="Man" subtitle="Spring 2022" />
-            <SecBanner banner={SecBanner_3} title="Unisex" subtitle="New Trend" />
+            <SecBanner banner={SecBanner_1} title={t('Woman')} subtitle={t('Spring 2021')} />
+            <SecBanner banner={SecBanner_2} title={t('Man')} subtitle={t('Spring 2022')} />
+            <SecBanner banner={SecBanner_3} title={t('Unisex')} subtitle={t('New Trend')} />
         </Stack>
     )
 }

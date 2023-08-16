@@ -92,7 +92,7 @@ const MainImage = ({ imagePicked }) => {
                 sx={{ cursor: `url(${zoom_in_image}), auto` }}
             >
                 <ProgressiveImage
-                    css={{ margin: 'auto', maxWidth: '100%' }}
+                    scss={{ margin: 'auto', maxWidth: '100%' }}
                     src={imagePicked}
                     height="100%"
                 />

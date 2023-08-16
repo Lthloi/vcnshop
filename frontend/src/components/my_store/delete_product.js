@@ -16,7 +16,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 })
 
 const DeleteProduct = ({ productId }) => {
-    const { loading } = useSelector(({ product }) => product.productDetail)
+    const [loading, setLoading] = useState(false)
     const dispatch = useDispatch()
     const [openDialog, setOpenDialog] = useState(false)
 
@@ -26,8 +26,12 @@ const DeleteProduct = ({ productId }) => {
 
     const handleOpenDialog = (open) => setOpenDialog(open)
 
-    const handleDeleteProduct = () => {
-        dispatch(deleteProduct(productId))
+    const handleDeleteProduct = async () => {
+        setLoading(true)
+
+        await dispatch(deleteProduct(productId))
+        
+        setLoading(false)
     }
 
     return (

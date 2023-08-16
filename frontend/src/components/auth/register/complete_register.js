@@ -15,7 +15,7 @@ import CancelIcon from '@mui/icons-material/Cancel'
 import RadioGroup from '@mui/material/RadioGroup'
 import { FormControlLabel } from "@mui/material"
 import { Radio, Stack } from "@mui/material"
-import { MAX_PASSWORD_LENGTH } from "../../../utils/constants"
+import { MAX_PASSWORD_LENGTH } from "../../../configs/constants"
 
 const inputs = [
     {
