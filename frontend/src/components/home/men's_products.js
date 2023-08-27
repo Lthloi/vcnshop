@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react"
 import { styled } from '@mui/material/styles'
-import { Stack, Box, Typography, Tabs, Tab, Skeleton } from "@mui/material"
+import { Stack, Box, Typography, Tabs, Tab, Skeleton, Tooltip } from "@mui/material"
 import men_banner from '../../assets/images/men_banner.jpg'
 import { useTheme } from "@emotion/react"
 import { useDispatch, useSelector } from "react-redux"
@@ -10,24 +10,17 @@ import { addProductToCart } from "../../store/actions/cart_actions"
 import { NavLink } from "react-router-dom"
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
 import { useTranslation } from "react-i18next"
+import { useSwipe } from "../../hooks/custom_hooks"
+import { useMediaQuery } from "@mui/material"
+import { MAX_NUM_OF_PRODUCTS_MOST_SOLD } from "../../configs/constants"
 
 const categories = ['Shirt', 'Pant']
 
 const MenBanner = () => {
-    const theme = useTheme()
     const { t } = useTranslation('home_page')
 
     return (
-        <Box
-            fontFamily={theme.fontFamily.kanit}
-            height="500px"
-            minWidth="250px"
-            sx={{
-                backgroundImage: `url(${men_banner})`,
-                backgroundSize: 'cover',
-                backgroundRepeat: 'no-repeat',
-            }}
-        >
+        <MenBannerSection>
             <Stack
                 padding="30px"
                 height="100%"
@@ -54,12 +47,11 @@ const MenBanner = () => {
                     {t('Discover More')}
                 </Typography>
             </Stack>
-        </Box>
+        </MenBannerSection>
     )
 }
 
 const Product = ({ productInfo }) => {
-    const theme = useTheme()
     const { image_link, name, price, _id } = productInfo
     const dispatch = useDispatch()
     const { t } = useTranslation('home_page')
@@ -69,19 +61,9 @@ const Product = ({ productInfo }) => {
     }
 
     return (
-        <ProductSection className="Product">
+        <ProductSection>
 
-            <Stack
-                justifyContent="center"
-                alignItems="center"
-                position="relative"
-                cursor="pointer"
-                overflow="hidden"
-                height="250px"
-                width="100%"
-                border="1px rgba(0,0,0,.05) solid"
-                boxSizing="border-box"
-            >
+            <ProductImageContainer>
 
                 <Box
                     to={`/productDetail/${_id}`}
@@ -106,26 +88,20 @@ const Product = ({ productInfo }) => {
                     {t('Add To Cart')}
                 </AddProductToCartBtn>
 
-            </Stack>
+            </ProductImageContainer>
 
             <Box
                 padding="0 5px"
             >
-                <Name to={`/productDetail/${_id}`}>
-                    {name}
-                </Name>
+                <Tooltip title={name}>
+                    <Name to={`/productDetail/${_id}`}>
+                        {name}
+                    </Name>
+                </Tooltip>
 
-                <Typography
-                    fontFamily={theme.fontFamily.kanit}
-                    fontSize="0.9em"
-                    marginTop="5px"
-                    paddingLeft="5px"
-                    bgcolor="white"
-                    borderRadius="5px"
-                    textAlign="center"
-                >
+                <Price>
                     {'$' + price.value}
-                </Typography>
+                </Price>
             </Box>
 
         </ProductSection>
@@ -138,75 +114,66 @@ const slide_icon_style = {
     margin: 'auto',
 }
 
-const switch_slide_btn_style = {
-    display: 'flex',
-    position: "absolute",
-    top: "50%",
-    transform: 'translateY(-50%)',
-    cursor: 'pointer',
-    padding: '10px',
-    borderRadius: '50%',
-    transition: 'background-color 0.2s',
-    '&:hover': {
-        backgroundColor: 'rgba(0,0,0,.05)',
-    }
-}
-
 const Slider = ({ products }) => {
     const [slideIndex, setSlideIndex] = useState(0)
+    const touchEvents = useSwipe({
+        onMoveRight: () => switchSlide('left'),
+        onMoveLeft: () => switchSlide('right'),
+        speedInMs: 300,
+        minSwipingWidth: 100,
+    })
 
     const switchSlide = (direction) => {
-        if (products.length < 4) return
+        let window_width = window.innerWidth
+        let count_products = products.length
+        let count_slides
+
+        if (window_width < 1200) {
+            count_slides = Math.ceil(count_products / 2) - 1 // minus 1 because of it relatives to slideInfex state
+            if (count_products < 3)
+                return
+        } else if (window_width >= 1200) {
+            count_slides = Math.ceil(count_products / 3) - 1 // minus 1 because of it relatives to slideInfex state
+            if (count_products < 4)
+                return
+        }
 
         if (direction === 'left') {
-            setSlideIndex(pre => pre > 0 ? pre - 1 : 2)
+            setSlideIndex(pre => pre > 0 ? pre - 1 : count_slides)
         } else {
-            setSlideIndex(pre => pre < 2 ? pre + 1 : 0)
+            setSlideIndex(pre => pre < count_slides ? pre + 1 : 0)
         }
     }
 
-    const time_to_auto_slide_in_ms = 3000
-
     useEffect(() => {
-        let interval
-
-        if (products.length > 3) {
-            interval = setInterval(() => {
-                setSlideIndex(pre => pre < 2 ? pre + 1 : 0)
-            }, time_to_auto_slide_in_ms)
-        }
+        let interval = setInterval(() => {
+            switchSlide('right')
+        }, 3000)
 
         return () => clearInterval(interval)
-    }, [slideIndex, products.length])
+    }, [products.length])
 
     const get_translate_x = () => {
-        if (products.length < 4) return `translateX(0)`
+        let window_width = window.innerWidth
 
-        return `translateX(calc(-${slideIndex * 100}% - ${slideIndex * 30}px))`
+        if ((window_width < 1200 && products.length < 3) || (window_width < 1200 && products.length < 4))
+            return `translateX(0)`
+
+        return `translateX(-${slideIndex * 100}%)`
     }
 
     return (
-        <Stack
-            position="relative"
-            width="100%"
-            alignItems="center"
-        >
-            <Box
-                component="div"
+        <SliderSection>
+            <div
+                className="switch_slide_btn left"
                 onClick={() => switchSlide('left')}
-                sx={{ ...switch_slide_btn_style, left: '-30px' }}
             >
                 <ArrowForwardIosIcon sx={{ transform: 'rotate(180deg)', ...slide_icon_style }} />
-            </Box>
+            </div>
 
-            <Box
-                marginTop="40px"
-                width="735px"
-                overflow="hidden"
-            >
+            <SliderWrapper {...touchEvents}>
                 <Stack
                     flexDirection="row"
-                    columnGap="30px"
                     sx={{
                         transform: get_translate_x(),
                         transition: 'transform 0.8s',
@@ -218,25 +185,22 @@ const Slider = ({ products }) => {
                         ))
                     }
                 </Stack>
-            </Box>
+            </SliderWrapper>
 
-            <Box
-                component="div"
+            <div
                 onClick={() => switchSlide('right')}
-                sx={{ ...switch_slide_btn_style, right: '-30px' }}
+                className="switch_slide_btn right"
             >
                 <ArrowForwardIosIcon sx={slide_icon_style} />
-            </Box>
-        </Stack>
+            </div>
+        </SliderSection>
     )
 }
-
-const max_number_of_products = 9
 
 const filter_products_by_category = (category_to_filter, products) => {
     return products
         .filter(({ category }) => category === category_to_filter)
-        .slice(0, max_number_of_products)
+        .slice(0, MAX_NUM_OF_PRODUCTS_MOST_SOLD)
 }
 
 const loading_style = {
@@ -252,7 +216,7 @@ const Products = () => {
 
     useEffect(() => {
         dispatch(getMenSProducts(
-            categories.length * max_number_of_products,
+            categories.length * MAX_NUM_OF_PRODUCTS_MOST_SOLD,
             1,
             { name: 'sold.count', type: -1 }
         ))
@@ -273,10 +237,7 @@ const Products = () => {
     }
 
     return (
-        <Stack
-            width="100%"
-            alignItems="center"
-        >
+        <ProductsSection>
 
             <Box
                 color="black"
@@ -303,11 +264,11 @@ const Products = () => {
                 loading ? (
                     <Stack
                         flexDirection="row"
-                        columnGap="30px"
+                        columnGap="15px"
                         width="100%"
                         marginTop="40px"
                         justifyContent="space-between"
-                        height="333px"
+                        height="320px"
                     >
                         <Skeleton sx={loading_style} />
                         <Skeleton sx={loading_style} />
@@ -325,33 +286,74 @@ const Products = () => {
                     <Slider products={main_products} />
             }
 
-        </Stack>
+        </ProductsSection>
     )
 }
 
 const MenSProducts = () => {
+    const matches = useMediaQuery((theme) => theme.breakpoints.up('md'))
 
     return (
-        <Stack
-            component="div"
-            id="Men's-Banner"
-            flexDirection="row"
-            alignItems="center"
-            padding="20px 60px"
-            justifyContent="space-between"
-            marginTop="50px"
-            columnGap="100px"
-        >
+        matches ? (
+            <WomenSProductsSection>
 
-            <Products />
+                <Products />
 
-            <MenBanner />
+                <MenBanner />
 
-        </Stack>
+            </WomenSProductsSection>
+        ) : (
+            <WomenSProductsSection>
+
+                <MenBanner />
+
+                <Products />
+
+            </WomenSProductsSection>
+        )
     )
 }
 
 export default MenSProducts
+
+const WomenSProductsSection = styled('div')(({ theme }) => ({
+    display: 'flex',
+    alignItems: "center",
+    padding: "20px 60px",
+    paddingRight: '80px',
+    justifyContent: "space-between",
+    marginTop: "10px",
+    columnGap: "100px",
+    overflowX: 'hidden',
+
+    [theme.breakpoints.down('md')]: {
+        flexDirection: 'column',
+        padding: "10px",
+    },
+}))
+
+const MenBannerSection = styled('div')(({ theme }) => ({
+    fontFamily: theme.fontFamily.kanit,
+    height: "500px",
+    minWidth: "250px",
+    backgroundImage: `url(${men_banner})`,
+    backgroundSize: 'cover',
+    backgroundRepeat: 'no-repeat',
+    [theme.breakpoints.down('md')]: {
+        minWidth: "100%",
+        marginBottom: '20px',
+    },
+}))
+
+const ProductsSection = styled('div')(({ theme }) => ({
+    display: 'flex',
+    flexDirection: 'column',
+    width: "68%",
+    alignItems: "center",
+    [theme.breakpoints.down('md')]: {
+        width: "100%",
+    },
+}))
 
 const StyledTabs = styled(Tabs)({
     '& .MuiTabs-indicator': {
@@ -365,14 +367,46 @@ const StyledTab = styled(Tab)({
     textTransform: 'none',
 })
 
+const SliderWrapper = styled('div')(({ theme }) => ({
+    marginTop: "40px",
+    width: "99.99%",
+    overflow: "hidden",
+    [theme.breakpoints.down('md')]: {
+        marginTop: "20px",
+    },
+}))
+
 const ProductSection = styled('div')(({ theme }) => ({
     fontFamily: theme.fontFamily.nunito,
     boxSizing: 'border-box',
-    minWidth: '225px',
-    maxWidth: '225px',
+    minWidth: '33.33%',
+    maxWidth: '33.33%',
     padding: '10px 0',
     '&:hover .AddToCartBtn': {
         bottom: '10px',
+    },
+    [theme.breakpoints.down('970')]: {
+        minWidth: '100%',
+        maxWidth: '100%',
+    },
+    [theme.breakpoints.down('lg')]: {
+        minWidth: '50%',
+        maxWidth: '50%',
+    },
+}))
+
+const ProductImageContainer = styled('div')(({ theme }) => ({
+    justifyContent: "center",
+    alignItems: "center",
+    position: "relative",
+    cursor: "pointer",
+    overflow: "hidden",
+    height: "250px",
+    width: "100%",
+    border: "1px rgba(0,0,0,.05) solid",
+    boxSizing: "border-box",
+    [theme.breakpoints.down('sm')]: {
+        height: '200px',
     }
 }))
 
@@ -404,7 +438,7 @@ const Name = styled(NavLink)({
     textDecoration: 'unset',
     color: 'black',
     width: '100%',
-    fontSize: '1rem',
+    fontSize: 'clamp(0.8em, 1vw, 1em)',
     fontWeight: 'bold',
     marginTop: '15px',
     cursor: 'pointer',
@@ -416,3 +450,52 @@ const Name = styled(NavLink)({
         textDecoration: 'underline',
     }
 })
+
+const Price = styled(Typography)(({ theme }) => ({
+    fontFamily: theme.fontFamily.kanit,
+    fontSize: "0.9em",
+    marginTop: "5px",
+    paddingLeft: "5px",
+    bgcolor: "white",
+    borderRadius: "5px",
+    textAlign: "center",
+    [theme.breakpoints.down('md')]: {
+        fontSize: "0.8em",
+    },
+}))
+
+const SliderSection = styled('div')(({ theme }) => ({
+    position: "relative",
+    width: "100%",
+    alignItems: "center",
+    zIndex: '1',
+    '& .switch_slide_btn': {
+        display: 'flex',
+        position: "absolute",
+        top: "50%",
+        transform: 'translateY(-50%)',
+        cursor: 'pointer',
+        padding: '10px',
+        borderRadius: '50%',
+        transition: 'background-color 0.2s',
+        '&:hover': {
+            backgroundColor: 'rgba(0,0,0,.05)',
+        },
+        '&.left': {
+            right: 'calc(100% + 10px)',
+            zIndex: '2',
+            [theme.breakpoints.down('md')]: {
+                left: '0',
+                right: 'auto',
+            },
+        },
+        '&.right': {
+            left: 'calc(100% + 10px)',
+            zIndex: '2',
+            [theme.breakpoints.down('md')]: {
+                right: '0',
+                left: 'auto',
+            },
+        },
+    }
+}))

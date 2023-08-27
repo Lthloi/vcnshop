@@ -85,9 +85,7 @@ const ForgotPasswordSection = () => {
                     {
                         forgotPasswordStep === 1 &&
                         <SubmitBtnContainer>
-                            <ProblemBtn>
-                                Have problem ?
-                            </ProblemBtn>
+                            <span></span>
                             <SendRecoverCode onClick={forgotPasswordSubmit}>
                                 {
                                     loading ?
@@ -127,7 +125,11 @@ export default ForgotPasswordSection
 
 const ForgotPasswordArea = styled('div')(({ theme }) => ({
     ...theme.auth_background,
-    overflowY: 'auto',
+    fontFamily: theme.fontFamily.nunito,
+    [theme.breakpoints.down('md')]: {
+        minWidth: '100%',
+        padding: '20px',
+    }
 }))
 
 const Title = styled('h2')({
@@ -227,16 +229,6 @@ const SubmitBtnContainer = styled('div')({
     marginTop: '20px',
 })
 
-const ProblemBtn = styled('div')({
-    color: 'red',
-    fontSize: '1em',
-    fontFamily: 'nunito',
-    cursor: 'pointer',
-    '&:hover': {
-        textDecoration: 'underline',
-    }
-})
-
 const SendRecoverCode = styled('button')({
     display: 'flex',
     alignItems: 'center',
@@ -250,7 +242,7 @@ const SendRecoverCode = styled('button')({
     height: '35px',
 })
 
-const SignInContainer = styled('div')({
+const SignInContainer = styled('div')(({ theme }) => ({
     marginTop: '15px',
     color: 'white',
     fontFamily: 'nunito',
@@ -262,5 +254,8 @@ const SignInContainer = styled('div')({
         '&:hover': {
             textDecoration: 'underline',
         }
+    },
+    [theme.breakpoints.down('sm')]: {
+        fontSize: '0.9em',
     }
-})
+}))

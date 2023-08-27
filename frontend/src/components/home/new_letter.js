@@ -4,13 +4,11 @@ import SendIcon from '@mui/icons-material/Send'
 import { useForm } from "react-hook-form"
 import { toast } from 'react-toastify'
 import { Stack, Typography, CircularProgress, Box } from "@mui/material"
-import { useTheme } from "@emotion/react"
 import validator from 'validator'
 import { useTranslation } from "react-i18next"
 
 const NewsLetter = () => {
     const { register, handleSubmit } = useForm()
-    const theme = useTheme()
     const [submitting, setSubmitting] = useState()
     const { t } = useTranslation('home_page')
 
@@ -34,13 +32,8 @@ const NewsLetter = () => {
     }
 
     return (
-        <Stack
+        <NewsLetterSection
             id="News-Letter-Section"
-            component="div"
-            alignItems="center"
-            justifyContent="center"
-            margin="100px 0 50px"
-            fontFamily={theme.fontFamily.nunito}
         >
 
             <Typography
@@ -59,19 +52,17 @@ const NewsLetter = () => {
                 marginTop="15px"
                 fontFamily="inherit"
                 width="50%"
+                fontSize="1em"
             >
                 {t('Newsletter Intro')}
             </Typography>
 
-            <Stack
-                id="EmailInputForm"
-                flexDirection="row"
-                marginTop="15px"
-            >
+            <EmailContainer>
 
                 <Box
                     bgcolor="rgba(0,0,0,.05)"
                     padding="10px 20px"
+                    width="100%"
                 >
                     <EmailInput
                         placeholder={t('Enter your email address...')}
@@ -92,19 +83,43 @@ const NewsLetter = () => {
                     }
                 </SubmitBtn>
 
-            </Stack>
+            </EmailContainer>
 
-        </Stack>
+        </NewsLetterSection>
     )
 }
 
 export default NewsLetter
 
+const NewsLetterSection = styled('div')(({ theme }) => ({
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: "center",
+    justifyContent: "center",
+    margin: "100px 0 50px",
+    fontFamily: theme.fontFamily.nunito,
+    [theme.breakpoints.down('md')]: {
+        margin: "50px 0",
+    },
+    [theme.breakpoints.down('sm')]: {
+        fontSize: '0.8em',
+    },
+}))
+
+const EmailContainer = styled('div')(({ theme }) => ({
+    display: 'flex',
+    marginTop: "15px",
+    width: '400px',
+    [theme.breakpoints.down('sm')]: {
+        width: '250px',
+    },
+}))
+
 const EmailInput = styled('input')({
     border: 'none',
     outline: 'none',
     fontSize: '1em',
-    width: '250px',
+    width: '100%',
     backgroundColor: 'transparent',
 })
 

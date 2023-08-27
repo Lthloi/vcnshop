@@ -2,18 +2,25 @@ import React, { useMemo } from "react"
 import { styled } from '@mui/material/styles'
 import { useFloatNumber, useNumerToWords } from "../../hooks/custom_hooks"
 import { toast } from "react-toastify"
+import { Box, Stack } from "@mui/material"
 
 const PaymentType = ({ title, in_number, in_words }) => {
     return (
-        <div id="PaymentTypeContainer">
-            <PaymentTypeContainer>
+        <div>
+            <Stack
+                flexDirection="row"
+                justifyContent='space-between'
+                alignItems='center'
+                columnGap="50px"
+            >
                 <PaymentTypeTitle>
                     {title + ' '}{title === 'OFF' ? <span>(Coupons)</span> : ''}
                 </PaymentTypeTitle>
                 <PaymentTypeCost>
                     {'$' + in_number}
                 </PaymentTypeCost>
-            </PaymentTypeContainer>
+            </Stack>
+
             <InWords>
                 {
                     title === 'OFF' ?
@@ -33,7 +40,7 @@ const PaymentType = ({ title, in_number, in_words }) => {
     )
 }
 
-const SummarySection = ({ cartItems }) => {
+const Summary = ({ cartItems }) => {
     const get_float_number = useFloatNumber()
     const number_to_words_convertor = useNumerToWords()
 
@@ -54,59 +61,62 @@ const SummarySection = ({ cartItems }) => {
     }
 
     return (
-        <PaymenSectionArea id="PaymenSectionArea">
-            <PaymentSectionTitle>SUMMARY</PaymentSectionTitle>
+        <SummarySection>
+            <Box
+                bgcolor="lightcyan"
+                padding='10px 20px'
+                minWidth='100%'
+                height='fit-content'
+                boxSizing='border-box'
+            >
+                <PaymentSectionTitle>
+                    SUMMARY
+                </PaymentSectionTitle>
 
-            <Hr />
+                <Hr />
 
-            <PaymentType title={'SUBTOTAL'} in_number={subtotal} in_words={subTotalInWords} />
+                <PaymentType title={'SUBTOTAL'} in_number={subtotal} in_words={subTotalInWords} />
 
-            <CheckoutBtn onClick={handleCheckOut}>
-                Check Out
-            </CheckoutBtn>
-        </PaymenSectionArea>
+                <CheckoutBtn onClick={handleCheckOut}>
+                    Check Out
+                </CheckoutBtn>
+            </Box>
+        </SummarySection>
     )
 }
 
-export default SummarySection
+export default Summary
 
-const PaymentTypeContainer = styled('div')({
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-})
+const SummarySection = styled('div')(({ theme }) => ({
+    width: '35%',
+    [theme.breakpoints.down('lg')]: {
+        width: '100%',
+        marginTop: '10px',
+    },
+}))
 
-const PaymentTypeTitle = styled('h2')({
-    fontFamily: '"Kanit", "sans-serif"',
+const PaymentTypeTitle = styled('h2')(({ theme }) => ({
+    fontFamily: theme.fontFamily.kanit,
     transform: 'scaleY(0.8)',
     margin: '0',
-})
+}))
 
-const PaymentTypeCost = styled('div')({
-    fontFamily: '"Nunito", "sans-serif"',
-    fontWeight: 'bold',
+const PaymentTypeCost = styled('div')(({ theme }) => ({
+    fontFamily: theme.fontFamily.kanit,
     fontSize: '1em',
-})
+}))
 
-const InWords = styled('div')({
+const InWords = styled('div')(({ theme }) => ({
     display: 'block',
-    fontFamily: '"Nunito", "sans-serif"',
+    fontFamily: theme.fontFamily.nunito,
     fontSize: '0.9em',
-})
+}))
 
-const PaymenSectionArea = styled('div')({
-    padding: '10px 20px',
-    backgroundColor: 'lightcyan',
-    width: '34%',
-    height: 'fit-content',
-    boxSizing: 'border-box',
-})
-
-const PaymentSectionTitle = styled('h2')({
-    fontFamily: '"Kanit", "sans-serif"',
+const PaymentSectionTitle = styled('h2')(({ theme }) => ({
+    fontFamily: theme.fontFamily.kanit,
     transform: 'scaleY(0.8)',
     margin: '0',
-})
+}))
 
 const Hr = styled('hr')({
     backgroundColor: 'black',
@@ -114,12 +124,12 @@ const Hr = styled('hr')({
     height: '2px',
 })
 
-const CheckoutBtn = styled('button')({
+const CheckoutBtn = styled('button')(({ theme }) => ({
     backgroundColor: 'black',
     padding: '10px',
     color: 'white',
     cursor: 'pointer',
-    fontFamily: '"Nunito", "sans-serif"',
+    fontFamily: theme.fontFamily.nunito,
     fontWeight: 'bold',
     fontSize: '1em',
     marginTop: '10px',
@@ -130,4 +140,4 @@ const CheckoutBtn = styled('button')({
     '&:hover': {
         outline: '3px black solid',
     }
-})
+}))

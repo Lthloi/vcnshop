@@ -135,11 +135,7 @@ const Search = ({ handleSetSuggestions, suggestionRef, handleSubmitSearch }) => 
     }
 
     return (
-        <Stack
-            width="50%"
-            rowGap="5px"
-            marginTop="15px"
-        >
+        <SearchInputContainer>
             <Stack
                 flexDirection="row"
                 height="40px"
@@ -174,7 +170,7 @@ const Search = ({ handleSetSuggestions, suggestionRef, handleSubmitSearch }) => 
                     <LinearProgress color="inherit" />
                 </Box>
             }
-        </Stack>
+        </SearchInputContainer>
     )
 }
 
@@ -282,7 +278,6 @@ const SearchSection = ({ handleOpenSearch }) => {
                     component="label"
                     htmlFor="SearchDialogInput"
                     fontFamily={theme.fontFamily.kanit}
-                    paddingLeft="10px"
                     fontSize="2.2em"
                     fontWeight="bold"
                     marginTop="10px"
@@ -339,9 +334,9 @@ const SearchButton = () => {
                     onClick={() => handleOpenSearch(true)}
                 >
                     <SearchIcon sx={{ color: 'black' }} />
-                    <Typography fontSize="0.9em" color="rgba(0,0,0,0.8)">
+                    <Placeholder>
                         {t('Find Product By Names...')}
-                    </Typography>
+                    </Placeholder>
                 </SearchBtn>
             </Tooltip>
         </>
@@ -349,6 +344,15 @@ const SearchButton = () => {
 }
 
 export default React.memo(SearchButton)
+
+const SearchInputContainer = styled('div')(({ theme }) => ({
+    width: "50%",
+    rowGap: "5px",
+    marginTop: "15px",
+    [theme.breakpoints.down('md')]: {
+        width: "90%",
+    },
+}))
 
 const SearchInput = styled('input')({
     outline: 'unset',
@@ -376,9 +380,8 @@ const SearchIconWrapper = styled('div')({
     }
 })
 
-const CloseSearchIcon = styled(CloseIcon)({
-    width: '1.5em',
-    height: '1.5em',
+const CloseSearchIcon = styled(CloseIcon)(({ theme }) => ({
+    fontSize: '2.2em',
     color: 'black',
     position: 'absolute',
     top: '10px',
@@ -387,8 +390,11 @@ const CloseSearchIcon = styled(CloseIcon)({
     transition: 'transform 0.2s',
     '&:hover': {
         transform: 'scale(1.2)',
+    },
+    [theme.breakpoints.down('sm')]: {
+        fontSize: '2em',
     }
-})
+}))
 
 const SuggestionSection = styled('a')({
     display: 'block',
@@ -413,7 +419,7 @@ const SuggestionSection = styled('a')({
     },
 })
 
-const SearchBtn = styled('div')({
+const SearchBtn = styled('div')(({ theme }) => ({
     display: 'flex',
     alignItems: 'center',
     padding: '5px 10px',
@@ -425,5 +431,17 @@ const SearchBtn = styled('div')({
     transition: 'border-radius 0.2s',
     '&:hover': {
         borderRadius: '10px',
-    }
-})
+    },
+    [theme.breakpoints.down('md')]: {
+        border: 'none',
+    },
+}))
+
+const Placeholder = styled('div')(({ theme }) => ({
+    fontFamily: theme.fontFamily.nunito,
+    fontSize: '0.9em',
+    color: 'rgba(0,0,0,0.8)',
+    [theme.breakpoints.down('md')]: {
+        display: 'none',
+    },
+}))

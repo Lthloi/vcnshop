@@ -34,11 +34,6 @@ export const productsSlice = createSlice({
             error: null,
             products: null,
         },
-        shop: {
-            loading: false,
-            error: null,
-            products: null,
-        }
     },
     reducers: {
         createNewProductRequest: (state, action) => {
@@ -68,14 +63,10 @@ export const productsSlice = createSlice({
 
 
         deleteProductRequest: (state, action) => {
-            // state.productDetail.error = null
         },
         deleteProductSuccess: (state, action) => {
-            
         },
         deleteProductFail: (state, action) => {
-            // let error = action.payload && action.payload.error
-            // if (error) state.productDetail.error = error
         },
 
 

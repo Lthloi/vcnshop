@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from "react-redux"
 import { logoutUser } from "../../store/actions/user_actions"
 import { useCheckIsAdminRole } from '../../hooks/custom_hooks'
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings'
+import { Typography } from "@mui/material"
 
 const icon_style = { color: 'black' }
 
@@ -34,12 +35,14 @@ const Navigation = () => {
     }
 
     return (
-        <div id="NavigationArea">
+        <div>
             {
                 user && check_is_admin_role(user.role) &&
                 <Nav onClick={() => window.open('/admin/dashboard', '_self')}>
                     <AdminPanelSettingsIcon sx={icon_style} />
-                    <Text>Admin</Text>
+                    <Text className="option">
+                        Admin
+                    </Text>
                 </Nav>
             }
             {
@@ -50,7 +53,11 @@ const Navigation = () => {
                         sx={indicator.includes(href) && { borderLeftColor: 'black' }}
                     >
                         {icon}
-                        <Text>{label}</Text>
+                        <Text
+                            className="option"
+                        >
+                            {label}
+                        </Text>
                     </Nav>
                 ))
             }
@@ -60,7 +67,7 @@ const Navigation = () => {
 
 export default Navigation
 
-const Nav = styled('div')({
+const Nav = styled('div')(({ theme }) => ({
     display: 'flex',
     alignItems: 'center',
     columnGap: '8px',
@@ -72,13 +79,16 @@ const Nav = styled('div')({
     '&:last-child': {
         borderBottom: '1px #d1d1d1 solid',
     },
-    '&:hover label': {
+    '&:hover .option': {
         textDecoration: 'underline',
     },
-})
+    [theme.breakpoints.down(970)]: {
+        justifyContent: 'center',
+    },
+}))
 
-const Text = styled('label')({
+const Text = styled(Typography)(({ theme }) => ({
     fontFamily: '"Kanit", "sans-serif"',
     fontSize: '1.1em',
     cursor: 'pointer',
-})
+}))

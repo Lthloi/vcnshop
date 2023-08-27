@@ -1,21 +1,22 @@
-import React, { useEffect, useMemo } from "react"
+import React, { useEffect } from "react"
 import { styled } from '@mui/material/styles'
 import { useDispatch, useSelector } from 'react-redux'
 import HeartBrokenIcon from '@mui/icons-material/HeartBroken'
 import Skeleton from '@mui/material/Skeleton'
 import { getProducts } from "../../store/actions/product_actions"
 import { Grid } from "@mui/material"
-import { LIMIT_GET_PRODUCTS_DEFAULT } from "../../configs/constants"
+import { LIMIT_GET_PRODUCTS_DEFAULT, MAX_PRICE_PORDUCT } from "../../configs/constants"
 import { useParams } from "react-router-dom"
 import { Rating, Stack, Typography, Box } from "@mui/material"
 import { NavLink } from "react-router-dom"
 import { useTheme } from "@emotion/react"
 import ProgressiveImage from "../materials/progressive_image"
+import { useGetQueryValueV2 } from "../../hooks/custom_hooks"
 
 const Loading = () => (
     <Grid
         container
-        columns={{ xs: 12 }}
+        columns={{ xs: 4, sm: 9, md: 16 }}
         columnSpacing={{ xs: 1.5 }}
         rowSpacing={{ xs: 2 }}
     >
@@ -24,7 +25,9 @@ const Loading = () => (
                 <Grid
                     item
                     key={value}
-                    xs={3}
+                    xs={2}
+                    sm={3}
+                    md={4}
                 >
                     <Skeleton
                         animation="wave"
@@ -116,7 +119,7 @@ const Product = ({ productInfo }) => {
                 >
                     {'$' + price.value}
                 </Typography>
-                
+
             </Stack>
 
         </ProductSection>
@@ -128,7 +131,7 @@ const Products = ({ products }) => {
     return (
         <Grid
             container
-            columns={{ xs: 12 }}
+            columns={{ xs: 4, sm: 9, md: 16 }}
             columnSpacing={{ xs: 1.5 }}
             rowSpacing={{ xs: 2 }}
         >
@@ -137,7 +140,9 @@ const Products = ({ products }) => {
                     <Grid
                         key={product._id}
                         item
-                        xs={3}
+                        xs={2}
+                        sm={3}
+                        md={4}
                     >
                         <Product productInfo={product} />
                     </Grid>
@@ -151,13 +156,33 @@ const Result = () => {
     const { products, loading, error } = useSelector(({ product }) => product)
     const dispatch = useDispatch()
     const { keyword } = useParams()
+    const get_query_values = useGetQueryValueV2()
+
+    const getProductsFirstTime = () => {
+        let query_data = get_query_values('price', 'rating', 'category', 'target')
+        let price_data = query_data.price,
+            rating_data = query_data.rating,
+            category_data = query_data.category,
+            target_data = query_data.target
+
+        dispatch(getProducts(
+            LIMIT_GET_PRODUCTS_DEFAULT,
+            category_data || undefined,
+            keyword,
+            rating_data || undefined,
+            price_data ? [price_data * 1, MAX_PRICE_PORDUCT] : undefined,
+            1,
+            target_data || undefined
+        ))
+    }
 
     useEffect(() => {
-        dispatch(getProducts(LIMIT_GET_PRODUCTS_DEFAULT, undefined, keyword))
+        if (keyword)
+            getProductsFirstTime()
     }, [dispatch])
 
     return (
-        <Stack width="100%">
+        <Box width="100%" marginTop="10px">
             {
                 loading ? (
                     <Loading />
@@ -175,7 +200,7 @@ const Result = () => {
                     :
                     <Empty />
             }
-        </Stack>
+        </Box>
     )
 }
 
@@ -191,6 +216,9 @@ const ProductSection = styled('div')(({ theme }) => ({
     borderBottom: '2px black solid',
     '&:hover': {
         boxShadow: '0px 0px 8px gray',
+    },
+    [theme.breakpoints.down('sm')]: {
+        fontSize: '0.9em',
     }
 }))
 
@@ -200,7 +228,7 @@ const Name = styled(NavLink)({
     color: 'black',
     width: 'fit-content',
     maxWidth: '100%',
-    fontSize: '1rem',
+    fontSize: '1em',
     fontWeight: 'bold',
     marginTop: '10px',
     cursor: 'pointer',

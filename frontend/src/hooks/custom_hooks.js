@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react"
+
 import { useLocation, useNavigate } from "react-router-dom"
 
-const useFloatNumber = () => (number, number_length = 2) => Number(number.toFixed(number_length))
+const useFloatNumber = () => (number, number_length = 2) => number.toFixed(number_length) * 1
 
 const useCurrencyKeyboard = () => (currency_letter) => {
     if (!currency_letter) return '$'
@@ -85,14 +85,21 @@ const useNumerToWords = () => (number, currency_code = 'USD') => {
     return words
 }
 
-const useGetQueryValue = () => (query_string_input, unique_query_name) => {
-    if (query_string_input === 1) { // if this then get query value by the current route with query string
-        let query_string_to_get = new URLSearchParams(window.location.search)
-        return query_string_to_get.get(unique_query_name)
-    } else {
-        let query_string_to_get = new URLSearchParams(query_string_input)
-        return query_string_to_get.get(unique_query_name)
+const useGetQueryValue = () => (route = window.location.search, unique_query_name) => {
+    let query_string_to_get = new URLSearchParams(route)
+    return query_string_to_get.get(unique_query_name) || null
+}
+
+const useGetQueryValueV2 = (route) => (...query_names) => {
+    let query_string_to_get = new URLSearchParams(route ? route : window.location.search)
+
+    let query = {}
+
+    for (let query_name of query_names) {
+        query[query_name] = query_string_to_get.get(query_name) || null
     }
+
+    return query
 }
 
 // per rerender then this hook is able to have a new route (return route without query string)
@@ -108,24 +115,40 @@ const useDebounce = () => (fnc, delay) => {
     }
 }
 
-const useMediaQuery = () => {
-    const [width, setWidth] = useState(0)
+const useSwipe = ({ onMoveRight, onMoveLeft, speedInMs, minSwipingWidth }) => {
+    let startingX, movingX
+    let timeStarting, timeEnd
 
-    const handleResizeWindow = (e) => {
-        setWidth(window.innerWidth)
+    return {
+        onTouchStart: e => {
+            startingX = e.touches[0].clientX
+            timeStarting = Date.now()
+        },
+        onTouchMove: e => {
+            movingX = e.touches[0].clientX
+            timeEnd = Date.now()
+        },
+        onTouchEnd: e => {
+            // user must swipe in 300 ms duration
+            if (timeEnd - timeStarting > speedInMs) return
+
+            if (startingX + minSwipingWidth < movingX) {
+                onMoveRight()
+            } else if (startingX - minSwipingWidth > movingX) {
+                onMoveLeft()
+            }
+        },
     }
+}
 
-    useEffect(() => {
-        window.addEventListener('resize', handleResizeWindow)
-        return () => window.removeEventListener('resize', (e) => { })
-    }, [])
-
-    return { width }
+// not including question mark
+const useCreateQueryString = () => (options) => {
+    return new URLSearchParams(options).toString()
 }
 
 export {
     useFloatNumber, useCurrencyKeyboard, useCurrencyCode,
     useNavToRedirectLogin, useNumerToWords, useGetQueryValue,
     useCurrentRoute, useCheckIsAdminRole, useDebounce,
-    useMediaQuery,
+    useSwipe, useGetQueryValueV2, useCreateQueryString,
 }

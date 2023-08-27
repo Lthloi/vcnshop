@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from "react"
 import { styled } from '@mui/material/styles'
 import ProductDetail from "../components/product/product_detail/product_detail"
-import ScrollToTopBtn from '../components/scroll_top_top_btn'
+import ScrollToTopBtn from '../components/scroll_to_top_btn'
 import MakeReview from "../components/product/product_review/make_review"
 import InfoIcon from '@mui/icons-material/Info'
 import { useParams } from "react-router-dom"
@@ -11,6 +11,7 @@ import Skeleton from '@mui/material/Skeleton'
 import CommentIcon from '@mui/icons-material/Comment'
 import Reviews from "../components/product/product_review/reviews"
 import StorefrontIcon from '@mui/icons-material/Storefront'
+import { Box, Typography, Stack } from "@mui/material"
 
 const loading_widths = ['82%', '75%', '60%', '45%', '50%']
 
@@ -27,17 +28,28 @@ const Product = () => {
     return (
         <ProductDetailPage id="ProductDetailPage">
             <PageTitle>
-                <InfoIcon sx={{ height: '1.8em', width: '1.8em', }} />
-                <Text>
+                <InfoIcon sx={{ fontSize: '1.8em' }} />
+                <Typography
+                    component="h2"
+                    fontSize="1.8em"
+                    margin="0"
+                >
                     Product Detail
-                </Text>
+                </Typography>
             </PageTitle>
 
             <Hr />
 
             {
                 loading ? (
-                    <LoadingContainer>
+                    <Stack
+                        flexDirection="row"
+                        justifyContent='space-between'
+                        columnGap='20px'
+                        width='100%'
+                        height='99vh'
+                        marginTop='10px'
+                    >
                         <ProductSkeleton />
                         <Detail>
                             {loading_widths.map((width) => (
@@ -49,7 +61,7 @@ const Product = () => {
                                 />
                             ))}
                         </Detail>
-                    </LoadingContainer>
+                    </Stack>
                 ) : error ? (
                     <Error>
                         {error.message}
@@ -59,13 +71,18 @@ const Product = () => {
                     <ProductDetail product={product} />
 
                     <ReviewsAndIntroduction>
-                        <div style={{ width: '100%' }}>
+
+                        <Box width='100%'>
                             <MakeReview productId={product._id} productReview={product.review} />
+
                             <ReviewsSection id="Reviews" ref={switch_review_page_ref}>
-                                <div style={{ display: 'flex', columnGap: '10px', alignItems: 'center' }}>
+                                <Stack
+                                    flexDirection='row'
+                                    alignItems='center'
+                                >
                                     <CommentIcon />
                                     <ReviewsTitle>Reviews</ReviewsTitle>
-                                </div>
+                                </Stack>
 
                                 <Hr />
 
@@ -74,10 +91,12 @@ const Product = () => {
                                     srollReviewRef={switch_review_page_ref}
                                 />
                             </ReviewsSection>
-                        </div>
+                        </Box>
 
-                        <DetailsContainer>
+                        <DescriptionAndStore>
+
                             <Title>Description</Title>
+
                             <Description>
                                 {product.description}
                             </Description>
@@ -86,7 +105,9 @@ const Product = () => {
                                 <StorefrontIcon />
                                 <span>Vist Shop</span>
                             </VistShopButton>
-                        </DetailsContainer>
+
+                        </DescriptionAndStore>
+
                     </ReviewsAndIntroduction>
                 </>
             }
@@ -102,33 +123,25 @@ const ProductDetailPage = styled('div')(({ theme }) => ({
     padding: '0 30px',
     marginTop: '20px',
     fontFamily: theme.fontFamily.kanit,
+    [theme.breakpoints.down('md')]: {
+        padding: '0 20px',
+    }
 }))
 
-const PageTitle = styled('div')({
+const PageTitle = styled('div')(({ theme }) => ({
     display: 'flex',
     alignItems: 'center',
     columnGap: '5px',
     marginLeft: '20px',
     transform: 'scaleY(0.9)',
-})
-
-const Text = styled('h2')({
-    fontSize: '1.8em',
-    margin: '0',
-})
+    [theme.breakpoints.down('md')]: {
+        fontSize: '0.8em',
+    },
+}))
 
 const Hr = styled('div')({
     height: '2px',
     backgroundColor: 'black',
-})
-
-const LoadingContainer = styled('div')({
-    display: 'flex',
-    justifyContent: 'space-between',
-    columnGap: '20px',
-    width: '100%',
-    height: '99vh',
-    marginTop: '10px',
 })
 
 const ProductSkeleton = styled(Skeleton)({
@@ -166,6 +179,9 @@ const ReviewsAndIntroduction = styled('div')(({ theme }) => ({
     columnGap: '30px',
     marginTop: '50px',
     fontFamily: theme.fontFamily.nunito,
+    [theme.breakpoints.down('md')]: {
+        flexDirection: 'column',
+    }
 }))
 
 const ReviewsSection = styled('div')({
@@ -178,6 +194,7 @@ const ReviewsTitle = styled('h2')({
     margin: '0',
     fontSize: '1.5em',
     transform: 'scaleY(0.9)',
+    marginLeft: '5px',
 })
 
 const Title = styled('div')({
@@ -194,13 +211,17 @@ const Description = styled('p')({
     fontSize: '0.9em',
 })
 
-const DetailsContainer = styled('div')({
+const DescriptionAndStore = styled('div')(({ theme }) => ({
     display: 'flex',
     flexDirection: 'column',
     rowGap: '10px',
     marginTop: '10px',
     width: '70%',
-})
+    [theme.breakpoints.down('sm')]: {
+        width: '100%',
+        marginTop: '30px',
+    }
+}))
 
 const VistShopButton = styled('button')({
     display: 'flex',

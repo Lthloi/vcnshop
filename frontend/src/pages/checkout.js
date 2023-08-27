@@ -8,8 +8,6 @@ import Payment from '../components/checkout/payment'
 import Success from '../components/checkout/success'
 import { useCurrentRoute } from "../hooks/custom_hooks"
 import { Routes, Route } from "react-router-dom"
-import { Stack, Typography } from "@mui/material"
-import { useTheme } from "@emotion/react"
 
 const steps = ['shipping_info', 'confirm_order', 'payment', 'success']
 
@@ -21,35 +19,6 @@ const get_step_from_route = (current_route) => {
 }
 
 const get_step_index = (step) => steps.indexOf(step)
-
-const Bottom = () => {
-    const theme = useTheme()
-
-    return (
-        <Stack
-            flexDirection="row"
-            justifyContent="space-evenly"
-            alignItems="center"
-            padding="5px"
-            bgcolor="#f0f0f0"
-            width="100%"
-            boxSizing="border-box"
-        >
-            <Typography
-                fontFamily={theme.fontFamily.nunito}
-                fontSize="0.8em"
-            >
-                &copy; 2023 VCN Shop - FOX Relational E-commerce Corporation
-            </Typography>
-            <Typography
-                fontFamily={theme.fontFamily.nunito}
-                fontSize="0.8em"
-            >
-                Oficial Website: https://www.vcnshop.new
-            </Typography>
-        </Stack>
-    )
-}
 
 const Checkout = () => {
     const current_route = useCurrentRoute()
@@ -69,16 +38,6 @@ const Checkout = () => {
                 <Route path="/payment" element={<Payment />} />
                 <Route path="/success" element={<Success />} />
             </Routes>
-
-            <Stack
-                position="absolute"
-                bottom="0"
-                left="0"
-                width="100%"
-                borderTop='2px black solid'
-            >
-                <Bottom />
-            </Stack>
         </CheckoutPage>
     )
 }
@@ -87,6 +46,4 @@ export default Checkout
 
 const CheckoutPage = styled('div')(({ theme }) => ({
     padding: '10px',
-    paddingBottom: '35px',
-    position: 'relative',
 }))

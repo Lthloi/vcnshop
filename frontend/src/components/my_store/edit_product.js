@@ -19,7 +19,7 @@ import FormGroup from '@mui/material/FormGroup'
 import Checkbox from '@mui/material/Checkbox'
 import FormHelperText from '@mui/material/FormHelperText'
 import { updateProduct } from '../../store/actions/product_actions'
-import { CircularProgress, Tooltip } from "@mui/material"
+import { CircularProgress, Tooltip, Stack } from "@mui/material"
 import EditIcon from '@mui/icons-material/Edit'
 import AddIcon from '@mui/icons-material/Add'
 import ErrorIcon from '@mui/icons-material/Error'
@@ -262,9 +262,10 @@ const AddImagesSection = React.memo(({ imagesRef }) => {
                 container
                 rowSpacing={2}
                 columnSpacing={{ xs: 2 }}
-                columns={2}
+                columns={{ xs: 1, sm: 2 }}
             >
                 <RenderAddImgButton height={'100%'} paddingBottom={null} imageObject={imageList[0]} index={0} />
+
                 <Grid xs={1} item>
                     <Grid
                         container
@@ -291,7 +292,7 @@ const max_add_images = 5
 
 const EditProduct = ({ productId }) => {
     const { loading } = useSelector(({ product }) => product.productDetail)
-    const [openAddProduct, setOpenAddProduct] = useState(false)
+    const [openEditProduct, setOpenEditProduct] = useState(false)
     const useForm_methods = useForm()
     const { handleSubmit } = useForm_methods
     const [isPending, startTransition] = useTransition()
@@ -337,20 +338,28 @@ const EditProduct = ({ productId }) => {
         <>
             <Dialog
                 fullScreen
-                open={openAddProduct}
-                onClose={() => setOpenAddProduct(false)}
+                open={openEditProduct}
                 TransitionComponent={Transition}
             >
                 <CloseContainer>
-                    <Tooltip title="Close">
-                        <IconButton onClick={() => setOpenAddProduct(false)}>
-                            <CloseIcon />
-                        </IconButton>
-                    </Tooltip>
-                    <span>Cancel</span>
-                    <h2 className="close_title">Edit Product</h2>
+                    <Stack
+                        flexDirection="row"
+                        alignItems="center"
+                        width="100%"
+                    >
+                        <Tooltip title="Close">
+                            <IconButton onClick={() => setOpenEditProduct(false)}>
+                                <CloseIcon />
+                            </IconButton>
+                        </Tooltip>
+                        <span>Cancel</span>
+                    </Stack>
+
+                    <h2 className="close_title">Add Product</h2>
                 </CloseContainer>
+
                 <DialogContent>
+
                     <Note>
                         <ErrorIcon sx={{ fontSize: '1.2em', color: 'gray' }} />
                         <span>
@@ -391,11 +400,13 @@ const EditProduct = ({ productId }) => {
                                 'Submit'
                         }
                     </SubmitBtn>
+
                 </DialogContent>
             </Dialog >
+
             <EditBtn
                 onClick={() => {
-                    startTransition(() => { setOpenAddProduct(true) })
+                    startTransition(() => { setOpenEditProduct(true) })
                 }}
             >
                 {
@@ -408,7 +419,7 @@ const EditProduct = ({ productId }) => {
                         :
                         <>
                             <span>Edit</span>
-                            <EditIcon />
+                            <EditIcon sx={{ fontSize: '1.3em' }} />
                         </>
                 }
             </EditBtn>
@@ -418,30 +429,12 @@ const EditProduct = ({ productId }) => {
 
 export default React.memo(EditProduct)
 
-const EditBtn = styled('button')({
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    border: '2px black solid',
-    columnGap: '10px',
-    padding: '10px',
-    width: '100%',
-    boxSizing: 'border-box',
-    marginTop: '30px',
-    backgroundColor: 'black',
-    color: 'white',
-    fontSize: '1.2em',
-    fontWeight: 'bold',
-    cursor: 'pointer',
-    '&:hover': {
-        backgroundColor: 'white',
-        color: 'black',
-    }
-})
-
 const DialogContent = styled('div')(({ theme }) => ({
     padding: '0 40px 20px',
     fontFamily: theme.fontFamily.nunito,
+    [theme.breakpoints.down('sm')]: {
+        padding: '0 20px 20px',
+    }
 }))
 
 const Note = styled('div')({
@@ -473,6 +466,17 @@ const CloseContainer = styled('div')(({ theme }) => ({
         top: '50%',
         left: '50%',
         transform: 'translate(-50%,-50%)',
+        [theme.breakpoints.down('sm')]: {
+            position: 'relative',
+            top: '0',
+            left: '0',
+            transform: 'none',
+        }
+    },
+    [theme.breakpoints.down('sm')]: {
+        flexDirection: 'column',
+        paddingLeft: '10px',
+
     }
 }))
 
@@ -510,15 +514,18 @@ const CloseIconWrapper = styled('div')({
     },
 })
 
-const AddImg = styled('label')({
+const AddImg = styled('label')(({ theme }) => ({
     display: 'block',
     border: '1px gray solid',
     ...image_layout,
     cursor: 'pointer',
     '&:hover': {
         outline: '1.5px black solid',
+    },
+    [theme.breakpoints.down('sm')]: {
+        paddingBottom: '90%',
     }
-})
+}))
 
 const AddIconWrapper = styled('div')({
     position: 'absolute',
@@ -555,3 +562,27 @@ const SubmitBtn = styled('button')({
         }
     },
 })
+
+const EditBtn = styled('button')(({ theme }) => ({
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    border: '2px black solid',
+    columnGap: '10px',
+    padding: '10px',
+    width: '100%',
+    boxSizing: 'border-box',
+    marginTop: '30px',
+    backgroundColor: 'black',
+    color: 'white',
+    fontSize: '1.2em',
+    fontWeight: 'bold',
+    cursor: 'pointer',
+    '&:hover': {
+        backgroundColor: 'white',
+        color: 'black',
+    },
+    [theme.breakpoints.down('md')]: {
+        fontSize: '1em',
+    }
+}))

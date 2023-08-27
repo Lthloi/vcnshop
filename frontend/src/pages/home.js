@@ -1,17 +1,16 @@
 import React from "react"
+import { styled } from "@mui/material"
 import NewsLetter from "../components/home/new_letter"
-import ScrollToTopBtn from "../components/scroll_top_top_btn"
+import ScrollToTopBtn from "../components/scroll_to_top_btn"
 import Background from "../components/home/background"
 import SecBanners from "../components/home/sec_banners"
 import WomenSProducts from "../components/home/women's_products"
 import MenSProducts from "../components/home/men's_products"
 import { Box, Typography } from "@mui/material"
-import { useTheme } from "@emotion/react"
 import Overview from "../components/home/overview"
 import { useTranslation } from 'react-i18next'
 
 const Home = () => {
-    const theme = useTheme()
     const { t } = useTranslation('home_page')
 
     return (
@@ -24,29 +23,17 @@ const Home = () => {
 
             <SecBanners />
 
-            <Typography
-                fontFamily={theme.fontFamily.kanit}
-                fontWeight="bold"
-                fontSize="3em"
-                paddingLeft="60px"
-                marginTop="80px"
-            >
+            <Title>
                 {t('Most Sold')}
-            </Typography>
+            </Title>
 
             <WomenSProducts />
 
             <MenSProducts />
 
-            <Typography
-                fontFamily={theme.fontFamily.kanit}
-                fontWeight="bold"
-                fontSize="3em"
-                paddingLeft="60px"
-                marginTop="80px"
-            >
+            <Title>
                 {t('Overview')}
-            </Typography>
+            </Title>
 
             <Overview />
 
@@ -58,3 +45,17 @@ const Home = () => {
 }
 
 export default Home
+
+const Title = styled(Typography)(({ theme }) => ({
+    fontFamily: theme.fontFamily.kanit,
+    fontWeight: "bold",
+    fontSize: "3em",
+    paddingLeft: "60px",
+    marginTop: "80px",
+    [theme.breakpoints.down('md')]: {
+        textAlign: 'center',
+        fontSize: '2em',
+        paddingLeft: "0",
+        marginTop: "50px",
+    },
+}))

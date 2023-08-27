@@ -1,12 +1,11 @@
-import React, { useCallback, useRef } from "react"
+import React from "react"
 import { styled } from '@mui/material/styles'
 import { useParams } from "react-router-dom"
 import { useSelector } from 'react-redux'
 import Filter from "../components/search_result/filter"
-import ScrollToTopBtn from '../components/scroll_top_top_btn'
+import ScrollToTopBtn from '../components/scroll_to_top_btn'
 import Pagination from '../components/search_result/pagination'
-import { LIMIT_GET_PRODUCTS_DEFAULT } from "../configs/constants"
-import { Stack, Typography } from '@mui/material'
+import { Stack, Box, Typography } from '@mui/material'
 import Products from "../components/search_result/products"
 
 const Heading = () => {
@@ -31,55 +30,22 @@ const Heading = () => {
 }
 
 const SearchResult = () => {
-    const { keyword } = useParams()
-
-    const filter_data_ref = useRef({
-        limit: LIMIT_GET_PRODUCTS_DEFAULT,
-        category: undefined,
-        keyword: keyword,
-        rating: undefined,
-        price: undefined,
-        pagination: 1,
-        target: undefined,
-    })
-
-    const handleSetFilterData = useCallback((update_filter_data) => {
-        let current_filter_data = filter_data_ref.current
-
-        filter_data_ref.current = {
-            ...current_filter_data,
-            ...update_filter_data,
-        }
-    }, [])
-
     return (
         <SearchResultPage id="SearchResultPage">
 
             <Heading />
 
-            <Stack
-                flexDirection="row"
-                columnGap="20px"
-                marginTop="30px"
-                padding="0 10px"
-                paddingTop="10px"
-            >
-                <Filter
-                    filterDataRef={filter_data_ref}
-                    handleSetFilterData={handleSetFilterData}
-                />
+            <FilterAndProducts>
+                <Filter />
 
-                <Stack width="100%" paddingRight="15px">
+                <Box width="100%" paddingRight="15px">
 
-                    <Pagination
-                        filterDataRef={filter_data_ref}
-                        handleSetFilterData={handleSetFilterData}
-                    />
+                    <Pagination />
 
                     <Products />
 
-                </Stack>
-            </Stack>
+                </Box>
+            </FilterAndProducts>
 
             <Typography
                 color="gray"
@@ -92,7 +58,7 @@ const SearchResult = () => {
                 boxSizing="border-box"
                 bgcolor="rgba(0,0,0,.05)"
             >
-                If you are looking for the pagination then scroll up you can find them
+                If you are looking for the pagination then scroll up you will find them
             </Typography>
 
             <ScrollToTopBtn />
@@ -106,4 +72,16 @@ export default SearchResult
 const SearchResultPage = styled('div')(({ theme }) => ({
     fontFamily: theme.fontFamily.nunito,
     paddingBottom: '30px',
+}))
+
+const FilterAndProducts = styled('div')(({ theme }) => ({
+    display: 'flex',
+    columnGap: "20px",
+    marginTop: "30px",
+    padding: "0 10px",
+    paddingTop: "10px",
+    [theme.breakpoints.down('lg')]: {
+        flexDirection: "column",
+        padding: "0 20px",
+    }
 }))

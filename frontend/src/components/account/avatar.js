@@ -67,7 +67,6 @@ const UpdateAvatar = ({ userAvatar }) => {
                         borderRadius="5px"
                         border="1px black solid"
                         bgcolor="white"
-                        width="30%"
                         boxSizing="border-box"
                         fontFamily={theme.fontFamily.kanit}
                         margin="auto"
@@ -151,9 +150,7 @@ const set_name_of_user = (name_of_user) => {
 }
 
 const NameOfUser = ({ nameOfUser }) => (
-    <Stack
-        marginLeft="15px"
-    >
+    <NameOfUserContainer>
         <div>Hello,</div>
         <Tooltip title={nameOfUser} placement="right">
             <Typography
@@ -166,7 +163,7 @@ const NameOfUser = ({ nameOfUser }) => (
                 {set_name_of_user(nameOfUser)}
             </Typography>
         </Tooltip>
-    </Stack>
+    </NameOfUserContainer>
 )
 
 const Avatar = () => {
@@ -174,7 +171,7 @@ const Avatar = () => {
 
     return (
         <AvatarSection id="AvatarSection">
-            
+
             <UpdateAvatar userAvatar={user.avatar} />
 
             <DisplayAvatar nameOfUser={user.name} userAvatar={user.avatar} />
@@ -193,6 +190,18 @@ const AvatarSection = styled('div')(({ theme }) => ({
     alignItems: 'center',
     padding: '20px',
     fontFamily: theme.fontFamily.kanit,
+    [theme.breakpoints.down('md')]: {
+        fontSize: '0.8em',
+        flexDirection: "column",
+    },
+}))
+
+const NameOfUserContainer = styled('div')(({ theme }) => ({
+    marginLeft: "15px",
+    [theme.breakpoints.down('md')]: {
+        marginLeft: "0",
+        marginTop: '10px',
+    },
 }))
 
 const ActionBtn = styled('span')({

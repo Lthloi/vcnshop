@@ -15,27 +15,17 @@ const NotFound404 = () => {
     }
 
     return (
-        <Stack
+        <NotFound404Section
             id="NotFound404Page"
-            component="div"
-            display='flex'
-            justifyContent='center'
-            alignItems='center'
-            columnGap='10px'
-            width='99vw'
-            height='99vh'
-            flexDirection="row"
         >
 
-            <Box
-                height="45vh"
-            >
+            <ImageWrapper>
                 <Box
                     src={not_found_404}
                     component="img"
                     height="100%"
                 />
-            </Box>
+            </ImageWrapper>
 
             <div>
 
@@ -72,11 +62,33 @@ const NotFound404 = () => {
 
             </div>
 
-        </Stack>
+        </NotFound404Section>
     )
 }
 
 export default NotFound404
+
+const NotFound404Section = styled('div')(({ theme }) => ({
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    columnGap: '10px',
+    width: '99vw',
+    height: '99vh',
+    padding: '30px',
+    boxSizing: 'border-box',
+    [theme.breakpoints.down('sm')]: {
+        flexDirection: 'column',
+        rowGap: '20px',
+    }
+}))
+
+const ImageWrapper = styled('div')(({ theme }) => ({
+    height: "45vh",
+    [theme.breakpoints.down('sm')]: {
+        height: "35vh",
+    }
+}))
 
 const Text = styled('p')(({ theme }) => ({
     fontFamily: theme.fontFamily.arial,
@@ -104,5 +116,8 @@ const Button = styled('button')(({ theme }) => ({
         backgroundColor: '#1e7870',
         transform: 'scale(1.15)',
         zIndex: '2',
+    },
+    [theme.breakpoints.down('sm')]: {
+        fontSize: '0.9em',
     }
 }))

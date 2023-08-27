@@ -17,7 +17,7 @@ const initPlaceOrder = async (req, res, next) => {
     } = req.body
 
     let { email, name, avatar, _id: user_id } = req.user
-console.log('>>> body >>>', req.body)
+
     let { client_secret, orderId, stripe_key } = await orderService.initPlaceOrder(
         {
             currency,

@@ -8,6 +8,8 @@ import { Provider } from 'react-redux'
 import store from './store/store'
 import ErrorBoundary from './utils/error_boundary'
 import ErrorPage from './pages/error_page'
+import { ThemeProvider } from '@mui/material/styles'
+import global_theme from './styles/themes'
 
 import './configs/i18n'
 
@@ -15,9 +17,11 @@ const root = ReactDOM.createRoot(document.getElementById('root'))
 root.render(
   <React.StrictMode>
     <Provider store={store}>
-      <ErrorBoundary fallback={<ErrorPage />}>
-        <App />
-      </ErrorBoundary>
+      <ThemeProvider theme={global_theme}>
+        <ErrorBoundary fallback={<ErrorPage />}>
+          <App />
+        </ErrorBoundary>
+      </ThemeProvider>
     </Provider>
   </React.StrictMode>
 )

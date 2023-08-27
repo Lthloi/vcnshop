@@ -172,7 +172,7 @@ const Payment = () => {
     }
 
     useEffect(() => {
-        let order_id = get_value_of_query_string(1, 'orderId')
+        let order_id = get_value_of_query_string(undefined, 'orderId')
         if (order_id) {
             initUnpaidOrder(order_id)
         } else {
@@ -186,10 +186,10 @@ const Payment = () => {
 
     if (!orderInitor || !orderInfo)
         return (
-            <Stack rowGap="30px" alignItems="center" margin="20px 0">
-                <Loading sx={{ width: '50%', height: '100px' }} animation="wave" />
-                <Loading sx={{ width: '50%', height: '500px' }} animation="wave" />
-            </Stack>
+            <Loading>
+                <Skeleton className="loading" animation="wave" />
+                <Skeleton className="loading" animation="wave" />
+            </Loading>
         )
 
     return (
@@ -230,10 +230,23 @@ const Payment = () => {
 
 export default Payment
 
-const Loading = styled(Skeleton)({
+const Loading = styled('div')({
+    display: 'flex',
+    flexDirection: 'column',
+    rowGap: "30px",
+    alignItems: "center",
+    margin: "20px 0",
     width: '100%',
-    height: '30vh',
-    transform: 'scale(1)',
+    '& .loading': {
+        width: '100%',
+        transform: 'scale(1)',
+        '&:nth-of-type(1)': {
+            height: '100px',
+        },
+        '&:nth-of-type(2)': {
+            height: '500px',
+        },
+    },
 })
 
 const Title = styled('h2')(({ theme }) => ({

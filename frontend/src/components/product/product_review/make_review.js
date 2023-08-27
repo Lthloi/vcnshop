@@ -147,6 +147,7 @@ const Title = styled('div')({
     borderBottom: '2px black solid',
     fontWeight: 'bold',
     width: 'fit-content',
+    marginTop: '10px',
 })
 
 const LoadingContainer = styled('div')({

@@ -16,47 +16,27 @@ const TermsOfUse = () => {
                 height="100vh"
                 bgcolor="#2C2C2C"
             >
-                <Stack
+                <Box
                     position="relative"
                 >
-                    <Stack
-                        flexDirection="row"
-                        alignItems="center"
-                        height="100%"
-                        position="absolute"
-                        left="0"
-                        top="0"
-                        paddingLeft="15px"
-                    >
+                    <GoBackContainer>
                         <GoBackWrapper onClick={() => navigate(-1)}>
-                            <Box
-                                display="flex"
-                                alignItems="center"
-                                style={{ cursor: 'pointer' }}
-                            >
-                                <GoBackIcon />
-                                <Typography
-                                    fontSize="1.5em"
-                                    sx={{ transform: 'scaleX(0.9)' }}
-                                    color="white"
-                                >
-                                    BACK
-                                </Typography>
-                            </Box>
-                        </GoBackWrapper>
-                    </Stack>
+                            <GoBackIcon />
 
-                    <Typography
-                        component="h2"
-                        color="white"
-                        fontWeight="bold"
-                        fontSize="2em"
-                        padding="10px"
-                        textAlign="center"
-                    >
+                            <Typography
+                                fontSize="1.5em"
+                                sx={{ transform: 'scaleX(0.9)' }}
+                                color="white"
+                            >
+                                BACK
+                            </Typography>
+                        </GoBackWrapper>
+                    </GoBackContainer>
+
+                    <Title>
                         VCN Shop - FOX COR
-                    </Typography>
-                </Stack>
+                    </Title>
+                </Box>
 
                 <Divider flexItem sx={{ bgcolor: 'rgba(255,255,255,.3)' }} />
 
@@ -80,7 +60,26 @@ const TermsOfUse = () => {
 
 export default TermsOfUse
 
+const GoBackContainer = styled('div')(({ theme }) => ({
+    display: 'flex',
+    alignItems: "center",
+    height: "100%",
+    position: "absolute",
+    left: "0",
+    top: "0",
+    paddingLeft: "15px",
+    [theme.breakpoints.down('sm')]: {
+        position: "relative",
+        height: "auto",
+        marginTop: '20px',
+        fontSize: '0.8em',
+    }
+}))
+
 const GoBackWrapper = styled('div')({
+    display: "flex",
+    alignItems: "center",
+    cursor: 'pointer',
     position: 'relative',
     '&::after': {
         content: '""',
@@ -104,3 +103,14 @@ const GoBackIcon = styled(ExpandCircleDownIcon)({
     margin: 'auto',
     color: 'white',
 })
+
+const Title = styled(Typography)(({ theme }) => ({
+    color: "white",
+    fontWeight: "bold",
+    fontSize: "2em",
+    padding: "10px",
+    textAlign: "center",
+    [theme.breakpoints.down('sm')]: {
+        fontSize: "1.5em",
+    }
+}))

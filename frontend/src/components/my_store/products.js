@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from "react-redux"
 import { Skeleton } from "@mui/material"
 import { getProducts } from "../../store/actions/product_actions"
 import { useNavigate } from 'react-router-dom'
-import Table from '@mui/material/Table'
+import TableMUI from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
 import TableCell, { tableCellClasses } from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
@@ -33,6 +33,9 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
     },
     [`&.${tableCellClasses.body}`]: {
         fontSize: 16,
+        [theme.breakpoints.down('sm')]: {
+            fontSize: 13,
+        }
     },
 }))
 
@@ -130,9 +133,9 @@ const get_number_of_pages = (count_products, maximum_number_of_products) => {
 
 const table_head_sort_labels = ['Product Name', 'Date Of Adding', 'Sold', 'Price (USD)', 'Stock']
 
-const TableComponent = ({ products, tableHeadRef, onViewProduct, onCreateSort, order }) => (
+const Table = ({ products, tableHeadRef, onViewProduct, onCreateSort, order }) => (
     <TableContainer component={Paper} ref={tableHeadRef}>
-        <Table sx={{ minWidth: 700 }} aria-label="ProductsOfShop">
+        <TableMUI sx={{ minWidth: 700 }} aria-label="ProductsOfShop">
             <TableHead>
                 <StyledTableRow>
                     <StyledTableCell>
@@ -185,7 +188,7 @@ const TableComponent = ({ products, tableHeadRef, onViewProduct, onCreateSort, o
                     </StyledTableRow>
                 ))}
             </TableBody>
-        </Table>
+        </TableMUI>
     </TableContainer>
 )
 
@@ -259,8 +262,10 @@ const Products = ({ option, shopId }) => {
 
     return (
         <>
-            <FormControl fullWidth sx={{ marginBottom: '20px' }}>
-                <InputLabel htmlFor="search_by_name" color="success">Search By Name</InputLabel>
+            <FormControl fullWidth>
+                <InputLabel htmlFor="search_by_name" color="success">
+                    Search By Name
+                </InputLabel>
                 <OutlinedInput
                     id="search_by_name"
                     color="success"
@@ -271,6 +276,11 @@ const Products = ({ option, shopId }) => {
                     placeholder="Enter the product name here..."
                 />
             </FormControl>
+
+            <Note sx={{ marginBottom: '20px' }}>
+                <ErrorIcon sx={{ fontSize: '1.2em', color: 'gray' }} />
+                <span>Swipe to left to see more</span>
+            </Note>
 
             {
 
@@ -292,7 +302,7 @@ const Products = ({ option, shopId }) => {
                         <span>{error.message}</span>
                     </Stack>
                 ) : update_products && update_products.length > 0 ? (
-                    <TableComponent
+                    <Table
                         order={order}
                         products={update_products}
                         onViewProduct={handleViewProduct}
@@ -394,11 +404,7 @@ const ProductsSection = ({ shopId }) => {
     return (
         <div id="ProductsOfStore">
 
-            <Stack
-                flexDirection="row"
-                justifyContent="space-between"
-                marginTop="20px"
-            >
+            <AddProductBtnAndOptions>
                 <AddProduct />
 
                 <Stack
@@ -421,7 +427,7 @@ const ProductsSection = ({ shopId }) => {
                         ))
                     }
                 </Stack>
-            </Stack>
+            </AddProductBtnAndOptions>
 
             <Box
                 marginTop="30px"
@@ -444,4 +450,27 @@ export default ProductsSection
 
 const Pages = styled(PaginationMUI)({
     marginTop: '30px',
+})
+
+const AddProductBtnAndOptions = styled('div')(({ theme }) => ({
+    display: 'flex',
+    justifyContent: "space-between",
+    alignItems: 'center',
+    marginTop: "20px",
+    width: '100%',
+    [theme.breakpoints.down('sm')]: {
+        flexDirection: 'column',
+        rowGap: '10px',
+        alignItems: "flex-start",
+    }
+}))
+
+const Note = styled('div')({
+    display: 'flex',
+    alignItems: 'center',
+    columnGap: '5px',
+    marginTop: '10px',
+    width: '100%',
+    boxSizing: 'border-box',
+    fontSize: '0.8em',
 })

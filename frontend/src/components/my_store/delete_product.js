@@ -30,14 +30,14 @@ const DeleteProduct = ({ productId }) => {
         setLoading(true)
 
         await dispatch(deleteProduct(productId))
-        
+
         setLoading(false)
     }
 
     return (
         <DeleteProductSection id="DeleteProductSection">
             <DeleteButton onClick={() => handleOpenDialog(true)}>
-                <DeleteIcon />
+                <DeleteIcon sx={{ fontSize: '1.5em' }} />
                 <span>Delete This Product</span>
             </DeleteButton>
 
@@ -95,7 +95,7 @@ const DeleteProductSection = styled('div')(({ theme }) => ({
     marginTop: '30px',
 }))
 
-const DeleteButton = styled('div')({
+const DeleteButton = styled('div')(({ theme }) => ({
     display: 'flex',
     columnGap: '10px',
     alignItems: 'center',
@@ -108,8 +108,11 @@ const DeleteButton = styled('div')({
     width: 'fit-content',
     '&:hover': {
         outline: '2px #d11a2a solid',
+    },
+    [theme.breakpoints.down('md')]: {
+        fontSize: '0.9em',
     }
-})
+}))
 
 const ConfirmingBtn = styled('button')({
     width: '50%',

@@ -15,7 +15,7 @@ import LocalConvenienceStoreIcon from '@mui/icons-material/LocalConvenienceStore
 import { useNavigate, Navigate } from "react-router-dom"
 import Select from '@mui/material/Select'
 import { getCodeList } from 'country-list'
-import { Divider, FormControlLabel, Radio, Stack, Tooltip, Typography, Paper, RadioGroup } from "@mui/material"
+import { Divider, FormControlLabel, Radio, Stack, Tooltip, Typography, Paper, RadioGroup, Box } from "@mui/material"
 import BookmarkIcon from '@mui/icons-material/Bookmark'
 import { useDispatch, useSelector } from "react-redux"
 import { saveShippingInfo } from "../../store/actions/cart_actions"
@@ -96,7 +96,16 @@ const Country = ({ onSetValueInput, label, required, register }) => {
 const InputWarning = ({ label, error }) => {
     return (
         error &&
-        <InputWarningSection>
+        <Stack
+            flexDirection="row"
+            alignItems='center'
+            columnGap='5px'
+            padding='3px'
+            fontSize='0.9em'
+            color='red'
+            marginLeft='40px'
+            marginTop='3px'
+        >
             <WarningIcon sx={{ color: 'red', fontSize: '1.2em' }} />
             <span>
                 {
@@ -106,7 +115,7 @@ const InputWarning = ({ label, error }) => {
                         'Please don\'t empty this field'
                 }
             </span>
-        </InputWarningSection>
+        </Stack>
     )
 }
 
@@ -126,8 +135,10 @@ const ShippingMethod = ({ method, label, helper_text, cost }) => {
                     control={<StyledRadio color="default" />}
                     label={label}
                 />
+
                 <HelperText>{helper_text}</HelperText>
             </div>
+
             <Typography fontFamily={theme.fontFamily.kanit}>
                 {cost}
             </Typography>
@@ -151,7 +162,7 @@ const shipping_methods = [
 
 const ShippingMethods = () => {
     return (
-        <Stack width="50%" paddingLeft="20px" boxSizing="border-box">
+        <ShippingMethodsSection>
             <Note sx={{ marginBottom: '20px' }}>
                 <ErrorIcon sx={{ fontSize: '1.2em', color: 'gray' }} />
                 <span>Select a shipping method you want for your order</span>
@@ -183,7 +194,7 @@ const ShippingMethods = () => {
                     />
                 )}
             </ConnectForm>
-        </Stack>
+        </ShippingMethodsSection>
     )
 }
 
@@ -224,10 +235,10 @@ const UserLocation = ({ onSetInputValue, onGetInputValues, onClearsError }) => {
     return (
         <Tooltip
             title="Click to use your location"
-            onClick={getUserLocation}
         >
             <StyledMyLocationIcon
                 sx={loading && { animationDuration: '2s', pointerEvents: 'none', cursor: 'not-allowed' }}
+                onClick={getUserLocation}
             />
         </Tooltip>
     )
@@ -251,9 +262,8 @@ const DefaultAddress = ({ onSetInputValue, onGetInputValues, onClearsError }) =>
     return (
         <Tooltip
             title="Click to use your default address"
-            onClick={usingDefaultAddress}
         >
-            <StyledBookmarkIcon />
+            <StyledBookmarkIcon onClick={usingDefaultAddress} />
         </Tooltip>
     )
 }
@@ -262,13 +272,22 @@ const Inputs = () => {
     return (
         <ConnectForm>
             {({ register, setValue, formState: { errors } }) => (
-                <InputsContainer>
+                <Box
+                    paddingLeft='10px'
+                    width='100%'
+                    boxSizing='border-box'
+                >
                     {
                         defaultInputs.map(({ label, icon, required, maxLength }) => (
                             <FormGroup key={label}>
                                 <InputLabel>{label}</InputLabel>
 
-                                <InputContainer>
+                                <Stack
+                                    flexDirection="row"
+                                    alignItems='center'
+                                    columnGap='10px'
+                                    width='100%'
+                                >
                                     {icon}
                                     {
                                         label === 'Country' ?
@@ -285,13 +304,13 @@ const Inputs = () => {
                                                 maxLength={maxLength}
                                             />
                                     }
-                                </InputContainer>
+                                </Stack>
 
                                 <InputWarning label={label} error={errors[label]} />
                             </FormGroup>
                         ))
                     }
-                </InputsContainer>
+                </Box>
             )}
         </ConnectForm>
     )
@@ -352,16 +371,18 @@ const ShippingInfo = () => {
 
     return (
         <ShippingInfoSection id="ShippingInfoSection">
+
             <SectionTitle>Delivery Information</SectionTitle>
 
-            <Stack flexDirection="row" columnGap="20px">
+            <ShippingMethodsAndInputs>
+
                 <FormProvider {...useForm_methods}>
                     <ShippingMethods />
                 </FormProvider>
 
                 <Divider orientation="vertical" variant="middle" flexItem />
 
-                <Stack width="50%">
+                <InputsSection>
                     <FormProvider {...useForm_methods}>
                         <Inputs />
                     </FormProvider>
@@ -377,28 +398,26 @@ const ShippingInfo = () => {
                             <DoubleArrowIcon />
                         </SubmitBtn>
                     </Stack>
-                </Stack>
+                </InputsSection>
 
-                <Stack
-                    rowGap="50px"
-                    height="fit-content"
-                    padding="20px 10px"
-                    paddingRight="20px"
-                    position="sticky"
-                    top="0"
-                >
+                <LocationSection>
                     <UserLocation
                         onSetInputValue={useForm_methods.setValue}
                         onClearsError={useForm_methods.clearErrors}
                         onGetInputValues={useForm_methods.getValues}
                     />
+
+                    <Box marginTop="50px" />
+
                     <DefaultAddress
                         onSetInputValue={useForm_methods.setValue}
                         onClearsError={useForm_methods.clearErrors}
                         onGetInputValues={useForm_methods.getValues}
                     />
-                </Stack>
-            </Stack>
+                </LocationSection>
+
+            </ShippingMethodsAndInputs>
+
         </ShippingInfoSection >
     )
 }
@@ -411,7 +430,7 @@ const ShippingInfoSection = styled('div')(({ theme }) => ({
     margin: '20px 0',
 }))
 
-const SectionTitle = styled('h2')({
+const SectionTitle = styled(Typography)(({ theme }) => ({
     color: 'white',
     boxSizing: 'border-box',
     margin: '20px 0',
@@ -421,9 +440,39 @@ const SectionTitle = styled('h2')({
     fontSize: '1.5em',
     backgroundColor: 'black',
     letterSpacing: '3px',
-})
+    [theme.breakpoints.down('sm')]: {
+        fontSize: '1.2em',
+    }
+}))
 
-const style = {
+const ShippingMethodsAndInputs = styled('div')(({ theme }) => ({
+    display: 'flex',
+    columnGap: "20px",
+    [theme.breakpoints.down('sm')]: {
+        flexDirection: 'column',
+    }
+}))
+
+const ShippingMethodsSection = styled('div')(({ theme }) => ({
+    width: "50%",
+    paddingLeft: "20px",
+    boxSizing: "border-box",
+    [theme.breakpoints.down('sm')]: {
+        width: "100%",
+        paddingLeft: "0",
+    }
+}))
+
+const InputsSection = styled('div')(({ theme }) => ({
+    width: '50%',
+    [theme.breakpoints.down('sm')]: {
+        width: '100%',
+        paddingRight: '15px',
+        boxSizing: 'border-box',
+    }
+}))
+
+const icon_style = {
     margin: 'auto',
     fontSize: '2em',
     padding: '7px',
@@ -436,7 +485,7 @@ const style = {
 }
 
 const StyledMyLocationIcon = styled(MyLocationIcon)({
-    ...style,
+    ...icon_style,
     '@keyframes get_user_location': {
         from: { transform: 'rotate(0deg)' },
         to: { transform: 'rotate(360deg)' },
@@ -444,13 +493,7 @@ const StyledMyLocationIcon = styled(MyLocationIcon)({
 })
 
 const StyledBookmarkIcon = styled(BookmarkIcon)({
-    ...style,
-})
-
-const InputsContainer = styled('div')({
-    paddingLeft: '10px',
-    width: '100%',
-    boxSizing: 'border-box',
+    ...icon_style,
 })
 
 const FormGroup = styled('div')({
@@ -458,14 +501,7 @@ const FormGroup = styled('div')({
     width: '100%',
 })
 
-const InputContainer = styled('div')({
-    display: 'flex',
-    alignItems: 'center',
-    columnGap: '10px',
-    width: '100%',
-})
-
-const StyledSelect = styled(Select)(({ theme }) => ({
+const StyledSelect = styled(Select)({
     borderRadius: 'unset',
     '&:hover': {
         '& .MuiOutlinedInput-notchedOutline': {
@@ -490,7 +526,7 @@ const StyledSelect = styled(Select)(({ theme }) => ({
         color: 'black',
         fontSize: '2em',
     }
-}))
+})
 
 const InputLabel = styled('label')({
     display: 'block',
@@ -510,17 +546,6 @@ const Input = styled('input')({
         borderRightWidth: '8px',
         outline: '1.5px black solid',
     },
-})
-
-const InputWarningSection = styled('div')({
-    display: 'flex',
-    alignItems: 'center',
-    columnGap: '5px',
-    padding: '3px',
-    fontSize: '0.9em',
-    color: 'red',
-    marginLeft: '40px',
-    marginTop: '3px',
 })
 
 const Note = styled('div')({
@@ -573,3 +598,15 @@ const StyledRadio = styled(Radio)({
         fontSize: '1em',
     },
 })
+
+const LocationSection = styled('div')(({ theme }) => ({
+    height: "fit-content",
+    padding: "20px 10px",
+    paddingRight: "20px",
+    position: "sticky",
+    top: "0",
+    justifyContent: "",
+    [theme.breakpoints.down('sm')]: {
+        display: 'none',
+    }
+}))

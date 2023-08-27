@@ -1,7 +1,7 @@
 
 import BaseError from "../utils/base_error.js"
 import errorMessage from '../configs/error_messages.js'
-import { checkIsEmpty } from '../middlewares/input_validation.js'
+import { checkIsEmptyString } from '../middlewares/input_validation.js'
 import productService from '../services/product_service.js'
 import imageUploader from "../utils/image_uploader.js"
 
@@ -50,16 +50,22 @@ const updateProduct = async (req, res, next) => {
         description,
     } = req.body
 
-    if (!images && checkIsEmpty(sizes) && checkIsEmpty(colors) && checkIsEmpty(stock) && checkIsEmpty(description) && checkIsEmpty(productId))
+    let size_is_empty = checkIsEmptyString(sizes),
+        color_is_empty = checkIsEmptyString(colors),
+        stock_is_empty = checkIsEmptyString(stock),
+        description_is_empty = checkIsEmptyString(description),
+        productId_is_empty = checkIsEmptyString(productId)
+
+    if (!images && size_is_empty && color_is_empty && stock_is_empty && description_is_empty && productId_is_empty)
         throw new BaseError(errorMessage.INVALID_INPUT, 400)
 
     await productService.updateProduct({
         images,
-        productId,
-        sizes,
-        colors,
-        stock,
-        description,
+        productId: productId_is_empty ? null : productId,
+        sizes: size_is_empty ? null : sizes,
+        colors: color_is_empty ? null : colors,
+        stock: stock_is_empty ? null : stock,
+        description: description_is_empty ? null : description,
     })
 
     res.status(200).json({ success: true })
@@ -91,7 +97,16 @@ const getProducts = async (req, res, next) => {
     let sort = req.query.sort || { name: 'name', type: 1 }
 
     let { products, count_products } = await productService.getProducts({
-        keyword, category, price, rating, limit, page, targetGender, shopId, stock, sort
+        keyword,
+        category,
+        price,
+        rating,
+        limit,
+        page,
+        targetGender,
+        shopId,
+        stock,
+        sort
     })
 
     res.status(200).json({

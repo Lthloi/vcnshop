@@ -3,12 +3,12 @@ import { styled } from '@mui/material/styles'
 import { useDispatch, useSelector } from "react-redux"
 import { getShop } from "../store/actions/shop_actions"
 import RegisterShop from "../components/my_store/register_store"
-import { Skeleton, Stack } from "@mui/material"
+import { Skeleton, Stack, Box } from "@mui/material"
 import Avatar from '@mui/material/Avatar'
 import PhoneIcon from '@mui/icons-material/Phone'
 import StoreIcon from '@mui/icons-material/Store'
 import Products from "../components/my_store/products"
-import ScrollToTopBtn from "../components/scroll_top_top_btn"
+import ScrollToTopBtn from "../components/scroll_to_top_btn"
 import Orders from '../components/my_store/orders'
 import { useNavigate, Route, Routes } from "react-router-dom"
 import { useCurrentRoute } from "../hooks/custom_hooks"
@@ -55,7 +55,7 @@ const StoreInfo = ({ store }) => {
     )
 }
 
-const NavButton = ({ navText, href }) => {
+const Navigation = () => {
     const navigate = useNavigate()
     const current_route = useCurrentRoute()
 
@@ -63,7 +63,7 @@ const NavButton = ({ navText, href }) => {
         navigate('/myStore/' + href)
     }
 
-    return (
+    const NavButton = ({ navText, href }) => (
         <NavBtn
             onClick={() => switchNav(href)}
             sx={current_route.includes(href) ? { backgroundColor: 'black', color: 'white' } : {}}
@@ -71,16 +71,13 @@ const NavButton = ({ navText, href }) => {
             {navText}
         </NavBtn>
     )
-}
-
-const Navigation = () => {
 
     return (
-        <Stack flexDirection="row" marginTop="20px" width="100%">
+        <NavigationSection>
             <NavButton navText={'Products'} href={'Products'} />
             <NavButton navText={'Greeting'} href={'Greeting'} />
             <NavButton navText={'Orders'} href={'Orders'} />
-        </Stack>
+        </NavigationSection>
     )
 }
 
@@ -94,14 +91,14 @@ const MyStore = () => {
     }, [dispatch])
 
     return (
-        <MyStoreSection id="MyStoreSection">
+        <div>
             {
                 loading ? (
-                    <div style={{ padding: '20px' }}>
+                    <Box padding='30px'>
                         <Loading sx={{ height: '50px' }} />
                         <Loading sx={{ height: '300px' }} />
                         <Loading sx={{ height: '50px' }} />
-                    </div>
+                    </Box>
                 ) : error && error.statusCode !== 404 ? (
                     <Error>
                         {error.message}
@@ -109,13 +106,8 @@ const MyStore = () => {
                 ) : !checkShopIsExist ? (
                     <RegisterShop />
                 ) : shop && (
-                    <Stack
-                        id="StoreSection"
-                        justifyContent="center"
-                        alignItems="center"
-                        width="100%"
-                        boxSizing="border-box"
-                        padding="50px 30px"
+                    <MyStoreSection
+                        id="MyStoreSection"
                     >
 
                         <PageTitle>
@@ -141,19 +133,25 @@ const MyStore = () => {
                             </Routes>
                         </Main>
 
-                    </Stack>
+                    </MyStoreSection>
                 )
             }
 
             <ScrollToTopBtn />
-        </MyStoreSection>
+        </div>
     )
 }
 
 export default MyStore
 
 const MyStoreSection = styled('div')(({ theme }) => ({
+    width: "100%",
+    boxSizing: "border-box",
+    padding: "50px 30px",
     fontFamily: theme.fontFamily.nunito,
+    [theme.breakpoints.down('sm')]: {
+        padding: '50px 15px',
+    }
 }))
 
 const Loading = styled(Skeleton)({
@@ -161,7 +159,7 @@ const Loading = styled(Skeleton)({
     transform: 'none',
 })
 
-const PageTitle = styled('div')({
+const PageTitle = styled('div')(({ theme }) => ({
     display: 'flex',
     alignItems: 'center',
     columnGap: '10px',
@@ -170,7 +168,10 @@ const PageTitle = styled('div')({
     borderBottom: '2px black solid',
     margin: '0',
     fontSize: '1.8em',
-})
+    [theme.breakpoints.down('sm')]: {
+        fontSize: '1.5em',
+    }
+}))
 
 const StyledAvatar = styled(Avatar)({
     width: '150px',
@@ -180,7 +181,17 @@ const StyledAvatar = styled(Avatar)({
     border: '2px white solid',
 })
 
-const NavBtn = styled('button')({
+const NavigationSection = styled('div')(({ theme }) => ({
+    display: 'flex',
+    marginTop: "20px",
+    width: "100%",
+    [theme.breakpoints.down('sm')]: {
+        flexWrap: 'wrap',
+        rowGap: '5px',
+    }
+}))
+
+const NavBtn = styled('button')(({ theme }) => ({
     fontWeight: 'bold',
     border: '2px black solid',
     backgroundColor: 'black',
@@ -193,8 +204,11 @@ const NavBtn = styled('button')({
         backgroundColor: 'white',
         color: 'black',
         transform: 'scale(1.1)',
+    },
+    [theme.breakpoints.down('sm')]: {
+        marginRight: '5px',
     }
-})
+}))
 
 const Note = styled('div')({
     display: 'flex',
@@ -208,9 +222,12 @@ const Note = styled('div')({
 
 const Main = styled('div')(({ theme }) => ({
     fontFamily: theme.fontFamily.nunito,
-    padding: '30px 50px 0',
+    padding: '30px 30px 0',
     width: '100%',
     boxSizing: 'border-box',
+    [theme.breakpoints.down('md')]: {
+        padding: '30px 5px 0',
+    },
 }))
 
 const Greeting = styled('div')({
@@ -222,11 +239,12 @@ const Greeting = styled('div')({
     boxSizing: 'border-box',
 })
 
-const Error = styled('div')({
+const Error = styled('div')(({ theme }) => ({
     color: 'red',
     fontWeight: 'bold',
     fontSize: '1.3em',
     width: '100%',
     textAlign: 'center',
     marginTop: '30px',
-})
+    fontFamily: theme.fontFamily.nunito,
+}))

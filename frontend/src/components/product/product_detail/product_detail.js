@@ -288,7 +288,7 @@ const AddToCart = ({ options, productId }) => {
                         <CircularProgress
                             thickness={6}
                             size={20}
-                            sx={{ color: 'white', fontSize: '1.2em' }}
+                            sx={{ color: 'white' }}
                         />
                         :
                         <>
@@ -317,7 +317,7 @@ const actions = [
 
 const MoreActions = () => {
     return (
-        <StyledSpeedDial
+        <MoreActionsSection
             ariaLabel="SpeedDial-MoreActions"
             icon={<SpeedDialIcon sx={{ color: 'white' }} />}
             direction="right"
@@ -333,7 +333,7 @@ const MoreActions = () => {
                     />
                 ))
             }
-        </StyledSpeedDial>
+        </MoreActionsSection>
     )
 }
 
@@ -349,14 +349,8 @@ const ProductDetail = ({ product }) => {
     }, [])
 
     return (
-        <Stack
-            id="ProductDetailContainer"
-            component="div"
-            flexDirection="row"
-            columnGap='30px'
-            justifyContent='space-between'
-            marginTop='15px'
-            fontFamily={theme.fontFamily.nunito}
+        <ProductDetailSection
+            id="ProductDetail"
         >
 
             <Images
@@ -364,12 +358,7 @@ const ProductDetail = ({ product }) => {
                 image_link={product.image_link}
             />
 
-            <Stack
-                rowGap='20px'
-                width='70%'
-                boxSizing='border-box'
-                padding='20px 0'
-            >
+            <Details>
 
                 <Typography
                     fontFamily={theme.fontFamily.nunito}
@@ -406,20 +395,48 @@ const ProductDetail = ({ product }) => {
 
                 <MoreActions />
 
-            </Stack>
+            </Details>
 
-        </Stack>
+        </ProductDetailSection>
     )
 }
 
 export default ProductDetail
 
-const StyledSpeedDial = styled(SpeedDial)(({ theme }) => ({
+const ProductDetailSection = styled('div')(({ theme }) => ({
+    display: 'flex',
+    columnGap: '30px',
+    justifyContent: 'space-between',
+    marginTop: '15px',
+    fontFamily: theme.fontFamily.nunito,
+    [theme.breakpoints.down('md')]: {
+        fontSize: '0.8em',
+        flexDirection: 'column',
+    },
+
+}))
+
+const Details = styled('div')(({ theme }) => ({
+    display: 'flex',
+    flexDirection: 'column',
+    rowGap: '20px',
+    width: '70%',
+    boxSizing: 'border-box',
+    padding: '20px 0',
+    [theme.breakpoints.down('sm')]: {
+        width: '100%',
+    }
+}))
+
+const MoreActionsSection = styled(SpeedDial)(({ theme }) => ({
     '& .MuiButtonBase-root': {
         backgroundColor: 'black',
         '&:hover': {
             backgroundColor: 'black',
         }
+    },
+    [theme.breakpoints.down('sm')]: {
+        display: 'none',
     }
 }))
 

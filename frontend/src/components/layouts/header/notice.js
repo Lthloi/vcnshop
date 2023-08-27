@@ -1,26 +1,23 @@
 import React, { useEffect, useRef, useState } from "react"
 import { styled } from '@mui/material/styles'
 import { Stack, Typography } from "@mui/material"
-import { useTheme } from "@emotion/react"
 import { useTranslation } from "react-i18next"
 
 const TimeLabel = ({ value, label }) => {
-
     return (
         <Stack
             alignItems="center"
             columnGap="10px"
-            fontFamily="inherit"
-            fontSize="0.8em"
+            fontSize="1em"
         >
             <Typography
-                fontSize="inherit"
+                fontSize="1em"
                 fontFamily="inherit"
             >
                 {value}
             </Typography>
             <Typography
-                fontSize="inherit"
+                fontSize="1em"
                 fontFamily="inherit"
             >
                 {label}
@@ -43,7 +40,6 @@ const get_time_types = (countdown_in_ms) => {
 }
 
 const Notice = () => {
-    const theme = useTheme()
     const { t } = useTranslation('home_page')
 
     const now_in_ms = get_time_now()
@@ -81,16 +77,10 @@ const Notice = () => {
             overflow="hidden"
         >
 
-            <Stack
-                flexDirection="row"
-                alignItems="center"
-                margin="auto"
-                columnGap="10px"
-                fontFamily={theme.fontFamily.nunito}
-            >
+            <TextContainer>
 
                 <Typography
-                    fontSize="0.9em"
+                    fontSize="inherit"
                     fontWeight="bold"
                     fontFamily="inherit"
                 >
@@ -100,7 +90,7 @@ const Notice = () => {
                 <Stack
                     flexDirection="row"
                     alignItems="center"
-                    fontFamily="inherit"
+                    fontSize="1em"
                 >
                     <TimeLabel value={days} label={t("Days")} />
                     <Seperate>
@@ -117,13 +107,28 @@ const Notice = () => {
                     <TimeLabel value={seconds} label={t("Seconds")} />
                 </Stack>
 
-            </Stack>
+            </TextContainer>
 
         </Stack>
     )
 }
 
 export default Notice
+
+const TextContainer = styled('div')(({ theme }) => ({
+    display: 'flex',
+    alignItems: "center",
+    margin: "auto",
+    columnGap: "10px",
+    fontFamily: theme.fontFamily.nunito,
+    fontSize: '0.8em',
+    [theme.breakpoints.down('lg')]: {
+        fontSize: '0.7em',
+    },
+    [theme.breakpoints.down('md')]: {
+        fontSize: '0.6em',
+    },
+}))
 
 const Seperate = styled('span')(({ theme }) => ({
     margin: '0 10px',

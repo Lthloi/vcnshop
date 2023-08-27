@@ -1,20 +1,16 @@
 import React, { useEffect, useState } from "react"
 import { styled } from '@mui/material/styles'
 import { useDispatch, useSelector } from "react-redux"
-import { Rating } from "@mui/material"
+import { Rating, Typography } from "@mui/material"
 import Pagination from '@mui/material/Pagination'
 import { getReviews } from "../../../store/actions/product_actions"
-import { Skeleton } from "@mui/material"
+import { Skeleton, Stack } from "@mui/material"
 import CommentIcon from '@mui/icons-material/Comment'
 import { LIMIT_GET_COMMENTS } from "../../../configs/constants"
+import moment from 'moment'
 
 const convertDate = (time_string) => {
-    let date_in_string = new window.Date(time_string).toLocaleDateString()
-    let date_splitting = date_in_string.split('/')
-    let temp = date_splitting[0]
-    date_splitting[0] = date_splitting[1]
-    date_splitting[1] = temp
-    return date_splitting.join('/')
+    return moment(time_string).format('DD/MM/YYYY')
 }
 
 const Reviews = ({ productId, srollReviewRef }) => {
@@ -43,57 +39,70 @@ const Reviews = ({ productId, srollReviewRef }) => {
                         <ReviewLoading />
                     </>
                 ) : error ? (
-                    <ReviewError>{error.message}</ReviewError>
+                    <Error>
+                        {error.message}
+                    </Error>
                 ) : reviews && reviews.length > 0 ?
-                    reviews.map(({ user_id, name, comment, rating, title, createdAt, avatar, imageURLs }) =>
+                    reviews.map(({ user_id, name, comment, rating, title, createdAt, avatar, imageURLs }) => (
                         <Review key={user_id}>
-                            <Date>
+
+                            <WrittenOn>
                                 <span>Written On </span>
                                 <span>{convertDate(createdAt)}</span>
-                            </Date>
+                            </WrittenOn>
+
                             <UserInfoContainer>
                                 <AvatarWrapper>
                                     <Avatar src={avatar} />
                                 </AvatarWrapper>
                                 <Name>{name}</Name>
                             </UserInfoContainer>
+
                             <Rating
                                 value={rating * 1}
                                 readOnly
                                 size="small"
                                 precision={0.5}
-                                sx={{ marginTop: '5px' }}
                             />
+
                             <CommentTitle>{title}</CommentTitle>
+
                             <Comment>{comment}</Comment>
-                            <ReviewImagesContainer>
+
+                            <ImagesContainer>
                                 {
-                                    imageURLs && imageURLs.length > 0 && imageURLs.map((imageURL) => (
-                                        <div key={imageURL} style={{ maxWidth: '15%' }}>
-                                            <ReviewImage src={imageURL} />
-                                        </div>
+                                    imageURLs && imageURLs.length > 0 &&
+                                    imageURLs.map((imageURL) => (
+                                        <ReviewImage src={imageURL} key={imageURL} />
                                     ))
                                 }
-                            </ReviewImagesContainer>
+                            </ImagesContainer>
+
                         </Review>
-                    )
+                    ))
                     :
                     <EmptyReviews>
-                        <CommentIcon sx={{ height: '2em', width: '2em' }} />
-                        <EmptyReviewsText>
+                        <CommentIcon sx={{ fontSize: '2em' }} />
+                        <Typography
+                            fontWeight='bold'
+                            fontSize='1.2em'
+                        >
                             There's no one review...
-                        </EmptyReviewsText>
+                        </Typography>
                     </EmptyReviews>
             }
 
-            <div style={{ display: 'flex', justifyContent: 'center', }}>
+            <Stack
+                flexDirection="row"
+                justifyContent='center'
+            >
                 <ReviewPages
                     count={Math.ceil(reviews.length / LIMIT_GET_COMMENTS)}
                     variant="outlined" shape="rounded"
                     onChange={switchCommentPage}
                     page={reviewPage}
                 />
-            </div>
+            </Stack >
         </>
     )
 }
@@ -112,12 +121,15 @@ const Review = styled('div')(({ theme }) => ({
     fontFamily: theme.fontFamily.nunito,
 }))
 
-const Date = styled('div')({
+const WrittenOn = styled('div')(({ theme }) => ({
     fontSize: '0.9em',
     position: 'absolute',
     top: '10px',
     right: '10px',
-})
+    [theme.breakpoints.down('sm')]: {
+        fontSize: '0.8em'
+    }
+}))
 
 const UserInfoContainer = styled('div')({
     display: 'flex',
@@ -160,15 +172,16 @@ const Comment = styled('div')({
     whiteSpace: 'pre-line',
 })
 
-const ReviewImagesContainer = styled('div')({
+const ImagesContainer = styled('div')(({ theme }) => ({
     display: 'flex',
     columnGap: '10px',
     marginTop: '10px',
-})
+    overflowX: 'auto',
+}))
 
 const ReviewImage = styled('img')({
     height: '80px',
-    width: '100%',
+    maxWidth: '120px',
 })
 
 const ReviewPages = styled(Pagination)({
@@ -207,11 +220,6 @@ const EmptyReviews = styled('div')({
     marginTop: '10px',
 })
 
-const EmptyReviewsText = styled('div')({
-    fontWeight: 'bold',
-    fontSize: '1.2em',
-})
-
 const ReviewLoading = styled(Skeleton)({
     marginTop: '20px',
     width: '100%',
@@ -219,7 +227,7 @@ const ReviewLoading = styled(Skeleton)({
     transform: 'unset',
 })
 
-const ReviewError = styled('div')({
+const Error = styled('div')({
     textAlign: 'center',
     width: '100%',
     padding: '10px',

@@ -3,6 +3,7 @@ import { styled } from '@mui/material/styles'
 import ClearIcon from '@mui/icons-material/Clear'
 import { useDispatch } from "react-redux"
 import { verifyRegisterOTP } from "../../../store/actions/user_actions"
+import { Box, IconButton, Tooltip, Typography } from "@mui/material"
 
 const input_value_validator = /^\d+$/
 
@@ -78,8 +79,10 @@ const VerifyOTP = ({ emailWasTyped }) => {
 
     return (
         <VerifyOTPFormGroup id="VerifyOTPFormGroup">
-            <Label>Enter the OTP code here...</Label>
+            <Title>Enter the OTP code here...</Title>
+
             <OTPInputContainer ref={OTPInputContainerRef}>
+
                 {
                     input_values.map((items, index) => (
                         <OTPInputs
@@ -97,28 +100,24 @@ const VerifyOTP = ({ emailWasTyped }) => {
                         />
                     ))
                 }
-                <div
-                    style={{
-                        height: '100%',
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        position: 'absolute',
-                        right: '-10px',
-                        bottom: '0',
-                    }}
-                >
-                    <ClearInputWrapper onClick={() => clearInput()}
-                        title="Clear"
+
+                <ClearInputsBtn>
+
+                    <IconButton
+                        onClick={() => clearInput()}
                     >
-                        <ClearIcon sx={{ color: 'white', }} />
-                    </ClearInputWrapper>
-                </div>
+                        <Tooltip title="Clear">
+                            <ClearIcon sx={{ color: 'white', }} />
+                        </Tooltip>
+                    </IconButton>
+
+                </ClearInputsBtn>
             </OTPInputContainer>
-            <Saying>
+
+            <Announce>
                 A four-digit OTP code was sent to your email.
                 Please check the email and enter or paste the code to above.
-            </Saying>
+            </Announce>
         </VerifyOTPFormGroup>
     )
 }
@@ -129,10 +128,9 @@ const VerifyOTPFormGroup = styled('div')({
     marginTop: '20px',
 })
 
-const Label = styled('label')({
+const Title = styled(Typography)({
     display: 'block',
     width: 'fit-content',
-    fontFamily: 'sans-serif',
     fontWeight: 'bold',
     padding: '3px 10px',
     backgroundColor: '#33b8b6',
@@ -143,7 +141,7 @@ const OTPInputContainer = styled('div')({
     display: 'flex',
     justifyContent: 'space-around',
     alignItems: 'center',
-    padding: '5px 20px 8px',
+    padding: '10px',
     margin: '0 auto',
     marginTop: '8px',
     width: '60%',
@@ -174,22 +172,20 @@ const OTPInputs = styled('input')({
     },
 })
 
-const ClearInputWrapper = styled('div')({
-    width: '1.5em',
-    height: '1.5em',
-    cursor: 'pointer',
-    padding: '3px',
-    borderRadius: '50%',
-    '&:hover': {
-        backgroundColor: '#80808061',
-    }
+const ClearInputsBtn = styled('div')({
+    display: "flex",
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'absolute',
+    left: "100%",
+    top: "0",
 })
 
-const Saying = styled('p')({
+const Announce = styled(Typography)({
     margin: '0',
     marginTop: '5px',
     fontStyle: 'italic',
-    fontFamily: 'sans-serif',
     color: 'white',
     fontSize: '0.8em',
 })

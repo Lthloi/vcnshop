@@ -14,8 +14,6 @@ import { useEffect } from 'react'
 import { useDispatch } from 'react-redux'
 import { getUser } from './store/actions/user_actions'
 import Checkout from './pages/checkout'
-import { ThemeProvider } from '@mui/material/styles'
-import global_theme from './styles/themes'
 import Admin from './pages/admin'
 import MyStore from './pages/my_store'
 import TermsOfUse from './pages/terms_of_use'
@@ -36,32 +34,30 @@ function App() {
 
   return (
     <div id="VCN-Shop-React-App">
-      <ThemeProvider theme={global_theme}>
-        <BrowserRouter>
-          <Routes>
+      <BrowserRouter>
+        <Routes>
 
-            {/*Put routes with outlet layout*/}
-            <Route path='/' element={<PageLayout />}>
-              <Route index element={<Home />} />
-              <Route path='/cart' element={<Cart />} />
-              <Route path='/productDetail/:productId' element={<Product />} />
-              <Route path='/search/:keyword' element={<SearchResult />} />
-              <Route path='/account/*' element={<ProtectedRoute><Account /></ProtectedRoute>} />
-              <Route path='/admin/*' element={<ProtectedRoute isAdminRoute><Admin /></ProtectedRoute>} />
-              <Route path='/myStore/*' element={<ProtectedRoute><MyStore /></ProtectedRoute>} />
-            </Route>
+          {/*Put routes with outlet layout*/}
+          <Route path='/' element={<PageLayout />}>
+            <Route index element={<Home />} />
+            <Route path='/cart' element={<Cart />} />
+            <Route path='/productDetail/:productId' element={<Product />} />
+            <Route path='/search/:keyword' element={<SearchResult />} />
+            <Route path='/account/*' element={<ProtectedRoute><Account /></ProtectedRoute>} />
+            <Route path='/admin/*' element={<ProtectedRoute isAdminRoute><Admin /></ProtectedRoute>} />
+            <Route path='/myStore/*' element={<ProtectedRoute><MyStore /></ProtectedRoute>} />
+          </Route>
 
-            {/*Put other routes with no layout*/}
-            <Route path='/checkout/*' element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
-            <Route path='/auth/*' element={<Auth />} />
+          {/*Put other routes with no layout*/}
+          <Route path='/checkout/*' element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
+          <Route path='/auth/*' element={<Auth />} />
 
-            <Route path='/termOfUse' element={<TermsOfUse />} />
+          <Route path='/termOfUse' element={<TermsOfUse />} />
 
-            <Route path='/*' element={<NotFound404 />} />
+          <Route path='/*' element={<NotFound404 />} />
 
-          </Routes>
-        </BrowserRouter>
-      </ThemeProvider>
+        </Routes>
+      </BrowserRouter>
 
       <ToastContainer limit={3} autoClose={2000} pauseOnHover={true} draggable={false} />
     </div>

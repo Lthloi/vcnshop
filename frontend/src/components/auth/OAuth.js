@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react"
 import GoogleIcon from '@mui/icons-material/Google'
-import { Box, CircularProgress, Stack, Typography, Backdrop } from "@mui/material"
-import { useTheme } from "@emotion/react"
+import { styled, CircularProgress, Stack, Typography, Backdrop } from "@mui/material"
 import axios from 'axios'
 import axiosErrorHandler from '../../utils/axios_error_handler'
 import { toast } from "react-toastify"
@@ -124,19 +123,14 @@ const GoogleOauth = () => {
 }
 
 const OAuth = () => {
-    const theme = useTheme()
-
     return (
-        <Box
-            component="div"
+        <OAuthSection
             id="Oauth"
-            marginTop="15px"
         >
             <Typography
                 color='white'
                 margin='0'
-                fontSize='0.9em'
-                fontFamily={theme.fontFamily.nunito}
+                fontSize='1em'
                 textAlign="center"
             >
                 OR USING YOUR SOCIAL ACCOUNTS
@@ -152,8 +146,16 @@ const OAuth = () => {
                 <GoogleOauth />
 
             </Stack>
-        </Box >
+        </OAuthSection >
     )
 }
 
 export default OAuth
+
+const OAuthSection = styled('div')(({ theme }) => ({
+    marginTop: "15px",
+    fontFamily: theme.fontFamily.nunito,
+    [theme.breakpoints.down('sm')]: {
+        fontSize: '0.8em',
+    }
+}))

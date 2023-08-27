@@ -137,7 +137,7 @@ const RenderRadioInput = () => <Radio size="small" color="default" sx={radio_sty
 
 const EmailWasTyped = ({ emailWasTyped }) => {
     return (
-        <InputFormGroup sx={{ opacity: '0.6' }}>
+        <InputFormGroup sx={{ opacity: '0.6', marginTop: '10px' }}>
             <InputLabelContainer>
                 <InputLabel>Email</InputLabel>
             </InputLabelContainer>

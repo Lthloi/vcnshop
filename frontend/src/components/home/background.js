@@ -3,7 +3,7 @@ import { styled } from '@mui/material/styles'
 import banner_item_1 from '../../assets/images/home_banner_item_1.jpg'
 import banner_item_2 from '../../assets/images/home_banner_item_2.jpg'
 import banner_background from '../../assets/images/home_banner_background.jpg'
-import { Stack, Typography } from "@mui/material"
+import { Typography } from "@mui/material"
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
 import { useTheme } from "@emotion/react"
 import { useTranslation } from "react-i18next"
@@ -13,48 +13,53 @@ const Background = () => {
     const { t } = useTranslation('home_page')
 
     const shopNowAction = () => {
+        let destination
+
+        if (window.innerWidth <= 900) destination = 600
+        else destination = 860
+
         window.scrollTo({
-            top: 850,
+            top: destination,
             behavior: 'smooth',
         })
     }
 
     return (
-        <Stack
+        <BackgroundSection
             id="Home-Background"
-            component="div"
-            flexDirection="row"
-            justifyContent="space-between"
-            width="100%"
-            padding="30px 70px"
-            boxSizing="border-box"
-            sx={{ backgroundImage: `url(${banner_background})` }}
         >
 
-            <Stack
-                fontFamily={theme.fontFamily.kanit}
-                justifyContent="center"
-            >
+            <TextContainer>
                 <Typography
                     fontFamily="inherit"
                     color="red"
                 >
-                    {t('Winter Collection')}
+                    <AnimationText theme={{ BackgroundTextIndex: 40 }}>
+                        {t('Winter Collection')}
+                    </AnimationText>
                 </Typography>
                 <Typography
                     fontFamily="inherit"
                     fontSize="3em"
                     fontWeight="bold"
+                    color="black"
                 >
-                    <span>{t('New Trending')}</span>
+                    <AnimationText theme={{ BackgroundTextIndex: 41 }}>
+                        {t('New Trending')}
+                    </AnimationText>
                     <br />
-                    <span>{t('Collection 2023')}</span>
+                    <AnimationText theme={{ BackgroundTextIndex: 42 }}>
+                        {t('Collection 2023')}
+                    </AnimationText>
                 </Typography>
                 <Typography
                     fontFamily={theme.fontFamily.nunito}
                     fontStyle="italic"
+                    fontSize="1em"
                 >
-                    {t('Make up your lifestyle')}
+                    <AnimationText theme={{ BackgroundTextIndex: 43 }}>
+                        {t('Make up your lifestyle')}
+                    </AnimationText>
                 </Typography>
 
                 <ShopNowButton
@@ -63,26 +68,89 @@ const Background = () => {
                     <span>{t('Shop Now')}</span>
                     <ArrowForwardIcon sx={{ fontSize: '1.1em' }} />
                 </ShopNowButton>
-            </Stack>
+            </TextContainer>
 
             <BannerContainer>
                 <img src={banner_item_1} alt="banner-1" />
                 <img src={banner_item_2} alt="banner-2" />
             </BannerContainer>
 
-        </Stack>
+        </BackgroundSection>
     )
 }
 
 export default Background
 
-const BannerContainer = styled('div')({
+const BackgroundSection = styled('div')(({ theme }) => ({
+    display: 'flex',
+    justifyContent: "space-between",
+    width: "100%",
+    padding: "30px 70px",
+    boxSizing: "border-box",
+    backgroundImage: `url(${banner_background})`,
+    overflow: 'hidden',
+    [theme.breakpoints.down('md')]: {
+        padding: '30px',
+    },
+}))
+
+const TextContainer = styled('div')(({ theme }) => ({
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    fontFamily: theme.fontFamily.kanit,
+    fontSize: '1em',
     position: 'relative',
-    zIndex: '0',
-    width: '500px',
+    zIndex: '5',
+    width: '100%',
+    [theme.breakpoints.down('md')]: {
+        fontSize: '0.6em',
+    },
+}))
+
+const AnimationText = styled('span')(({ theme }) => ({
+    display: 'inline-block',
+    animation: 'background_text_animate 5s forwards infinite',
+    animationDelay: `${theme.BackgroundTextIndex * 0.05}s`,
+    '@keyframes background_text_animate': {
+        '0%': {
+            transform: 'translate(-100px) scale(.3)',
+            opacity: '0',
+            color: 'black',
+        },
+        '4%': {
+            transform: 'translate(50px) scale(.7)',
+            opacity: '1',
+        },
+        '6%': {
+            color: 'yellow',
+        },
+        '8%': {
+            transform: 'translate(0) scale(2)',
+            opacity: '0',
+            color: 'inherit',
+        },
+        '10%': {
+            transform: 'translate(0) scale(1)',
+            opacity: '1',
+        },
+        '100%': {
+            transform: 'translate(0) scale(1)',
+            opacity: '1',
+        },
+    }
+}))
+
+const BannerContainer = styled('div')(({ theme }) => ({
+    position: 'relative',
+    zIndex: '1',
     height: '500px',
+    width: '100%',
     overflow: 'visible',
     marginRight: '50px',
+    [theme.breakpoints.down('md')]: {
+        height: '350px',
+    },
     '& img': {
         position: 'absolute',
         top: '50%',
@@ -90,8 +158,9 @@ const BannerContainer = styled('div')({
         transform: 'translate(-50%, -50%)',
     },
     '& img:nth-of-type(1)': {
-        zIndex: '1',
+        zIndex: '2',
         height: '400px',
+        transform: 'translate(-70%, -50%)',
         animation: 'auto_change_image_1 5s infinite ease-in-out alternate',
         '@keyframes auto_change_image_1': {
             '0%': {
@@ -106,10 +175,13 @@ const BannerContainer = styled('div')({
             '100%': {
                 opacity: '0',
             }
-        }
+        },
+        [theme.breakpoints.down('md')]: {
+            height: '300px',
+        },
     },
     '& img:nth-of-type(2)': {
-        zIndex: '2',
+        zIndex: '3',
         height: '400px',
         animation: 'auto_change_image_2 5s infinite linear alternate',
         '@keyframes auto_change_image_2': {
@@ -125,9 +197,12 @@ const BannerContainer = styled('div')({
             '100%': {
                 opacity: '1',
             }
-        }
+        },
+        [theme.breakpoints.down('md')]: {
+            height: '300px',
+        },
     },
-})
+}))
 
 const ShopNowButton = styled('button')(({ theme }) => ({
     display: 'flex',
@@ -135,7 +210,7 @@ const ShopNowButton = styled('button')(({ theme }) => ({
     columnGap: '10px',
     padding: '10px 25px',
     fontFamily: theme.fontFamily.nunito,
-    fontSize: '0.9em',
+    fontSize: '0.8rem',
     width: 'fit-content',
     marginTop: '15px',
     border: '2px black solid',
@@ -146,5 +221,9 @@ const ShopNowButton = styled('button')(({ theme }) => ({
     '&:hover': {
         backgroundColor: 'black',
         color: 'white',
-    }
+    },
+    [theme.breakpoints.down('md')]: {
+        padding: '10px',
+        fontSize: '0.7rem',
+    },
 }))

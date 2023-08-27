@@ -112,33 +112,33 @@ class ProductService {
     }
 
     async getProducts({ keyword, category, price, rating, limit, page, targetGender, shopId, stock, sort }) {
-        let queryObject = {}
+        let query = {}
 
         if (keyword)
-            queryObject.name = { $regex: new RegExp(keyword, 'i') }
+            query.name = { $regex: new RegExp(keyword, 'i') }
         if (category)
-            queryObject.category = { $in: category }
-        if (price)
-            queryObject['price.value'] = { $gte: price.gte * 1, $lte: price.lte * 1 }
+            query.category = { $in: category }
+        if (price && price.gte && price.lte)
+            query['price.value'] = { $gte: price.gte * 1, $lte: price.lte * 1 }
         if (rating)
-            queryObject['review.average_rating'] = { $gte: rating * 1 }
+            query['review.average_rating'] = { $gte: rating * 1 }
         if (targetGender)
-            queryObject.target_gender = { $in: targetGender }
+            query.target_gender = { $in: targetGender }
         if (shopId)
-            queryObject['shop.id'] = mongoose.Types.ObjectId(shopId)
-        if (stock)
-            queryObject.stock = { $gte: stock.gte, $lte: stock.lte }
+            query['shop.id'] = mongoose.Types.ObjectId(shopId)
+        if (stock && stock.gte && stock.lte)
+            query.stock = { $gte: stock.gte, $lte: stock.lte }
 
-        let count_products = await ProductModel.countDocuments(queryObject)
+        let count_products = await ProductModel.countDocuments(query)
 
         let products = await ProductModel
-            .find(queryObject, { 'review.reviews': 0 })
+            .find(query, { 'review.reviews': 0 })
             .skip((page * 1 - 1) * (limit * 1)) // multiple with 1 for casting string to number
             .sort({ [sort.name]: sort.type })
             .limit(limit * 1)
             .lean()
 
-        return { products, count_products }
+            return { products, count_products }
     }
 
     async newReview({ productId, userId, avatar, user_name, rating, comment, title, images }) {

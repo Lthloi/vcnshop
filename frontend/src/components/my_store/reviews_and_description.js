@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react"
+import React, { useEffect, useState } from "react"
 import { styled } from '@mui/material/styles'
 import { useDispatch, useSelector } from "react-redux"
 import { getReviews } from "../../store/actions/product_actions"
@@ -13,9 +13,9 @@ import Dialog from '@mui/material/Dialog'
 import Slide from '@mui/material/Slide'
 import { IconButton } from "@mui/material"
 import CloseIcon from '@mui/icons-material/Close'
-import { Tooltip } from "@mui/material"
+import { Tooltip, Stack, Typography } from "@mui/material"
 
-const ReviewsSection = ({ productId, scrollReviewsRef }) => {
+const ReviewsSection = ({ productId }) => {
     const { reviews, loading, error } = useSelector(({ product }) => product.reviews)
     const [reviewPage, setReviewPage] = useState(1)
     const dispatch = useDispatch()
@@ -26,7 +26,6 @@ const ReviewsSection = ({ productId, scrollReviewsRef }) => {
 
     const switchCommentPage = (e, page) => {
         if (page === reviewPage) return
-        scrollReviewsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
         setReviewPage(page)
         dispatch(getReviews(productId, page))
     }
@@ -82,9 +81,12 @@ const ReviewsSection = ({ productId, scrollReviewsRef }) => {
                     :
                     <EmptyReviews>
                         <CommentIcon sx={{ height: '2em', width: '2em' }} />
-                        <EmptyReviewsText>
+                        <Typography
+                            fontWeight='bold'
+                            fontSize='1.2em'
+                        >
                             There's no one review...
-                        </EmptyReviewsText>
+                        </Typography>
                     </EmptyReviews>
             }
 
@@ -105,54 +107,79 @@ const Transition = React.forwardRef(function Transition(props, ref) {
     return <Slide direction="up" ref={ref} {...props} unmountOnExit />
 })
 
-const Reviews = ({ productId, description }) => {
-    const [openReviews, setOpenReviews] = useState(false)
-    const [openDescription, setOpenDescription] = useState(false)
-    const scroll_reviews_ref = useRef()
+const Description = ({ description }) => {
+    const [open, setOpen] = useState(false)
 
     return (
         <>
-            <ViewBtn onClick={() => setOpenDescription(pre => !pre)}>
+            <ViewBtn onClick={() => setOpen(pre => !pre)}>
                 <span>View Description</span>
                 <KeyboardArrowDownIcon />
             </ViewBtn>
+
             <Collapse
-                in={openDescription}
+                in={open}
                 unmountOnExit
                 timeout="auto"
                 sx={{ marginTop: '10px' }}
             >
                 <span>{description}</span>
             </Collapse>
-            <ViewBtn onClick={() => setOpenReviews(pre => !pre)}>
+        </>
+    )
+}
+
+const Reviews = ({ productId }) => {
+    const [open, setOpen] = useState(false)
+
+    return (
+        <>
+            <ViewBtn onClick={() => setOpen(pre => !pre)}>
                 <span>View Reviews</span>
                 <KeyboardArrowDownIcon />
             </ViewBtn>
+
             <Dialog
-                ref={scroll_reviews_ref}
                 fullScreen
-                open={openReviews}
-                onClose={() => setOpenDescription(false)}
+                open={open}
                 TransitionComponent={Transition}
             >
                 <div>
                     <CloseContainer>
-                        <Tooltip title="Close">
-                            <IconButton onClick={() => setOpenReviews(false)}>
-                                <CloseIcon />
-                            </IconButton>
-                        </Tooltip>
-                        <span>Cancel</span>
+                        <Stack
+                            flexDirection="row"
+                            alignItems="center"
+                            width="100%"
+                        >
+                            <Tooltip title="Close">
+                                <IconButton onClick={() => setOpen(false)}>
+                                    <CloseIcon />
+                                </IconButton>
+                            </Tooltip>
+                            <span>Cancel</span>
+                        </Stack>
+
                         <h2 className="close_title">Reviews</h2>
                     </CloseContainer>
-                    <ReviewsSection productId={productId} scrollReviewsRef={scroll_reviews_ref} />
+
+                    <ReviewsSection productId={productId} />
                 </div>
             </Dialog>
         </>
     )
 }
 
-export default Reviews
+const ReviewsAndDescription = ({ productId, description }) => {
+    return (
+        <>
+            <Description description={description} />
+
+            <Reviews productId={productId} />
+        </>
+    )
+}
+
+export default ReviewsAndDescription
 
 const ViewBtn = styled('div')({
     display: 'flex',
@@ -165,6 +192,7 @@ const ViewBtn = styled('div')({
     marginTop: '30px',
     borderBottom: '1px lightgrey solid',
     cursor: 'pointer',
+    boxSizing: 'border-box',
     '&:hover': {
         textDecoration: 'underline',
     }
@@ -188,6 +216,17 @@ const CloseContainer = styled('div')(({ theme }) => ({
         top: '50%',
         left: '50%',
         transform: 'translate(-50%,-50%)',
+        [theme.breakpoints.down('sm')]: {
+            position: 'relative',
+            top: '0',
+            left: '0',
+            transform: 'none',
+        }
+    },
+    [theme.breakpoints.down('sm')]: {
+        flexDirection: 'column',
+        paddingLeft: '10px',
+
     }
 }))
 
@@ -213,13 +252,16 @@ const ReviewContainer = styled('div')({
     marginTop: '10px',
 })
 
-const Date = styled('div')({
-    fontFamily: '"Work Sans", sans-serif',
+const Date = styled('div')(({ theme }) => ({
     fontSize: '0.9em',
     position: 'absolute',
     top: '20px',
     right: '20px',
-})
+    fontFamily: theme.fontFamily.nunito,
+    [theme.breakpoints.down('sm')]: {
+        fontSize: '0.8em',
+    }
+}))
 
 const UserInfoContainer = styled('div')({
     display: 'flex',
@@ -268,11 +310,12 @@ const ReviewImagesContainer = styled('div')({
     display: 'flex',
     columnGap: '10px',
     marginTop: '10px',
+    overflowX: 'auto',
 })
 
 const ReviewImage = styled('img')({
     height: '80px',
-    width: '100%',
+    maxWidth: '120px',
 })
 
 const ReviewPages = styled(Pagination)({
@@ -309,10 +352,4 @@ const EmptyReviews = styled('div')({
     height: '35vh',
     width: '100%',
     marginTop: '10px',
-})
-
-const EmptyReviewsText = styled('div')({
-    fontFamily: '"Nunito", "sans-serif"',
-    fontWeight: 'bold',
-    fontSize: '1.2em',
 })

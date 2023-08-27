@@ -1,7 +1,7 @@
-import winston, { format } from 'winston'
+
 import { Loggly } from 'winston-loggly-bulk'
 
-const logging_levels = {
+const loggingLevels = {
     error: 0,
     warn: 1,
     info: 2,
@@ -11,29 +11,22 @@ const logging_levels = {
     silly: 6
 }
 
-const custom_format = format.printf(({ level, message, label, timestamp }) => {
-    return `${timestamp} [${label}] ${level}: ${message}`
-})
-
-const logging_format = format.combine(
-    format.timestamp(),
-    format.json(),
-    custom_format
-)
-
-// the final configuration
-const logger = winston.createLogger({
-    transports: [],
-    format: logging_format,
-    levels: logging_levels,
-})
-
-// add Loggly as a transport
-logger.add(new Loggly({
-    token: "9f7a2348-ae95-45b0-9f1f-f82d0be477f0",
-    subdomain: "codevcn",
+const logglyTransport = new Loggly({
+    token: process.env.WINSTON_LOGGLY_ACCESS_TOKEN,
+    subdomain: process.env.WINSTON_LOGGLY_SUBDOMAIN,
     tags: ["Winston-NodeJS"],
     json: true
-}))
+})
 
-export default logger
+const loggingLabels = {
+    Input_Validation_Error: 'Input Validation Error',
+    Async_Error: 'Async Error',
+    Base_Error: 'Base Error',
+    HTTP: 'HTTP Request',
+}
+
+export {
+    loggingLevels,
+    logglyTransport,
+    loggingLabels,
+}

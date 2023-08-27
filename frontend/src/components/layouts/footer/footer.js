@@ -83,31 +83,22 @@ const payment_methods = [
 ]
 
 const SocialNetworks = () => {
-    const theme = useTheme()
     const { t } = useTranslation('home_page')
 
     return (
         <Stack
             flexDirection="row"
+            columnGap="20px"
             justifyContent="space-between"
             alignItems="center"
             padding="15px 30px"
             bgcolor="#3facb1"
         >
-            <Typography
-                fontFamily={theme.fontFamily.kanit}
-                color="white"
-                fontSize="1.3em"
-                fontWeight="bold"
-            >
+            <SocialNetworksText>
                 {t('Contact us on social networks!')}
-            </Typography>
+            </SocialNetworksText>
 
-            <Stack
-                flexDirection="row"
-                alignItems="center"
-                columnGap="30px"
-            >
+            <SocialNetworksIcons>
                 <Tooltip title="Facebook">
                     <FacebookIcon sx={social_icon_style} />
                 </Tooltip>
@@ -120,59 +111,42 @@ const SocialNetworks = () => {
                 <Tooltip title="Twitter">
                     <TwitterIcon sx={social_icon_style} />
                 </Tooltip>
-            </Stack>
+            </SocialNetworksIcons>
         </Stack>
     )
 }
 
-const LogoSection = () => {
-    const theme = useTheme()
+const Logo = () => {
     const { t } = useTranslation('home_page')
 
     return (
-        <Box
-            width="23%"
-            fontFamily={theme.fontFamily.nunito}
-        >
-            <Stack
-                flexDirection="row"
-                justifyContent="center"
-                alignItems="center"
-            >
-                <LogoImg src={foxLogoWhite} />
+        <LogoSection>
 
-                <Box
-                    marginLeft="10px"
-                >
-                    <Typography
-                        fontFamily="inherit"
-                        color="white"
-                        fontWeight="bold"
-                    >
-                        VCN Shop
-                    </Typography>
-                    <Typography
-                        fontSize="0.8em"
-                        fontFamily="inherit"
-                        color="white"
-                    >
-                        {t('Shopping Too Easy')}
-                    </Typography>
-                </Box>
+            <LogoImg src={foxLogoWhite} />
 
-            </Stack>
-
-            <Stack
+            <Box
+                marginLeft="10px"
                 marginTop="20px"
-                color="white"
-                fontSize="1.2em"
             >
-                <span>
-                    {t('Thanking Footer')}
-                </span>
-                <span>{t('Thanks for VCN VLy distribution center of goods and services.')}</span>
-            </Stack>
-        </Box>
+                <Typography
+                    fontFamily="inherit"
+                    color="white"
+                    fontWeight="bold"
+                    textAlign="center"
+                >
+                    VCN Shop
+                </Typography>
+                <Typography
+                    fontSize="0.9em"
+                    fontFamily="inherit"
+                    color="white"
+                    marginTop="10px"
+                >
+                    {t('Shopping Too Easy')}
+                </Typography>
+            </Box>
+
+        </LogoSection>
     )
 }
 
@@ -280,18 +254,14 @@ const MenuNav = () => {
                 zIndex="2"
             >
 
-                <Stack
-                    justifyContent="space-between"
-                    flexDirection="row"
-                    padding="40px 20px"
-                >
-                    <LogoSection />
+                <NavContainer>
+                    <Logo />
 
                     <Nav title={menu_navigation[0].title} list={menu_navigation[0].list} />
                     <Nav title={menu_navigation[1].title} list={menu_navigation[1].list} />
                     <Nav title={menu_navigation[2].title} list={menu_navigation[2].list} />
                     <Nav title={menu_navigation[3].title} list={menu_navigation[3].list} />
-                </Stack>
+                </NavContainer>
 
                 <Divider flexItem variant="middle" sx={{ backgroundColor: 'rgba(255,255,255,.3)' }} />
 
@@ -306,13 +276,7 @@ const PaymentMethods = () => {
     const theme = useTheme()
 
     return (
-        <Stack
-            flexDirection="row"
-            justifyContent="space-between"
-            alignItems="center"
-            bgcolor="transparent"
-            padding="20px"
-        >
+        <PaymentMethodsSection>
             <Typography
                 fontFamily={theme.fontFamily.nunito}
                 fontSize="0.8em"
@@ -337,7 +301,7 @@ const PaymentMethods = () => {
                     ))
                 }
             </Stack>
-        </Stack>
+        </PaymentMethodsSection>
     )
 }
 
@@ -359,22 +323,90 @@ const Footer = () => {
 
 export default Footer
 
-const LogoImg = styled('img')({
+const LogoImg = styled('img')(({ theme }) => ({
     height: '100px',
-})
+    [theme.breakpoints.down('md')]: {
+        height: '80px',
+    },
+}))
 
-const NavSection = styled('div')({
+const NavSection = styled('div')(({ theme }) => ({
     width: '12vw',
     marginLeft: '10px',
     '&:last-child': {
         width: '22vw',
         '& h2': {
             marginLeft: '32px',
-        }
-    }
-})
+            [theme.breakpoints.down('md')]: {
+                marginLeft: '0',
+            },
+        },
+        [theme.breakpoints.down('md')]: {
+            width: 'auto',
+        },
+    },
+    [theme.breakpoints.down('md')]: {
+        width: 'auto',
+        marginTop: '50px',
+    },
+}))
 
 const Method = styled('img')({
     height: '25px',
     width: '40px',
 })
+
+const NavContainer = styled('div')(({ theme }) => ({
+    display: 'flex',
+    justifyContent: "space-between",
+    padding: "40px 20px",
+    [theme.breakpoints.down('md')]: {
+        flexDirection: "column",
+        padding: '40px 0',
+    },
+}))
+
+const LogoSection = styled('div')(({ theme }) => ({
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: "center",
+    width: "20%",
+    fontFamily: theme.fontFamily.nunito,
+    [theme.breakpoints.down('md')]: {
+        width: "max-content",
+    },
+}))
+
+const SocialNetworksText = styled(Typography)(({ theme }) => ({
+    fontFamily: theme.fontFamily.kanit,
+    color: "white",
+    fontSize: "1.3em",
+    fontWeight: "bold",
+    [theme.breakpoints.down('md')]: {
+        fontSize: "1em",
+    },
+    [theme.breakpoints.down('sm')]: {
+        fontSize: '0.9em',
+    }
+}))
+
+const SocialNetworksIcons = styled('div')(({ theme }) => ({
+    display: 'flex',
+    alignItems: "center",
+    columnGap: "30px",
+    [theme.breakpoints.down('md')]: {
+        columnGap: "10px",
+    },
+}))
+
+const PaymentMethodsSection = styled('div')(({ theme }) => ({
+    display: 'flex',
+    justifyContent: "space-between",
+    alignItems: "center",
+    bgcolor: "transparent",
+    padding: "20px",
+    [theme.breakpoints.down('md')]: {
+        flexDirection: 'column',
+        rowGap: '20px',
+    },
+}))

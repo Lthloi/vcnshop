@@ -42,18 +42,21 @@ const Summary = ({ order }) => {
             padding='5px 30px'
             boxSizing='border-box'
             bgcolor='rgb(128 128 128 / 11%)'
+            fontFamily={theme.fontFamily.kanit}
         >
             {icon}
+
             <div>
                 <Typography
-                    fontFamily={theme.fontFamily.kanit}
                     fontSize='0.9em'
+                    fontFamily="inherit"
                     color='gray'
                 >
                     {small_title}
                 </Typography>
+
                 <Typography
-                    fontFamily={theme.fontFamily.kanit}
+                    fontFamily="inherit"
                     fontSize='1.1em'
                 >
                     {value_of_type}
@@ -63,13 +66,18 @@ const Summary = ({ order }) => {
     )
 
     return (
-        <Stack padding="0 30px" width="33%" boxSizing="border-box" justifyContent="center" alignItems="center">
+        <Stack
+            width="30%"
+            minWidth="300px"
+            boxSizing="border-box"
+            justifyContent="center"
+            alignItems="center"
+        >
             <Stack
-                padding='30px 0'
+                padding="30px 0"
                 border='1px black solid'
                 borderBottom='5px black solid'
                 borderRight='5px black solid'
-                width='85%'
                 boxSizing='border-box'
                 borderRadius='5px'
             >
@@ -117,13 +125,15 @@ const Thanking = () => {
         <Stack
             alignItems='center'
             justifyContent='center'
-            width='33%'
+            width='30%'
+            minWidth="300px"
             padding='10px'
             boxSizing='border-box'
+            fontFamily={theme.fontFamily.kanit}
         >
             <TruckAnimation src={deliveryIcon} />
             <Typography
-                fontFamily={theme.fontFamily.kanit}
+                fontFamily="inherit"
                 fontSize='2em'
                 fontWeight='bold'
                 margin='25px 0'
@@ -142,6 +152,9 @@ const Thanking = () => {
                 flexDirection="row"
                 columnGap='15px'
                 marginTop='30px'
+                flexWrap="wrap"
+                rowGap="10px"
+                justifyContent="center"
             >
                 <ContinueShopping href="/">
                     Continue Shopping
@@ -154,7 +167,7 @@ const Thanking = () => {
     )
 }
 
-const ReceiptOptions = ({ order }) => {
+const Receipt = ({ order }) => {
     const [sendReceiptLoading, setSendReceiptLoading] = useState(false)
     const user_email = useSelector(({ user }) => user.user.email)
     const theme = useTheme()
@@ -181,7 +194,8 @@ const ReceiptOptions = ({ order }) => {
         <Stack
             justifyContent='center'
             alignItems='center'
-            width='33%'
+            width='30%'
+            minWidth="300px"
         >
             <Stack
                 flexDirection="row"
@@ -251,7 +265,7 @@ const Success = () => {
     const theme = useTheme()
 
     useEffect(() => {
-        let paymentId = query_value_getter(1, 'payment_intent')
+        let paymentId = query_value_getter(undefined, 'payment_intent')
 
         if (!paymentId) {
             navigate(-1)
@@ -281,15 +295,16 @@ const Success = () => {
                     Yay! Order Successfully Placed
                 </Typography>
             </Stack>
+
             {
-                order && order.shipping_info ?
-                    <Stack flexDirection="row" marginTop="30px">
+                order ?
+                    <Details>
                         <Summary order={order} />
 
                         <Thanking />
 
-                        <ReceiptOptions order={order} />
-                    </Stack>
+                        <Receipt order={order} />
+                    </Details>
                     :
                     <Stack flexDirection="row" columnGap="20px" width="100%" padding="15px 0" marginTop="10px">
                         <Loading animation="wave" />
@@ -333,6 +348,15 @@ const style_of_option = {
     },
 }
 
+const Details = styled('div')(({ theme }) => ({
+    display: 'flex',
+    marginTop: '30px',
+    rowGap: '30px',
+    justifyContent: 'center',
+    columnGap: '30px',
+    flexWrap:'wrap'
+}))
+
 const Option = styled('button')({
     ...style_of_option,
 })
@@ -363,12 +387,12 @@ const TruckAnimation = styled('img')(({ theme }) => ({
 
 const ThankText = styled('p')(({ theme }) => ({
     margin: '0',
-    fontFamily: theme.fontFamily.kanit,
+    fontFamily: 'inherit',
     width: '80%',
     textAlign: 'center',
 }))
 
-const Button = styled('a')({
+const Button = styled('a')(({ theme }) => ({
     textDecoration: 'unset',
     color: 'black',
     fontFamily: '"Gill Sans", sans-serif',
@@ -384,7 +408,10 @@ const Button = styled('a')({
     '&:active': {
         outline: 'none',
     },
-})
+    [theme.breakpoints.down('md')]: {
+        fontSize: '0.8em',
+    }
+}))
 
 const ContinueShopping = styled(Button)({
     color: 'white',

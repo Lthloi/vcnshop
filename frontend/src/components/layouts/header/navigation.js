@@ -11,31 +11,25 @@ import { NavLink } from "react-router-dom"
 import { useTheme } from "@emotion/react"
 import ChangeLanguageBtn from "../../change_language_btn"
 import { useTranslation } from "react-i18next"
+import NavMenu from "./drawer_menu"
+import MediaQuery from "../../../utils/media_query"
 
-const LeftSection = () => {
-    const theme = useTheme()
+const SearchSection = ({ theme }) => {
 
     return (
-        <Stack
-            flexDirection="row"
-            alignItems="center"
-            minHeight="100%"
-            fontFamily={theme.fontFamily.nunito}
-            position="absolute"
-            top="0"
-            left="30px"
-            columnGap="20px"
-        >
+        <SearchContainer>
 
-            <ChangeLanguageBtn />
+            <MediaQuery minWidth={theme.breakpoints.values.md} isRender={true}>
+                <ChangeLanguageBtn />
+            </MediaQuery>
 
             <Search />
 
-        </Stack>
+        </SearchContainer>
     )
 }
 
-const CenterSection = () => {
+const LogoSection = () => {
     const { t } = useTranslation('home_page')
 
     return (
@@ -52,51 +46,37 @@ const CenterSection = () => {
             <Logo src={foxLogoWhite} alt="App Logo" />
 
             <Stack alignItems="center" marginTop="5px">
-                <Typography
-                    component="h2"
-                    margin="0"
-                    lineHeight="1em"
-                    fontSize="1.3em"
-                    fontWeight="bold"
-                    sx={{ cursor: 'pointer' }}
-                >
+                <HeadingTitle>
                     VCN SHOP - FOX COR
-                </Typography>
-                <Typography
-                    letterSpacing="1px"
-                    marginTop="3px"
-                    sx={{
-                        cursor: 'pointer',
-                        wordSpacing: '3px',
-                    }}
-                >
+                </HeadingTitle>
+                <SubHeadingTitle>
                     {t('Shopping Too Easy')}
-                </Typography>
+                </SubHeadingTitle>
             </Stack>
 
         </Stack>
     )
 }
 
-const RightSection = () => {
+const AuthSection = ({ theme }) => {
     const numberOfCartItems = useSelector(({ cart }) => cart.cartItems.length)
     const { t } = useTranslation('home_page')
 
     return (
-        <Stack
-            flexDirection="row"
-            alignItems="center"
-            columnGap="20px"
-            position="absolute"
-            minHeight="100%"
-            top="0"
-            right="30px"
-        >
+        <AuthContainer>
 
-            <UserNav />
+            <Box>
+                <MediaQuery minWidth={theme.breakpoints.values.md} isRender={true}>
+                    <UserNav />
+                </MediaQuery>
 
-            <Tooltip title={t("Cart")}>
-                <NavLink to="/cart">
+                <MediaQuery minWidth={theme.breakpoints.values.md}>
+                    <NavMenu />
+                </MediaQuery>
+            </Box>
+
+            <CartBtn to="/cart">
+                <Tooltip title={t("Cart")}>
                     <StyledBadge
                         badgeContent={numberOfCartItems}
                         color="default"
@@ -104,14 +84,15 @@ const RightSection = () => {
                     >
                         <ShoppingCartIcon sx={{ fill: 'black' }} />
                     </StyledBadge>
-                </NavLink>
-            </Tooltip>
+                </Tooltip>
+            </CartBtn>
 
-        </Stack>
+        </AuthContainer>
     )
 }
 
 const Navigation = () => {
+    const theme = useTheme()
 
     return (
         <Box
@@ -125,15 +106,17 @@ const Navigation = () => {
                 position="relative"
             >
 
-                <LeftSection />
+                <SearchSection theme={theme} />
 
-                <CenterSection />
+                <LogoSection />
 
-                <RightSection />
+                <AuthSection theme={theme} />
 
             </Stack>
 
-            <MenuBar />
+            <MediaQuery minWidth={theme.breakpoints.values.md} isRender={true}>
+                <MenuBar />
+            </MediaQuery>
 
         </Box>
     )
@@ -141,12 +124,55 @@ const Navigation = () => {
 
 export default Navigation
 
-const Logo = styled('img')({
+const SearchContainer = styled('div')(({ theme }) => ({
+    display: 'flex',
+    alignItems: "center",
+    minHeight: "100%",
+    fontFamily: theme.fontFamily.nunito,
+    position: "absolute",
+    top: "0",
+    left: "30px",
+    columnGap: "20px",
+    [theme.breakpoints.down('md')]: {
+        left: "10px",
+    },
+}))
+
+const Logo = styled('img')(({ theme }) => ({
     height: '5em',
     width: '5em',
     cursor: 'pointer',
     color: 'white',
-})
+    [theme.breakpoints.down('md')]: {
+        display: 'none',
+    },
+}))
+
+const HeadingTitle = styled(Typography)(({ theme }) => ({
+    fontFamily: theme.fontFamily.kanit,
+    lineHeight: "1em",
+    fontSize: "1.3em",
+    fontWeight: "bold",
+    [theme.breakpoints.down('md')]: {
+        fontSize: "1em",
+    },
+}))
+
+const SubHeadingTitle = styled(Typography)(({ theme }) => ({
+    letterSpacing: "1px",
+    marginTop: "3px",
+    cursor: 'pointer',
+    wordSpacing: '3px',
+    [theme.breakpoints.down('md')]: {
+        fontSize: "0.8em",
+    },
+}))
+
+const CartBtn = styled(NavLink)(({ theme }) => ({
+    [theme.breakpoints.down('md')]: {
+        display: "none",
+    },
+}))
 
 const StyledBadge = styled(Badge)({
     cursor: 'pointer',
@@ -161,3 +187,16 @@ const StyledBadge = styled(Badge)({
         transform: 'scale(1.2)',
     },
 })
+
+const AuthContainer = styled('div')(({ theme }) => ({
+    display: 'flex',
+    alignItems: "center",
+    columnGap: "20px",
+    position: "absolute",
+    minHeight: "100%",
+    top: "0",
+    right: "30px",
+    [theme.breakpoints.down('md')]: {
+        right: "10px",
+    },
+}))

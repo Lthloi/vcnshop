@@ -2,6 +2,11 @@ import React, { useMemo } from "react"
 import { styled } from '@mui/material/styles'
 import Rating from '@mui/material/Rating'
 import { useSelector } from "react-redux"
+import { Box, Stack } from "@mui/material"
+
+const getWidthOfRatingBar = (number_of_all_reviews, reviews_count) => {
+    return `${(reviews_count / number_of_all_reviews) * 100}%`
+}
 
 const ScoreCard = () => {
     const { average_rating, count_reviews } = useSelector(({ product }) => product.productDetail.product.review)
@@ -24,50 +29,75 @@ const ScoreCard = () => {
     }, [reviews])
 
     return (
-        <ScoreCardContainer>
+        <ScoreCardSection>
+
             <div>
-                <div style={{ display: 'flex', alignItems: 'center' }}>
+                <Stack
+                    flexDirection="row"
+                    alignItems='center'
+                >
                     <AverageRatingNumber>{average_rating}</AverageRatingNumber>
+
                     <Rating
-                        value={average_rating * 1} precision={0.5}
-                        readOnly size="large" sx={{ color: '#ff8888' }}
+                        value={average_rating * 1}
+                        precision={0.5}
+                        readOnly
+                        size="large"
+                        sx={{ color: '#ff8888' }}
                     />
-                </div>
+                </Stack>
+
                 <BaseOn>
                     <span>{'Based On ' + count_reviews}</span>
                     <span>{count_reviews > 1 ? ' Reviews' : ' Review'}</span>
                 </BaseOn>
             </div>
-            <div style={{ display: 'flex', columnGap: '8px', width: '100%', alignItems: 'center' }}>
-                <RatingsContainer>
+
+            <Stack
+                flexDirection="row"
+                columnGap='8px'
+                width='100%'
+                alignItems='center'
+            >
+                <Stars>
                     {
                         [5, 4, 3, 2, 1].map((number) => (
-                            <StyledRating value={number} readOnly key={number} />
+                            <Rating
+                                value={number}
+                                readOnly
+                                key={number}
+                                sx={{ color: '#ff8888' }}
+                            />
                         ))
                     }
-                </RatingsContainer>
-                <RatingBarsContainer>
+                </Stars>
+
+                <CountingBars>
                     {
                         countStar.map(({ star, count }) => (
-                            <RatingBars key={star}>
-                                <RatingBar
-                                    sx={{ width: (count / count_reviews) * 100 + '%' }}
-                                >
-                                    <div className="rating_bar"></div>
-                                </RatingBar>
+                            <RatingBar key={star}>
+                                <Box
+                                    display="flex"
+                                    alignItems='center'
+                                    height='17px'
+                                    width={getWidthOfRatingBar(count_reviews, count)}
+                                    bgcolor="#ff8888"
+                                />
+
                                 <div>{count}</div>
-                            </RatingBars>
+                            </RatingBar>
                         ))
                     }
-                </RatingBarsContainer>
-            </div>
-        </ScoreCardContainer>
+                </CountingBars>
+            </Stack>
+
+        </ScoreCardSection>
     )
 }
 
 export default ScoreCard
 
-const ScoreCardContainer = styled('div')(({ theme }) => ({
+const ScoreCardSection = styled('div')(({ theme }) => ({
     display: 'flex',
     alignItems: 'center',
     columnGap: '20px',
@@ -77,6 +107,11 @@ const ScoreCardContainer = styled('div')(({ theme }) => ({
     borderRadius: '5px',
     marginTop: '5px',
     fontFamily: theme.fontFamily.nunito,
+    [theme.breakpoints.down('sm')]: {
+        flexDirection: 'column',
+        padding: '20px',
+        rowGap: '15px',
+    }
 }))
 
 const AverageRatingNumber = styled('h2')({
@@ -89,18 +124,18 @@ const BaseOn = styled('p')({
     fontSize: '0.9em',
 })
 
-const RatingsContainer = styled('div')({
+const RatingBarsContainer = styled('div')({
+
+})
+
+const Stars = styled('div')({
     display: 'flex',
     flexDirection: 'column',
     rowGap: '5px',
     padding: '5px 0',
 })
 
-const StyledRating = styled(Rating)({
-    color: '#ff8888',
-})
-
-const RatingBarsContainer = styled('div')({
+const CountingBars = styled('div')({
     display: 'flex',
     flexDirection: 'column',
     rowGap: '5px',
@@ -109,19 +144,8 @@ const RatingBarsContainer = styled('div')({
     width: '100%',
 })
 
-const RatingBars = styled('div')({
+const RatingBar = styled('div')({
     display: 'flex',
     columnGap: '8px',
     alignItems: 'center',
-})
-
-const RatingBar = styled('div')({
-    display: 'flex',
-    alignItems: 'center',
-    height: '1.51rem',
-    '& div.rating_bar': {
-        height: '70%',
-        width: '100%',
-        backgroundColor: '#ff8888',
-    }
 })

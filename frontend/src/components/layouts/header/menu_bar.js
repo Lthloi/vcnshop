@@ -99,29 +99,24 @@ const navs = [
         label: 'Home',
         action: '/#'
     }, {
-
         icon: <CategoryIcon sx={style_for_icons_nav} />,
         label: 'Category',
         action: '/',
         with_dropdown_menu: true,
         dropdown_menu: <DropdownMenu />
     }, {
-
         icon: <ConfirmationNumberIcon sx={style_for_icons_nav} />,
         label: 'Coupon',
         action: '/'
     }, {
-
         icon: <FavoriteBorderIcon sx={style_for_icons_nav} />,
         label: 'My Wishlist',
         action: '/'
     }, {
-
         icon: <ShoppingCartIcon sx={style_for_icons_nav} />,
         label: 'Cart',
         action: '/cart'
     }, {
-
         icon: <LiveHelpIcon sx={style_for_icons_nav} />,
         label: 'FAQ',
         action: '/faq'
@@ -260,7 +255,8 @@ const IconOption = styled('div')({
 })
 
 const DropdownMenuImage = styled('img')({
-    maxWidth: '25%',
+    width: '256px',
+    maxWidth: '260px',
     height: '100%',
 })
 

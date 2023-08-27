@@ -9,14 +9,14 @@ import {
 } from "../../store/actions/cart_actions"
 import { useDispatch } from "react-redux"
 import { NavLink } from 'react-router-dom'
-import { Tooltip, Box, Stack, Typography } from "@mui/material"
-import { useTheme } from "@emotion/react"
+import { Tooltip, Stack, Typography, Box } from "@mui/material"
 import ProgressiveImage from "../materials/progressive_image"
+import { useTheme } from "@emotion/react"
 
 const titles = [
     { title: 'Product', width: '20%', },
     { title: 'Detail', width: '35%', },
-    { title: 'Quantity', width: '15%', },
+    { title: 'Qty', width: '15%', },
     { title: 'Price', width: '15%', },
     { title: 'Remove', width: '15%', },
 ]
@@ -38,8 +38,7 @@ const ProductCard = ({ itemInfo }) => {
     const getQtyIocnStyle = (option) => {
         let quantity_icon_style = {
             cursor: 'pointer',
-            width: '1em',
-            height: '1em',
+            fontSize: '1.5em',
             transition: 'transform 0.2s',
             '&:hover': {
                 transform: 'scale(1.2)',
@@ -52,89 +51,80 @@ const ProductCard = ({ itemInfo }) => {
             return quantity_icon_style
     }
 
+    const setPrice = (value) => value.toLocaleString('en', { useGrouping: true })
+
     return (
-        <Stack
-            flexDirection="row"
-            justifyContent='space-between'
-            columnGap='10px'
+        <Box
             padding='10px'
-            boxSizing='border-box'
-            width='100%'
         >
-            <Box
-                to={`/productDetail/${_id}`}
-                component={NavLink}
-                display='block'
-                width={titles[0].width}
-                boxSizing='border-box'
-                height="145px"
-            >
-                <ProgressiveImage
-                    src={image_link}
-                    scss={{ maxHeight: '100%' }}
-                    width="100%"
-                    alt="Product"
-                />
-            </Box>
             <Stack
-                marginLeft='10px'
-                rowGap='10px'
-                width={titles[1].width}
+                flexDirection="row"
+                justifyContent='space-between'
+                columnGap='10px'
                 boxSizing='border-box'
+                width='100%'
             >
-                <Name to={`/productDetail/${_id}`}>
-                    {name}
-                </Name>
-                <div>{'Size: ' + size}</div>
-                <div>{'Color: ' + color}</div>
-            </Stack>
-            <Stack
-                justifyContent='center'
-                alignItems='center'
-                rowGap='5px'
-                width={titles[2].width}
-                boxSizing='border-box'
-            >
-                <Tooltip title="Increase one" placement="top">
-                    <AddCircleOutlineIcon
-                        sx={getQtyIocnStyle(1)}
-                        onClick={() => changeProductQuantity(1)}
-                    />
-                </Tooltip>
-                <Typography
-                    fontSize='1.2em'
-                    fontWeight='bold'
+                <ProductImage
+                    to={`/productDetail/${_id}`}
                 >
-                    {quantity}
-                </Typography>
-                <Tooltip title="Decrease one">
-                    <RemoveCircleOutlineIcon
-                        sx={getQtyIocnStyle(-1)}
-                        onClick={() => changeProductQuantity(-1)}
+                    <ProgressiveImage
+                        src={image_link}
+                        scss={{ maxHeight: '100%', maxWidth: '100%', minWidth: '140px', minHeight: '117px', margin: 'auto' }}
+                        alt="Product"
                     />
-                </Tooltip>
-            </Stack>
-            <Stack
-                flexDirection="row"
-                justifyContent='center'
-                alignItems='center'
-                fontWeight='bold'
-                fontSize='1.2em'
-                width={titles[3].width}
-                boxSizing='border-box'
-            >
-                {'$' + price.toLocaleString('en', { useGrouping: true })}
-            </Stack>
-            <Stack
-                flexDirection="row"
-                width={titles[4].width}
-                boxSizing='border-box'
-            >
-                <Tooltip title="Remove this product">
-                    <StyledDeleteForeverIcon onClick={() => removeItems(_id)} />
-                </Tooltip>
-            </Stack>
-        </Stack >
+                </ProductImage>
+
+                <ProductInfo>
+                    <Name to={`/productDetail/${_id}`}>
+                        {name}
+                    </Name>
+                    <div>{'Size: ' + size}</div>
+                    <div>{'Color: ' + color}</div>
+                </ProductInfo>
+
+                <ChangeQty>
+                    <Tooltip title="Increase one" placement="top">
+                        <AddCircleOutlineIcon
+                            sx={getQtyIocnStyle(1)}
+                            onClick={() => changeProductQuantity(1)}
+                        />
+                    </Tooltip>
+                    <Typography
+                        fontSize='1.2em'
+                        fontWeight='bold'
+                    >
+                        {quantity}
+                    </Typography>
+                    <Tooltip title="Decrease one">
+                        <RemoveCircleOutlineIcon
+                            sx={getQtyIocnStyle(-1)}
+                            onClick={() => changeProductQuantity(-1)}
+                        />
+                    </Tooltip>
+                </ChangeQty>
+
+                <ProductPrice>
+                    {'$' + setPrice(price)}
+                </ProductPrice>
+
+                <RemoveProduct
+                    sx={{ width: titles[4].width }}
+                >
+                    <Tooltip title="Remove this product">
+                        <StyledDeleteForeverIcon onClick={() => removeItems(_id)} />
+                    </Tooltip>
+                </RemoveProduct>
+            </Stack >
+
+            <ResponsivePrice>
+                <span className="label">
+                    Price:
+                </span>
+                <span className="price">
+                    {'$' + setPrice(price)}
+                </span>
+            </ResponsivePrice>
+        </Box>
     )
 }
 
@@ -142,13 +132,8 @@ const ProductCards = ({ cartItems }) => {
     const theme = useTheme()
 
     return (
-        <Stack
+        <CardsSection
             id="ProductCardsSection"
-            component="div"
-            alignItems='center'
-            width='65%'
-            backgroundColor='#f0f0f0'
-            fontFamily={theme.fontFamily.nunito}
             sx={cartItems.length > 0 ? { height: 'fit-content' } : { height: 'auto' }}
         >
             <Stack
@@ -167,19 +152,15 @@ const ProductCards = ({ cartItems }) => {
                             key={title}
                             title={title}
                         >
-                            <Typography
-                                fontWeight='bold'
-                                fontSize='1.1em'
-                                textAlign='center'
-                                color='black'
-                                borderRadius='5px'
-                                backgroundColor='white'
-                                padding='2px 0'
-                                boxSizing='border-box'
-                                width={width}
+                            <Title
+                                sx={{ width }}
+                                theme={{
+                                    titleName: title,
+                                    breakpoints: theme.breakpoints
+                                }}
                             >
                                 {title}
-                            </Typography>
+                            </Title>
                         </Tooltip>
                     ))
                 }
@@ -216,11 +197,21 @@ const ProductCards = ({ cartItems }) => {
                         </EmptyCartBtn>
                     </Stack>
             }
-        </Stack>
+        </CardsSection>
     )
 }
 
 export default ProductCards
+
+const CardsSection = styled('div')(({ theme }) => ({
+    alignItems: 'center',
+    width: '65%',
+    backgroundColor: '#f0f0f0',
+    fontFamily: theme.fontFamily.nunito,
+    [theme.breakpoints.down('lg')]: {
+        width: '100%',
+    },
+}))
 
 const Hr = styled('hr')({
     border: '0.5px grey solid',
@@ -232,6 +223,90 @@ const Hr = styled('hr')({
         display: 'none',
     }
 })
+
+const Title = styled(Typography)(({ theme }) => ({
+    fontWeight: 'bold',
+    fontSize: '1.1em',
+    textAlign: 'center',
+    color: 'black',
+    borderRadius: '5px',
+    backgroundColor: 'white',
+    padding: '2px 0',
+    boxSizing: 'border-box',
+    ...(theme.titleName === 'Product' ? { minWidth: '140px' } : {}),
+    [theme.breakpoints.down('lg')]: {
+        fontSize: '0.85em',
+        ...(theme.titleName === 'Remove' ? { display: 'none' } : {}),
+    },
+    [theme.breakpoints.down('sm')]: {
+        fontSize: '0.85em',
+        ...(theme.titleName === 'Price' ? { display: 'none' } : {}),
+    },
+}))
+
+const ProductImage = styled(NavLink)({
+    display: 'flex',
+    width: titles[0].width,
+    height: "145px",
+    color: "black",
+    textDecoration: 'none',
+    minWidth: '140px',
+})
+
+const ProductInfo = styled('div')(({ theme }) => ({
+    fontSize: '1em',
+    marginLeft: '10px',
+    rowGap: '10px',
+    width: titles[1].width,
+    boxSizing: 'border-box',
+    [theme.breakpoints.down('lg')]: {
+        fontSize: '0.8em',
+    },
+}))
+
+const ChangeQty = styled('div')(({ theme }) => ({
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    rowGap: '5px',
+    width: titles[2].width,
+    boxSizing: 'border-box',
+    [theme.breakpoints.down('lg')]: {
+        fontSize: '0.9em',
+    },
+}))
+
+const ProductPrice = styled('div')(({ theme }) => ({
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    fontWeight: 'bold',
+    fontSize: '1.2em',
+    width: titles[3].width,
+    boxSizing: 'border-box',
+    [theme.breakpoints.down('lg')]: {
+        fontSize: '1em',
+    },
+    [theme.breakpoints.down('sm')]: {
+        display: 'none'
+    },
+}))
+
+const ResponsivePrice = styled('div')(({ theme }) => ({
+    display: 'flex',
+    fontSize: '1em',
+    marginTop: '5px',
+    columnGap: '5px',
+    fontFamily: theme.fontFamily.kanit,
+    paddingLeft: '10px',
+    '& span.label': {
+        fontWeight: 'bold',
+    },
+    [theme.breakpoints.up('sm')]: {
+        display: 'none',
+    }
+}))
 
 const Name = styled(NavLink)({
     fontSize: '1.1em',
@@ -289,3 +364,11 @@ const EmptyCartBtn = styled('a')({
         transform: 'scale(1.05)',
     },
 })
+
+const RemoveProduct = styled('div')(({ theme }) => ({
+    display: 'flex',
+    boxSizing: 'border-box',
+    [theme.breakpoints.down('lg')]: {
+        display: 'none',
+    },
+}))

@@ -1,6 +1,6 @@
 import React, { startTransition, useEffect, useState } from "react"
 import { styled } from '@mui/material/styles'
-import { Stack, Box, Typography, Tabs, Tab, Skeleton, Grid, Rating, Tooltip } from "@mui/material"
+import { Stack, Box, Typography, Tabs, Tab, Skeleton, Grid, Rating, Tooltip, useMediaQuery } from "@mui/material"
 import { getProductsOverview } from "../../store/actions/product_actions"
 import { useDispatch, useSelector } from "react-redux"
 import { useTheme } from "@emotion/react"
@@ -8,17 +8,21 @@ import { NavLink } from "react-router-dom"
 import ProgressiveImage from '../materials/progressive_image'
 import FilterListIcon from '@mui/icons-material/FilterList'
 import { useTranslation } from "react-i18next"
+import { MAX_NUM_OF_PRODUCTS_OVERVIEW } from '../../configs/constants'
 
 const Product = ({ productInfo }) => {
-    const { _id, image_link, name, price, review, category } = productInfo
+    const { _id, image_link, name, price, review } = productInfo
     const theme = useTheme()
 
     return (
-        <ProductSection
-            className={`Product_${category}`}
+        <Stack
+            alignItems='center'
+            padding='10px 0'
         >
             <Box
                 overflow="hidden"
+                minWidth="225px"
+                maxWidth="225px"
             >
                 <ProductAvatarWrapper
                     to={`/productDetail/${_id}`}
@@ -37,6 +41,8 @@ const Product = ({ productInfo }) => {
 
             <Box
                 padding="0 5px"
+                minWidth="225px"
+                maxWidth="225px"
             >
 
                 <Tooltip
@@ -67,35 +73,35 @@ const Product = ({ productInfo }) => {
                 </Typography>
 
             </Box>
-        </ProductSection>
+        </Stack>
     )
 }
 
 const Products = ({ products }) => {
     return (
-        <Box
-            marginTop="50px"
-            paddingLeft="33px"
-        >
+        <ProductsSection>
             <Grid
                 container
                 rowSpacing={{ xs: 2 }}
                 columnSpacing={{ xs: 2 }}
-                columns={{ xs: 12 }}
+                columns={{ xs: 1, sm: 4, md: 9, lg: 16 }}
             >
                 {
                     products.map((product) => (
                         <Grid
                             key={product._id}
                             item
-                            xs={3}
+                            xs={1}
+                            sm={2}
+                            md={3}
+                            lg={4}
                         >
                             <Product productInfo={product} />
                         </Grid>
                     ))
                 }
             </Grid>
-        </Box >
+        </ProductsSection >
     )
 }
 
@@ -106,32 +112,34 @@ const style_for_loading = {
 }
 
 const Loading = () => {
-    return (
-        <Stack
-            marginTop="60px"
-            rowGap="20px"
-            padding="0 32px"
-        >
-            <Stack
-                flexDirection="row"
-                columnGap="20px"
-            >
-                <Skeleton sx={style_for_loading} />
-                <Skeleton sx={style_for_loading} />
-                <Skeleton sx={style_for_loading} />
-                <Skeleton sx={style_for_loading} />
-            </Stack>
+    const matches = useMediaQuery((theme) => theme.breakpoints.up('md'))
 
-            <Stack
-                flexDirection="row"
-                columnGap="20px"
+    const loading_list = matches ? [1, 2, 3, 4, 5, 6, 7, 8] : [1, 2, 3, 4, 5, 6]
+
+    return (
+        <LoadingSection>
+            <Grid
+                container
+                rowSpacing={{ xs: 2 }}
+                columnSpacing={{ xs: 2 }}
+                columns={{ xs: 1, sm: 4, md: 9, lg: 16 }}
             >
-                <Skeleton sx={style_for_loading} />
-                <Skeleton sx={style_for_loading} />
-                <Skeleton sx={style_for_loading} />
-                <Skeleton sx={style_for_loading} />
-            </Stack>
-        </Stack>
+                {
+                    loading_list.map((key) => (
+                        <Grid
+                            key={key}
+                            item
+                            xs={1}
+                            sm={2}
+                            md={3}
+                            lg={4}
+                        >
+                            <Skeleton sx={style_for_loading} />
+                        </Grid>
+                    ))
+                }
+            </Grid>
+        </LoadingSection>
     )
 }
 
@@ -156,12 +164,10 @@ const categories = [
     'Pant',
 ]
 
-const max_number_of_products = 16
-
 const filterProducts = (products, category_to_filter) => {
     return products
         .filter(({ category }) => category === category_to_filter)
-        .slice(0, max_number_of_products)
+        .slice(0, MAX_NUM_OF_PRODUCTS_OVERVIEW)
 }
 
 const Overview = () => {
@@ -173,7 +179,7 @@ const Overview = () => {
 
     useEffect(() => {
         dispatch(getProductsOverview(
-            categories.length * max_number_of_products,
+            categories.length * MAX_NUM_OF_PRODUCTS_OVERVIEW,
             ['Shirt', 'Pant'],
             1,
             { name: 'sold.count', type: -1 }
@@ -194,19 +200,11 @@ const Overview = () => {
 
 
     return (
-        <Box
-            component="div"
+        <OverviewSection
             id="Overview-Home"
-            padding="0 60px"
-            marginTop="20px"
         >
 
-            <Stack
-                color="black"
-                flexDirection="row"
-                alignItems="center"
-                columnGap="15px"
-            >
+            <TabsWrapper>
                 <FilterListIcon sx={{ color: 'black' }} />
 
                 <StyledTabs
@@ -224,7 +222,7 @@ const Overview = () => {
                         ))
                     }
                 </StyledTabs>
-            </Stack>
+            </TabsWrapper>
 
             {
                 loading ? (
@@ -246,16 +244,44 @@ const Overview = () => {
 
             <MoreBtn />
 
-        </Box>
+        </OverviewSection>
     )
 }
 
 export default Overview
 
+const LoadingSection = styled('div')(({ theme }) => ({
+    marginTop: "60px",
+    padding: "0 32px",
+    [theme.breakpoints.down('md')]: {
+        marginTop: "30px",
+        padding: "0",
+    },
+}))
+
+const OverviewSection = styled('div')(({ theme }) => ({
+    padding: "0 60px",
+    marginTop: "20px",
+    boxSizing: 'border-box',
+    [theme.breakpoints.down('md')]: {
+        padding: "0 10px",
+    },
+}))
+
+const TabsWrapper = styled('div')(({ theme }) => ({
+    display: 'flex',
+    color: "black",
+    alignItems: "center",
+    columnGap: "15px",
+    [theme.breakpoints.down('md')]: {
+        paddingLeft: "30px",
+    },
+}))
+
 const StyledTabs = styled(Tabs)({
     '& .MuiTabs-indicator': {
         backgroundColor: 'black',
-    }
+    },
 })
 
 const StyledTab = styled(Tab)(({ theme }) => ({
@@ -263,6 +289,15 @@ const StyledTab = styled(Tab)(({ theme }) => ({
     fontSize: '1.1em',
     textTransform: 'none',
     fontFamily: theme.fontFamily.kanit,
+}))
+
+const ProductsSection = styled('div')(({ theme }) => ({
+    marginTop: "50px",
+    paddingLeft: "-33px",
+    [theme.breakpoints.down('md')]: {
+        marginTop: "20px",
+        paddingLeft: "0",
+    },
 }))
 
 const Name = styled(NavLink)(({ theme }) => ({
@@ -310,10 +345,3 @@ const ViewMoreBtn = styled('button')(({ theme }) => ({
         color: 'white',
     }
 }))
-
-const ProductSection = styled('div')({
-    boxSizing: 'border-box',
-    minWidth: '225px',
-    maxWidth: '225px',
-    padding: '10px 0',
-})

@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState, useTransition } from "react"
 import { styled } from '@mui/material/styles'
-import Dialog from '@mui/material/Dialog'
 import AddIcon from '@mui/icons-material/Add'
 import Slide from '@mui/material/Slide'
 import CloseIcon from '@mui/icons-material/Close'
@@ -11,20 +10,15 @@ import CancelIcon from '@mui/icons-material/Cancel'
 import PermMediaIcon from '@mui/icons-material/PermMedia'
 import InfoIcon from '@mui/icons-material/Info'
 import { useForm, Controller, FormProvider, useFormContext } from 'react-hook-form'
-import TextField from '@mui/material/TextField'
 import Radio from '@mui/material/Radio'
 import RadioGroup from '@mui/material/RadioGroup'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import FormControl from '@mui/material/FormControl'
 import FormLabel from '@mui/material/FormLabel'
-import { Avatar } from "@mui/material"
-import { Stack } from "@mui/material"
+import { Stack, Box, Avatar, Checkbox, FormGroup, FormHelperText, TextField, Dialog } from "@mui/material"
 import Cash from '../../assets/images/payment_methods/cash.jpg'
 import Mastercard from '../../assets/images/payment_methods/mastercard.jpg'
 import Visa from '../../assets/images/payment_methods/visa.jpg'
-import FormGroup from '@mui/material/FormGroup'
-import Checkbox from '@mui/material/Checkbox'
-import FormHelperText from '@mui/material/FormHelperText'
 import { toast } from "react-toastify"
 import { useDispatch, useSelector } from "react-redux"
 import { createNewProduct } from '../../store/actions/product_actions'
@@ -105,7 +99,7 @@ const check_error = (errors, label, text_if_no_error_with_label) => {
         text_if_no_error_with_label
 }
 
-const Detail = () => {
+const AddInformation = () => {
 
     return (
         <ConnectForm>
@@ -208,7 +202,7 @@ const Detail = () => {
                             error={!!errors['Price']}
                             inputProps={{ min: 0, max: 9999999 }}
                         />
-                        <Stack direction="row" spacing={2} marginTop="3px">
+                        <Stack direction="row" spacing={2} marginTop="5px">
                             <PaymentMethodComponent title={'Cash'} size={'35px'} src={Cash} />
                             <PaymentMethodComponent title={'Mastercard'} size={'40px'} src={Mastercard} />
                             <PaymentMethodComponent title={'Visa'} size={'40px'} src={Visa} />
@@ -340,7 +334,7 @@ const AddImagesSection = React.memo(({ onChange }) => {
 
     return (
         <>
-            <div style={{ display: 'none' }}>
+            <Box display="none">
                 {
                     [0, 1, 2, 3, 4].map((value) => (
                         <input
@@ -353,7 +347,7 @@ const AddImagesSection = React.memo(({ onChange }) => {
                         />
                     ))
                 }
-            </div>
+            </Box>
 
             <Title>
                 <PermMediaIcon />
@@ -364,9 +358,11 @@ const AddImagesSection = React.memo(({ onChange }) => {
                 container
                 rowSpacing={2}
                 columnSpacing={{ xs: 2 }}
-                columns={2}
+                columns={{ xs: 1, sm: 2 }}
             >
+
                 <AddImgButton height={'100%'} paddingBottom={null} imageObject={imageList[0]} index={0} />
+
                 <Grid xs={1} item>
                     <Grid
                         container
@@ -380,6 +376,7 @@ const AddImagesSection = React.memo(({ onChange }) => {
                         <AddImgButton height={null} paddingBottom={'90%'} imageObject={imageList[4]} index={4} />
                     </Grid>
                 </Grid>
+
             </Grid>
         </>
     )
@@ -461,16 +458,22 @@ const AddProduct = () => {
             <Dialog
                 fullScreen
                 open={openAddProduct}
-                onClose={() => setOpenAddProduct(false)}
                 TransitionComponent={Transition}
             >
                 <CloseContainer>
-                    <Tooltip title="Close">
-                        <IconButton onClick={() => setOpenAddProduct(false)}>
-                            <CloseIcon />
-                        </IconButton>
-                    </Tooltip>
-                    <span>Cancel</span>
+                    <Stack
+                        flexDirection="row"
+                        alignItems="center"
+                        width="100%"
+                    >
+                        <Tooltip title="Close">
+                            <IconButton onClick={() => setOpenAddProduct(false)}>
+                                <CloseIcon />
+                            </IconButton>
+                        </Tooltip>
+                        <span>Cancel</span>
+                    </Stack>
+
                     <h2 className="close_title">Add Product</h2>
                 </CloseContainer>
 
@@ -484,11 +487,11 @@ const AddProduct = () => {
 
                     <Title>
                         <InfoIcon />
-                        <span>Product Detail</span>
+                        <span>Product Information</span>
                     </Title>
 
                     <FormProvider {...useForm_methods}>
-                        <Detail />
+                        <AddInformation />
                     </FormProvider>
 
                     <SubmitBtn
@@ -510,7 +513,7 @@ const AddProduct = () => {
                 </DialogContent>
             </Dialog >
 
-            <AnimationBtn
+            <AddProductBtn
                 onClick={() => {
                     startTransition(() => { setOpenAddProduct(true) })
                 }}
@@ -528,22 +531,25 @@ const AddProduct = () => {
                             <span>New Product</span>
                         </div>
                 }
-            </AnimationBtn>
+            </AddProductBtn>
         </>
     )
 }
 
 export default React.memo(AddProduct)
 
+const DialogContent = styled('div')(({ theme }) => ({
+    padding: '0 40px 20px',
+    fontFamily: theme.fontFamily.nunito,
+    [theme.breakpoints.down('sm')]: {
+        padding: '0 20px 20px',
+    }
+}))
+
 const DetailSection = styled('div')(({ theme }) => ({
     display: 'flex',
     flexDirection: 'column',
     rowGap: '30px',
-    fontFamily: theme.fontFamily.nunito,
-}))
-
-const DialogContent = styled('div')(({ theme }) => ({
-    padding: '0 40px 20px',
     fontFamily: theme.fontFamily.nunito,
 }))
 
@@ -565,6 +571,17 @@ const CloseContainer = styled('div')(({ theme }) => ({
         top: '50%',
         left: '50%',
         transform: 'translate(-50%,-50%)',
+        [theme.breakpoints.down('sm')]: {
+            position: 'relative',
+            top: '0',
+            left: '0',
+            transform: 'none',
+        }
+    },
+    [theme.breakpoints.down('sm')]: {
+        flexDirection: 'column',
+        paddingLeft: '10px',
+
     }
 }))
 
@@ -602,15 +619,18 @@ const CloseIconWrapper = styled('div')({
     },
 })
 
-const AddImg = styled('label')({
+const AddImg = styled('label')(({ theme }) => ({
     display: 'block',
     border: '1px gray solid',
     ...image_layout,
     cursor: 'pointer',
     '&:hover': {
         outline: '1.5px black solid',
+    },
+    [theme.breakpoints.down('sm')]: {
+        paddingBottom: '90%',
     }
-})
+}))
 
 const AddIconWrapper = styled('div')({
     position: 'absolute',
@@ -648,7 +668,7 @@ const SubmitBtn = styled('button')({
     },
 })
 
-const AnimationBtn = styled('button')({
+const AddProductBtn = styled('button')(({ theme }) => ({
     fontSize: '0.9em',
     cursor: 'pointer',
     backgroundColor: 'white',
@@ -656,6 +676,7 @@ const AnimationBtn = styled('button')({
     position: 'relative',
     overflowX: 'hidden',
     padding: '15px 20px',
+    height: 'fit-content',
     '& .content': {
         display: 'flex',
         columnGap: '10px',
@@ -682,5 +703,8 @@ const AnimationBtn = styled('button')({
     },
     '&:hover .content': {
         color: 'white',
+    },
+    [theme.breakpoints.down('sm')]: {
+        padding: '10px 20px',
     }
-})
+}))

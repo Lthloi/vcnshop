@@ -7,6 +7,8 @@ import ErrorHandler from './middlewares/error_handler.js'
 import fileUpload from 'express-fileupload'
 import initRoutes from './routes/routes.js'
 import connectMongoDB from './configs/connectDB.js'
+import morgan from 'morgan'
+import { streamToLogger }from './utils/loggers.js'
 
 //connect to database
 connectMongoDB()
@@ -30,6 +32,9 @@ app.use(cookieParser())
 
 //config for req.files
 app.use(fileUpload())
+
+//morgan
+app.use(morgan(':remote-addr :method :status :url :res[content-length] - :response-time ms', { stream: streamToLogger }))
 
 //create app routes
 initRoutes(app)

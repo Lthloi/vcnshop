@@ -21,23 +21,21 @@ class FileUploadFilter {
 
     mimetypeIsValid() {
         let mimetype = this.#file.type
-        let type = {
-            fileType: mimetype.split('/')[0],
-            mediaType: mimetype.split('/')[1],
-        }
+        let fileType = mimetype.split('/')[0]
+        let mediaType = mimetype.split('/')[1]
 
         try {
             //check type of file, ex: video or image or...
-            if (!this.#fileTypes.includes(type.fileType))
+            if (!this.#fileTypes.includes(fileType))
                 throw new Error('Wrong type of the file, only images allowed')
 
             //check subtype of file, ex: jpeg or png or webp or...
-            if (!this.#mediaTypes.includes(type.mediaType))
+            if (!this.#mediaTypes.includes(mediaType))
                 throw new Error('Wrong type of the media, the file must end with .jpg or .png or .webp')
 
             return true
-        } catch (problem) {
-            this.#invalidMessage = problem.message
+        } catch (error) {
+            this.#invalidMessage = error.message
             return false
         }
     }
@@ -53,8 +51,8 @@ class FileUploadFilter {
                 throw new Error('Limit file size, up to 10 MB allowed')
 
             return true
-        } catch (problem) {
-            this.#invalidMessage = problem.message
+        } catch (error) {
+            this.#invalidMessage = error.message
             return false
         }
     }

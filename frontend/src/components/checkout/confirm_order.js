@@ -6,15 +6,32 @@ import { useFloatNumber, useNumerToWords } from "../../hooks/custom_hooks"
 import ErrorIcon from '@mui/icons-material/Error'
 import { useNavigate, Navigate } from "react-router-dom"
 import { saveOrderInfo } from "../../store/actions/cart_actions"
-import { Stack, Divider, Typography } from "@mui/material"
+import { Stack, Divider, Box, Tooltip, Typography } from "@mui/material"
 
-const DetailComponent = ({ label, value }) => (
-    <Detail>
-        <Typography fontSize="0.9" fontWeight="bold" fontFamily="inherit">
+const Detail = ({ label, value }) => (
+    <Stack
+        flexDirection='row'
+        justifyContent='space-between'
+        columnGap='20px'
+        padding='2px 10px'
+        boxSizing='border-box'
+        borderBottom='1.5px black solid'
+        borderRadius='10px'
+        backgroundColor='white'
+    >
+        <Typography fontSize="0.9em" fontWeight="bold" fontFamily="inherit">
             {label}
         </Typography>
-        <span>{value}</span>
-    </Detail>
+
+        <Tooltip title={value}>
+            <Typography
+                fontFamily="inherit"
+                fontSize="1em"
+            >
+                {value}
+            </Typography>
+        </Tooltip>
+    </Stack>
 )
 
 const ProductCard = ({ cardInfo }) => {
@@ -22,15 +39,14 @@ const ProductCard = ({ cardInfo }) => {
 
     return (
         <ProductCardSection>
-            <div style={{ minWidth: '121px' }}>
-                <ProductImg src={image_link} />
-            </div>
-            <Stack rowGap="2px" width="100%">
-                <DetailComponent label={'Name:'} value={name} />
-                <DetailComponent label={'Price:'} value={price} />
-                <DetailComponent label={'Color:'} value={color} />
-                <DetailComponent label={'Size:'} value={size} />
-                <DetailComponent label={'Quantity:'} value={quantity} />
+            <ProductImg src={image_link} />
+
+            <Stack rowGap="3px" width="100%">
+                <Detail label={'Name:'} value={name} />
+                <Detail label={'Price:'} value={`$${price}`} />
+                <Detail label={'Color:'} value={color} />
+                <Detail label={'Size:'} value={size} />
+                <Detail label={'Quantity:'} value={quantity} />
             </Stack>
         </ProductCardSection>
     )
@@ -52,10 +68,11 @@ const CartItems = ({ cartItems }) => {
 
 const ShippingInfo = ({ shippingInfo }) => {
     return (
-        <Stack width="100%">
+        <Box width="100%">
             <Title>Delivery Information</Title>
+
             {
-                shippingInfo && shippingInfo.Country &&
+                shippingInfo &&
                 ['Address', 'City', 'State', 'Zip Code', 'Country', 'Phone'].map((label, index) => (
                     <ShippingItem
                         key={label}
@@ -64,29 +81,37 @@ const ShippingInfo = ({ shippingInfo }) => {
                         <Typography fontWeight="bold">
                             {label + ':'}
                         </Typography>
-                        <ItemValue theme={{ provided: shippingInfo[label === 'Phone' ? 'Phone Number' : label] }}>
+
+                        <span style={{ color: shippingInfo[label === 'Phone' ? 'Phone Number' : label] ? 'black' : '#ababab' }}>
                             {shippingInfo[label === 'Phone' ? 'Phone Number' : label] || 'Not Provided'}
-                        </ItemValue>
+                        </span>
                     </ShippingItem>
                 ))
             }
+
             <Note>
                 <ErrorIcon sx={{ fontSize: '1.2em', color: 'gray' }} />
                 <span>In case the phone number isn't provided then we use your email to contact to you when dilivery</span>
             </Note>
-        </Stack>
+        </Box>
     )
 }
 
-const SummaryItemComponent = ({ label, value, isTotalToPay }) => (
-    <SummaryItem sx={isTotalToPay ? { fontSize: '1.2em', fontWeight: 'bold' } : {}}>
+const SummaryItem = ({ label, value, isTotalToPay }) => (
+    <Stack
+        flexDirection="row"
+        justifyContent='space-between'
+        columnGap='20px'
+        marginBottom='5px'
+        sx={isTotalToPay ? { fontSize: '1.2em', fontWeight: 'bold' } : {}}
+    >
         <span>
             {label}
         </span>
         <span>
             {'$' + value}
         </span>
-    </SummaryItem>
+    </Stack>
 )
 
 const Summary = ({ summaryInfo }) => {
@@ -95,11 +120,11 @@ const Summary = ({ summaryInfo }) => {
 
     return (
         <Stack padding="20px" boxSizing="border-box" border="2px black solid">
-            <SummaryItemComponent label={'Subtotal'} value={subtotal} />
-            <SummaryItemComponent label={'Tax'} value={tax_fee} />
-            <SummaryItemComponent label={'Shipping Fee'} value={shipping_fee} />
+            <SummaryItem label={'Subtotal'} value={subtotal} />
+            <SummaryItem label={'Tax'} value={tax_fee} />
+            <SummaryItem label={'Shipping Fee'} value={shipping_fee} />
             <Hr />
-            <SummaryItemComponent label={'Total To Pay'} value={total_to_pay} isTotalToPay={true} />
+            <SummaryItem label={'Total To Pay'} value={total_to_pay} isTotalToPay={true} />
             <Typography fontSize="0.8em" fontFamily="inherit">
                 <span>In words: </span>
                 <span>{number_to_words_convertor(total_to_pay)}</span>
@@ -145,17 +170,18 @@ const ConfirmOrder = () => {
 
     return (
         <ConfirmOrderSection id="ConfirmOrderSection">
+
             <SectionTitle>CONFIRM ORDER</SectionTitle>
 
-            <ConfirmOrderContainer>
+            <Details>
 
-                <Stack width="55%">
+                <ShippingInfoAndCartItems>
                     <ShippingInfo shippingInfo={shippingInfo} />
 
                     <CartItems cartItems={cartItems} />
-                </Stack>
+                </ShippingInfoAndCartItems>
 
-                <Stack width="45%" alignItems="center" rowGap="10px">
+                <SummarySection>
 
                     <Title sx={{ textAlign: 'center' }}>SUMMARY</Title>
 
@@ -168,15 +194,16 @@ const ConfirmOrder = () => {
 
                     <Divider sx={{ margin: '30px auto', width: '50%' }} flexItem />
 
-                    <Stack>
+                    <Box>
                         <Note>
                             <ErrorIcon sx={{ fontSize: '1.2em', color: 'gray' }} />
                             <span>If you have any questions about Tax or more, please go to FAQ</span>
                         </Note>
-                    </Stack>
-                </Stack>
+                    </Box>
+                </SummarySection>
 
-            </ConfirmOrderContainer>
+            </Details>
+
         </ConfirmOrderSection>
     )
 }
@@ -187,9 +214,12 @@ const ConfirmOrderSection = styled('div')(({ theme }) => ({
     marginTop: '30px',
     marginBottom: '20px',
     fontFamily: theme.fontFamily.nunito,
+    [theme.breakpoints.down('sm')]: {
+        fontSize: '0.8em',
+    }
 }))
 
-const SectionTitle = styled('h2')(({ theme }) => ({
+const SectionTitle = styled(Typography)(({ theme }) => ({
     color: 'white',
     boxSizing: 'border-box',
     margin: '20px 0',
@@ -202,7 +232,7 @@ const SectionTitle = styled('h2')(({ theme }) => ({
     letterSpacing: '3px',
 }))
 
-const ConfirmOrderContainer = styled('div')({
+const Details = styled('div')(({ theme }) => ({
     display: 'flex',
     justifyContent: 'space-between',
     width: '100%',
@@ -210,7 +240,18 @@ const ConfirmOrderContainer = styled('div')({
     padding: '0 30px',
     boxSizing: 'border-box',
     columnGap: '20px',
-})
+    [theme.breakpoints.down('sm')]: {
+        flexDirection: 'column',
+        padding: '0 10px',
+    }
+}))
+
+const ShippingInfoAndCartItems = styled('div')(({ theme }) => ({
+    width: "55%",
+    [theme.breakpoints.down('sm')]: {
+        width: '100%',
+    }
+}))
 
 const Title = styled('div')({
     fontWeight: 'bold',
@@ -236,10 +277,6 @@ const ShippingItem = styled('div')({
     borderRadius: '3px',
 })
 
-const ItemValue = styled('span')(({ theme }) => ({
-    color: theme.provided ? 'black' : '#ababab',
-}))
-
 const Note = styled('div')({
     display: 'flex',
     alignItems: 'center',
@@ -247,12 +284,11 @@ const Note = styled('div')({
     marginTop: '5px',
     paddingLeft: '10px',
     '& span': {
-        fontFamily: '"Nunito", "sans-serif"',
         fontSize: '0.8em',
     }
 })
 
-const ProductCardSection = styled('div')({
+const ProductCardSection = styled('div')(({ theme }) => ({
     display: 'flex',
     alignItems: 'center',
     columnGap: '15px',
@@ -263,30 +299,32 @@ const ProductCardSection = styled('div')({
     boxSizing: 'border-box',
     border: '2px #e1e1e1 solid',
     borderRadius: '3px',
-})
+    [theme.breakpoints.down('sm')]: {
+        flexDirection: 'column',
+        rowGap: '20px',
+    }
+}))
 
-const ProductImg = styled('img')({
-    height: '120px',
-    maxWidth: '120px',
-})
+const ProductImg = styled('img')(({ theme }) => ({
+    width: '110px',
+    maxHeight: '110px',
+    [theme.breakpoints.down('sm')]: {
+        width: '130px',
+        maxHeight: '130px',
+    }
+}))
 
-const Detail = styled('div')({
+const SummarySection = styled('div')(({ theme }) => ({
     display: 'flex',
-    justifyContent: 'space-between',
-    columnGap: '20px',
-    padding: '2px 10px',
-    boxSizing: 'border-box',
-    borderBottom: '1.5px black solid',
-    borderRadius: '10px',
-    backgroundColor: 'white',
-})
-
-const SummaryItem = styled('div')({
-    display: 'flex',
-    justifyContent: 'space-between',
-    columnGap: '20px',
-    marginBottom: '5px',
-})
+    flexDirection: 'column',
+    alignItems: 'center',
+    width: "45%",
+    rowGap: "10px",
+    [theme.breakpoints.down('sm')]: {
+        width: '100%',
+        marginTop: '20px',
+    }
+}))
 
 const Hr = styled('div')({
     margin: '20px 0',

@@ -3,7 +3,7 @@ import { styled } from '@mui/material/styles'
 import PersonIcon from '@mui/icons-material/Person'
 import Navigation from "../components/account/user_options"
 import Avatar from "../components/account/avatar"
-import ScrollToTopBtn from "../components/scroll_top_top_btn"
+import ScrollToTopBtn from "../components/scroll_to_top_btn"
 import { Route, Routes, NavLink } from "react-router-dom"
 import Information from "../components/account/details/information"
 import MyOrders from "../components/account/details/my_orders"
@@ -26,7 +26,7 @@ const Greeting = () => {
             width="100%"
             height="100%"
         >
-            <Typography fontSize="3em" component="h2" margin="0">
+            <Typography fontSize="3em" component="h2" margin="0" fontWeight="bold">
                 Welcome to VCN Shop
             </Typography>
             <img src={VCNShop_Mascot} alt="VCN Shop Mascot" style={{ height: '220px' }} />
@@ -36,18 +36,13 @@ const Greeting = () => {
 
 const GoToStore = () => {
     return (
-        <Stack
-            flexDirection="row"
-            justifyContent="space-between"
-            width="100%"
-            margin="20px 0"
-        >
+        <GoToStoreSection>
             <span></span>
             <NavToMyStore to="/myStore/Products">
                 <StoreIcon />
                 <span>My Store</span>
             </NavToMyStore>
-        </Stack>
+        </GoToStoreSection>
     )
 }
 
@@ -55,57 +50,99 @@ const Account = () => {
     const theme = useTheme()
 
     return (
-        <Box
+        <AccountSection
             id="AccountPage"
-            component="div"
-            marginTop='20px'
-            width='100%'
-            padding='0 50px'
-            boxSizing='border-box'
         >
-            <Stack
-                flexDirection="row"
-                alignItems="center"
-                columnGap="10px"
-                borderBottom="2px black solid"
-            >
+            <PageTitle>
                 <PersonIcon sx={{ width: '1.4em', height: '1.4em' }} />
                 <Typography component="h2" margin="0" fontSize="1.8em" fontFamily={theme.fontFamily.kanit}>
                     Account
                 </Typography>
-            </Stack>
+            </PageTitle>
 
             <GoToStore />
 
-            <Stack
-                flexDirection="row"
-                justifyContent="space-between"
-                columnGap="20px"
-                marginTop="10px"
-                width="100%"
-            >
-                <Stack width="30%">
+            <NavAndInfomation>
+                <AvatarAndNav>
                     <Avatar />
                     <Navigation />
-                </Stack>
+                </AvatarAndNav>
 
-                <Stack width="100%">
+                <Main>
                     <Routes>
                         <Route path="/" element={<Greeting />} />
                         <Route path="/information" element={<Information />} />
-                        <Route path="/myOrders" element={<MyOrders />} />
                         <Route path="/changePassword" element={<ChangePassword />} />
+                        <Route path="/myOrders" element={<MyOrders />} />
                         <Route path="/myOrders/orderDetail/:orderId" element={<OrderDetail />} />
                     </Routes>
-                </Stack>
-            </Stack>
+                </Main>
+            </NavAndInfomation>
 
             <ScrollToTopBtn />
-        </Box>
+        </AccountSection>
     )
 }
 
 export default Account
+
+const AccountSection = styled('div')(({ theme }) => ({
+    marginTop: '20px',
+    width: '100%',
+    padding: '0 50px',
+    boxSizing: 'border-box',
+    [theme.breakpoints.down(970)]: {
+        padding: '0 15px',
+    },
+}))
+
+const PageTitle = styled('div')(({ theme }) => ({
+    display: 'flex',
+    alignItems: "center",
+    columnGap: "10px",
+    borderBottom: "2px black solid",
+    [theme.breakpoints.down(970)]: {
+        fontSize: '0.8em',
+    },
+}))
+
+const NavAndInfomation = styled('div')(({ theme }) => ({
+    display: 'flex',
+    justifyContent: "space-between",
+    columnGap: "20px",
+    marginTop: "10px",
+    width: "100%",
+    [theme.breakpoints.down(970)]: {
+        fontSize: '0.8em',
+        flexDirection: 'column',
+    },
+}))
+
+const AvatarAndNav = styled('div')(({ theme }) => ({
+    display: 'flex',
+    flexDirection: 'column',
+    width: '30%',
+    [theme.breakpoints.down(970)]: {
+        width: '100%',
+    },
+}))
+
+const Main = styled('div')(({ theme }) => ({
+    width: '100%',
+    [theme.breakpoints.down(970)]: {
+        marginTop: '20px',
+    },
+}))
+
+const GoToStoreSection = styled('div')(({ theme }) => ({
+    display: 'flex',
+    justifyContent: "space-between",
+    width: "100%",
+    margin: "20px 0",
+    [theme.breakpoints.down(970)]: {
+        fontSize: '0.8em',
+    },
+}))
 
 const NavToMyStore = styled(NavLink)(({ theme }) => ({
     display: 'flex',
@@ -124,5 +161,8 @@ const NavToMyStore = styled(NavLink)(({ theme }) => ({
     '&:hover': {
         backgroundColor: 'white',
         color: 'black',
-    }
+    },
+    [theme.breakpoints.down(970)]: {
+        padding: '5px 25px',
+    },
 }))

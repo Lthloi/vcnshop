@@ -89,7 +89,7 @@ const Register = () => {
                         registerStep === 2 &&
                         <VerifyOTP emailWasTyped={email_was_typed_ref.current} />
                     }
-                    <Stack flexDirection="row" justifyContent="space-between" alignItems="center" marginTop="10px">
+                    <SendOTPContainer>
                         <Problems>
                             Have problem ?
                         </Problems>
@@ -116,10 +116,10 @@ const Register = () => {
                                 emailWasTyped={email_was_typed_ref.current && email_was_typed_ref.current}
                             />
                         }
-                    </Stack>
+                    </SendOTPContainer>
                 </div>
 
-                <SignIn >
+                <SignIn>
                     <span>Already have an account ? </span>
                     <NavLink to="/auth/login" className="NavLink">
                         Sign In.
@@ -137,6 +137,10 @@ export default Register
 const RegisterSection = styled('div')(({ theme }) => ({
     ...theme.auth_background,
     fontFamily: theme.fontFamily.nunito,
+    [theme.breakpoints.down('md')]: {
+        minWidth: '100%',
+        padding: '20px',
+    }
 }))
 
 const FormTitle = styled('h2')({
@@ -187,6 +191,17 @@ const HelperText = styled('p')({
     }
 })
 
+const SendOTPContainer = styled('div')(({ theme }) => ({
+    display: 'flex',
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: "10px",
+    [theme.breakpoints.down('sm')]: {
+        flexDirection: 'column',
+        rowGap: '10px',
+    }
+}))
+
 const Problems = styled('div')({
     color: 'red',
     fontSize: '0.9em',
@@ -208,8 +223,9 @@ const SendOTPBtn = styled('button')({
     border: '1px black solid',
 })
 
-const SignIn = styled('div')({
+const SignIn = styled('div')(({ theme }) => ({
     color: 'white',
+    marginTop: '10px',
     '& .NavLink': {
         color: 'yellow',
         fontWeight: 'bold',
@@ -218,5 +234,8 @@ const SignIn = styled('div')({
         '&:hover': {
             textDecoration: 'underline',
         }
+    },
+    [theme.breakpoints.down('sm')]: {
+        fontSize: '0.9em',
     }
-})
+}))

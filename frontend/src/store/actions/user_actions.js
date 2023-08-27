@@ -93,13 +93,13 @@ const completeRegister = (name, email, password, gender) => async (dispatch) => 
 const loginUser = (email, password) => async (dispatch) => {
     try {
         dispatch(loginRequest())
-console.log('>>> run this 1')
+
         await axios.post(
             login_user_api,
             { email, password },
             { withCredentials: true }
         )
-console.log('>>> run this 2')
+
         dispatch(loginSuccess({ loginStep: 2 }))
         toast.success('Login successfully!')
     } catch (error) {

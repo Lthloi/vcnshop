@@ -8,6 +8,8 @@ import {
 import BaseError from '../utils/base_error.js'
 import errorMessage from '../configs/error_messages.js'
 import validator from 'validator'
+import { errorLogger } from '../utils/loggers.js'
+import { loggingLabels } from '../configs/winston.js'
 
 const checkExpressValidator = (req) => {
     let result = validationResult(req)
@@ -24,10 +26,12 @@ const checkExpressValidator = (req) => {
     throw new BaseError(errorMessage.INVALID_INPUT, 400)
 }
 
-const checkValidation = (req, res, next) => { // the function "custom validator" return a error or null
+const checkValidation = (req, res, next) => {
     try {
         checkExpressValidator(req)
     } catch (error) {
+        errorLogger.error({ message: error.message, label: loggingLabels.Input_Validation_Error })
+
         return next(error)
     }
 
@@ -115,7 +119,10 @@ const checkOptional = (validations, values = 'undefined') => {
 }
 
 
-const checkIsEmpty = (value) => value === undefined || value === '' || value === null || value === NaN
+const checkIsEmptyString = (value) => {
+    let value_in_string = `${value}`
+    return value_in_string === 'undefined' || value_in_string === '' || value_in_string === 'NaN' || value_in_string === 'null'
+}
 
 export {
     checkValidation,
@@ -129,7 +136,7 @@ export {
     checkIsArrayInBody,
     checkIsNumberInBody,
     checkIsNumberInQuery,
-    checkIsEmpty,
+    checkIsEmptyString,
     checkIsMongoIdInBody,
     checkIsMongoIdInQuery,
     checkIsMongoIdInParams,

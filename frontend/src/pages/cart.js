@@ -1,10 +1,10 @@
 import React from "react"
 import { styled } from '@mui/material/styles'
-import SummarySection from "../components/cart/summary_section"
+import Summary from "../components/cart/summary_section"
 import ProductCards from "../components/cart/product_cards"
 import { useSelector } from "react-redux"
 import ShoppingBagIcon from '@mui/icons-material/ShoppingBag'
-import ScrollToTopBtn from '../components/scroll_top_top_btn'
+import ScrollToTopBtn from '../components/scroll_to_top_btn'
 
 const Cart = () => {
     const { cartItems } = useSelector(({ cart }) => cart)
@@ -12,7 +12,7 @@ const Cart = () => {
     return (
         <CartPage id="CartPage">
             <PageTitle>
-                <ShoppingBagIcon sx={{ height: '1.8em', width: '1.8em', }} />
+                <StyledShoppingBagIcon />
                 <Text>
                     {'SHOPPING CART - ( ITEMS: ' + cartItems.length + ' )'}
                 </Text>
@@ -23,7 +23,7 @@ const Cart = () => {
                     cartItems &&
                     <>
                         <ProductCards cartItems={cartItems} />
-                        <SummarySection cartItems={cartItems} />
+                        <Summary cartItems={cartItems} />
                     </>
                 }
             </CartContainer>
@@ -40,27 +40,50 @@ const CartPage = styled('div')(({ theme }) => ({
     flexDirection: 'column',
     marginTop: '20px',
     padding: '0 50px',
+    [theme.breakpoints.down('lg')]: {
+        padding: '0 10px',
+    },
 }))
 
-const PageTitle = styled('div')({
+const StyledShoppingBagIcon = styled(ShoppingBagIcon)(({ theme }) => ({
+    fontSize: '1.8em',
+    [theme.breakpoints.down('lg')]: {
+        fontSize: '1.3em',
+    },
+    [theme.breakpoints.down('lg')]: {
+        fontSize: '2.5em',
+    },
+}))
+
+const Text = styled('h2')(({ theme }) => ({
+    fontSize: '1.8em',
+    fontFamily: theme.fontFamily.kanit,
+    margin: '0',
+}))
+
+const PageTitle = styled('div')(({ theme }) => ({
     display: 'flex',
     alignItems: 'center',
     columnGap: '5px',
     marginLeft: '20px',
     transform: 'scaleY(0.8)',
-})
+    [theme.breakpoints.down('lg')]: {
+        fontSize: '1.3em',
+    },
+    [theme.breakpoints.down('sm')]: {
+        fontSize: '0.5em',
+    },
+}))
 
-const Text = styled('h2')({
-    fontSize: '1.8em',
-    fontFamily: '"Kanit", "sans-serif"',
-    margin: '0',
-})
-
-const CartContainer = styled('div')({
+const CartContainer = styled('div')(({ theme }) => ({
     display: 'flex',
     justifyContent: 'space-between',
     width: '100%',
     boxSizing: 'border-box',
     paddingTop: '10px',
     borderTop: '2px black solid',
-})
+    [theme.breakpoints.down('lg')]: {
+        fontSize: '0.9em',
+        flexDirection: 'column',
+    },
+}))

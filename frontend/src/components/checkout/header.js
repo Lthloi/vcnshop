@@ -8,7 +8,7 @@ import PaymentIcon from '@mui/icons-material/Payment'
 import Stepper from '@mui/material/Stepper'
 import Step from '@mui/material/Step'
 import StepLabel from '@mui/material/StepLabel'
-import { Box, StepConnector, Stack, Typography } from "@mui/material"
+import { Box, StepConnector, Tooltip, Typography } from "@mui/material"
 import { stepConnectorClasses } from "@mui/material"
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import { useTheme } from "@emotion/react"
@@ -28,9 +28,9 @@ const steps = [
     }
 ]
 
-const RenderStepIcon = ({ active, completed, error, icon, className }, icon_component) => {
+const RenderStepIcon = ({ active, completed, error, icon, className }, icon_component, breakpoints) => {
     return (
-        <StepIconWrapper theme={{ active, completed, error }}>
+        <StepIconWrapper theme={{ active, completed, error, breakpoints }}>
             {icon_component}
         </StepIconWrapper>
     )
@@ -41,39 +41,19 @@ const Navigation = () => {
     const theme = useTheme()
 
     return (
-        <Stack
-            flexDirection="row"
-            justifyContent="center"
-            alignItems="center"
-            padding="15px"
-            position="relative"
-        >
-            <Stack
-                flexDirection="row"
-                alignItems="center"
-                height="100%"
-                position="absolute"
-                top="0"
-                left="0"
-                paddingLeft="15px"
-            >
-                <Wrapper onClick={() => navigate(-1)}>
-                    <Box
-                        display="flex"
-                        alignItems="center"
-                        style={{ cursor: 'pointer' }}
+        <NavigationSection>
+            <GoBackContainer>
+                <GoBackWrapper onClick={() => navigate(-1)}>
+                    <GoBackIcon />
+                    <Typography
+                        fontSize="1.5em"
+                        sx={{ transform: 'scaleX(0.9)' }}
+                        fontFamily={theme.fontFamily.kanit}
                     >
-                        <GoBackIcon />
-                        <Typography
-                            fontSize="1.5em"
-                            sx={{ transform: 'scaleX(0.9)' }}
-                            fontFamily={theme.fontFamily.kanit}
-                        >
-                            BACK
-                        </Typography>
-                    </Box>
-                </Wrapper>
-            </Stack>
+                        BACK
+                    </Typography>
+                </GoBackWrapper>
+            </GoBackContainer>
 
             <Typography
                 fontFamily={theme.fontFamily.kanit}
@@ -83,11 +63,13 @@ const Navigation = () => {
             >
                 CHECKOUT
             </Typography>
-        </Stack>
+        </NavigationSection>
     )
 }
 
 const CheckoutStep = ({ activeStep }) => {
+    const theme = useTheme()
+
     return (
         <Box
             margin="30px 0"
@@ -100,13 +82,16 @@ const CheckoutStep = ({ activeStep }) => {
                 {
                     steps.map(({ label, icon }) => (
                         <Step key={label}>
-                            <StyledStepLabel StepIconComponent={(state) => RenderStepIcon(state, icon)}>
-                                <CheckoutStepIcon
-                                    className="completed_icon"
-                                    sx={{}}
-                                />
-                                <span title={label}>{label}</span>
-                            </StyledStepLabel>
+                            <Tooltip title={label}>
+                                <StyledStepLabel StepIconComponent={(state) => RenderStepIcon(state, icon, theme.breakpoints)}>
+                                    <CompletedIcon
+                                        className="completed_icon"
+                                    />
+                                    <span>
+                                        {label}
+                                    </span>
+                                </StyledStepLabel>
+                            </Tooltip>
                         </Step>
                     ))
                 }
@@ -146,8 +131,37 @@ const Header = ({ activeStep }) => {
 
 export default Header
 
-const Wrapper = styled('div')({
+const NavigationSection = styled('div')(({ theme }) => ({
+    display: 'flex',
+    justifyContent: "center",
+    alignItems: "center",
+    padding: "15px",
+    position: "relative",
+    [theme.breakpoints.down('sm')]: {
+        flexDirection: "column",
+    }
+}))
+
+const GoBackContainer = styled('div')(({ theme }) => ({
+    display: 'flex',
+    alignItems: "center",
+    height: "100%",
+    position: "absolute",
+    top: "0",
+    left: "0",
+    paddingLeft: "15px",
+    [theme.breakpoints.down('sm')]: {
+        position: "relative",
+        paddingLeft: "0",
+        width: '100%',
+    }
+}))
+
+const GoBackWrapper = styled('div')({
+    display: "flex",
+    alignItems: "center",
     position: 'relative',
+    cursor: 'pointer',
     '&::after': {
         content: '""',
         height: '3px',
@@ -170,7 +184,7 @@ const GoBackIcon = styled(ExpandCircleDownIcon)({
     margin: 'auto',
 })
 
-const CheckoutStepIcon = styled(CheckCircleIcon)({
+const CompletedIcon = styled(CheckCircleIcon)({
     display: 'none',
     marginRight: '5px',
     fontSize: '1.2em',
@@ -183,11 +197,14 @@ const state_color = {
     error: 'red',
 }
 
-const ColorlibConnector = styled(StepConnector)({
+const ColorlibConnector = styled(StepConnector)(({ theme }) => ({
     display: 'flex',
     justifyContent: 'center',
     [`&.${stepConnectorClasses.alternativeLabel}`]: {
         top: '25px',
+        [theme.breakpoints.down('sm')]: {
+            top: '20px',
+        }
     },
     [`&.${stepConnectorClasses.active}`]: {
         [`& .${stepConnectorClasses.line}`]: {
@@ -201,22 +218,33 @@ const ColorlibConnector = styled(StepConnector)({
     },
     [`& .${stepConnectorClasses.line}`]: {
         height: '5px',
-        width: '90%',
+        width: '100%',
         border: 'unset',
         backgroundColor: state_color.non_active,
+        zIndex: '1',
+        position: 'relative',
     },
-})
+}))
 
 const StepIconWrapper = styled('div')(({ theme }) => ({
     padding: '12px 12px 7px',
     borderRadius: '50%',
+    zIndex: '2',
+    position: 'relative',
     backgroundColor: (theme.completed && state_color.completed) || (theme.active && state_color.active) || state_color.non_active,
+    [theme.breakpoints.down('sm')]: {
+        fontSize: '0.7em',
+    }
 }))
 
-const StyledStepLabel = styled(StepLabel)({
+const StyledStepLabel = styled(StepLabel)(({ theme }) => ({
     '& .MuiStepLabel-label.MuiStepLabel-alternativeLabel': {
         marginTop: '10px',
         color: state_color.non_active,
+        [theme.breakpoints.down('sm')]: {
+            fontSize: '0.8em',
+        },
+
         '&.Mui-completed': {
             color: state_color.completed,
             '& .completed_icon': {
@@ -227,4 +255,4 @@ const StyledStepLabel = styled(StepLabel)({
             color: state_color.active,
         },
     },
-})
+}))

@@ -223,11 +223,11 @@ const getProducts = (
         if (keyword)
             query.keyword = keyword
         if (category)
-            query.category = category
+            query.category = [category]
         if (shopId)
             query.shopId = shopId
         if (targetGender)
-            query.targetGender = targetGender
+            query.targetGender = [targetGender]
         if (sort) {
             query.sort = {
                 name: sort.name,

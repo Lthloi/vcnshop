@@ -1,6 +1,5 @@
 import React from "react"
-import { styled, ThemeProvider } from '@mui/material/styles'
-import { auth_theme } from "../styles/themes"
+import { createTheme, styled } from '@mui/material/styles'
 import Mascot from '../assets/images/VCNShop_Mascot.png'
 import { NavLink } from "react-router-dom"
 import Login from '../components/auth/login'
@@ -8,11 +7,13 @@ import Register from '../components/auth/register/register'
 import ForgotPassword from '../components/auth/forgot_password'
 import { Route, Routes } from "react-router-dom"
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline'
+import { ThemeProvider } from "@mui/material/styles"
 
 const Auth = () => {
 
     return (
         <AuthPage id="AuthPage">
+
             <Layout>
                 <HeaderContainer>
                     <Header>WELCOME TO VCN SHOP</Header>
@@ -45,29 +46,47 @@ const Auth = () => {
                 </div>
             </Layout>
 
-            <ThemeProvider theme={auth_theme}>
+            <ThemeProvider theme={AuthBackgroundTheme}>
                 <Routes>
                     <Route path='/login' element={<Login />} />
                     <Route path='/register' element={<Register />} />
                     <Route path='/forgotPassword' element={<ForgotPassword />} />
                 </Routes>
             </ThemeProvider>
+
         </AuthPage>
     )
 }
 
 export default Auth
 
-const AuthPage = styled('div')({
+const AuthBackgroundTheme = createTheme({
+    auth_background: {
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        width: '40%',
+        minHeight: '100%',
+        padding: '20px 40px 30px',
+        boxSizing: 'border-box',
+        backgroundColor: '#242424',
+    },
+})
+
+const AuthPage = styled('div')(({ theme }) => ({
     display: 'flex',
     justifyContent: 'space-between',
     columnGap: '10px',
     alignItems: 'center',
     width: '100%',
     height: '100vh',
-})
+    [theme.breakpoints.down('lg')]: {
+        justifyContent: 'center',
+        backgroundColor: '#242424',
+    },
+}))
 
-const Layout = styled('div')({
+const Layout = styled('div')(({ theme }) => ({
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
@@ -76,7 +95,10 @@ const Layout = styled('div')({
     padding: '40px',
     paddingTop: '30px',
     boxSizing: 'border-box',
-})
+    [theme.breakpoints.down('lg')]: {
+        display: 'none',
+    },
+}))
 
 const HeaderContainer = styled('div')({
     display: 'flex',

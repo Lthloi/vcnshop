@@ -1,10 +1,10 @@
-import React from "react"
+import React, { Suspense } from "react"
 import { useCurrentRoute } from "../hooks/custom_hooks"
 import { useTranslation } from "react-i18next"
 import { toast } from "react-toastify"
 import Vietnam_flag from '../assets/images/VietNam_flag.jpg'
 import English_flag from '../assets/images/English_flag.jpg'
-import { Box, Tooltip, Avatar } from "@mui/material"
+import { Box, Tooltip, Avatar, styled, CircularProgress } from "@mui/material"
 
 const ChangeLanguageBtn = () => {
     const { t, i18n } = useTranslation('common')
@@ -12,6 +12,8 @@ const ChangeLanguageBtn = () => {
 
     const is_at_homepage = current_route === '/'
     const current_lang = i18n.resolvedLanguage
+
+    const change_language = async (language_to_change) => i18n.changeLanguage(language_to_change) // async for avoid blocking UI
 
     const changeLanguage = () => {
         let language_to_change
@@ -30,9 +32,7 @@ const ChangeLanguageBtn = () => {
             language_to_change = 'vi'
         }
 
-        setTimeout(() => { // avoid blocking UI
-            i18n.changeLanguage(language_to_change)
-        }, 100)
+        change_language(language_to_change)
     }
 
     const ChangeLanguageBtn = ({ title, src }) => (
@@ -45,12 +45,8 @@ const ChangeLanguageBtn = () => {
                     opacity: is_at_homepage ? '1' : '0.3'
                 }}
             >
-                <Avatar
+                <Flag
                     src={src}
-                    sx={{
-                        height: '30px',
-                        width: '30px',
-                    }}
                 />
             </Box>
         </Tooltip>
@@ -70,4 +66,28 @@ const ChangeLanguageBtn = () => {
     )
 }
 
-export default ChangeLanguageBtn
+const ChangeLanguage = () => {
+    return (
+        <Suspense
+            fallback={
+                <CircularProgress
+                    thickness={5}
+                    size={20}
+                    sx={{ color: 'white' }}
+                />}
+        >
+            <ChangeLanguageBtn />
+        </Suspense>
+    )
+}
+
+export default ChangeLanguage
+
+const Flag = styled(Avatar)(({ theme }) => ({
+    height: '30px',
+    width: '30px',
+    [theme.breakpoints.down('md')]: {
+        height: '20px',
+        width: '20px',
+    },
+}))

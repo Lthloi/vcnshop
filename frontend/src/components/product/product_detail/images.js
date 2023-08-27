@@ -6,37 +6,20 @@ import CancelIcon from '@mui/icons-material/Cancel'
 import { Box, Stack, Modal } from "@mui/material"
 import ProgressiveImage from "../../materials/progressive_image"
 
-const SmallImage = ({ img, active, handlePickImg, className }) => {
+const SmallImages = ({ imagePicked, images, handlePickImg }) => {
     return (
-        <SubmainImage
-            key={img}
-            className={active ? 'active ' + className : className}
-            src={img}
-            onClick={() => handlePickImg(img)}
-        />
-    )
-}
-
-const SubmainImages = ({ imagePicked, images, handlePickImg }) => {
-    return (
-        <Stack
-            rowGap="12px"
-            width="12.5%"
-            height="100%"
-        >
+        <SmallImagesSection>
             {
-
                 images.map((img) => (
                     <SmallImage
-                        img={img}
-                        active={img === imagePicked}
-                        handlePickImg={handlePickImg}
-                        className=""
                         key={img}
+                        className={img === imagePicked ? 'active' : ""}
+                        src={img}
+                        onClick={() => handlePickImg(img)}
                     />
                 ))
             }
-        </Stack>
+        </SmallImagesSection>
     )
 }
 
@@ -81,22 +64,15 @@ const MainImage = ({ imagePicked }) => {
 
     return (
         <>
-            <Box
-                component={Paper}
-                display="flex"
-                width="85%"
-                height="90vh"
-                overflow="hidden"
+            <MainImageWrapper
                 elevation={5}
                 onClick={() => viewProductImg(true)}
-                sx={{ cursor: `url(${zoom_in_image}), auto` }}
             >
                 <ProgressiveImage
-                    scss={{ margin: 'auto', maxWidth: '100%' }}
+                    scss={{ margin: 'auto', maxWidth: '100%', maxHeight: '100%' }}
                     src={imagePicked}
-                    height="100%"
                 />
-            </Box>
+            </MainImageWrapper>
 
             <LightBox open={openLightBox} imagePicked={imagePicked} />
         </>
@@ -111,16 +87,10 @@ const Images = ({ images }) => {
     }
 
     return (
-        <Stack
+        <ImagesSection
             id="ProductImgs"
-            component="div"
-            flexDirection="row"
-            justifyContent="space-between"
-            columnGap="5px"
-            width="100%"
-            boxSizing="border-box"
         >
-            <SubmainImages
+            <SmallImages
                 imagePicked={imagePicked}
                 images={images}
                 handlePickImg={pickImg}
@@ -129,16 +99,53 @@ const Images = ({ images }) => {
             <MainImage
                 imagePicked={imagePicked}
             />
-        </Stack>
+        </ImagesSection>
     )
 }
 
 export default Images
 
-const SubmainImage = styled('img')({
-    width: '100%',
+const ImagesSection = styled('div')(({ theme }) => ({
+    display: 'flex',
+    justifyContent: "space-between",
+    columnGap: "5px",
+    width: "100%",
+    boxSizing: "border-box",
+    [theme.breakpoints.down('sm')]: {
+        flexDirection: 'column',
+        rowGap: '10px',
+    }
+}))
+
+const MainImageWrapper = styled(Paper)(({ theme }) => ({
+    display: "flex",
+    width: "100%",
+    height: "90vh",
+    overflow: "hidden",
+    cursor: `url(${zoom_in_image}), auto`,
+    [theme.breakpoints.down('sm')]: {
+        height: "fit-content",
+    }
+}))
+
+const SmallImagesSection = styled('div')(({ theme }) => ({
+    display: 'flex',
+    flexDirection: 'column',
+    rowGap: "12px",
+    height: "100%",
+    [theme.breakpoints.down('sm')]: {
+        flexDirection: 'row',
+        columnGap: '5px',
+        flexWrap: 'wrap',
+    }
+}))
+
+const SmallImage = styled('img')(({ theme }) => ({
+    display: 'block',
+    width: '80px',
     maxHeight: '93px',
     cursor: 'pointer',
+    border: '2px white solid',
     borderRadius: '3px',
     boxShadow: '0px 0px 5px gray',
     '&.active': {
@@ -147,7 +154,10 @@ const SubmainImage = styled('img')({
     '&:hover': {
         outline: '2px black solid',
     },
-})
+    [theme.breakpoints.down('sm')]: {
+        width: '42px',
+    }
+}))
 
 const LightBoxImg = styled('img')({
     maxHeight: '100%',

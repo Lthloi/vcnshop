@@ -81,22 +81,22 @@ const Login = () => {
     const dispatch = useDispatch()
     const query_value_getter = useGetQueryValue()
 
-    const handle_login_redirect = (ms_to_delay) => {
-        let redirect = query_value_getter(1, 'redirect')
+    const handle_login_redirect = () => {
+        let redirect = query_value_getter(undefined, 'redirect')
 
         if (redirect)
             redirect = '/' + redirect
         else
             redirect = '/account'
 
-        return redirectAfterSeconds(ms_to_delay, { isReload: false, href: redirect })
+        return redirectAfterSeconds(1000, { isReload: false, href: redirect })
     }
 
     useEffect(() => {
         if (loginStep === 2) {
             toast.success('Register successfully!')
 
-            let timeout = handle_login_redirect(1000)
+            let timeout = handle_login_redirect()
 
             return () => clearTimeout(timeout)
         }
@@ -243,6 +243,10 @@ export default Login
 const LoginSection = styled('div')(({ theme }) => ({
     ...theme.auth_background,
     fontFamily: theme.fontFamily.nunito,
+    [theme.breakpoints.down('md')]: {
+        minWidth: '100%',
+        padding: '20px',
+    }
 }))
 
 const FormGroup = styled('div')({
@@ -296,8 +300,8 @@ const ForgotPassword = styled(NavLink)({
 })
 
 const SignUp = styled('div')(({ theme }) => ({
-    fontFamily: theme.fontFamily.nunito,
     color: 'white',
+    marginTop: '10px',
     '& .NavLink': {
         color: 'yellow',
         fontWeight: 'bold',
@@ -306,5 +310,8 @@ const SignUp = styled('div')(({ theme }) => ({
         '&:hover': {
             textDecoration: 'underline',
         }
+    },
+    [theme.breakpoints.down('sm')]: {
+        fontSize: '0.9em',
     }
 }))

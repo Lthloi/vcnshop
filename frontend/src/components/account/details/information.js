@@ -194,6 +194,7 @@ const Information = () => {
                 width="100%"
                 textAlign="center"
                 fontSize="2.2em"
+                fontWeight="bold"
             >
                 PERSONAL INFORMATION
             </Typography>
@@ -241,13 +242,17 @@ const InformationSection = styled('div')(({ theme }) => ({
     fontFamily: theme.fontFamily.kanit,
 }))
 
-const FormGroup = styled('div')({
+const FormGroup = styled('div')(({ theme }) => ({
     display: 'flex',
     flexDirection: 'column',
     columnGap: '5px',
     padding: '5px',
     width: '100%',
-})
+    boxSizing: 'border-box',
+    [theme.breakpoints.down('sm')]: {
+        width: '100%',
+    },
+}))
 
 const Label = styled('label')({
     display: 'flex',
@@ -271,6 +276,9 @@ const Input = styled('input')(({ theme }) => ({
     outline: 'unset',
     boxSizing: 'border-box',
     fontFamily: theme.fontFamily.nunito,
+    [theme.breakpoints.down('sm')]: {
+        width: '100%',
+    },
 }))
 
 const InputWarning = styled('div')({

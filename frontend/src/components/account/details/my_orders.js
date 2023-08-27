@@ -31,7 +31,7 @@ const tabs = {
     SUCCESSED: stripe_payment_statuses.SUCCESSED,
 }
 
-const OrderTitle = ({ label, value }) => {
+const StatusTitle = ({ label, value }) => {
     let style = {}
 
     let set_style = {
@@ -57,7 +57,7 @@ const OrderTitle = ({ label, value }) => {
         }
 
     return (
-        <Box maxWidth="25%">
+        <Box width="100%" marginTop="10px">
             <Typography
                 component="h2"
                 margin="0"
@@ -100,29 +100,51 @@ const Order = ({ orderInfo }) => {
             width="100%"
             boxSizing="border-box"
         >
-            <Stack
-                flexDirection="row"
-                columnGap="30px"
-                justifyContent="space-between"
-                padding="10px"
-                boxSizing="border-box"
-            >
-                <OrderTitle label="ORDER ID:" value={_id} />
-                <OrderTitle label="PAYMENT STATUS:" value={payment_status} />
-                <OrderTitle label="ORDER STATUS:" value={order_status} />
-                <OrderTitle label="DATE:" value={get_date_of_order(createdAt)} />
-            </Stack>
+            <OrderTitles>
+
+                <OrderId>
+                    <Typography
+                        component="h2"
+                        margin="0"
+                        color="gray"
+                        fontSize="1.1em"
+                        fontFamily="inherit"
+                    >
+                        ORDER ID:
+                    </Typography>
+                    <Typography
+                        className="ORDER_ID"
+                    >
+                        {_id}
+                    </Typography>
+                </OrderId>
+
+                <StatusTitle label="PAYMENT STATUS:" value={payment_status} />
+                <StatusTitle label="ORDER STATUS:" value={order_status} />
+
+                <Date>
+                    <Typography
+                        component="h2"
+                        margin="0"
+                        color="gray"
+                        fontSize="1.1em"
+                        fontFamily="inherit"
+                    >
+                        DATE:
+                    </Typography>
+                    <Typography
+                        marginTop="5px"
+                        fontFamily="inherit"
+                        fontSize="0.9em"
+                    >
+                        {get_date_of_order(createdAt)}
+                    </Typography>
+                </Date>
+            </OrderTitles>
 
             <Box height="1px" bgcolor="lightgrey" marginTop="15px" />
 
-            <Stack
-                flexDirection="row"
-                justifyContent="space-between"
-                width="100%"
-                marginTop="20px"
-                padding="10px 20px"
-                boxSizing="border-box"
-            >
+            <ImagesAndAction>
                 <Images>
                     {
                         items_of_order.map(({ name, image_link }) => (
@@ -132,22 +154,20 @@ const Order = ({ orderInfo }) => {
                         ))
                     }
                 </Images>
-                <div style={{ width: '40%' }}>
-                    {
-                        payment_status === stripe_payment_statuses.PROCESSING || order_status === order_statuses.UNCOMPLETED ?
-                            <Button
-                                sx={{ marginTop: '10px', display: 'flex' }}
-                                onClick={continueToPayment}
-                            >
-                                <OpenInNewIcon sx={{ margin: 'auto' }} />
-                            </Button>
-                            :
-                            <Button onClick={viewOrder}>
-                                VIEW ORDER
-                            </Button>
-                    }
-                </div>
-            </Stack>
+                {
+                    payment_status === stripe_payment_statuses.PROCESSING || order_status === order_statuses.UNCOMPLETED ?
+                        <ActionButton
+                            sx={{ marginTop: '10px', display: 'flex' }}
+                            onClick={continueToPayment}
+                        >
+                            <OpenInNewIcon sx={{ margin: 'auto' }} />
+                        </ActionButton>
+                        :
+                        <ActionButton onClick={viewOrder}>
+                            VIEW ORDER
+                        </ActionButton>
+                }
+            </ImagesAndAction>
 
             <Stack
                 className="OrderHelpterText"
@@ -255,6 +275,7 @@ const MyOrders = () => {
                 fontSize="2.2em"
                 width="100%"
                 textAlign="center"
+                fontWeight="bold"
             >
                 My Orders
             </Typography>
@@ -284,6 +305,7 @@ const MyOrders = () => {
                         value={tab}
                         onChange={switchTab}
                         textColor="inherit"
+                        variant="scrollable"
                     >
                         <Tab label="All" value={tabs.ALL} />
                         <Tab label="UNPAID" value={tabs.UNPAID} />
@@ -302,24 +324,72 @@ const MyOrders = () => {
 export default MyOrders
 
 const MyOrdersSection = styled('div')(({ theme }) => ({
-    padding: '20px 30px 40px',
+    padding: '20px 10px 40px',
     backgroundColor: '#F5F5F5',
     fontFamily: theme.fontFamily.kanit,
 }))
 
-const StyledTabs = styled(Tabs)({
+const StyledTabs = styled(Tabs)(({ theme }) => ({
     '& .MuiTabs-indicator': {
         height: '3px',
         backgroundColor: '#3FACB1',
+    },
+    '& .MuiButtonBase-root': {
+        [theme.breakpoints.down('md')]: {
+            fontSize: '1em',
+        },
     }
-})
+}))
 
 const Loading = styled(Skeleton)({
     width: '100%',
     transform: 'scale(1)',
 })
 
-const Images = styled('div')({
+const OrderTitles = styled('div')(({ theme }) => ({
+    display: 'flex',
+    columnGap: "30px",
+    justifyContent: "space-between",
+    padding: "10px",
+    paddingTop: "0",
+    boxSizing: "border-box",
+    [theme.breakpoints.down('sm')]: {
+        flexDirection: 'column',
+    }
+}))
+
+const OrderId = styled('div')({
+    width: '100%',
+    marginTop: '10px',
+    '& .ORDER_ID': {
+        marginTop: "5px",
+        fontFamily: "inherit",
+        fontSize: "0.9em",
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
+    }
+})
+
+const Date = styled('div')({
+    width: '100%',
+    marginTop: '10px',
+})
+
+const ImagesAndAction = styled('div')(({ theme }) => ({
+    display: 'flex',
+    justifyContent: "space-between",
+    width: "100%",
+    marginTop: "20px",
+    padding: "10px 20px",
+    boxSizing: "border-box",
+    [theme.breakpoints.down('sm')]: {
+        flexDirection: 'column',
+        padding: "10px",
+    }
+}))
+
+const Images = styled('div')(({ theme }) => ({
     display: 'flex',
     alignItems: 'center',
     columnGap: '5px',
@@ -335,29 +405,38 @@ const Images = styled('div')({
         right: '0',
         top: '0',
         backgroundImage: 'linear-gradient(270deg, white, transparent)',
+    },
+    [theme.breakpoints.down('sm')]: {
+        width: '100%',
     }
-})
+}))
 
 const Image = styled('img')({
     height: '110px',
     border: '1px lightgrey solid',
 })
 
-const Button = styled('div')({
+const ActionButton = styled('div')(({ theme }) => ({
     backgroundColor: 'white',
     border: '2px lightgrey solid',
     padding: '10px',
     fontSize: '1.2em',
     fontWeight: 'bold',
-    width: '100%',
+    width: '40%',
+    height: 'fit-content',
     boxSizing: 'border-box',
     textAlign: 'center',
     cursor: 'pointer',
     '&:hover': {
         backgroundColor: 'black',
         color: 'white',
+    },
+    [theme.breakpoints.down('sm')]: {
+        width: '100%',
+        marginTop: '10px',
+        padding: '5px 10px',
     }
-})
+}))
 
 const ReviewPages = styled(PaginationMUI)({
     marginTop: '40px',

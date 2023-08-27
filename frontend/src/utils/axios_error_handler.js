@@ -1,33 +1,41 @@
-const axiosErrorHandler = (error, client_message = 'Something went wrong, please try again minutes later') => {
-    const errorObject = {
-        originalError: error,
-        statusCode: 500,
-        message: '',
-        isUserError: false,
-        client_message: client_message,
+class CustomAxiosError {
+    constructor(error, client_message) {
+        this.originalError = error
+        this.statusCode = 500
+        this.message = ''
+        this.isUserError = false
+        this.client_message = client_message
     }
 
-    let response_of_error = error.response
+    errorSetting() {
+        let response_of_error = this.originalError.response
 
-    if (response_of_error) { //if error was made by server at backend
+        if (response_of_error) { //if error was made by server at backend
 
-        errorObject.statusCode = response_of_error.status //update error status
+            this.statusCode = response_of_error.status //update error status
 
-        let data_of_response = response_of_error.data
+            let data_of_response = response_of_error.data
 
-        if (data_of_response.isUserError) //check if is error due to user or not
-            errorObject.isUserError = true
+            if (data_of_response.isUserError) //check if is error due to user or not
+                this.isUserError = true
 
-        errorObject.message = data_of_response.message  //update error message
+            this.message = data_of_response.message  //update error message
 
-    } else if (error.request) { //The request was made but no response was received
-        errorObject.statusCode = 502
-        errorObject.message = 'Bad network or error from server.'
-    } else { //Something happened in setting up the request that triggered an Error
-        errorObject.message = error.message
+        } else if (this.originalError.request) { //The request was made but no response was received
+            this.statusCode = 502
+            this.message = 'Bad network or error from server.'
+        } else { //Something happened in setting up the request that triggered an Error
+            this.message = this.originalError.message
+        }
     }
+}
 
-    return errorObject
+const axiosErrorHandler = (orginal_error, client_message = 'Something went wrong, please try again minutes later') => {
+    let error = new CustomAxiosError(orginal_error, client_message)
+
+    error.errorSetting()
+
+    return error
 }
 
 export default axiosErrorHandler

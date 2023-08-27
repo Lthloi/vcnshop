@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from "react"
 import { styled } from '@mui/material/styles'
 import DoubleArrowIcon from '@mui/icons-material/DoubleArrow'
-import { useTheme } from "@emotion/react"
 import { Box } from "@mui/material"
 
 const ScrollToTopBtn = () => {
-    const theme = useTheme()
     const [open, setOpen] = useState(false)
 
     const showScrollToTopBtn = () => {
@@ -30,7 +28,7 @@ const ScrollToTopBtn = () => {
 
     return (
         <ScrollToTopSection
-            id="ScrollToTopSection"
+            id="ScrollToTopBtn"
             sx={{ bottom: open ? '30px' : '-55px' }}
             onClick={scrollToTop}
             onDoubleClick={scrollToTopDoubleClick}
@@ -39,7 +37,6 @@ const ScrollToTopBtn = () => {
                 display='flex'
                 justifyContent='center'
                 alignItems='center'
-                fontFamily={theme.fontFamily.nunito}
                 fontSize='0.9em'
                 fontWeight='bold'
                 textAlign='center'
@@ -56,7 +53,7 @@ const ScrollToTopBtn = () => {
 
 export default ScrollToTopBtn
 
-const ScrollToTopSection = styled('div')({
+const ScrollToTopSection = styled('div')(({ theme }) => ({
     width: '50px',
     height: '50px',
     position: 'fixed',
@@ -76,8 +73,12 @@ const ScrollToTopSection = styled('div')({
             animationPlayState: 'running',
             animationDuration: '0.8s',
         }
-    }
-})
+    },
+    [theme.breakpoints.down('md')]: {
+        width: '40px',
+        height: '40px',
+    },
+}))
 
 const StyledDoubleArrowIcon = styled(DoubleArrowIcon)({
     color: 'black',

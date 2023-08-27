@@ -53,7 +53,7 @@ const OrderStatus = ({ status }) => {
     }
 
     return (
-        <ShippingStatusSection id="ShippingStatusSection">
+        <OrderStatusSection id="OrderStatus">
             <Typography
                 fontSize="1.2em"
                 fontWeight="bold"
@@ -85,16 +85,19 @@ const OrderStatus = ({ status }) => {
                     }
                 </Stepper>
             </div>
-        </ShippingStatusSection>
+        </OrderStatusSection>
     )
 }
 
 export default OrderStatus
 
-const ShippingStatusSection = styled('div')(({ theme }) => ({
+const OrderStatusSection = styled('div')(({ theme }) => ({
     backgroundColor: 'white',
     padding: '35px 30px',
     height: 'fit-content',
+    [theme.breakpoints.down('sm')]: {
+        marginTop: '10px',
+    }
 }))
 
 const state_color = {

@@ -3,10 +3,9 @@ import { styled } from '@mui/material/styles'
 import { useSelector } from "react-redux"
 import PersonIcon from '@mui/icons-material/Person'
 import { useNavToRedirectLogin } from "../../../hooks/custom_hooks"
-import { CircularProgress } from "@mui/material"
+import { CircularProgress, Typography } from "@mui/material"
 import Tooltip from '@mui/material/Tooltip'
 import { useNavigate } from "react-router-dom"
-import { Stack } from '@mui/material'
 import { useTranslation } from "react-i18next"
 
 const UserNav = () => {
@@ -28,18 +27,18 @@ const UserNav = () => {
         isAuthenticated ? (
             <Tooltip title={t("Account")}>
                 <PersonIconWrapper onClick={() => handleAuthNavigate('account')}>
-                    <PersonIcon sx={{ fontSize: '1.8em', color: 'black' }} />
+                    <PersonIcon sx={{ fontSize: '1.8em' }} />
                 </PersonIconWrapper>
             </Tooltip>
         ) : !isAuthenticated && error ? (
-            <Stack flexDirection="row" alignItems="center">
+            <BtnContainer>
                 <AuthBtn onClick={() => handleAuthNavigate('login')}>
                     {t('Sign In')}
                 </AuthBtn>
-                <AuthBtn onClick={() => handleAuthNavigate('register')}>
+                <AuthBtn onClick={() => handleAuthNavigate('register')} className="SignUp">
                     {t('Sign Up')}
                 </AuthBtn>
-            </Stack>
+            </BtnContainer>
         ) :
             <CircularProgress
                 size={15}
@@ -51,21 +50,37 @@ const UserNav = () => {
 
 export default UserNav
 
-const AuthBtn = styled('span')(({ theme }) => ({
-    fontFamily: theme.fontFamily.nunito,
+const BtnContainer = styled('div')(({ theme }) => ({
+    display: 'flex',
+    alignItems: 'center',
+    color: 'black',
+    [theme.breakpoints.down('md')]: {
+        color: 'white',
+        '& .SignUp': {
+            display: "none",
+        }
+    },
+}))
+
+const AuthBtn = styled(Typography)(({ theme }) => ({
     fontSize: '1em',
     fontWeight: 'bold',
     cursor: 'pointer',
     textDecoration: 'unset',
     padding: '5px 15px',
     borderRadius: '10px',
+    color: 'inherit',
     '&:hover': {
         backgroundColor: 'black',
         color: 'white',
     },
+    [theme.breakpoints.down('md')]: {
+        backgroundColor: 'white',
+        color: 'black'
+    },
 }))
 
-const PersonIconWrapper = styled('span')({
+const PersonIconWrapper = styled('span')(({ theme }) => ({
     display: 'flex',
     alignItems: 'center',
     padding: '5px',
@@ -76,5 +91,11 @@ const PersonIconWrapper = styled('span')({
         '& svg': {
             color: 'white',
         }
+    },
+    '& svg': {
+        color: 'black',
+        [theme.breakpoints.down('md')]: {
+            color: 'white',
+        },
     }
-})
+}))

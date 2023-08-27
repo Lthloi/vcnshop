@@ -4,7 +4,7 @@ import SecBanner_1 from '../../assets/images/sec_banner_1.webp'
 import SecBanner_2 from '../../assets/images/sec_banner_2.webp'
 import SecBanner_3 from '../../assets/images/sec_banner_3.webp'
 import { useTheme } from "@emotion/react"
-import { Stack, Typography, Box } from "@mui/material"
+import { Typography, Box } from "@mui/material"
 import { useTranslation } from "react-i18next"
 
 const SecBanner = ({ banner, title, subtitle }) => {
@@ -12,15 +12,10 @@ const SecBanner = ({ banner, title, subtitle }) => {
     const { t } = useTranslation('home_page')
 
     return (
-        <Box
-            width="100%"
-            sx={{
-                backgroundImage: `url(${banner})`,
-                backgroundSize: 'contain',
-                backgroundRepeat: 'no-repeat',
-            }}
+        <SecBannerSection
+            sx={{ backgroundImage: `url(${banner})` }}
         >
-            <SecBannerSection>
+            <SecBannerContainer>
 
                 <Box
                     fontFamily={theme.fontFamily.kanit}
@@ -54,8 +49,8 @@ const SecBanner = ({ banner, title, subtitle }) => {
                     </AnimationText>
                 </AnimationTextContainer>
 
-            </SecBannerSection>
-        </Box>
+            </SecBannerContainer>
+        </SecBannerSection>
     )
 }
 
@@ -63,24 +58,40 @@ const SecBanners = () => {
     const { t } = useTranslation('home_page')
 
     return (
-        <Stack
-            flexDirection="row"
-            columnGap="30px"
-            width="100%"
-            marginTop="50px"
-            padding="0 50px"
-            boxSizing="border-box"
-        >
+        <SecBannersSection>
             <SecBanner banner={SecBanner_1} title={t('Woman')} subtitle={t('Spring 2021')} />
             <SecBanner banner={SecBanner_2} title={t('Man')} subtitle={t('Spring 2022')} />
             <SecBanner banner={SecBanner_3} title={t('Unisex')} subtitle={t('New Trend')} />
-        </Stack>
+        </SecBannersSection>
     )
 }
 
 export default SecBanners
 
-const SecBannerSection = styled('div')({
+const SecBannersSection = styled('div')(({ theme }) => ({
+    display: 'flex',
+    columnGap: "30px",
+    width: "100%",
+    marginTop: "50px",
+    padding: "0 50px",
+    boxSizing: "border-box",
+    [theme.breakpoints.down('md')]: {
+        flexDirection: "column",
+        rowGap: '20px',
+    },
+    [theme.breakpoints.down('sm')]: {
+        padding: "0 10px",
+    },
+}))
+
+const SecBannerSection = styled('div')(({ theme }) => ({
+    width: "100%",
+    backgroundSize: 'contain',
+    backgroundRepeat: 'no-repeat',
+    backgroundPosition: 'right bottom',
+}))
+
+const SecBannerContainer = styled('div')(({ theme }) => ({
     width: '100%',
     height: '250px',
     border: '1px rgba(0,0,0,.1) solid',
@@ -90,7 +101,6 @@ const SecBannerSection = styled('div')({
     transition: 'background-color 0.5s',
     backgroundColor: 'transparent',
     cursor: 'pointer',
-
     '&:hover': {
         backgroundColor: 'rgb(63,172,177,0.78)',
 
@@ -105,7 +115,10 @@ const SecBannerSection = styled('div')({
             }
         },
     },
-})
+    [theme.breakpoints.down('md')]: {
+        height: '250px',
+    },
+}))
 
 const AnimationTextContainer = styled('div')({
     height: '1.5em',
