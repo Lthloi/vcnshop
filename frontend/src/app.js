@@ -44,7 +44,7 @@ function App() {
             <Route path='/productDetail/:productId' element={<Product />} />
             <Route path='/search/:keyword' element={<SearchResult />} />
             <Route path='/account/*' element={<ProtectedRoute><Account /></ProtectedRoute>} />
-            <Route path='/admin/*' element={<ProtectedRoute isAdminRoute><Admin /></ProtectedRoute>} />
+            <Route path='/admin' element={<ProtectedRoute isAdminRoute><Admin /></ProtectedRoute>} />
             <Route path='/myStore/*' element={<ProtectedRoute><MyStore /></ProtectedRoute>} />
           </Route>
 

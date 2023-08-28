@@ -9,11 +9,12 @@ import PhoneIcon from '@mui/icons-material/Phone'
 import StoreIcon from '@mui/icons-material/Store'
 import Products from "../components/my_store/products"
 import ScrollToTopBtn from "../components/scroll_to_top_btn"
-import Orders from '../components/my_store/orders'
 import { useNavigate, Route, Routes } from "react-router-dom"
 import { useCurrentRoute } from "../hooks/custom_hooks"
 import ErrorIcon from '@mui/icons-material/Error'
+import Orders from '../components/my_store/orders'
 import ProductDetail from '../components/my_store/product_detail'
+import OrderDetail from '../components/my_store/order_detail'
 
 const GreetingSection = ({ greeting }) => {
     return (
@@ -126,10 +127,11 @@ const MyStore = () => {
 
                         <Main>
                             <Routes>
-                                <Route path="/Products/*" element={<Products shopId={shop._id} />} />
-                                <Route path="/Greeting" element={<GreetingSection greeting={shop.greeting} />} />
-                                <Route path="/Orders/*" element={<Orders />} />
+                                <Route path="/Products" element={<Products shopId={shop._id} />} />
                                 <Route path="/Product/:productId" element={<ProductDetail />} />
+                                <Route path="/Greeting" element={<GreetingSection greeting={shop.greeting} />} />
+                                <Route path="/Orders" element={<Orders />} />
+                                <Route path="/Order/:orderId" element={<OrderDetail />} />
                             </Routes>
                         </Main>
 

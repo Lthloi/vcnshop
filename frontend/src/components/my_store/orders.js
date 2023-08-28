@@ -5,7 +5,7 @@ import { getOrdersForShop } from '../../store/actions/order_actions'
 import StorageIcon from '@mui/icons-material/Storage'
 import ErrorIcon from '@mui/icons-material/Error'
 import { Skeleton } from "@mui/material"
-import Table from '@mui/material/Table'
+import TableMUI from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
 import TableCell, { tableCellClasses } from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
@@ -16,11 +16,10 @@ import LaunchIcon from '@mui/icons-material/Launch'
 import moment from "moment"
 import TableSortLabel from '@mui/material/TableSortLabel'
 import { Pagination, IconButton, Tooltip, Collapse, Typography, Box, Stack } from "@mui/material"
-import { useNavigate, Routes, Route } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
 import FilterAltIcon from '@mui/icons-material/FilterAlt'
-import OrderDetail from "./order_detail"
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
     [`&.${tableCellClasses.head}`]: {
@@ -28,7 +27,7 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
         color: theme.palette.common.white,
     },
     [`&.${tableCellClasses.body}`]: {
-        fontSize: 16,
+        fontSize: '1em',
     },
 }))
 
@@ -157,7 +156,7 @@ const PaymentStatusIndicator = ({ paymentStatus }) => {
     )
 }
 
-const RowComponent = ({ orderStatus, paymentStatus, createdAt, rowId, items, onViewOrder, totalPrice }) => {
+const Row = ({ orderStatus, paymentStatus, createdAt, rowId, items, onViewOrder, totalPrice }) => {
     const [openCollapse, setOpenCollapse] = useState(false)
 
     return (
@@ -238,13 +237,13 @@ const RowComponent = ({ orderStatus, paymentStatus, createdAt, rowId, items, onV
     )
 }
 
-const TableComponent = ({ orders, tableHeadRef, onViewOrder, onCreateSort, sort }) => {
+const Table = ({ orders, tableHeadRef, onViewOrder, onCreateSort, sort }) => {
 
     const handleOnViewOrder = (order_id) => onViewOrder(order_id)
 
     return (
         <TableContainer component={Paper} ref={tableHeadRef}>
-            <Table sx={{ minWidth: 700 }} aria-label="ProductsOfShop">
+            <TableMUI sx={{ minWidth: 700 }} aria-label="ProductsOfShop">
                 <TableHead>
                     <StyledTableRow>
                         <StyledTableCell></StyledTableCell>
@@ -289,7 +288,7 @@ const TableComponent = ({ orders, tableHeadRef, onViewOrder, onCreateSort, sort 
                 <TableBody>
                     {orders.map(({ order_status, payment_status, createdAt, items, _id, total_price }) => (
                         <React.Fragment key={_id}>
-                            <RowComponent
+                            <Row
                                 orderStatus={order_status}
                                 paymentStatus={payment_status}
                                 createdAt={createdAt}
@@ -301,7 +300,7 @@ const TableComponent = ({ orders, tableHeadRef, onViewOrder, onCreateSort, sort 
                         </React.Fragment>
                     ))}
                 </TableBody>
-            </Table>
+            </TableMUI>
         </TableContainer>
     )
 }
@@ -348,7 +347,7 @@ const OrdersSection = ({ option }) => {
     const dispatch = useDispatch()
 
     const handleViewOrder = useCallback((order_id) => {
-        navigate('/myStore/Orders/order/' + order_id)
+        navigate('/myStore/Order/' + order_id)
     }, [])
 
     const handleCreateSort = useCallback((label) => {
@@ -396,10 +395,8 @@ const OrdersSection = ({ option }) => {
                 <span>{error.message}</span>
             </Typography>
         ) : updated_orders && updated_orders.length > 0 ? (
-            <Box
-                marginTop="30px"
-            >
-                <TableComponent
+            <OrderTable>
+                <Table
                     tableHeadRef={table_head_ref}
                     orders={updated_orders}
                     sort={sort}
@@ -409,7 +406,10 @@ const OrdersSection = ({ option }) => {
 
                 {
                     option === 'All Orders' &&
-                    <div style={{ display: 'flex', justifyContent: 'center' }}>
+                    <Box
+                        display='flex'
+                        justifyContent='center'
+                    >
                         <Pages
                             count={get_number_of_pages(countOrders, maximum_number_of_orders)}
                             variant="outlined"
@@ -417,9 +417,9 @@ const OrdersSection = ({ option }) => {
                             onChange={switchPage}
                             page={currentPage}
                         />
-                    </div>
+                    </Box>
                 }
-            </Box>
+            </OrderTable>
         ) : (
             <EmptyHeading option={option} />
         )
@@ -442,9 +442,15 @@ const options = [
     },
 ]
 
-const OptionsAndOrders = () => {
+const maximum_number_of_orders = 10
+
+const Orders = () => {
     const [option, setOption] = useState('All Orders')
     const dispatch = useDispatch()
+
+    useEffect(() => {
+        dispatch(getOrdersForShop(maximum_number_of_orders, 1))
+    }, [dispatch])
 
     const switchOption = (title) => {
         if (title === option) return
@@ -460,17 +466,18 @@ const OptionsAndOrders = () => {
     }
 
     return (
-        <>
+        <div>
             <Stack
                 flexDirection="row"
                 justifyContent="space-between"
             >
                 <span></span>
-                <OptionsSection id="OptionsSection">
+                <OptionsSection>
 
                     <Typography
                         fontWeight="bold"
                         fontFamily="inherit"
+                        fontSize="1em"
                     >
                         Filter By Order Status:
                     </Typography>
@@ -500,31 +507,6 @@ const OptionsAndOrders = () => {
             <OrdersSection
                 option={option}
             />
-        </>
-    )
-}
-
-const maximum_number_of_orders = 10
-
-const Orders = () => {
-    const dispatch = useDispatch()
-
-    useEffect(() => {
-        dispatch(getOrdersForShop(maximum_number_of_orders, 1))
-    }, [dispatch])
-
-    return (
-        <div id="OrdersSection">
-            <Routes>
-                <Route
-                    path="/"
-                    element={
-                        <OptionsAndOrders />
-                    }
-                />
-
-                <Route path="/order/:orderId" element={<OrderDetail />} />
-            </Routes>
         </div>
     )
 }
@@ -537,6 +519,11 @@ const OptionsSection = styled('div')(({ theme }) => ({
     columnGap: '20px',
     marginTop: '20px',
     fontFamily: theme.fontFamily.nunito,
+    flexWrap: 'wrap',
+    rowGap: '5px',
+    [theme.breakpoints.down('sm')]: {
+        fontSize: '0.8em',
+    }
 }))
 
 const Option = styled('div')({
@@ -557,6 +544,13 @@ const Option = styled('div')({
         }
     }
 })
+
+const OrderTable = styled('div')(({ theme }) => ({
+    marginTop: "30px",
+    [theme.breakpoints.down('md')]: {
+        fontSize: '0.8em',
+    }
+}))
 
 const Product = styled('div')(({ theme }) => ({
     display: 'flex',

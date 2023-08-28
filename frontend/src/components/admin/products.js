@@ -1,16 +1,16 @@
 import React, { useMemo } from "react"
 import { styled } from '@mui/material/styles'
 import AutoIncreaAnimate from "../materials/auto_increa_animate"
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js"
+import { Chart as ChartJS, ArcElement, Tooltip as TooltipChartJs, Legend } from "chart.js"
 import { Doughnut } from "react-chartjs-2"
 import AllInboxIcon from '@mui/icons-material/AllInbox'
 import OutboxIcon from '@mui/icons-material/Outbox'
 import ErrorIcon from '@mui/icons-material/Error'
-import { Tooltip as TooltipMUI } from "@mui/material"
+import { Tooltip as TooltipMUI, Box, Typography } from "@mui/material"
 import ChartDataLabels from 'chartjs-plugin-datalabels'
 import CommentIcon from '@mui/icons-material/Comment'
 
-ChartJS.register(ArcElement, Tooltip, Legend, ChartDataLabels)
+ChartJS.register(ArcElement, TooltipChartJs, Legend, ChartDataLabels)
 
 const options = {
     responsive: true,
@@ -104,55 +104,83 @@ const Products = ({ products }) => {
 
     return (
         <ProductsSection id="ProductsSection">
-            <div style={{ width: '100%' }}>
-                <SectionTitle>Totals</SectionTitle>
+            <Box width='100%'>
+                <Title>Totals</Title>
                 <Note>
                     <ErrorIcon sx={{ fontSize: '1.2em', color: 'gray' }} />
                     <span>Display the totals up to now</span>
                 </Note>
-            </div>
-            <Sums>
+            </Box>
+
+            <Totals>
                 {
                     set_sums(products.length, count_stock_out_product, counted_reviews)
                         .map(({ label, icon, count }) => (
-                            <Sum key={label}>
-                                <SumContainer>
-                                    <IconWrapper>{icon}</IconWrapper>
+                            <Total key={label}>
+                                <div className="total_container">
+                                    <Box
+                                        padding='10px'
+                                        backgroundColor='black'
+                                        height='fit-content'
+                                        borderRadius='5px'
+                                    >
+                                        {icon}
+                                    </Box>
+
                                     <div>
-                                        <div style={{ marginBottom: '5px', color: 'gray' }}>
+                                        <Box
+                                            marginBottom='5px'
+                                            color='gray'
+                                        >
                                             {label}
-                                        </div>
-                                        <div style={{ textAlign: 'right', fontSize: '1.5em', fontWeight: 'bold' }}>
+                                        </Box>
+
+                                        <Box
+                                            textAlign='right'
+                                            fontSize='1.5em'
+                                            fontWeight='bold'
+                                        >
                                             <AutoIncreaAnimate number={count} />
-                                        </div>
+                                        </Box>
                                     </div>
-                                </SumContainer>
-                            </Sum>
+                                </div>
+                            </Total>
                         ))
                 }
-            </Sums>
-            <div
+            </Totals>
+
+            <Box
                 id="BarChartSection"
-                style={{ width: '100%', marginTop: '30px' }}
+                width='100%'
+                marginTop='30px'
             >
-                <SectionTitle>The Grouped Products</SectionTitle>
+                <Title>The Grouped Products</Title>
+
                 <Note>
                     <ErrorIcon sx={{ fontSize: '1.2em', color: 'gray' }} />
                     <span>Display the groups was grouped to Male and Female and Unisex</span>
                 </Note>
-                <div style={{ display: 'flex', columnGap: '30px', justifyContent: 'space-evenly' }}>
+
+                <Box
+                    display='flex'
+                    columnGap='30px'
+                    justifyContent='space-evenly'
+                >
                     <div>
                         <Doughnut
                             options={options}
                             data={set_chart_data(counted_product_groups)}
                         />
                     </div>
+
                     <Annotation>
                         {
                             gender_labels.map(({ label, backgroundColor, borderColor }) => (
                                 <GenderColorContainer key={label}>
                                     <GenderColor sx={{ backgroundColor, border: `1.5px ${borderColor} solid` }} />
+
                                     <span>{label}</span>
+
                                     <TooltipMUI title={`Number of the products for ${label}`}>
                                         <ErrorIcon sx={{ fontSize: '1.3em', color: 'gray' }} />
                                     </TooltipMUI>
@@ -160,8 +188,8 @@ const Products = ({ products }) => {
                             ))
                         }
                     </Annotation>
-                </div>
-            </div>
+                </Box>
+            </Box>
         </ProductsSection>
     )
 }
@@ -177,7 +205,7 @@ const ProductsSection = styled('div')(({ theme }) => ({
     boxSizing: 'border-box',
 }))
 
-const SectionTitle = styled('div')({
+const Title = styled('div')({
     backgroundColor: 'black',
     color: 'white',
     borderRadius: '10px',
@@ -189,38 +217,31 @@ const SectionTitle = styled('div')({
     boxSizing: 'border-box',
 })
 
-const Sums = styled('div')({
+const Totals = styled('div')({
     display: 'flex',
     columnGap: '20px',
     justifyContent: 'space-evenly',
     width: '100%',
+    flexWrap: 'wrap',
 })
 
-const Sum = styled('div')({
+const Total = styled('div')({
     padding: '20px',
     borderRadius: '10px',
     boxShadow: '0px 0px 3px gray',
     width: '230px',
     boxSizing: 'border-box',
+    '& .total_container': {
+        display: 'flex',
+        justifyContent: 'space-between',
+        paddingBottom: '20px',
+        columnGap: '30px',
+        borderBottom: '1px lightgrey solid',
+        borderRadius: '10px',
+    }
 })
 
-const SumContainer = styled('div')({
-    display: 'flex',
-    justifyContent: 'space-between',
-    paddingBottom: '20px',
-    columnGap: '30px',
-    borderBottom: '1px lightgrey solid',
-    borderRadius: '10px',
-})
-
-const IconWrapper = styled('div')({
-    padding: '10px',
-    backgroundColor: 'black',
-    height: 'fit-content',
-    borderRadius: '5px',
-})
-
-const Note = styled('div')({
+const Note = styled(Typography)({
     display: 'flex',
     alignItems: 'center',
     columnGap: '5px',
@@ -228,7 +249,6 @@ const Note = styled('div')({
     paddingLeft: '10px',
     marginBottom: '10px',
     '& span': {
-        fontFamily: '"Nunito", "sans-serif"',
         fontSize: '0.8em',
     }
 })

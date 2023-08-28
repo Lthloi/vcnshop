@@ -10,7 +10,6 @@ import HomeIcon from '@mui/icons-material/Home'
 import { NavLink } from "react-router-dom"
 import { Stack, Typography, Box } from "@mui/material"
 import category_background_image from '../../../assets/images/dropdown_menu.jpg'
-import { useTheme } from "@emotion/react"
 import { useTranslation } from "react-i18next"
 
 const clothing_subtitles = [
@@ -132,7 +131,6 @@ const Nav = ({ navInfo, navLabel }) => {
                 to={action}
                 className="animation-container"
             >
-
                 <div className="animation-wrapper">
                     <Stack
                         flexDirection="row"
@@ -140,7 +138,9 @@ const Nav = ({ navInfo, navLabel }) => {
                         columnGap="5px"
                     >
                         <IconOption>{icon}</IconOption>
+
                         <span>{navLabel}</span>
+
                         {
                             with_dropdown_menu &&
                             <Stack>
@@ -149,7 +149,6 @@ const Nav = ({ navInfo, navLabel }) => {
                         }
                     </Stack>
                 </div>
-
             </NavItem>
 
             {dropdown_menu}
@@ -158,7 +157,6 @@ const Nav = ({ navInfo, navLabel }) => {
 }
 
 const MenuBar = () => {
-    const theme = useTheme()
     const { t } = useTranslation('home_page')
 
     return (
@@ -169,7 +167,6 @@ const MenuBar = () => {
             justifyContent="space-around"
             position="relative"
             width="100%"
-            fontFamily={theme.fontFamily.nunito}
             bgcolor="black"
         >
             {
@@ -187,8 +184,9 @@ const MenuBar = () => {
 
 export default MenuBar
 
-const NavContainer = styled('div')({
+const NavContainer = styled('div')(({ theme }) => ({
     height: 'fit-content',
+    fontFamily: theme.fontFamily.nunito,
     '&:hover .dropdown_menu': {
         display: 'flex',
     },
@@ -199,7 +197,7 @@ const NavContainer = styled('div')({
     '&:hover .animation-wrapper , &:hover svg': {
         color: 'black',
     }
-})
+}))
 
 const NavItem = styled(NavLink)({
     display: 'block',

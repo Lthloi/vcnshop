@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { startTransition, useEffect, useState } from "react"
 import { styled } from '@mui/material/styles'
 import { useDispatch, useSelector } from 'react-redux'
 import { getOrdersByAdmin } from "../store/actions/order_actions"
@@ -10,11 +10,12 @@ import ListItemIcon from '@mui/material/ListItemIcon'
 import ListItemText from '@mui/material/ListItemText'
 import DashboardIcon from '@mui/icons-material/Dashboard'
 import Dashboard from "../components/admin/dashboard"
-import { Skeleton, Stack } from "@mui/material"
+import { Box, Skeleton, Stack, Typography, useMediaQuery } from "@mui/material"
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings'
 import AllInboxIcon from '@mui/icons-material/AllInbox'
 import Products from "../components/admin/products"
 import { getShopsByAdmin } from "../store/actions/shop_actions"
+import InfoIcon from '@mui/icons-material/Info'
 
 const style_for_icons = {
     is_active: {
@@ -57,7 +58,9 @@ const Admin = () => {
 
     const switchButton = (label_of_button) => {
         if (label_of_button === button) return
-        setButton(label_of_button)
+        startTransition(() => {
+            setButton(label_of_button)
+        })
     }
 
     if (user_error || order_error || product_error || shop_error)
@@ -71,33 +74,40 @@ const Admin = () => {
         )
 
     return (
-
         <AdminPageSection id="AdminPageSection">
-            <PageTitleContainer>
+            <PageTitle>
                 <AdminPanelSettingsIcon sx={{ fontSize: '1.8em' }} />
                 <Title>Admin</Title>
-            </PageTitleContainer>
-            <AdminSection>
-                <StyledList component="div">
-                    <ListTitle>
+            </PageTitle>
+
+            <Box
+                display='flex'
+                columnGap='30px'
+                marginTop='30px'
+                boxSizing='border-box'
+            >
+                <Navigation component="div">
+                    <NavigationLabel>
                         {button}
-                    </ListTitle>
+                    </NavigationLabel>
+
                     {
                         nav_options.map(({ label, icon }) => (
-                            <ListItemButtonWrapper
+                            <NavBtnWrapper
                                 key={label}
                                 sx={button === label ? { backgroundColor: 'white', color: 'black' } : { backgroundColor: 'rgb(53,53,59)' }}
                             >
-                                <StyledListItemButton onClick={() => switchButton(label)}>
+                                <NavButton onClick={() => switchButton(label)}>
                                     <ListItemIcon>
                                         {icon(button === label)}
                                     </ListItemIcon>
                                     <ListItemText primary={label} />
-                                </StyledListItemButton>
-                            </ListItemButtonWrapper>
+                                </NavButton>
+                            </NavBtnWrapper>
                         ))
                     }
-                </StyledList>
+                </Navigation>
+
                 {
                     users && orders && products ?
                         button === tabs.dashboard ? (
@@ -109,27 +119,65 @@ const Admin = () => {
                             />
                         ) : button === tabs.products && (
                             <Products products={products} />
-                        )
-                        :
+                        ) :
                         <Stack width="100%" boxSizing="border-box">
-                            <StyledSkeleton sx={{ height: '100px' }} />
-                            <StyledSkeleton sx={{ height: '380px', marginTop: '20px' }} />
+                            <Loading sx={{ height: '100px' }} />
+                            <Loading sx={{ height: '380px', marginTop: '20px' }} />
                         </Stack>
                 }
-            </AdminSection>
+            </Box>
         </AdminPageSection>
     )
 }
 
-export default Admin
+const ResponsiveAdmin = () => {
+    const matches_from_lg = useMediaQuery(theme => theme.breakpoints.up('lg'))
+
+    if (matches_from_lg)
+        return <Admin />
+
+    return (
+        <AdminPageSection id="AdminPageSection">
+            <PageTitle>
+                <AdminPanelSettingsIcon sx={{ fontSize: '1.8em' }} />
+                <Title>Admin</Title>
+            </PageTitle>
+
+            <Stack
+                width="100%"
+                padding="10px"
+                boxSizing="border-box"
+                alignItems="center"
+            >
+                <Typography
+                    fontSize="1.2em"
+                    fontWeight="bold"
+                    marginTop="30px"
+                    width="fit-content"
+                >
+                    <InfoIcon sx={{ float: 'left', paddingRight: '10px' }} />
+                    You can't access this page on mobile devices.
+                    Let's try to change your device or set the size of browser's screen to bigger.
+                </Typography>
+            </Stack>
+        </AdminPageSection>
+    )
+}
+
+export default ResponsiveAdmin
 
 const Error = styled('div')(({ theme }) => ({
+    display: 'flex',
+    flexDirection: 'column',
+    rowGap: '10px',
     fontFamily: theme.fontFamily.nunito,
     padding: '20px',
     width: '100%',
     boxSizing: 'border-box',
     textAlign: 'center',
     color: 'red',
+    fontWeight: 'bold',
+    marginTop: '20px',
 }))
 
 const AdminPageSection = styled('div')(({ theme }) => ({
@@ -137,7 +185,7 @@ const AdminPageSection = styled('div')(({ theme }) => ({
     padding: '30px 40px',
 }))
 
-const PageTitleContainer = styled('div')({
+const PageTitle = styled('div')({
     display: 'flex',
     alignItems: 'center',
     columnGap: '10px',
@@ -145,20 +193,13 @@ const PageTitleContainer = styled('div')({
     paddingLeft: '10px',
 })
 
-const Title = styled('h2')({
+const Title = styled('h2')(({ theme }) => ({
     margin: '0',
-    fontFamily: 'Kanit, "sans-serif"',
     fontSize: '1.8em',
-})
+    fontFamily: theme.fontFamily.kanit,
+}))
 
-const AdminSection = styled('div')({
-    display: 'flex',
-    columnGap: '30px',
-    marginTop: '30px',
-    boxSizing: 'border-box',
-})
-
-const ListTitle = styled('h2')({
+const NavigationLabel = styled('h2')({
     margin: '0',
     fontSize: '1.5em',
     fontWeight: 'bold',
@@ -169,7 +210,7 @@ const ListTitle = styled('h2')({
     marginBottom: '20px',
 })
 
-const StyledList = styled(List)({
+const Navigation = styled(List)({
     width: '25%',
     padding: '30px 20px',
     backgroundColor: 'rgb(53,53,59)',
@@ -177,7 +218,7 @@ const StyledList = styled(List)({
     borderRadius: '5px',
 })
 
-const ListItemButtonWrapper = styled('div')({
+const NavBtnWrapper = styled('div')({
     marginTop: '10px',
     borderRadius: '5px',
     border: '1px lightgrey solid',
@@ -187,13 +228,13 @@ const ListItemButtonWrapper = styled('div')({
     },
 })
 
-const StyledListItemButton = styled(ListItemButton)({
+const NavButton = styled(ListItemButton)({
     '& .MuiListItemIcon-root': {
         minWidth: '40px',
     },
 })
 
-const StyledSkeleton = styled(Skeleton)({
+const Loading = styled(Skeleton)({
     transform: 'none',
     width: '100%',
 })

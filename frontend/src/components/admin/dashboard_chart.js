@@ -11,6 +11,7 @@ import {
 import { Bar as BarChartJs2 } from "react-chartjs-2"
 import Select from '@mui/material/Select'
 import moment from "moment"
+import { Box } from '@mui/material'
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip)
 
@@ -101,11 +102,16 @@ const Chart = ({ users, orders, shops }) => {
     }
 
     return (
-        <div style={{ width: '100%' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', margin: '10px 0' }}>
+        <Box width='100%'>
+            <Box
+                display='flex'
+                justifyContent='space-between'
+                margin='10px 0'
+            >
                 <span></span>
                 <PickYearContainer>
                     <span>Display The Results In</span>
+
                     <Select
                         native
                         onChange={switchYear}
@@ -118,13 +124,14 @@ const Chart = ({ users, orders, shops }) => {
                         <option value={`${year + 2}`}>{year + 2}</option>
                     </Select>
                 </PickYearContainer>
-            </div>
+            </Box>
+
             <BarChartJs2
                 data={set_data(counted_orders, counted_users, counted_shops)}
                 options={options}
                 updateMode="active"
             />
-        </div>
+        </Box>
     )
 }
 

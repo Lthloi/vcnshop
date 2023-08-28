@@ -9,7 +9,7 @@ import PaidIcon from '@mui/icons-material/Paid'
 import InventoryIcon from '@mui/icons-material/Inventory'
 import LocalShippingIcon from '@mui/icons-material/LocalShipping'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
-import { StepConnector, stepConnectorClasses } from "@mui/material"
+import { StepConnector, stepConnectorClasses, Box } from "@mui/material"
 
 const icon_style = { fontSize: '1.8em' }
 
@@ -63,7 +63,8 @@ const OrderStatus = ({ status }) => {
             >
                 Order Status
             </Typography>
-            <div style={{ marginTop: '20px' }}>
+
+            <Box marginTop='20px'>
                 <Stepper
                     activeStep={getActiveStep(status)}
                     orientation="vertical"
@@ -84,7 +85,7 @@ const OrderStatus = ({ status }) => {
                         ))
                     }
                 </Stepper>
-            </div>
+            </Box>
         </OrderStatusSection>
     )
 }
